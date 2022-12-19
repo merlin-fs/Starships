@@ -20,7 +20,6 @@ namespace Game.Model.Weapons
 
         [Optional] readonly RefRO<Bullet> m_Bullet;
 
-
         [CreateProperty]
         public Bullet Bullet => m_Bullet.IsValid ? m_Bullet.ValueRO : default;
 
@@ -38,11 +37,12 @@ namespace Game.Model.Weapons
             set => m_Weapon.ValueRW.Time = value;
         }
 
-        public void Reload(EntityCommandBuffer.ParallelWriter writer, int sortKey)
+        public void Reload(IDefineableContext context)
         {
             if (m_Bullet.IsValid)
-                Config.Bullet.Value.RemoveComponentData(Self, writer, sortKey, m_Bullet.ValueRO);
-            Config.Bullet.Value.AddComponentData(Self, writer, sortKey);
+                Config.Bullet.Value.RemoveComponentData(Self, context, m_Bullet.ValueRO);
+
+            Config.Bullet.Value.AddComponentData(Self, context);
         }
     }
 
@@ -84,8 +84,6 @@ namespace Game.Model.Weapons
 
         }
         #endregion
-
-        //public void Add
 
         /// <summary>
         /// Состояние оружия

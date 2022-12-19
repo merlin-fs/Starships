@@ -22,7 +22,7 @@ namespace Common.Defs
     public static class DefExt
     {
         #region DefineableContexts
-        private struct EntityManagerContext: IDefineableContext
+        public struct EntityManagerContext: IDefineableContext
         {
             private EntityManager m_Manager;
 
@@ -52,9 +52,26 @@ namespace Common.Defs
             {
                 def.AddComponentData(entity, m_Manager);
             }
+
+            public void RemoveComponentData(IDef def, Entity entity, object data = null)
+            {
+                def.RemoveComponentData(entity, m_Manager, data);
+            }
+
+            public T GetAspect<T>(Entity entity) 
+                where T : struct, IAspect, IAspectCreate<T>
+            {
+                return m_Manager.GetAspect<T>(entity);
+            }
+            
+            public T GetAspectRO<T>(Entity entity)
+                where T : struct, IAspect, IAspectCreate<T>
+            {
+                return m_Manager.GetAspectRO<T>(entity);
+            }
         }
 
-        private struct IBakerContext : IDefineableContext
+        public struct IBakerContext : IDefineableContext
         {
             private readonly IBaker m_Manager;
 
@@ -83,9 +100,24 @@ namespace Common.Defs
             {
                 def.AddComponentData(entity, m_Manager);
             }
+            public void RemoveComponentData(IDef def, Entity entity, object data = null)
+            {
+                throw new NotImplementedException();
+            }
+            public T GetAspect<T>(Entity entity)
+                where T : struct, IAspect, IAspectCreate<T>
+            {
+                throw new NotImplementedException();
+            }
+
+            public T GetAspectRO<T>(Entity entity)
+                where T : struct, IAspect, IAspectCreate<T>
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        private struct WriterContext : IDefineableContext
+        public struct WriterContext : IDefineableContext
         {
             private EntityCommandBuffer.ParallelWriter m_Manager;
             private readonly int m_SortKey;
@@ -116,6 +148,23 @@ namespace Common.Defs
             {
                 def.AddComponentData(entity, m_Manager, m_SortKey);
             }
+            public void RemoveComponentData(IDef def, Entity entity, object data = null)
+            {
+                def.RemoveComponentData(entity, m_Manager, m_SortKey, data);
+            }
+
+            public T GetAspect<T>(Entity entity)
+                where T : struct, IAspect, IAspectCreate<T>
+            {
+                throw new NotImplementedException();
+            }
+
+            public T GetAspectRO<T>(Entity entity)
+                where T : struct, IAspect, IAspectCreate<T>
+            {
+                throw new NotImplementedException();
+            }
+
         }
         #endregion
         public static void AddComponentData(this IDef self, Entity entity, IDefineableContext context)
@@ -145,6 +194,11 @@ namespace Common.Defs
             if (data is IDefineableCallback callback)
                 callback.AddComponentData(entity, new WriterContext(writer, sortKey));
             writer.AddComponentIData(entity, ref data, sortKey);
+        }
+
+        public static void RemoveComponentData(this IDef self, Entity entity, IDefineableContext context, object data = null)
+        {
+            context.RemoveComponentData(self, entity, data);
         }
 
         public static void RemoveComponentData(this IDef self, Entity entity, EntityCommandBuffer.ParallelWriter writer, int sortKey, object data = null)

@@ -1,8 +1,7 @@
-﻿using Common.Defs;
-using System;
+﻿using System;
 using UnityEngine;
 
-namespace Game.Model
+namespace Game.Model.Weapons
 {
     [CreateAssetMenu(fileName = "Bullet", menuName = "Configs/Bullet")]
     public class BulletConfig: ScriptableObject

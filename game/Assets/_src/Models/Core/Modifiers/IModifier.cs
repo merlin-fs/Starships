@@ -9,15 +9,57 @@ namespace Game.Model.Stats
         public readonly Entity Self;
 
         public readonly DynamicBuffer<Modifier> Items;
+
+        public void Estimation(ref Stat stat, float delta)
+        {
+            foreach (var item in Items)
+            {
+                if (item.Active && item.TypeID == stat.TypeID && item.ID == stat.ID)
+                {
+                    item.Estimation(Self, ref stat.Value, delta);
+                }
+            }
+        }
+
+        public void AddModifier<T>(T modifier, Enum statType, out int id)
+            where T : IModifier
+        {
+            var items = Items;
+            var mod = new Modifier(modifier.Estimation, statType)
+            {
+                Active = true,
+            };
+            id = FindFreeItem();
+            if (id < 0)
+                id = items.Add(mod);
+            else
+                items[id] = mod;
+        }
+
+        public void DelModifier(int id)
+        {
+            var items = Items;
+            items[id] = new Modifier() { Active = false };
+        }
+
+        private int FindFreeItem()
+        {
+            for (int i = 0; i < Items.Length; i++)
+            {
+                if (!Items[i].Active)
+                    return i;
+            }
+            return -1;
+        }
     }
-    
+
     public interface IModifier
     {
-        public delegate void Execute(TimeSpan delta, ref StatValue stat);
+        public delegate void Execute(Entity entity, ref StatValue stat, float delta);
         
-        void Estimation(TimeSpan delta, ref StatValue stat);
-        void Attach(DynamicBuffer<Modifier> buff);
-        void Dettach(DynamicBuffer<Modifier> buff);
+        void Estimation(Entity entity, ref StatValue stat, float delta);
+        void Attach(Entity entity);
+        void Dettach(Entity entity);
     }
 
     public struct ModifiersInfo : IComponentData
@@ -27,47 +69,35 @@ namespace Game.Model.Stats
 
     public struct Modifier : IBufferElementData
     {
-        public TypeIndex TypeIndex;
+        public bool Active;
         public int TypeID;
         public int ID;
         Unity.Burst.FunctionPointer<IModifier.Execute> m_Method;
 
-        public Modifier(IModifier.Execute estimation, Enum stat, TypeIndex typeIndex)
+        public Modifier(IModifier.Execute estimation, Enum stat)
         {
             TypeID = stat.GetType().GetHashCode();
             ID = stat.GetHashCode();
             m_Method = new Unity.Burst.FunctionPointer<IModifier.Execute>(Marshal.GetFunctionPointerForDelegate(estimation));
-            TypeIndex = typeIndex;
+            Active = false;
         }
 
-        private static bool Find(DynamicBuffer<Modifier> buff, Modifier modifier, out int index)
+        public void Estimation(Entity entity, ref StatValue stat, float delta)
         {
-            index = 0;
-            foreach (var iter in buff)
-            {
-                if (iter.TypeIndex == modifier.TypeIndex)
-                    return true;
-                index++;
-            }
-            return false;
+            m_Method.Invoke(entity, ref stat, delta);
         }
 
-        public static void AddModifier<T>(DynamicBuffer<Modifier> buff, T modifier, Enum stat, out int id)
+        public static void AddModifier<T>(Entity entity, T modifier, Enum statType, out int id)
             where T : IModifier
         {
-            var mod = new Modifier(modifier.Estimation, stat, TypeManager.GetTypeIndex(typeof(T)))
-            {
-            };
-
-            if (Find(buff, mod, out id))
-                buff[id] = mod;
-            else
-                id = buff.Add(mod);
+            var aspect = World.DefaultGameObjectInjectionWorld.EntityManager.GetAspect<ModifiersAspect>(entity);
+            aspect.AddModifier(modifier, statType, out id);
         }
 
-        public static void DelModifier(DynamicBuffer<Modifier> buff, int id)
+        public static void DelModifier(Entity entity, int id)
         {
-            buff.RemoveAt(id);
+            var aspect = World.DefaultGameObjectInjectionWorld.EntityManager.GetAspectRO<ModifiersAspect>(entity);
+            aspect.DelModifier(id);
         }
     }
 }

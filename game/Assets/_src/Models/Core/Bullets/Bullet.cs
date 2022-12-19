@@ -4,25 +4,16 @@ using Unity.Entities;
 using Unity.Serialization;
 using Unity.Properties;
 
-namespace Game.Model
+namespace Game.Model.Weapons
 {
-    using Weapons;
     using Stats;
-    using System.Xml;
 
-
-    [ChunkSerializable]
     public unsafe struct Bullet: IModifier, IDefineable, IComponentData, IDefineableCallback
     {
+        [DontSerialize]
         private readonly Def<Config> m_Config;
 
-        [DontSerialize]
         private int m_Mod_id;
-
-        static Bullet()
-        {
-            ModifierSystem.Registry<Bullet>();
-        }
 
         public Bullet(Def<Config> config)
         {
@@ -30,36 +21,35 @@ namespace Game.Model
             m_Mod_id = -1;
         }
 
-        [CreateProperty]
+        [CreateProperty] 
         public float Multiplier => m_Config.Value.Multiplier;
-
-        public void Estimation(TimeSpan delta, ref StatValue stat)
+        #region IModifier
+        public void Estimation(Entity entity, ref StatValue stat, float delta)
         {
             stat.Value *= Multiplier;
         }
 
-        public void Attach(DynamicBuffer<Modifier> buff)
+        public void Attach(Entity entity)
         {
-            Modifier.AddModifier(buff, this, Weapon.Stats.Damage, out m_Mod_id);
+            Modifier.AddModifier(entity, this, Weapon.Stats.Damage, out m_Mod_id);
         }
 
-        public void Dettach(DynamicBuffer<Modifier> buff)
+        public void Dettach(Entity entity)
         {
-            Modifier.DelModifier(buff, m_Mod_id);
+            Modifier.DelModifier(entity, m_Mod_id);
         }
-
+        #endregion
+        #region IDefineableCallback
         void IDefineableCallback.AddComponentData(Entity entity, IDefineableContext context)
         {
-            var modifiers = World.DefaultGameObjectInjectionWorld.EntityManager.GetAspect<ModifiersAspect>(entity);
-            Attach(modifiers.Items);
+            Attach(entity);
         }
 
         void IDefineableCallback.RemoveComponentData(Entity entity, IDefineableContext context)
         {
-            var modifiers = World.DefaultGameObjectInjectionWorld.EntityManager.GetAspect<ModifiersAspect>(entity);
-            Dettach(modifiers.Items);
+            Dettach(entity);
         }
-
+        #endregion
         [Serializable]
         public class Config : IDef<Bullet>
         {
