@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Linq;
 using Unity.Entities;
 using System.Runtime.InteropServices;
-using System.Globalization;
 
 namespace Common.Defs
 {
@@ -53,21 +52,10 @@ namespace Common.Defs
                 def.AddComponentData(entity, m_Manager);
             }
 
-            public void RemoveComponentData(IDef def, Entity entity, object data = null)
+            public void RemoveComponentData<T>(IDef<T> def, Entity entity, T data) 
+                where T : IDefineable
             {
                 def.RemoveComponentData(entity, m_Manager, data);
-            }
-
-            public T GetAspect<T>(Entity entity) 
-                where T : struct, IAspect, IAspectCreate<T>
-            {
-                return m_Manager.GetAspect<T>(entity);
-            }
-            
-            public T GetAspectRO<T>(Entity entity)
-                where T : struct, IAspect, IAspectCreate<T>
-            {
-                return m_Manager.GetAspectRO<T>(entity);
             }
         }
 
@@ -100,18 +88,8 @@ namespace Common.Defs
             {
                 def.AddComponentData(entity, m_Manager);
             }
-            public void RemoveComponentData(IDef def, Entity entity, object data = null)
-            {
-                throw new NotImplementedException();
-            }
-            public T GetAspect<T>(Entity entity)
-                where T : struct, IAspect, IAspectCreate<T>
-            {
-                throw new NotImplementedException();
-            }
-
-            public T GetAspectRO<T>(Entity entity)
-                where T : struct, IAspect, IAspectCreate<T>
+            public void RemoveComponentData<T>(IDef<T> def, Entity entity, T data)
+                where T : IDefineable
             {
                 throw new NotImplementedException();
             }
@@ -148,23 +126,11 @@ namespace Common.Defs
             {
                 def.AddComponentData(entity, m_Manager, m_SortKey);
             }
-            public void RemoveComponentData(IDef def, Entity entity, object data = null)
+            public void RemoveComponentData<T>(IDef<T> def, Entity entity, T data)
+                where T : IDefineable
             {
                 def.RemoveComponentData(entity, m_Manager, m_SortKey, data);
             }
-
-            public T GetAspect<T>(Entity entity)
-                where T : struct, IAspect, IAspectCreate<T>
-            {
-                throw new NotImplementedException();
-            }
-
-            public T GetAspectRO<T>(Entity entity)
-                where T : struct, IAspect, IAspectCreate<T>
-            {
-                throw new NotImplementedException();
-            }
-
         }
         #endregion
         public static void AddComponentData(this IDef self, Entity entity, IDefineableContext context)
@@ -196,12 +162,14 @@ namespace Common.Defs
             writer.AddComponentIData(entity, ref data, sortKey);
         }
 
-        public static void RemoveComponentData(this IDef self, Entity entity, IDefineableContext context, object data = null)
+        public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, IDefineableContext context, T data)
+            where T : IDefineable
         {
             context.RemoveComponentData(self, entity, data);
         }
 
-        public static void RemoveComponentData(this IDef self, Entity entity, EntityCommandBuffer.ParallelWriter writer, int sortKey, object data = null)
+        public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityCommandBuffer.ParallelWriter writer, int sortKey, T data)
+            where T : IDefineable
         {
             var (target, _) = GetTargetType(self);
             writer.RemoveComponentIData(entity, target, sortKey);
@@ -210,7 +178,8 @@ namespace Common.Defs
                 callback.RemoveComponentData(entity, new WriterContext(writer, sortKey));
         }
 
-        public static void RemoveComponentData(this IDef self, Entity entity, EntityManager manager, object data = null)
+        public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityManager manager, T data) 
+            where T : IDefineable  
         {
             var (target, _) = GetTargetType(self);
             manager.RemoveComponentIData(entity, target);

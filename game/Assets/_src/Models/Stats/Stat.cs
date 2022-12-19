@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Game.Model.Stats
 {
@@ -36,8 +37,7 @@ namespace Game.Model.Stats
     [Serializable]
     public struct Stat : IBufferElementData
     {
-        public int TypeID;
-        public int ID;
+        public int StatID;
         public StatValue Value;
 
         public static unsafe void AddStat(DynamicBuffer<Stat> buff, Enum value, StatValue* stat = null)
@@ -61,8 +61,7 @@ namespace Game.Model.Stats
 
         private Stat(Enum value)
         {
-            TypeID = value.GetType().GetHashCode();
-            ID = value.GetHashCode();
+            StatID = new int2(value.GetType().GetHashCode(), value.GetHashCode()).GetHashCode();
             Value = StatValue.Default;
         }
 

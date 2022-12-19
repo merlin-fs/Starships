@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Game.Model.Stats
 {
@@ -14,42 +17,51 @@ namespace Game.Model.Stats
         {
             foreach (var item in Items)
             {
-                if (item.Active && item.TypeID == stat.TypeID && item.ID == stat.ID)
+                if (item.Active && item.StatID == stat.StatID)
                 {
                     item.Estimation(Self, ref stat.Value, delta);
                 }
             }
         }
 
-        public void AddModifier<T>(T modifier, Enum statType, out int id)
-            where T : IModifier
+        public void AddModifier(Modifier modifier)
         {
             var items = Items;
-            var mod = new Modifier(modifier.Estimation, statType)
-            {
-                Active = true,
-            };
-            id = FindFreeItem();
+            var id = FindFreeItem();
             if (id < 0)
-                id = items.Add(mod);
+                items.Add(modifier);
             else
-                items[id] = mod;
+                items[id] = modifier;
+
+            int FindFreeItem()
+            {
+                for (int i = 0; i < items.Length; i++)
+                {
+                    if (!items[i].Active)
+                        return i;
+                }
+                return -1;
+            }
         }
 
-        public void DelModifier(int id)
+        public void DelModifier(int uid)
         {
             var items = Items;
+            var id = FindFreeItem();
+            if (id < 0)
+                return;
+            
             items[id] = new Modifier() { Active = false };
-        }
 
-        private int FindFreeItem()
-        {
-            for (int i = 0; i < Items.Length; i++)
+            int FindFreeItem()
             {
-                if (!Items[i].Active)
-                    return i;
+                for (int i = 0; i < items.Length; i++)
+                {
+                    if (items[i].UID == uid)
+                        return i;
+                }
+                return -1;
             }
-            return -1;
         }
     }
 
@@ -62,24 +74,19 @@ namespace Game.Model.Stats
         void Dettach(Entity entity);
     }
 
-    public struct ModifiersInfo : IComponentData
-    {
-        public int Count;
-    }
-
     public struct Modifier : IBufferElementData
     {
         public bool Active;
-        public int TypeID;
-        public int ID;
-        Unity.Burst.FunctionPointer<IModifier.Execute> m_Method;
+        public int StatID;
+        public int UID;
+        private readonly Unity.Burst.FunctionPointer<IModifier.Execute> m_Method;
 
-        public Modifier(IModifier.Execute estimation, Enum stat)
+        public Modifier(IModifier.Execute estimation, int uid, Enum stat)
         {
-            TypeID = stat.GetType().GetHashCode();
-            ID = stat.GetHashCode();
+            UID = uid;
+            StatID = new int2(stat.GetType().GetHashCode(), stat.GetHashCode()).GetHashCode();
             m_Method = new Unity.Burst.FunctionPointer<IModifier.Execute>(Marshal.GetFunctionPointerForDelegate(estimation));
-            Active = false;
+            Active = true;
         }
 
         public void Estimation(Entity entity, ref StatValue stat, float delta)
@@ -87,17 +94,17 @@ namespace Game.Model.Stats
             m_Method.Invoke(entity, ref stat, delta);
         }
 
-        public static void AddModifier<T>(Entity entity, T modifier, Enum statType, out int id)
-            where T : IModifier
+        public static unsafe int AddModifier<T>(Entity entity, T modifier, Enum statType)
+            where T : struct, IModifier
         {
-            var aspect = World.DefaultGameObjectInjectionWorld.EntityManager.GetAspect<ModifiersAspect>(entity);
-            aspect.AddModifier(modifier, statType, out id);
+            int uid = new IntPtr(UnsafeUtility.AddressOf<T>(ref modifier)).ToInt32();
+            ModifiersSystem.Instance.AddModifier(entity, modifier, uid, statType);
+            return uid;
         }
 
-        public static void DelModifier(Entity entity, int id)
+        public static void DelModifier(Entity entity, int uid)
         {
-            var aspect = World.DefaultGameObjectInjectionWorld.EntityManager.GetAspectRO<ModifiersAspect>(entity);
-            aspect.DelModifier(id);
+            ModifiersSystem.Instance.DelModifier(entity, uid);
         }
     }
 }

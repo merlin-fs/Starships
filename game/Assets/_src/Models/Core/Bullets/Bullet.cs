@@ -13,12 +13,12 @@ namespace Game.Model.Weapons
         [DontSerialize]
         private readonly Def<Config> m_Config;
 
-        private int m_Mod_id;
+        private int m_ModUid;
 
         public Bullet(Def<Config> config)
         {
             m_Config = config;
-            m_Mod_id = -1;
+            m_ModUid = -1;
         }
 
         [CreateProperty] 
@@ -31,12 +31,12 @@ namespace Game.Model.Weapons
 
         public void Attach(Entity entity)
         {
-            Modifier.AddModifier(entity, this, Weapon.Stats.Damage, out m_Mod_id);
+            m_ModUid = Modifier.AddModifier(entity, this, Weapon.Stats.Damage);
         }
 
         public void Dettach(Entity entity)
         {
-            Modifier.DelModifier(entity, m_Mod_id);
+            Modifier.DelModifier(entity, m_ModUid);
         }
         #endregion
         #region IDefineableCallback

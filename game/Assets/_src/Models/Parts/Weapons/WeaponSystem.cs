@@ -1,9 +1,6 @@
 using System;
 using Unity.Entities;
 using Common.Defs;
-using Game.Model.Stats;
-using static UnityEngine.EventSystems.EventTrigger;
-using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
 namespace Game.Model.Weapons
@@ -42,7 +39,6 @@ namespace Game.Model.Weapons
                 weapon.Time += Delta;
                 if (weapon.Time >= weapon.Config.ReloadTime.Value)
                 {
-                    //weapon.Reload(new DefExt.EntityManagerContext(Manager));//, entityIndexInQuery
                     weapon.Reload(new DefExt.WriterContext(Writer, entityIndexInQuery));
                     weapon.Time = 0;
                 }

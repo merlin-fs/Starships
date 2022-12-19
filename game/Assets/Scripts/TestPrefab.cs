@@ -59,7 +59,7 @@ public class TestPrefab : MonoBehaviour
             ComponentType.ReadOnly<Modifier>()
             );
 
-        using NativeArray<Entity> entities = m_EntityManager.CreateEntity(Archetype, 10, Allocator.Temp);
+        using NativeArray<Entity> entities = m_EntityManager.CreateEntity(Archetype, 1, Allocator.Temp);
         foreach(var entity in entities)
         {
             weaponConfig.Value.AddComponentData(entity, m_EntityManager);

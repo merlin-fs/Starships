@@ -30,16 +30,17 @@ namespace Game.Model.Stats
         {
             public uint LastSystemVersion;
             public float Delta;
-            void Execute(in DynamicBuffer<Stat> _stats, in DynamicBuffer<Modifier> _aspect)
+            void Execute(ref DynamicBuffer<Stat> _stats, in ModifiersAspect _aspect)
             {
-                //var aspect = _aspect;
+                var aspect = _aspect;
                 var stats = _stats;
                 var delta = Delta;
+                
                 for ( var i = 0; i < stats.Length; i++)
                 {
-                    //Change(i);
+                    Change(i);
                 }
-
+                
                 /*
                 Parallel.For(0, stats.Length,
                     (i) =>
@@ -47,11 +48,10 @@ namespace Game.Model.Stats
                         Change(i);
                     });
                 */
-
                 void Change(int i)
                 {
                     var stat = stats[i];
-                    //aspect.Estimation(ref stat, delta);
+                    aspect.Estimation(ref stat, delta);
                     stats[i] = stat;
                 }
             }
