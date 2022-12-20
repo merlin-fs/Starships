@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 using Unity.Collections.LowLevel.Unsafe;
@@ -48,10 +49,12 @@ namespace Game.Model.Stats
         {
             var items = Items;
             var id = FindFreeItem();
+            UnityEngine.Debug.Log($"DelModifier {id}");
+
             if (id < 0)
                 return;
             
-            items[id] = new Modifier() { Active = false };
+            items[id] = new Modifier(false);
 
             int FindFreeItem()
             {
@@ -89,16 +92,24 @@ namespace Game.Model.Stats
             Active = true;
         }
 
+        public Modifier(bool _ = false)
+        {
+            UID = -1;
+            StatID = -1;
+            m_Method = default;
+            Active = false;
+        }
+
         public void Estimation(Entity entity, ref StatValue stat, float delta)
         {
             m_Method.Invoke(entity, ref stat, delta);
         }
 
-        public static unsafe int AddModifier<T>(Entity entity, T modifier, Enum statType)
+        public static unsafe int AddModifier<T>(Entity entity, ref T modifier, Enum statType)
             where T : struct, IModifier
         {
             int uid = new IntPtr(UnsafeUtility.AddressOf<T>(ref modifier)).ToInt32();
-            ModifiersSystem.Instance.AddModifier(entity, modifier, uid, statType);
+            ModifiersSystem.Instance.AddModifier(entity, ref modifier, uid, statType);
             return uid;
         }
 

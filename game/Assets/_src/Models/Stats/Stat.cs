@@ -7,15 +7,37 @@ namespace Game.Model.Stats
     [Serializable]
     public struct StatValue
     {
-        public float Min;
-        public float Max;
-        public float Value;
-        public float Normalize;
+        public struct ValueStruct
+        {
+            public float Min;
+            public float Max;
+            public float Value;
+            public float Normalize;
+        }
+        
+        private ValueStruct m_Original;
+        private ValueStruct m_Value;
+
+        public float Min { get => m_Value.Min; set => m_Value.Min = value; }
+        public float Max { get => m_Value.Max; set => m_Value.Max = value; }
+        public float Value { get => m_Value.Value; set => m_Value.Value = value; }
+        public float Normalize { get => m_Value.Normalize; set => m_Value.Normalize = value; }
+
+        public ValueStruct Original => m_Original;
         #region extension
+
         public static implicit operator StatValue(float value)
         {
             return new StatValue()
             {
+                m_Original = new ValueStruct()
+                {
+                    Min = 0,
+                    Max = value,
+                    Value = value,
+                    Normalize = 1f,
+                },
+
                 Min = 0,
                 Max = value,
                 Value = value,

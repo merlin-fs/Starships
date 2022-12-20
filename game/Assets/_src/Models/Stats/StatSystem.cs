@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Unity.Entities;
-using Unity.Entities.UniversalDelegates;
+
+using UnityEngine;
 
 namespace Game.Model.Stats
 {
@@ -9,6 +10,7 @@ namespace Game.Model.Stats
     public partial struct StatSystem : ISystem
     {
         EntityQuery m_Query;
+        float m_Time;
 
         public void OnCreate(ref SystemState state)
         {
@@ -30,7 +32,7 @@ namespace Game.Model.Stats
         {
             public uint LastSystemVersion;
             public float Delta;
-            void Execute(ref DynamicBuffer<Stat> _stats, in ModifiersAspect _aspect)
+            void Execute(in Entity entity, ref DynamicBuffer<Stat> _stats, in ModifiersAspect _aspect)
             {
                 var aspect = _aspect;
                 var stats = _stats;
@@ -41,6 +43,7 @@ namespace Game.Model.Stats
                     Change(i);
                 }
                 
+
                 /*
                 Parallel.For(0, stats.Length,
                     (i) =>
@@ -59,10 +62,17 @@ namespace Game.Model.Stats
 
         public void OnUpdate(ref SystemState state)
         {
+            var delta = SystemAPI.Time.DeltaTime;
+            m_Time += delta;
+            if (m_Time < 1f)
+                return;
+
+            m_Time= 0f;
+
             var job = new StatJob()
             {
                 LastSystemVersion = state.LastSystemVersion,
-                Delta = SystemAPI.Time.DeltaTime,
+                Delta = delta,
             };
             state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
             state.Dependency.Complete();

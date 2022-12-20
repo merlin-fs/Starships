@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using Common.Defs;
-using Unity.Jobs;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Collections.LowLevel.Unsafe;
 
 namespace Game.Model.Stats
 {
-    [UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
+    [UpdateInGroup(typeof(GameLogicInitSystemGroup))]
     public partial class ModifiersSystem : SystemBase
     {
         public static ModifiersSystem Instance { get; private set; }
@@ -33,7 +29,7 @@ namespace Game.Model.Stats
             m_Queue.Dispose();
         }
 
-        public unsafe void AddModifier<T>(Entity entity, in T modifier, int uid, Enum statType)
+        public unsafe void AddModifier<T>(Entity entity, ref T modifier, int uid, Enum statType)
             where T : IModifier
         {
             m_Queue

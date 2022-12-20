@@ -7,6 +7,7 @@ using Unity.Properties;
 namespace Game.Model.Weapons
 {
     using Stats;
+    using static UnityEditor.Progress;
 
     public unsafe struct Bullet: IModifier, IDefineable, IComponentData, IDefineableCallback
     {
@@ -26,12 +27,14 @@ namespace Game.Model.Weapons
         #region IModifier
         public void Estimation(Entity entity, ref StatValue stat, float delta)
         {
-            stat.Value *= Multiplier;
+            UnityEngine.Debug.Log($"Estimation {entity}");
+            //stat.Value *= Multiplier;
+            UnityEngine.Debug.Log($"Estimation done");
         }
 
         public void Attach(Entity entity)
         {
-            m_ModUid = Modifier.AddModifier(entity, this, Weapon.Stats.Damage);
+            m_ModUid = Modifier.AddModifier(entity, ref this, Weapon.Stats.Damage);
         }
 
         public void Dettach(Entity entity)
