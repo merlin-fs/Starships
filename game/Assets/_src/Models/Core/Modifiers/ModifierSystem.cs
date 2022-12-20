@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using Common.Defs;
-using Unity.Jobs;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Collections.LowLevel.Unsafe;
 
 namespace Game.Model.Stats
 {
-    [UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
+    [UpdateInGroup(typeof(GameLogicInitSystemGroup))]
     public partial class ModifiersSystem : SystemBase
     {
         public static ModifiersSystem Instance { get; private set; }
@@ -17,7 +13,7 @@ namespace Game.Model.Stats
 
         private struct Item
         {
-            public int UID;
+            public uint UID;
             public Entity Entity;
             public Modifier Modifier;
         }
@@ -33,20 +29,20 @@ namespace Game.Model.Stats
             m_Queue.Dispose();
         }
 
-        public unsafe void AddModifier<T>(Entity entity, ref T modifier, int uid, Enum statType)
+        public unsafe void AddModifier<T>(Entity entity, ref T modifier, uint uid, Enum statType)
             where T : IModifier
         {
             m_Queue
                 .AsParallelWriter()
                 .Enqueue(new Item()
                 {
-                    UID = -1,
+                    UID = 0,
                     Modifier = Modifier.Create(ref modifier, uid, statType),
                     Entity = entity,
                 });
         }
 
-        public unsafe void DelModifier(Entity entity, int uid)
+        public unsafe void DelModifier(Entity entity, uint uid)
         {
             m_Queue
                 .AsParallelWriter()
@@ -69,7 +65,7 @@ namespace Game.Model.Stats
             foreach (var iter in items)
             {
                 var aspect = EntityManager.GetAspect<ModifiersAspect>(iter.Entity);
-                if (iter.UID < 0)
+                if (iter.UID == 0)
                     aspect.AddModifier(iter.Modifier);
                 else
                     aspect.DelModifier(iter.UID);

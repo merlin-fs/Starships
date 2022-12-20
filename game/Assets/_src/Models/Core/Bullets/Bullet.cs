@@ -13,12 +13,12 @@ namespace Game.Model.Weapons
         [DontSerialize]
         private readonly Def<Config> m_Config;
 
-        private int m_ModUid;
+        private uint m_ModUid;
 
         public Bullet(Def<Config> config)
         {
             m_Config = config;
-            m_ModUid = -1;
+            m_ModUid = 0;
         }
 
         [CreateProperty] 

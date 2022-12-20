@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Unity.Entities;
-using Unity.Entities.UniversalDelegates;
 
 namespace Game.Model.Stats
 {
@@ -35,19 +34,13 @@ namespace Game.Model.Stats
                 var aspect = _aspect;
                 var stats = _stats;
                 var delta = Delta;
-                
-                for ( var i = 0; i < stats.Length; i++)
-                {
-                    Change(i);
-                }
-                
-                /*
+
                 Parallel.For(0, stats.Length,
                     (i) =>
                     {
                         Change(i);
                     });
-                */
+
                 void Change(int i)
                 {
                     var stat = stats[i];

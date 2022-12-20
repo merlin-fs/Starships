@@ -15,6 +15,7 @@ namespace Game.Model.Stats
 
         public void Estimation(ref Stat stat, float delta)
         {
+            stat.Value.Reset();
             foreach (var item in Items)
             {
                 if (item.Active && item.StatID == stat.StatID)
@@ -44,7 +45,7 @@ namespace Game.Model.Stats
             }
         }
 
-        public void DelModifier(int uid)
+        public void DelModifier(uint uid)
         {
             var items = Items;
             var id = FindFreeItem();
@@ -78,10 +79,10 @@ namespace Game.Model.Stats
     {
         public bool Active;
         public int StatID;
-        public int UID;
+        public uint UID;
         private readonly Unity.Burst.FunctionPointer<IModifier.Execute> m_Method;
 
-        private Modifier(IntPtr method, int uid, Enum stat)
+        private Modifier(IntPtr method, uint uid, Enum stat)
         {
             UID = uid;
             StatID = new int2(stat.GetType().GetHashCode(), stat.GetHashCode()).GetHashCode();
@@ -90,7 +91,7 @@ namespace Game.Model.Stats
             Active = true;
         }
 
-        public static Modifier Create<T>(ref T modifier, int uid, Enum stat)
+        public static Modifier Create<T>(ref T modifier, uint uid, Enum stat)
             where T : IModifier
         {
             return new Modifier(Marshal.GetFunctionPointerForDelegate<IModifier.Execute>(modifier.Estimation), uid, stat);
@@ -113,15 +114,18 @@ namespace Game.Model.Stats
             
         }
 
-        public static unsafe int AddModifier<T>(Entity entity, ref T modifier, Enum statType)
+
+        сделать Task, который будет возвращать ID после установления модификатора
+        public static unsafe uint AddModifier<T>(Entity entity, ref T modifier, Enum statType)
             where T : struct, IModifier
         {
-            int uid = new IntPtr(UnsafeUtility.AddressOf<T>(ref modifier)).ToInt32();
+            uint uid = (uint)new IntPtr(UnsafeUtility.AddressOf<T>(ref modifier)).ToInt32();
             ModifiersSystem.Instance.AddModifier(entity, ref modifier, uid, statType);
             return uid;
         }
 
-        public static void DelModifier(Entity entity, int uid)
+        сделать Task, который будет возвращать после удаления модификатора
+        public static void DelModifier(Entity entity, uint uid)
         {
             ModifiersSystem.Instance.DelModifier(entity, uid);
         }
