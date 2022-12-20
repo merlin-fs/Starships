@@ -81,24 +81,43 @@ namespace Game.Model.Stats
         public int UID;
         private readonly Unity.Burst.FunctionPointer<IModifier.Execute> m_Method;
 
-        public Modifier(IModifier.Execute estimation, int uid, Enum stat)
+        private Modifier(IntPtr method, int uid, Enum stat)
         {
             UID = uid;
             StatID = new int2(stat.GetType().GetHashCode(), stat.GetHashCode()).GetHashCode();
-            m_Method = new Unity.Burst.FunctionPointer<IModifier.Execute>(Marshal.GetFunctionPointerForDelegate(estimation));
+            //m_Method = new Unity.Burst.FunctionPointer<IModifier.Execute>(Marshal.GetFunctionPointerForDelegate(estimation));
+            m_Method = new Unity.Burst.FunctionPointer<IModifier.Execute>(method);
             Active = true;
+        }
+
+        public static Modifier Create<T>(ref T modifier, int uid, Enum stat)
+            where T : IModifier
+        {
+            return new Modifier(Marshal.GetFunctionPointerForDelegate<IModifier.Execute>(modifier.Estimation), uid, stat);
         }
 
         public void Estimation(Entity entity, ref StatValue stat, float delta)
         {
-            m_Method.Invoke(entity, ref stat, delta);
+            try
+            {
+                var method = Marshal.GetDelegateForFunctionPointer<IModifier.Execute>(m_Method.Value);
+                if (method.Target == null)
+                    return; 
+                UnityEngine.Debug.Log(method.Target.ToString());
+                m_Method.Invoke(entity, ref stat, delta);
+            }
+            catch (Exception e)
+            { 
+                UnityEngine.Debug.LogException(e);
+            }
+            
         }
 
-        public static unsafe int AddModifier<T>(Entity entity, T modifier, Enum statType)
+        public static unsafe int AddModifier<T>(Entity entity, ref T modifier, Enum statType)
             where T : struct, IModifier
         {
             int uid = new IntPtr(UnsafeUtility.AddressOf<T>(ref modifier)).ToInt32();
-            ModifiersSystem.Instance.AddModifier(entity, modifier, uid, statType);
+            ModifiersSystem.Instance.AddModifier(entity, ref modifier, uid, statType);
             return uid;
         }
 

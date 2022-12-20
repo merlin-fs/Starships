@@ -33,7 +33,7 @@ namespace Game.Model.Stats
             m_Queue.Dispose();
         }
 
-        public unsafe void AddModifier<T>(Entity entity, in T modifier, int uid, Enum statType)
+        public unsafe void AddModifier<T>(Entity entity, ref T modifier, int uid, Enum statType)
             where T : IModifier
         {
             m_Queue
@@ -41,7 +41,7 @@ namespace Game.Model.Stats
                 .Enqueue(new Item()
                 {
                     UID = -1,
-                    Modifier = new Modifier(modifier.Estimation, uid, statType),
+                    Modifier = Modifier.Create(ref modifier, uid, statType),
                     Entity = entity,
                 });
         }

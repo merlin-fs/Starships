@@ -31,7 +31,7 @@ namespace Game.Model.Weapons
 
         public void Attach(Entity entity)
         {
-            m_ModUid = Modifier.AddModifier(entity, this, Weapon.Stats.Damage);
+            m_ModUid = Modifier.AddModifier(entity, ref this, Weapon.Stats.Damage);
         }
 
         public void Dettach(Entity entity)
