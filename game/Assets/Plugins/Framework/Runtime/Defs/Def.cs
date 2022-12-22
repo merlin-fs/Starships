@@ -171,21 +171,19 @@ namespace Common.Defs
         public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityCommandBuffer.ParallelWriter writer, int sortKey, T data)
             where T : IDefineable
         {
-            var (target, _) = GetTargetType(self);
-            writer.RemoveComponentIData(entity, target, sortKey);
-
             if (data is IDefineableCallback callback)
                 callback.RemoveComponentData(entity, new WriterContext(writer, sortKey));
+            var (target, _) = GetTargetType(self);
+            writer.RemoveComponentIData(entity, target, sortKey);
         }
 
         public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityManager manager, T data) 
             where T : IDefineable  
         {
-            var (target, _) = GetTargetType(self);
-            manager.RemoveComponentIData(entity, target);
-
             if (data is IDefineableCallback callback)
                 callback.RemoveComponentData(entity, new EntityManagerContext(manager));
+            var (target, _) = GetTargetType(self);
+            manager.RemoveComponentIData(entity, target);
         }
 
         private static object CreateInstance(ref IDef def)

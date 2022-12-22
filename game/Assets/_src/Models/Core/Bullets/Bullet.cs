@@ -8,17 +8,20 @@ namespace Game.Model.Weapons
 {
     using Stats;
 
-    public unsafe struct Bullet: IModifier, IDefineable, IComponentData, IDefineableCallback
+    public struct Bullet: IModifier, IDefineable, IComponentData, IDefineableCallback
     {
         [DontSerialize]
         private readonly Def<Config> m_Config;
 
-        private uint m_ModUid;
+        private int m_ModIndex;
+
+        public float MultiplierInner;
 
         public Bullet(Def<Config> config)
         {
             m_Config = config;
-            m_ModUid = 0;
+            m_ModIndex = 0;
+            MultiplierInner = m_Config.Value.Multiplier;
         }
 
         [CreateProperty] 
@@ -26,17 +29,17 @@ namespace Game.Model.Weapons
         #region IModifier
         public void Estimation(Entity entity, ref StatValue stat, float delta)
         {
-            stat.Value *= Multiplier;
+            stat.Value *= MultiplierInner;
         }
 
-        public void Attach(Entity entity)
+        public async void Attach(Entity entity)
         {
-            m_ModUid = Modifier.AddModifier(entity, ref this, Weapon.Stats.Damage);
+            m_ModIndex = await Modifier.AddModifierAsync(entity, ref this, Weapon.Stats.Damage);
         }
 
-        public void Dettach(Entity entity)
+        public async void Dettach(Entity entity)
         {
-            Modifier.DelModifier(entity, m_ModUid);
+            await Modifier.DelModifierAsync(entity, m_ModIndex);
         }
         #endregion
         #region IDefineableCallback
@@ -54,6 +57,11 @@ namespace Game.Model.Weapons
         public class Config : IDef<Bullet>
         {
             public float Multiplier;
+
+            public void Estimation(Entity entity, ref StatValue stat, float delta)
+            {
+                stat.Value *= Multiplier;
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
-
+using System.Threading.Tasks;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -25,7 +26,7 @@ namespace Game.Model.Stats
             }
         }
 
-        public void AddModifier(Modifier modifier)
+        public int AddModifier(Modifier modifier)
         {
             var items = Items;
             var id = FindFreeItem();
@@ -33,6 +34,8 @@ namespace Game.Model.Stats
                 items.Add(modifier);
             else
                 items[id] = modifier;
+
+            return id;
 
             int FindFreeItem()
             {
@@ -45,24 +48,13 @@ namespace Game.Model.Stats
             }
         }
 
-        public void DelModifier(uint uid)
+        public void DelModifier(int id)
         {
-            var items = Items;
-            var id = FindFreeItem();
             if (id < 0)
                 return;
-            
-            items[id] = new Modifier() { Active = false };
 
-            int FindFreeItem()
-            {
-                for (int i = 0; i < items.Length; i++)
-                {
-                    if (items[i].UID == uid)
-                        return i;
-                }
-                return -1;
-            }
+            var items = Items;
+            items[id] = new Modifier() { Active = false };
         }
     }
 
@@ -75,59 +67,66 @@ namespace Game.Model.Stats
         void Dettach(Entity entity);
     }
 
-    public struct Modifier : IBufferElementData
+    public unsafe struct Modifier : IBufferElementData, IEquatable<Modifier>
     {
+        private static MethodInfo m_Method = typeof(IModifier).GetMethod(nameof(IModifier.Estimation));
+
         public bool Active;
         public int StatID;
-        public uint UID;
-        private readonly Unity.Burst.FunctionPointer<IModifier.Execute> m_Method;
+        public TypeIndex TypeIndex;
 
-        private Modifier(IntPtr method, uint uid, Enum stat)
+        [NativeDisableUnsafePtrRestriction]
+        private readonly void* m_ModifierPtr;
+
+        public ulong UID => (ulong)m_ModifierPtr;
+
+        private Modifier(void* ptr, Enum stat)
         {
-            UID = uid;
             StatID = new int2(stat.GetType().GetHashCode(), stat.GetHashCode()).GetHashCode();
-            //m_Method = new Unity.Burst.FunctionPointer<IModifier.Execute>(Marshal.GetFunctionPointerForDelegate(estimation));
-            m_Method = new Unity.Burst.FunctionPointer<IModifier.Execute>(method);
+            m_ModifierPtr = ptr;
             Active = true;
+            TypeIndex = 0;
         }
 
-        public static Modifier Create<T>(ref T modifier, uint uid, Enum stat)
-            where T : IModifier
+        bool IEquatable<Modifier>.Equals(Modifier other)
         {
-            return new Modifier(Marshal.GetFunctionPointerForDelegate<IModifier.Execute>(modifier.Estimation), uid, stat);
+            return (m_ModifierPtr == other.m_ModifierPtr);
+        }
+
+        public static Modifier Create<T>(ref T modifier, Enum stat)
+            where T : struct, IModifier
+        {
+            var ptr = UnsafeUtility.AddressOf<T>(ref modifier);
+            return new Modifier(ptr, stat)
+            {
+                TypeIndex = TypeManager.GetTypeIndex<T>(),
+            };
         }
 
         public void Estimation(Entity entity, ref StatValue stat, float delta)
         {
             try
             {
-                var method = Marshal.GetDelegateForFunctionPointer<IModifier.Execute>(m_Method.Value);
-                if (method.Target == null)
-                    return; 
-                UnityEngine.Debug.Log(method.Target.ToString());
-                m_Method.Invoke(entity, ref stat, delta);
+                var args = new object[] { entity, stat, delta };
+                object obj = Marshal.PtrToStructure(new IntPtr(m_ModifierPtr), TypeManager.GetTypeInfo(TypeIndex).Type);
+                m_Method.Invoke(obj, args);
+                stat = (StatValue)args[1];
             }
             catch (Exception e)
             { 
                 UnityEngine.Debug.LogException(e);
             }
-            
         }
 
-
-        сделать Task, который будет возвращать ID после установления модификатора
-        public static unsafe uint AddModifier<T>(Entity entity, ref T modifier, Enum statType)
+        public static Task<int> AddModifierAsync<T>(Entity entity, ref T modifier, Enum statType)
             where T : struct, IModifier
         {
-            uint uid = (uint)new IntPtr(UnsafeUtility.AddressOf<T>(ref modifier)).ToInt32();
-            ModifiersSystem.Instance.AddModifier(entity, ref modifier, uid, statType);
-            return uid;
+            return ModifiersSystem.Instance.AddModifier(entity, ref modifier, statType);
         }
 
-        сделать Task, который будет возвращать после удаления модификатора
-        public static void DelModifier(Entity entity, uint uid)
+        public static Task DelModifierAsync(Entity entity, int index)
         {
-            ModifiersSystem.Instance.DelModifier(entity, uid);
+            return ModifiersSystem.Instance.DelModifier(entity, index);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using Unity.Entities;
-using Common.Defs;
 using Unity.Properties;
+using Common.Defs;
 
 public enum GlobalStat
 {
@@ -11,6 +11,8 @@ public enum GlobalStat
 namespace Game.Model.Weapons
 {
     using Stats;
+    using Unity.Collections.LowLevel.Unsafe;
+    using static UnityEngine.EventSystems.EventTrigger;
 
     public readonly partial struct WeaponAspect: IAspect
     {
@@ -18,10 +20,21 @@ namespace Game.Model.Weapons
 
         readonly RefRW<Weapon> m_Weapon;
 
-        [Optional] readonly RefRO<Bullet> m_Bullet;
+        [Optional] readonly RefRW<Bullet> m_Bullet;
 
         [CreateProperty]
         public Bullet Bullet => m_Bullet.IsValid ? m_Bullet.ValueRO : default;
+
+        [CreateProperty]
+        public unsafe ulong BulletAddr
+        {
+            get {
+                if (!m_Bullet.IsValid)
+                    return 0;
+
+                return (ulong)new IntPtr(UnsafeUtility.AddressOf(ref m_Bullet.ValueRW)).ToInt64();
+            }
+        }
 
         [CreateProperty]
         public Weapon.States State
@@ -39,9 +52,9 @@ namespace Game.Model.Weapons
 
         public void Reload(IDefineableContext context)
         {
+            UnityEngine.Debug.Log("Weapon reload");
             if (m_Bullet.IsValid)
                 Config.Bullet.Value.RemoveComponentData(Self, context, m_Bullet.ValueRO);
-
             Config.Bullet.Value.AddComponentData(Self, context);
         }
     }

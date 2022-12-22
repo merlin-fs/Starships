@@ -8,7 +8,7 @@ namespace Game.Model.Stats
     public partial struct StatSystem : ISystem
     {
         EntityQuery m_Query;
-
+        float m_Time;
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
@@ -16,6 +16,8 @@ namespace Game.Model.Stats
                 .WithAll<Modifier>()
                 .WithOptions(EntityQueryOptions.IncludePrefab | EntityQueryOptions.IncludeDisabledEntities)
                 .Build();
+
+            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Modifier>());
 
             state.RequireForUpdate(m_Query);
         }
@@ -29,7 +31,8 @@ namespace Game.Model.Stats
         {
             public uint LastSystemVersion;
             public float Delta;
-            void Execute(ref DynamicBuffer<Stat> _stats, in ModifiersAspect _aspect)
+
+            void Execute([WithChangeFilter(typeof(Modifier))] ref DynamicBuffer<Stat> _stats, in ModifiersAspect _aspect)
             {
                 var aspect = _aspect;
                 var stats = _stats;
@@ -52,6 +55,13 @@ namespace Game.Model.Stats
 
         public void OnUpdate(ref SystemState state)
         {
+            /*
+            m_Time += SystemAPI.Time.DeltaTime;
+            if (m_Time < 1f)
+                return;
+            m_Time = 0;
+            */
+
             var job = new StatJob()
             {
                 LastSystemVersion = state.LastSystemVersion,

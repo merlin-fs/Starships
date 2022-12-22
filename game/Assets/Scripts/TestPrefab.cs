@@ -7,7 +7,6 @@ using UnityEngine.UI;
 using Unity.Collections;
 using System.Xml;
 using Game.Model.Stats;
-using static UnityEngine.EventSystems.EventTrigger;
 
 public partial class EmptySystem : SystemBase
 {
@@ -53,13 +52,14 @@ public class TestPrefab : MonoBehaviour
 
     private void Start()
     {
+        Debug.LogError("1");
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         var Archetype = m_EntityManager.CreateArchetype(
             ComponentType.ReadOnly<Prefab>(),
             ComponentType.ReadOnly<Modifier>()
             );
 
-        using NativeArray<Entity> entities = m_EntityManager.CreateEntity(Archetype, 1, Allocator.Temp);
+        using NativeArray<Entity> entities = m_EntityManager.CreateEntity(Archetype, 1500, Allocator.Temp);
         foreach(var entity in entities)
         {
             weaponConfig.Value.AddComponentData(entity, m_EntityManager);

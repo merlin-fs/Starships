@@ -2,12 +2,14 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Properties;
+using UnityEngine;
 
 namespace Game.Model.Stats
 {
     [Serializable]
     public struct StatValue
     {
+        [Serializable]
         public struct ValueStruct
         {
             public float Min;
@@ -15,8 +17,10 @@ namespace Game.Model.Stats
             public float Value;
             public float Normalize;
         }
-        
+
+        [SerializeField]
         private ValueStruct m_Original;
+        [SerializeField]
         private ValueStruct m_Value;
 
         [CreateProperty]
@@ -37,9 +41,7 @@ namespace Game.Model.Stats
         {
             m_Value = m_Original;
         }
-
         #region extension
-
         public static implicit operator StatValue(float value)
         {
             return new StatValue()

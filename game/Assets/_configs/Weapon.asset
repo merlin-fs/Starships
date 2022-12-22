@@ -13,21 +13,39 @@ MonoBehaviour:
   m_Name: Weapon
   m_EditorClassIdentifier: 
   Value:
-    Bullet: {fileID: 11400000, guid: 66f7d6355df69d84b9218c301788a517, type: 2}
+    Bullet: {fileID: 11400000, guid: c94f740253ba24c4db17d250612946be, type: 2}
     DamageValue:
-      Min: 0
-      Max: 1
-      Value: 1
-      Normalize: 1
+      m_Original:
+        Min: 0
+        Max: 1
+        Value: 1
+        Normalize: 1
+      m_Value:
+        Min: 0
+        Max: 1
+        Value: 1
+        Normalize: 1
     BarrelCount: 0
     ClipSize: 0
     Rate:
-      Min: 0
-      Max: 1
-      Value: 1
-      Normalize: 1
+      m_Original:
+        Min: 0
+        Max: 1
+        Value: 1
+        Normalize: 1
+      m_Value:
+        Min: 0
+        Max: 1
+        Value: 1
+        Normalize: 1
     ReloadTime:
-      Min: 0
-      Max: 5
-      Value: 5
-      Normalize: 1
+      m_Original:
+        Min: 0
+        Max: 5
+        Value: 5
+        Normalize: 1
+      m_Value:
+        Min: 0
+        Max: 5
+        Value: 5
+        Normalize: 1
