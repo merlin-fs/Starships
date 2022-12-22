@@ -18,12 +18,10 @@ namespace Game.Model.Stats
         {
             stat.Value.Reset();
             foreach (var item in Items)
-            {
                 if (item.Active && item.StatID == stat.StatID)
                 {
                     item.Estimation(Self, ref stat.Value, delta);
                 }
-            }
         }
 
         public int AddModifier(Modifier modifier)
@@ -48,13 +46,27 @@ namespace Game.Model.Stats
             }
         }
 
-        public void DelModifier(int id)
+        public void DelModifier(ulong uid)
         {
-            if (id < 0)
+            if (uid == 0)
                 return;
 
             var items = Items;
+            var id = FindFreeItem();
+            if (id < 0)
+                return;
+
             items[id] = new Modifier() { Active = false };
+
+            int FindFreeItem()
+            {
+                for (int i = 0; i < items.Length; i++)
+                {
+                    if (items[i].UID == uid)
+                        return i;
+                }
+                return -1;
+            }
         }
     }
 
@@ -69,7 +81,7 @@ namespace Game.Model.Stats
 
     public unsafe struct Modifier : IBufferElementData, IEquatable<Modifier>
     {
-        private static MethodInfo m_Method = typeof(IModifier).GetMethod(nameof(IModifier.Estimation));
+        private static readonly MethodInfo m_Method = typeof(IModifier).GetMethod(nameof(IModifier.Estimation));
 
         public bool Active;
         public int StatID;
@@ -107,10 +119,14 @@ namespace Game.Model.Stats
         {
             try
             {
-                var args = new object[] { entity, stat, delta };
                 object obj = Marshal.PtrToStructure(new IntPtr(m_ModifierPtr), TypeManager.GetTypeInfo(TypeIndex).Type);
-                m_Method.Invoke(obj, args);
+                IModifier.Execute estimation = (IModifier.Execute)Delegate.CreateDelegate(typeof(IModifier.Execute), obj, m_Method);
+                estimation.Invoke(entity, ref stat, delta);
+                /*
+                var args = new object[] { entity, stat, delta };
+                (IModifier.Execute)m_Method.Invoke(obj, args);
                 stat = (StatValue)args[1];
+                */
             }
             catch (Exception e)
             { 
@@ -118,15 +134,15 @@ namespace Game.Model.Stats
             }
         }
 
-        public static Task<int> AddModifierAsync<T>(Entity entity, ref T modifier, Enum statType)
+        public static ulong AddModifierAsync<T>(Entity entity, ref T modifier, Enum statType)
             where T : struct, IModifier
         {
             return ModifiersSystem.Instance.AddModifier(entity, ref modifier, statType);
         }
 
-        public static Task DelModifierAsync(Entity entity, int index)
+        public static void DelModifierAsync(Entity entity, ulong uid)
         {
-            return ModifiersSystem.Instance.DelModifier(entity, index);
+            ModifiersSystem.Instance.DelModifier(entity, uid);
         }
     }
 }

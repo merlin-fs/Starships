@@ -42,10 +42,10 @@ MonoBehaviour:
       m_Original:
         Min: 0
         Max: 5
-        Value: 5
+        Value: 1
         Normalize: 1
       m_Value:
         Min: 0
         Max: 5
-        Value: 5
+        Value: 1
         Normalize: 1

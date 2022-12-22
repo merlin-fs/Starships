@@ -52,9 +52,9 @@ namespace Game.Model.Weapons
 
         public void Reload(IDefineableContext context)
         {
-            UnityEngine.Debug.Log("Weapon reload");
             if (m_Bullet.IsValid)
                 Config.Bullet.Value.RemoveComponentData(Self, context, m_Bullet.ValueRO);
+            
             Config.Bullet.Value.AddComponentData(Self, context);
         }
     }

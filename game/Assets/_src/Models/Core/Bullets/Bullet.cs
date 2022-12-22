@@ -13,14 +13,14 @@ namespace Game.Model.Weapons
         [DontSerialize]
         private readonly Def<Config> m_Config;
 
-        private int m_ModIndex;
+        private ulong m_ModUID;
 
         public float MultiplierInner;
 
         public Bullet(Def<Config> config)
         {
             m_Config = config;
-            m_ModIndex = 0;
+            m_ModUID = 0;
             MultiplierInner = m_Config.Value.Multiplier;
         }
 
@@ -32,14 +32,14 @@ namespace Game.Model.Weapons
             stat.Value *= MultiplierInner;
         }
 
-        public async void Attach(Entity entity)
+        public void Attach(Entity entity)
         {
-            m_ModIndex = await Modifier.AddModifierAsync(entity, ref this, Weapon.Stats.Damage);
+            m_ModUID = Modifier.AddModifierAsync(entity, ref this, Weapon.Stats.Damage);
         }
 
-        public async void Dettach(Entity entity)
+        public void Dettach(Entity entity)
         {
-            await Modifier.DelModifierAsync(entity, m_ModIndex);
+            Modifier.DelModifierAsync(entity, m_ModUID);
         }
         #endregion
         #region IDefineableCallback

@@ -7,8 +7,8 @@ namespace Game.Model.Stats
     [UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
     public partial struct StatSystem : ISystem
     {
-        EntityQuery m_Query;
-        float m_Time;
+        private EntityQuery m_Query;
+
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
@@ -18,7 +18,6 @@ namespace Game.Model.Stats
                 .Build();
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Modifier>());
-
             state.RequireForUpdate(m_Query);
         }
 
@@ -55,20 +54,19 @@ namespace Game.Model.Stats
 
         public void OnUpdate(ref SystemState state)
         {
-            /*
-            m_Time += SystemAPI.Time.DeltaTime;
-            if (m_Time < 1f)
-                return;
-            m_Time = 0;
-            */
-
             var job = new StatJob()
             {
                 LastSystemVersion = state.LastSystemVersion,
                 Delta = SystemAPI.Time.DeltaTime,
             };
+            ///*
             state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
             state.Dependency.Complete();
+            //*/
+            /*
+            var handle = job.ScheduleParallel(m_Query, state.Dependency);
+            handle.Complete();
+            */
         }
     }
 }

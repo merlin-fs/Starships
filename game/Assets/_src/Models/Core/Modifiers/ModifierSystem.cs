@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Threading;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
 
 using Unity.Collections;
 using Unity.Entities;
-
-using UnityEngine;
 
 namespace Game.Model.Stats
 {
@@ -16,151 +11,98 @@ namespace Game.Model.Stats
     public partial class ModifiersSystem : SystemBase
     {
         public static ModifiersSystem Instance { get; private set; }
-
-        List<ItemInfo> m_Handles;
-        NativeQueue<Item> m_Queue;
-
-        private struct ItemInfo
-        {
-            public Task Task;
-            public EventWaitHandle Event;
-        }
+        ConcurrentQueue<Item> m_Queue;
+        //NativeQueue<Item> m_Queue;
 
         private struct Item
         {
-            public int Index;
+            public ulong UID;
             public Entity Entity;
             public Modifier Modifier;
-            public IntPtr EventHandle;
         }
 
         protected override void OnCreate()
         {
             Instance = this;
-            m_Queue = new NativeQueue<Item>(Allocator.Persistent);
-            m_Handles = new List<ItemInfo>();
+            //m_Queue = new NativeQueue<Item>(Allocator.Persistent);
+            m_Queue = new ConcurrentQueue<Item>();
         }
 
         protected override void OnDestroy()
         {
-            ClearHandles();
-            m_Queue.Dispose();
+            //m_Queue.Dispose();
         }
 
-        public Task<int> AddModifier<T>(Entity entity, ref T modifier, Enum statType)
+        public ulong AddModifier<T>(Entity entity, ref T modifier, Enum statType)
             where T: struct, IModifier
         {
             var mod = Modifier.Create<T>(ref modifier, statType);
-            var @event = new ManualResetEvent(false);
-            var info = new ItemInfo()
-            {
-                Event = @event,
-            };
-
             var item = new Item()
             {
-                Index = -1,
+                UID = 0,
                 Modifier = mod,
                 Entity = entity,
-                EventHandle = @event.SafeWaitHandle.DangerousGetHandle(),
             };
-
+            m_Queue.Enqueue(item);
+            /*
             m_Queue
-                .AsParallelWriter()
+                //.AsParallelWriter()
                 .Enqueue(item);
-
-
-            var task = Task<int>.Run(() =>
-            {
-                while (!@event.SafeWaitHandle.IsClosed && !@event.SafeWaitHandle.IsInvalid)
-                {
-                    if (@event.WaitOne(1))
-                    {
-                        int index = m_Results[mod.UID];
-                        return index;
-                    }
-                }
-                return -1;
-            });
-            info.Task = task;
-            m_Handles.Add(info);
-            return task;
+            */
+            return mod.UID;
         }
 
-        public Task DelModifier(Entity entity, int index)
+        public void DelModifier(Entity entity, ulong uid)
         {
-            ulong id = (ulong)index;
-            var @event = new ManualResetEvent(false);
-            var info = new ItemInfo()
-            {
-                Event = @event,
-            };
-
             var item = new Item()
             {
-                Index = index,
+                UID = uid,
                 Modifier = default,
                 Entity = entity,
-                EventHandle = @event.SafeWaitHandle.DangerousGetHandle(),
             };
+            m_Queue.Enqueue(item);
+            /*
             m_Queue
-                .AsParallelWriter()
+                //.AsParallelWriter()
                 .Enqueue(item);
-
-            info.Task = Task.Run(() =>
-            {
-                while (!@event.SafeWaitHandle.IsClosed && !@event.SafeWaitHandle.IsInvalid)
-                {
-                    if (@event.WaitOne(1))
-                        return;
-                }
-            });
-            m_Handles.Add(info);
-            return info.Task;
+            */
         }
 
         protected override void OnUpdate()
         {
             if (m_Queue.Count == 0)
                 return;
-            using var items = m_Queue.ToArray(Allocator.Persistent);
+            /*
+            using var items = m_Queue.ToArray(Allocator.Temp);
             m_Queue.Clear();
-            
-            var writer = m_Results;
-            foreach (var iter in items)
+            */
+            var items = m_Queue.ToArray();
+            m_Queue.Clear();
+
+            Parallel.ForEach(items, (iter) =>
             {
-                using (EventWaitHandle waitEvent = new EventWaitHandle(false, EventResetMode.ManualReset))
+                try
                 {
                     var aspect = EntityManager.GetAspect<ModifiersAspect>(iter.Entity);
-                    if (iter.Index < 0)
+                    if (iter.UID == 0)
                     {
-                        var id = aspect.AddModifier(iter.Modifier);
-                        waitEvent.SafeWaitHandle = new SafeWaitHandle(iter.EventHandle, false);
-                        writer.Add(iter.Modifier.UID, id);
-                        waitEvent.Set();
+                        aspect.AddModifier(iter.Modifier);
                     }
                     else
                     {
-                        aspect.DelModifier(iter.Index);
-                        waitEvent.SafeWaitHandle = new SafeWaitHandle(iter.EventHandle, false);
-                        waitEvent.Set();
+                        aspect.DelModifier(iter.UID);
                     }
                 }
-            }
-
-            Task.WaitAll(m_Handles.Select(i => i.Task).ToArray());
-            ClearHandles();
-            m_Results.Clear();
-        }
-
-        private void ClearHandles()
-        {
-            if (m_Handles.Count > 0)
-            {
-                foreach (var iter in m_Handles)
-                    iter.Event.Dispose();
-                m_Handles.Clear();
-            }
+                catch (Exception e)
+                {
+                    if (iter.UID == 0)
+                        UnityEngine.Debug.LogError($"add {iter.Entity}");
+                    else
+                        UnityEngine.Debug.LogError($"del {iter.Entity}");
+                    throw e;
+                }
+            });
+            //items.Dispose();
         }
     }
 }

@@ -1,12 +1,11 @@
 using Unity.Entities;
 using UnityEngine;
-using Game.Model;
 using Common.Defs;
 using Game.Model.Weapons;
 using UnityEngine.UI;
 using Unity.Collections;
-using System.Xml;
 using Game.Model.Stats;
+using TMPro;
 
 public partial class EmptySystem : SystemBase
 {
@@ -16,26 +15,26 @@ public partial class EmptySystem : SystemBase
 public class TestPrefab : MonoBehaviour
 {
     [SerializeField]
+    TMP_Text m_Text;
+
+    [SerializeField]
     public WeaponConfig weaponConfig;
 
     [SerializeField]
     Button m_BtnReload;
 
+    [SerializeField]
+    private int m_Count = 1;
+
     private EntityManager m_EntityManager;
 
     private void Awake()
     {
-        /*
         m_BtnReload.onClick.AddListener(
             () =>
             {
-                
-                var cmd = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<BeginSimulationEntityCommandBufferSystem>();
-                var writer = cmd.CreateCommandBuffer().AsParallelWriter();
-                var aspect = m_EntityManager.GetAspect<WeaponAspect>(m_Entity);
-                aspect.Reload(writer, 0);
+                CreateEntities(m_Count);
             });
-        */
     }
 
     /*
@@ -50,20 +49,28 @@ public class TestPrefab : MonoBehaviour
     }
     */
 
-    private void Start()
+    private void CreateEntities(int count)
     {
-        Debug.LogError("1");
-        m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         var Archetype = m_EntityManager.CreateArchetype(
             ComponentType.ReadOnly<Prefab>(),
             ComponentType.ReadOnly<Modifier>()
             );
 
-        using NativeArray<Entity> entities = m_EntityManager.CreateEntity(Archetype, 1500, Allocator.Temp);
-        foreach(var entity in entities)
+        using NativeArray<Entity> entities = m_EntityManager.CreateEntity(Archetype, count, Allocator.Temp);
+        foreach (var entity in entities)
         {
             weaponConfig.Value.AddComponentData(entity, m_EntityManager);
         }
-        //m_EntityManager.AddComponent<Prefab>(m_Entity);
+    }
+
+    private void Start()
+    {
+        m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        CreateEntities(1);
+    }
+
+    private void Update()
+    {
+        m_Text.text = $"Entities: {World.DefaultGameObjectInjectionWorld.EntityManager.Debug.EntityCount}";
     }
 }
