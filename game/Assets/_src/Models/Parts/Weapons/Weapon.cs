@@ -11,8 +11,9 @@ public enum GlobalStat
 namespace Game.Model.Weapons
 {
     using Stats;
+
+    using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
-    using static UnityEngine.EventSystems.EventTrigger;
 
     public readonly partial struct WeaponAspect: IAspect
     {
@@ -24,30 +25,20 @@ namespace Game.Model.Weapons
 
         [CreateProperty]
         public Bullet Bullet => m_Bullet.IsValid ? m_Bullet.ValueRO : default;
-
-        [CreateProperty]
-        public unsafe ulong BulletAddr
-        {
-            get {
-                if (!m_Bullet.IsValid)
-                    return 0;
-
-                return (ulong)new IntPtr(UnsafeUtility.AddressOf(ref m_Bullet.ValueRW)).ToInt64();
-            }
-        }
-
-        [CreateProperty]
-        public Weapon.States State
-        {
-            get => m_Weapon.ValueRO.State;
-        }
-
+        
         public Weapon.WeaponConfig Config => m_Weapon.ValueRO.Config;
+
+        public int Count => m_Weapon.ValueRO.Count;
 
         public float Time
         {
             get => m_Weapon.ValueRO.Time;
             set => m_Weapon.ValueRW.Time = value;
+        }
+
+        public void Shot()
+        {
+            m_Weapon.ValueRW.Count--;
         }
 
         public void Reload(IDefineableContext context)
@@ -56,6 +47,7 @@ namespace Game.Model.Weapons
                 Config.Bullet.Value.RemoveComponentData(Self, context, m_Bullet.ValueRO);
             
             Config.Bullet.Value.AddComponentData(Self, context);
+            m_Weapon.ValueRW.Count = Config.ClipSize;
         }
     }
 
@@ -68,15 +60,15 @@ namespace Game.Model.Weapons
         private readonly Def<WeaponConfig> m_Config;
         public WeaponConfig Config => m_Config.Value;
 
-        public States State;
+        public int Count;
 
         public float Time;
 
         public Weapon(Def<WeaponConfig> config)
         {
             m_Config = config;
-            State = States.NoTarget;
             Time = 0;
+            Count = 0;
         }
 
         #region IDefineableCallback
@@ -101,20 +93,12 @@ namespace Game.Model.Weapons
         /// <summary>
         /// Состояние оружия
         /// </summary>
-        public enum States
+        public enum State
         {
-            /// <summary>
-            /// Нет цели
-            /// </summary>
             NoTarget,
-            /// <summary>
-            /// Работает
-            /// </summary>
-            Enabled,
-            /// <summary>
-            /// Перезаряжается
-            /// </summary>
+            Shooting,
             Reload,
+            Sleep,
         }
 
         /// <summary>
