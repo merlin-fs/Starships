@@ -86,7 +86,7 @@ namespace Game.Model.Stats
         public bool Active;
         public int StatID;
         public TypeIndex TypeIndex;
-
+        
         [NativeDisableUnsafePtrRestriction]
         private readonly void* m_ModifierPtr;
 
@@ -119,9 +119,13 @@ namespace Game.Model.Stats
         {
             try
             {
+                var obj = (IModifier)Marshal.PtrToStructure(new IntPtr(m_ModifierPtr), TypeManager.GetTypeInfo(TypeIndex).Type);
+                obj.Estimation(entity, ref stat, delta);
+                /*
                 object obj = Marshal.PtrToStructure(new IntPtr(m_ModifierPtr), TypeManager.GetTypeInfo(TypeIndex).Type);
                 IModifier.Execute estimation = (IModifier.Execute)Delegate.CreateDelegate(typeof(IModifier.Execute), obj, m_Method);
                 estimation.Invoke(entity, ref stat, delta);
+                */
                 /*
                 var args = new object[] { entity, stat, delta };
                 (IModifier.Execute)m_Method.Invoke(obj, args);

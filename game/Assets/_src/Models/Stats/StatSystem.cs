@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading.Tasks;
+using Unity.Burst;
 using Unity.Entities;
 
 namespace Game.Model.Stats
@@ -26,6 +26,7 @@ namespace Game.Model.Stats
 
         }
 
+        [BurstCompile]
         partial struct StatJob : IJobEntity
         {
             public uint LastSystemVersion;
@@ -37,11 +38,10 @@ namespace Game.Model.Stats
                 var stats = _stats;
                 var delta = Delta;
 
-                Parallel.For(0, stats.Length,
-                    (i) =>
-                    {
-                        Change(i);
-                    });
+                for (int i = 0; i < stats.Length; i++)
+                {
+                    Change(i);
+                }
 
                 void Change(int i)
                 {
@@ -59,9 +59,9 @@ namespace Game.Model.Stats
                 LastSystemVersion = state.LastSystemVersion,
                 Delta = SystemAPI.Time.DeltaTime,
             };
-            ///*
+
             state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
-            state.Dependency.Complete();
+            //state.Dependency.Complete();
             //*/
             /*
             var handle = job.ScheduleParallel(m_Query, state.Dependency);

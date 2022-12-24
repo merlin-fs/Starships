@@ -26,29 +26,19 @@ namespace Game.Model.Weapons
         [CreateProperty]
         public Bullet Bullet => m_Bullet.IsValid ? m_Bullet.ValueRO : default;
         
-        [CreateProperty]
-        public unsafe ulong BulletAddr
-        {
-            get {
-                if (!m_Bullet.IsValid)
-                    return 0;
-
-                return (ulong)new IntPtr(UnsafeUtility.AddressOf(ref m_Bullet.ValueRW)).ToInt64();
-            }
-        }
-
-        [CreateProperty]
-        public Weapon.States State
-        {
-            get => m_Weapon.ValueRO.State;
-        }
-
         public Weapon.WeaponConfig Config => m_Weapon.ValueRO.Config;
+
+        public int Count => m_Weapon.ValueRO.Count;
 
         public float Time
         {
             get => m_Weapon.ValueRO.Time;
             set => m_Weapon.ValueRW.Time = value;
+        }
+
+        public void Shot()
+        {
+            m_Weapon.ValueRW.Count--;
         }
 
         public void Reload(IDefineableContext context)
@@ -57,6 +47,7 @@ namespace Game.Model.Weapons
                 Config.Bullet.Value.RemoveComponentData(Self, context, m_Bullet.ValueRO);
             
             Config.Bullet.Value.AddComponentData(Self, context);
+            m_Weapon.ValueRW.Count = Config.ClipSize;
         }
     }
 
@@ -69,15 +60,15 @@ namespace Game.Model.Weapons
         private readonly Def<WeaponConfig> m_Config;
         public WeaponConfig Config => m_Config.Value;
 
-        public States State;
+        public int Count;
 
         public float Time;
 
         public Weapon(Def<WeaponConfig> config)
         {
             m_Config = config;
-            State = States.NoTarget;
             Time = 0;
+            Count = 0;
         }
 
         #region IDefineableCallback
@@ -99,61 +90,15 @@ namespace Game.Model.Weapons
         }
         #endregion
 
-        public struct Reload : ILogicTransition
-        {
-            private int m_ID;
-            [NativeDisableUnsafePtrRestriction]
-            private WeaponAspect m_Weapon;
-
-            [NativeDisableUnsafePtrRestriction]
-            private LogicAspect m_Logic;
-            private EntityCommandBuffer.ParallelWriter m_Writer;
-            private float m_Delta;
-
-            public int ID { get => m_ID; set => m_ID = value; }
-
-            public void Init(Entity entity, ref SystemState state, LogicAspect logic)
-            {
-                m_Writer = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>()
-                    .CreateCommandBuffer()
-                    .AsParallelWriter();
-
-                m_Delta = state.WorldUnmanaged.Time.DeltaTime;
-                m_Logic = logic;
-                m_Weapon = new WeaponAspect().CreateAspect(entity, ref state, false);
-            }
-
-            public void Execute()
-            {
-                m_Weapon.Time += m_Delta;
-                
-                if (m_Weapon.Time >= m_Weapon.Config.ReloadTime.Value)
-                {
-                    m_Weapon.Time = 0;
-                    m_Weapon.Reload(new DefExt.WriterContext(m_Writer, 0));
-                    //m_Logic.SetResult(ILogic.Result.Done, -1);
-                }
-            }
-        }
-
-
         /// <summary>
         /// Состояние оружия
         /// </summary>
-        public enum States
+        public enum State
         {
-            /// <summary>
-            /// Нет цели
-            /// </summary>
             NoTarget,
-            /// <summary>
-            /// Работает
-            /// </summary>
-            Enabled,
-            /// <summary>
-            /// Перезаряжается
-            /// </summary>
+            Shooting,
             Reload,
+            Sleep,
         }
 
         /// <summary>

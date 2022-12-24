@@ -2,14 +2,13 @@
 using Unity.Entities;
 using Common.Defs;
 using System.Collections.Generic;
-using Unity.Collections;
 using Unity.Mathematics;
 
 namespace Game.Model
 {
     using Result = ILogic.Result;
 
-    public partial struct Logic : IComponentData, IDefineable
+    public partial struct Logic
     {
         [Serializable]
         public class Config : IDef<Logic>
@@ -17,15 +16,14 @@ namespace Game.Model
             private Dictionary<int2, StateInfo> m_States = new Dictionary<int2, StateInfo>();
             public Configuration Configure() => new Configuration(this);
 
-            public int2 GetNextStateID(ref Logic logic, Result result, out int transitionIndex)
+            public int2 GetNextStateID(ref Logic logic, Result result)
             {
                 var info = GetInfo(logic.State);
                 var list = info.GetTransitions(result);
                 var next = list.RandomElement();
-                transitionIndex = next.ID;
-                return next.Info == null 
+                return next == null 
                     ? new int2() 
-                    : next.Info.ID;
+                    : next.ID;
             }
 
             public Enum GetState(int2 value)
@@ -51,19 +49,11 @@ namespace Game.Model
                 return info;
             }
 
-            private void AddTransition<Transition>(Enum _from, Enum _to)
-                where Transition : unmanaged, ILogicTransition
+            private void AddTransition(Result result, Enum _from, Enum _to)
             {
                 StateInfo from = GetInfo(_from, true);
                 StateInfo to = GetInfo(_to, true);
-                from.AddTransition<Transition>(to, Result.Done);
-            }
-
-            private void AddTransition(Enum _from, Enum _to)
-            {
-                StateInfo from = GetInfo(_from, true);
-                StateInfo to = GetInfo(_to, true);
-                from.AddTransition(to, Result.Done);
+                from.AddTransition(to, result);
             }
 
             public class Configuration
@@ -75,16 +65,9 @@ namespace Game.Model
                     m_Owner = owner;
                 }
 
-                public Configuration Transition<Transition>(Enum from, Enum to)
-                    where Transition : unmanaged, ILogicTransition
+                public Configuration Transition(Result result, Enum from, Enum to)
                 {
-                    m_Owner.AddTransition<Transition>(from, to);
-                    return this;
-                }
-
-                public Configuration Transition(Enum from, Enum to)
-                {
-                    m_Owner.AddTransition(from, to);
+                    m_Owner.AddTransition(result, from, to);
                     return this;
                 }
             }
@@ -94,13 +77,8 @@ namespace Game.Model
                 public int2 ID { get; }
                 public Enum Value { get; }
 
-                public struct TransitionInfo
-                {
-                    public StateInfo Info;
-                    public int ID;
-                }
-                private readonly List<TransitionInfo> m_Done = new List<TransitionInfo>();
-                private readonly List<TransitionInfo> m_Error = new List<TransitionInfo>();
+                private readonly List<StateInfo> m_Done = new List<StateInfo>();
+                private readonly List<StateInfo> m_Error = new List<StateInfo>();
 
                 public StateInfo(Enum value)
                 {
@@ -108,29 +86,16 @@ namespace Game.Model
                     ID = GetID(value);
                 }
 
-                public void AddTransition<Transition>(StateInfo info, Result result)
-                    where Transition : unmanaged, ILogicTransition
-                {
-                    var id = LogicSystem.Instance.RegJob<Transition>();
-                    var item = new TransitionInfo() { Info = info, ID = id };
-                    switch (result)
-                    {
-                        case Result.Done: m_Done.Add(item); break;
-                        case Result.Error: m_Error.Add(item); break;
-                    }
-                }
-
                 public void AddTransition(StateInfo info, Result result)
                 {
-                    var item = new TransitionInfo() { Info = info, ID = -1 };
                     switch (result)
                     {
-                        case Result.Done: m_Done.Add(item); break;
-                        case Result.Error: m_Error.Add(item); break;
+                        case Result.Done: m_Done.Add(info); break;
+                        case Result.Error: m_Error.Add(info); break;
                     }
                 }
 
-                public IEnumerable<TransitionInfo> GetTransitions(Result result)
+                public IEnumerable<StateInfo> GetTransitions(Result result)
                 {
                     return result switch
                     {

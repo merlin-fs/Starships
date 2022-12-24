@@ -26,7 +26,7 @@ MonoBehaviour:
         Value: 1
         Normalize: 1
     BarrelCount: 0
-    ClipSize: 0
+    ClipSize: 10
     Rate:
       m_Original:
         Min: 0
@@ -47,5 +47,5 @@ MonoBehaviour:
       m_Value:
         Min: 0
         Max: 5
-        Value: 1
+        Value: 3
         Normalize: 1
