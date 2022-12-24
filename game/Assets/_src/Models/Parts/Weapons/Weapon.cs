@@ -11,8 +11,9 @@ public enum GlobalStat
 namespace Game.Model.Weapons
 {
     using Stats;
+
+    using Unity.Collections;
     using Unity.Collections.LowLevel.Unsafe;
-    using static UnityEngine.EventSystems.EventTrigger;
 
     public readonly partial struct WeaponAspect: IAspect
     {
@@ -24,7 +25,7 @@ namespace Game.Model.Weapons
 
         [CreateProperty]
         public Bullet Bullet => m_Bullet.IsValid ? m_Bullet.ValueRO : default;
-
+        
         [CreateProperty]
         public unsafe ulong BulletAddr
         {
@@ -97,6 +98,44 @@ namespace Game.Model.Weapons
 
         }
         #endregion
+
+        public struct Reload : ILogicTransition
+        {
+            private int m_ID;
+            [NativeDisableUnsafePtrRestriction]
+            private WeaponAspect m_Weapon;
+
+            [NativeDisableUnsafePtrRestriction]
+            private LogicAspect m_Logic;
+            private EntityCommandBuffer.ParallelWriter m_Writer;
+            private float m_Delta;
+
+            public int ID { get => m_ID; set => m_ID = value; }
+
+            public void Init(Entity entity, ref SystemState state, LogicAspect logic)
+            {
+                m_Writer = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>()
+                    .CreateCommandBuffer()
+                    .AsParallelWriter();
+
+                m_Delta = state.WorldUnmanaged.Time.DeltaTime;
+                m_Logic = logic;
+                m_Weapon = new WeaponAspect().CreateAspect(entity, ref state, false);
+            }
+
+            public void Execute()
+            {
+                m_Weapon.Time += m_Delta;
+                
+                if (m_Weapon.Time >= m_Weapon.Config.ReloadTime.Value)
+                {
+                    m_Weapon.Time = 0;
+                    m_Weapon.Reload(new DefExt.WriterContext(m_Writer, 0));
+                    //m_Logic.SetResult(ILogic.Result.Done, -1);
+                }
+            }
+        }
+
 
         /// <summary>
         /// Состояние оружия

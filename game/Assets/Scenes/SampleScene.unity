@@ -918,6 +918,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Text: {fileID: 467820797}
   weaponConfig: {fileID: 11400000, guid: 4ebc84f02e2b6dc42be590d5613f4838, type: 2}
+  logicConfig: {fileID: 11400000, guid: ea0486dc750a6764ab2538c6bfcb4998, type: 2}
   m_BtnReload: {fileID: 35430600}
   m_Count: 1000
 --- !u!1 &1323945829

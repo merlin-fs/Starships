@@ -6,6 +6,7 @@ using Unity.Collections.LowLevel.Unsafe;
 namespace Game.Model.Weapons
 {
 
+    [DisableAutoCreation]
     [UpdateInGroup(typeof(GameLogicSystemGroup))]
     public partial struct WeaponSystem : ISystem
     {
@@ -44,7 +45,6 @@ namespace Game.Model.Weapons
                 }
             }
         }
-
 
         public void OnUpdate(ref SystemState state)
         {
