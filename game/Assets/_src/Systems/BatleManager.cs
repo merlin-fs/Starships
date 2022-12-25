@@ -24,6 +24,7 @@ namespace Game.Systems
         /// <param name="damageType">Тип урона</param>
         public void Hot(IUnit target, IUnit source, float damage, DamageType damageType)
         {
+            /*
             //Ищем все модификаторы у корабля - цели
             var mods = target.FindParts<IModifierDamage>();
             //Вычисляем конечный урон

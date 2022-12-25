@@ -29,7 +29,7 @@ namespace Game.Model.Weapons
         #region IModifier
         public void Estimation(Entity entity, ref StatValue stat, float delta)
         {
-            stat.Value *= MultiplierInner;
+            stat.Mull(MultiplierInner);
         }
 
         public void Attach(Entity entity)
@@ -53,15 +53,11 @@ namespace Game.Model.Weapons
             Dettach(entity);
         }
         #endregion
+        
         [Serializable]
         public class Config : IDef<Bullet>
         {
             public float Multiplier;
-
-            public void Estimation(Entity entity, ref StatValue stat, float delta)
-            {
-                stat.Value *= Multiplier;
-            }
         }
     }
 }

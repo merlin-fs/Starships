@@ -22,9 +22,6 @@ public class TestPrefab : MonoBehaviour
     public WeaponConfig weaponConfig;
 
     [SerializeField]
-    public LogicConfig logicConfig;
-
-    [SerializeField]
     Button m_BtnReload;
 
     [SerializeField]
@@ -64,14 +61,14 @@ public class TestPrefab : MonoBehaviour
         foreach (var entity in entities)
         {
             weaponConfig.Value.AddComponentData(entity, m_EntityManager);
-            logicConfig.Value.AddComponentData(entity, m_EntityManager);
+            weaponConfig.Logic.AddComponentData(entity, m_EntityManager);
         }
     }
 
     private void Start()
     {
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        logicConfig.Init();
+        weaponConfig.Init();
         CreateEntities(1);
     }
 

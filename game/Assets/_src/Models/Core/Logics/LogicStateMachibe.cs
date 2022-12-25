@@ -1,13 +1,10 @@
 ﻿using System;
-using Unity.Entities;
 using Common.Defs;
 using System.Collections.Generic;
 using Unity.Mathematics;
 
-namespace Game.Model
+namespace Game.Model.Logics
 {
-    using Result = ILogic.Result;
-
     public partial struct Logic
     {
         [Serializable]
@@ -18,7 +15,7 @@ namespace Game.Model
 
             public int2 GetNextStateID(ref Logic logic, Result result)
             {
-                var info = GetInfo(logic.State);
+                var info = GetInfo(logic.CurrentState);
                 var list = info.GetTransitions(result);
                 var next = list.RandomElement();
                 return next == null 
