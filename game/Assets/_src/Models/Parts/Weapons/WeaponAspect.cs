@@ -28,7 +28,7 @@ namespace Game.Model.Weapons
 
         public void Shot()
         {
-            m_Weapon.ValueRW.Count--;
+            m_Weapon.ValueRW.Count -= Config.BarrelCount;
         }
 
         public void Reload(IDefineableContext context)
