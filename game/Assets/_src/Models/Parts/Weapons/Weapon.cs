@@ -1,61 +1,16 @@
 ﻿using System;
 using Unity.Entities;
-using Unity.Properties;
 using Common.Defs;
-
-public enum GlobalStat
-{
-    Health,
-}
 
 namespace Game.Model.Weapons
 {
     using Stats;
 
-    using Unity.Collections;
-    using Unity.Collections.LowLevel.Unsafe;
-
-    public readonly partial struct WeaponAspect: IAspect
-    {
-        public readonly Entity Self;
-
-        readonly RefRW<Weapon> m_Weapon;
-
-        [Optional] readonly RefRW<Bullet> m_Bullet;
-
-        [CreateProperty]
-        public Bullet Bullet => m_Bullet.IsValid ? m_Bullet.ValueRO : default;
-        
-        public Weapon.WeaponConfig Config => m_Weapon.ValueRO.Config;
-
-        public int Count => m_Weapon.ValueRO.Count;
-
-        public float Time
-        {
-            get => m_Weapon.ValueRO.Time;
-            set => m_Weapon.ValueRW.Time = value;
-        }
-
-        public void Shot()
-        {
-            m_Weapon.ValueRW.Count--;
-        }
-
-        public void Reload(IDefineableContext context)
-        {
-            if (m_Bullet.IsValid)
-                Config.Bullet.Value.RemoveComponentData(Self, context, m_Bullet.ValueRO);
-            
-            Config.Bullet.Value.AddComponentData(Self, context);
-            m_Weapon.ValueRW.Count = Config.ClipSize;
-        }
-    }
-
     /// <summary>
     /// Реализация оружия
     /// </summary>
     [ChunkSerializable]
-    public unsafe struct Weapon: IPart, IDefineable, IComponentData, IDefineableCallback
+    public struct Weapon: IPart, IDefineable, IComponentData, IDefineableCallback
     {
         private readonly Def<WeaponConfig> m_Config;
         public WeaponConfig Config => m_Config.Value;
@@ -70,7 +25,6 @@ namespace Game.Model.Weapons
             Time = 0;
             Count = 0;
         }
-
         #region IDefineableCallback
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
@@ -89,7 +43,6 @@ namespace Game.Model.Weapons
 
         }
         #endregion
-
         /// <summary>
         /// Состояние оружия
         /// </summary>

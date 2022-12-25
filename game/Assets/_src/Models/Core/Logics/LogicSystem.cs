@@ -1,14 +1,8 @@
 using System;
 using Unity.Entities;
-using Unity.Collections;
-using Unity.Jobs;
-using System.Collections.Generic;
-using Game.Model.Weapons;
 
-namespace Game.Model
+namespace Game.Model.Logics
 {
-    using Result = ILogic.Result;
-
     [UpdateInGroup(typeof(GameLogicSystemGroup), OrderFirst = true)]
     public partial class LogicSystem : SystemBase
     {
@@ -28,11 +22,10 @@ namespace Game.Model
         {
             void Execute([WithChangeFilter(typeof(Logic))] ref LogicAspect logic)
             {
-                if (logic.Result != Result.Busy)
+                if (!logic.IsWork)
                 {
                     var next = logic.GetNextStateID();
                     logic.SetStateID(next);
-                    logic.SetResult(Result.Busy);
                 }
             }
         }

@@ -1,11 +1,12 @@
 using System;
 using Unity.Entities;
 using Common.Defs;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.Mathematics;
 
 namespace Game.Model.Weapons
 {
+    using Logics;
+    using Result = Logics.Logic.Result;
+
     [UpdateInGroup(typeof(GameLogicSystemGroup))]
     public partial struct WeaponSystem : ISystem
     {
@@ -22,9 +23,18 @@ namespace Game.Model.Weapons
             state.RequireForUpdate(m_Query);
         }
 
-        public void OnDestroy(ref SystemState state)
-        {
+        public void OnDestroy(ref SystemState state) { }
 
+        public void OnUpdate(ref SystemState state)
+        {
+            var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
+            var job = new WeaponJob()
+            {
+                Writer = ecb.AsParallelWriter(),
+                Delta = SystemAPI.Time.DeltaTime,
+            };
+            state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
+            state.Dependency.Complete();
         }
 
         partial struct WeaponJob : IJobEntity
@@ -42,7 +52,7 @@ namespace Game.Model.Weapons
                         weapon.Time = 0;
                         weapon.Shot();
                         if (weapon.Count == 0)
-                            logic.SetResult(ILogic.Result.Done);
+                            logic.SetResult(Result.Done);
                     }
                 }
                 
@@ -52,7 +62,7 @@ namespace Game.Model.Weapons
                     if (weapon.Time >= weapon.Config.ReloadTime.Value)
                     {
                         weapon.Time = 0;
-                        logic.SetResult(ILogic.Result.Done);
+                        logic.SetResult(Result.Done);
                     }
                 }
 
@@ -64,24 +74,12 @@ namespace Game.Model.Weapons
                         weapon.Time = 0;
                         weapon.Reload(new DefExt.WriterContext(Writer, entityIndexInQuery));
                         if (weapon.Count == 0)
-                            logic.SetResult(ILogic.Result.Error);
+                            logic.SetResult(Result.Error);
                         else
-                            logic.SetResult(ILogic.Result.Done);
+                            logic.SetResult(Result.Done);
                     }
                 }
             }
-        }
-
-        public void OnUpdate(ref SystemState state)
-        {
-            var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
-            var job = new WeaponJob()
-            {
-                Writer = ecb.AsParallelWriter(),
-                Delta = SystemAPI.Time.DeltaTime,
-            };
-            state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
-            state.Dependency.Complete();
         }
     }
 }
