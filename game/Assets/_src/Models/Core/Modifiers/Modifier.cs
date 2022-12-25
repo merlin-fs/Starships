@@ -4,6 +4,9 @@ using System.Runtime.InteropServices;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Properties;
+
+using UnityEngine;
 
 namespace Game.Model.Stats
 {
@@ -12,12 +15,17 @@ namespace Game.Model.Stats
         private static readonly MethodInfo m_Method = typeof(IModifier).GetMethod(nameof(IModifier.Estimation));
 
         public bool Active;
+        [HideInInspector]
         public int StatID;
+        [HideInInspector]
         public TypeIndex TypeIndex;
-        
+#if DEBUG
+        [CreateProperty]
+        public string StatName => StatID != 0 ? Stats.Stat.GetName(StatID) : "null";
+#endif
         [NativeDisableUnsafePtrRestriction]
         private readonly void* m_ModifierPtr;
-
+        [HideInInspector]
         public ulong UID => (ulong)m_ModifierPtr;
 
         private Modifier(void* ptr, Enum stat)

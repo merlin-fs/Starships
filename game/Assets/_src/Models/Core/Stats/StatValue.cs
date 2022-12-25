@@ -16,9 +16,9 @@ namespace Game.Model.Stats
             public float Normalize;
         }
 
-        [SerializeField]
+        [HideInInspector, SerializeField]
         private ValueStruct m_Original;
-        [SerializeField]
+        [HideInInspector, SerializeField]
         private ValueStruct m_Value;
 
         [CreateProperty] public float Min => m_Value.Min;
@@ -68,7 +68,7 @@ namespace Game.Model.Stats
     {
         public static readonly StatValue Default = 1f;
 
-        public static void Mull(this StatValue stat, float mull)
+        public static void Mull(ref this StatValue stat, float mull)
         {
             stat.SetValue(stat.Value * mull);
         }
