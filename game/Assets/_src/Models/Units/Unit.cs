@@ -33,6 +33,7 @@ namespace Game.Model.Units
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
             var buff = context.AddBuffer<Stat>(entity);
+            Stat.AddStat(buff, GlobalStat.Health, m_Config.Value.Speed);
             Stat.AddStat(buff, Stats.Speed, m_Config.Value.Speed);
         }
 

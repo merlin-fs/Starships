@@ -29,11 +29,12 @@ namespace Game.Model.Weapons
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
             var buff = context.AddBuffer<Stat>(entity);
+            Stat.AddStat(buff, GlobalStat.Health, 10);
+
             Stat.AddStat(buff, Stats.Rate, m_Config.Value.Rate);
             Stat.AddStat(buff, Stats.Damage, m_Config.Value.DamageValue);
             Stat.AddStat(buff, Stats.ReloadTime, m_Config.Value.ReloadTime);
             Stat.AddStat(buff, Stats.ClipSize, m_Config.Value.ClipSize);
-            Stat.AddStat(buff, GlobalStat.Health, 10);
 
             m_Config.Value.Bullet.Value.AddComponentData(entity, context);
         }
