@@ -16,6 +16,11 @@ namespace Game.Model.Units
 
     using Stats;
 
+    using Unity.Collections;
+    using Unity.Transforms;
+
+    using UnityEngine;
+
     /// <summary>
     /// Реализация юнита (корабля)
     /// </summary>
@@ -32,9 +37,18 @@ namespace Game.Model.Units
         #region IDefineableCallback
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
+            context.AddBuffer<Modifier>(entity);
+
             var buff = context.AddBuffer<Stat>(entity);
             Stat.AddStat(buff, GlobalStat.Health, m_Config.Value.Speed);
             Stat.AddStat(buff, Stats.Speed, m_Config.Value.Speed);
+
+            context.SetName(entity, GetType().Name);
+
+            var weapon = context.CreateEntity();
+            Config.Weapon.Value.AddComponentData(weapon, context);
+            Config.Weapon.Logic.AddComponentData(weapon, context);
+            context.AddComponentData(weapon, new Parent() { Value = entity });
         }
 
         public void RemoveComponentData(Entity entity, IDefineableContext context)

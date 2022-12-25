@@ -25,7 +25,9 @@ namespace Game.Model.Logics
 
             public Enum GetState(int2 value)
             {
-                return m_States[value].Value;
+                return math.all(value == int2.zero) 
+                    ? null 
+                    : m_States[value].Value;
             }
 
             public static int2 GetID(Enum value)

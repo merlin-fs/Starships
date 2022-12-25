@@ -7,6 +7,7 @@ using Unity.Collections;
 using Game.Model.Stats;
 using TMPro;
 using Game.Model;
+using Game.Model.Units;
 
 public partial class EmptySystem : SystemBase
 {
@@ -19,7 +20,7 @@ public class TestPrefab : MonoBehaviour
     TMP_Text m_Text;
 
     [SerializeField]
-    public WeaponConfig weaponConfig;
+    public UnitConfig Config;
 
     [SerializeField]
     Button m_BtnReload;
@@ -60,15 +61,14 @@ public class TestPrefab : MonoBehaviour
         using NativeArray<Entity> entities = m_EntityManager.CreateEntity(Archetype, count, Allocator.Temp);
         foreach (var entity in entities)
         {
-            weaponConfig.Value.AddComponentData(entity, m_EntityManager);
-            weaponConfig.Logic.AddComponentData(entity, m_EntityManager);
+            Config.Value.AddComponentData(entity, m_EntityManager);
         }
     }
 
     private void Start()
     {
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        weaponConfig.Init();
+        Config.Value.Weapon.Init();
         CreateEntities(1);
     }
 

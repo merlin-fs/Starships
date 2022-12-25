@@ -28,9 +28,11 @@ namespace Game.Model.Weapons
         #region IDefineableCallback
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
+            context.SetName(entity, GetType().Name);
+
+            context.AddBuffer<Modifier>(entity);
             var buff = context.AddBuffer<Stat>(entity);
             Stat.AddStat(buff, GlobalStat.Health, 10);
-
             Stat.AddStat(buff, Stats.Rate, m_Config.Value.Rate);
             Stat.AddStat(buff, Stats.Damage, m_Config.Value.DamageValue);
             Stat.AddStat(buff, Stats.ReloadTime, m_Config.Value.ReloadTime);

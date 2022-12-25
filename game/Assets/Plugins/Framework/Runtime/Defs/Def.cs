@@ -4,6 +4,8 @@ using System.Reflection;
 using System.Linq;
 using Unity.Entities;
 using System.Runtime.InteropServices;
+using Unity.Collections;
+using System.Globalization;
 
 namespace Common.Defs
 {
@@ -28,6 +30,11 @@ namespace Common.Defs
             public EntityManagerContext(EntityManager manager)
             {
                 m_Manager = manager;
+            }
+
+            public Entity CreateEntity()
+            {
+                return m_Manager.CreateEntity();
             }
 
             public DynamicBuffer<T> AddBuffer<T>(Entity entity) 
@@ -56,6 +63,12 @@ namespace Common.Defs
                 where T : IDefineable
             {
                 def.RemoveComponentData(entity, m_Manager, data);
+            }
+            public void SetName(Entity entity, string name)
+            {
+                FixedString64Bytes fs = default;
+                FixedStringMethods.CopyFromTruncated(ref fs, name);
+                m_Manager.SetName(entity, fs);
             }
         }
 
@@ -93,6 +106,16 @@ namespace Common.Defs
             {
                 throw new NotImplementedException();
             }
+
+            public Entity CreateEntity()
+            {
+                return m_Manager.CreateAdditionalEntity();
+            }
+
+            public void SetName(Entity entity, string name)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public struct WriterContext : IDefineableContext
@@ -104,6 +127,11 @@ namespace Common.Defs
             {
                 m_Manager = manager;
                 m_SortKey = sortKey;
+            }
+
+            public Entity CreateEntity()
+            {
+                return m_Manager.CreateEntity(m_SortKey);
             }
 
             public DynamicBuffer<T> AddBuffer<T>(Entity entity)
@@ -130,6 +158,13 @@ namespace Common.Defs
                 where T : IDefineable
             {
                 def.RemoveComponentData(entity, m_Manager, m_SortKey, data);
+            }
+            
+            public void SetName(Entity entity, string name)
+            {
+                FixedString64Bytes fs = default;
+                FixedStringMethods.CopyFromTruncated(ref fs, name);
+                m_Manager.SetName(m_SortKey, entity, fs);
             }
         }
         #endregion
