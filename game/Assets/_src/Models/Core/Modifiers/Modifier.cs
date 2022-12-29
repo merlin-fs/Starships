@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+
+using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -10,6 +12,7 @@ using UnityEngine;
 
 namespace Game.Model.Stats
 {
+    [Serializable]
     public unsafe struct Modifier : IBufferElementData, IEquatable<Modifier>
     {
         private static readonly MethodInfo m_Method = typeof(IModifier).GetMethod(nameof(IModifier.Estimation));
@@ -23,15 +26,15 @@ namespace Game.Model.Stats
         [CreateProperty]
         public string StatName => StatID != 0 ? Stats.Stat.GetName(StatID) : "null";
 #endif
-        [NativeDisableUnsafePtrRestriction]
-        private readonly void* m_ModifierPtr;
+        //[NativeDisableUnsafePtrRestriction]
+        private readonly ulong m_ModifierPtr;
         [HideInInspector]
         public ulong UID => (ulong)m_ModifierPtr;
 
         private Modifier(void* ptr, Enum stat)
         {
             StatID = new int2(stat.GetType().GetHashCode(), stat.GetHashCode()).GetHashCode();
-            m_ModifierPtr = ptr;
+            m_ModifierPtr = (ulong)ptr;
             Active = true;
             TypeIndex = 0;
         }
@@ -51,27 +54,11 @@ namespace Game.Model.Stats
             };
         }
 
+        [BurstDiscard]
         public void Estimation(Entity entity, ref StatValue stat, float delta)
         {
-            try
-            {
-                var obj = (IModifier)Marshal.PtrToStructure(new IntPtr(m_ModifierPtr), TypeManager.GetTypeInfo(TypeIndex).Type);
-                obj.Estimation(entity, ref stat, delta);
-                /*
-                object obj = Marshal.PtrToStructure(new IntPtr(m_ModifierPtr), TypeManager.GetTypeInfo(TypeIndex).Type);
-                IModifier.Execute estimation = (IModifier.Execute)Delegate.CreateDelegate(typeof(IModifier.Execute), obj, m_Method);
-                estimation.Invoke(entity, ref stat, delta);
-                */
-                /*
-                var args = new object[] { entity, stat, delta };
-                (IModifier.Execute)m_Method.Invoke(obj, args);
-                stat = (StatValue)args[1];
-                */
-            }
-            catch (Exception e)
-            { 
-                UnityEngine.Debug.LogException(e);
-            }
+            var obj = (IModifier)Marshal.PtrToStructure(new IntPtr((void*)m_ModifierPtr), TypeManager.GetTypeInfo(TypeIndex).Type);
+            obj.Estimation(entity, ref stat, delta);
         }
 
         public static ulong AddModifierAsync<T>(Entity entity, ref T modifier, Enum statType)

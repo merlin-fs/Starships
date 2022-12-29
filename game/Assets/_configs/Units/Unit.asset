@@ -12,8 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2e41f3957ca1b641952eb890f0f5956, type: 3}
   m_Name: Unit
   m_EditorClassIdentifier: 
+  Prefab: {fileID: 0}
+  m_PrefabID:
+    Value:
+      x: 0
+      y: 0
+      z: 0
+      w: 0
   Value:
-    Weapon: {fileID: 11400000, guid: 4ebc84f02e2b6dc42be590d5613f4838, type: 2}
+    Weapon: {fileID: 0}
     Speed:
       m_Original:
         Min: 0
@@ -25,4 +32,3 @@ MonoBehaviour:
         Max: 1
         Value: 1
         Normalize: 1
-  Prefab: {fileID: 0}

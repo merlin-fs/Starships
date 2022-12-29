@@ -71,6 +71,7 @@ namespace Game.Model.Logics
                 }
             }
 
+            [Serializable]
             private class StateInfo
             {
                 public int2 ID { get; }

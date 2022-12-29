@@ -14,7 +14,6 @@ namespace Game.Model.Stats
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Stat>()
                 .WithAll<Modifier>()
-                .WithOptions(EntityQueryOptions.IncludePrefab | EntityQueryOptions.IncludeDisabledEntities)
                 .Build();
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Modifier>());

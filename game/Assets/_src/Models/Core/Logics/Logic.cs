@@ -7,10 +7,12 @@ using Unity.Mathematics;
 
 namespace Game.Model.Logics
 {
+    [Serializable]
     public partial struct Logic : IComponentData, IDefineable
     {
         [DontSerialize]
         private readonly Def<Config> m_Config;
+        
         private int2 m_State;
         public Result CurrentResult;
         public bool Work;

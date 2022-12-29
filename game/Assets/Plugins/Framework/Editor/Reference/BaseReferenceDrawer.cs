@@ -12,7 +12,7 @@ namespace UnityEditor.Inspector
         private static readonly float LINE_HEIGHT = EditorGUIUtility.singleLineHeight;
         private class TypeProvider : PickerProvider<Type> { }
         private static readonly TypeProvider m_TypeProvider = ScriptableObject.CreateInstance<TypeProvider>();
-        private Texture2D m_CaretTexture = null;
+        private static Texture2D m_CaretTexture = null;
         GUIStyle m_Normal;
         protected bool m_CanPing = true;
         public BaseReferenceDrawer()
@@ -53,8 +53,6 @@ namespace UnityEditor.Inspector
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-
-
             var assetDropDownRect = GetRect(position, property, label);
             bool isDragging = Event.current.type == EventType.DragUpdated && assetDropDownRect.Contains(Event.current.mousePosition);
             bool isDropping = Event.current.type == EventType.DragPerform && assetDropDownRect.Contains(Event.current.mousePosition);
@@ -148,14 +146,18 @@ namespace UnityEditor.Inspector
         private void DrawCaret(Rect pickerRect)
         {
             if (m_CaretTexture == null)
+            {
+                var thisfile = $"{nameof(BaseReferenceDrawer)}.cs";
+                string[] res = Directory.GetFiles(Application.dataPath, thisfile, SearchOption.AllDirectories);
+                if (res.Length > 0)
                 {
-                string caretIconPath = EditorGUIUtility.isProSkin
-                    ? @"Packages\com.unity.addressables\Editor\Icons\PickerDropArrow-Pro.png"
-                    : @"Packages\com.unity.addressables\Editor\Icons\PickerDropArrow-Personal.png";
-
-                if (File.Exists(caretIconPath))
-                {
-                    m_CaretTexture = (Texture2D)AssetDatabase.LoadAssetAtPath(caretIconPath, typeof(Texture2D));
+                    string caretIconPath = Path.GetDirectoryName(res[0]);
+                    caretIconPath = Path.GetFullPath(Path.Combine(caretIconPath, "../Icon/PickerDropArrow-Pro.png"));
+                    if (File.Exists(caretIconPath))
+                    {
+                        caretIconPath = "Assets\\" + Path.GetRelativePath(Application.dataPath, caretIconPath);
+                        m_CaretTexture = (Texture2D)AssetDatabase.LoadAssetAtPath(caretIconPath, typeof(Texture2D));
+                    }
                 }
             }
 

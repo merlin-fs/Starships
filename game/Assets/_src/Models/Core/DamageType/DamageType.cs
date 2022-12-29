@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Defs;
 using UnityEngine;
 
 namespace Game.Model
@@ -7,7 +8,7 @@ namespace Game.Model
     /// Тип урона
     /// </summary>
     [CreateAssetMenu(fileName = "DamageType", menuName = "Configs/DamageType")]
-    public class DamageType : ScriptableObject
+    public class DamageType : ScriptableConfig
     {
     }
 }

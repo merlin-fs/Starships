@@ -1,4 +1,5 @@
 ﻿using System;
+using Common.Defs;
 using UnityEngine;
 
 namespace Game.Model.Units
@@ -7,9 +8,8 @@ namespace Game.Model.Units
     /// Конфиг корабля
     /// </summary>
     [CreateAssetMenu(fileName = "Unit", menuName = "Configs/Unit")]
-    public class UnitConfig: ScriptableObject
+    public class UnitConfig: ScriptableConfig
     {
         public Unit.UnitConfig Value = new Unit.UnitConfig();
-        public GameObject Prefab;
     }
 }

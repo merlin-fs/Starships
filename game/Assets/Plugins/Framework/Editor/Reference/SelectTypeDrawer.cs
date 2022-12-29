@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Reflection.Ext;
 using UnityEngine;
-using Common.Defs;
 
 namespace UnityEditor.Inspector
 {
-    //[CustomPropertyDrawer(typeof(DefineableAttribute))]
-    //[CustomPropertyDrawer(typeof(DefineableSelectAttribute), true)]
-    //[CustomPropertyDrawer(typeof(IDef), true)]
+    [CustomPropertyDrawer(typeof(SelectTypeAttribute), true)]
     class SelectTypeDrawer : BaseReferenceDrawer
     {
         protected override void GetDisplayValue(object value, ref string display)
@@ -17,7 +13,7 @@ namespace UnityEditor.Inspector
 
         protected override void OnSelect(SerializedProperty property, Type type)
         {
-            string value = type?.Name;
+            string value = type?.FullName;
             property.stringValue = value ?? null;
             property.serializedObject.ApplyModifiedProperties();
             property.serializedObject.Update();
@@ -25,10 +21,8 @@ namespace UnityEditor.Inspector
 
         protected override Type GetBaseType(SerializedProperty property)
         {
-            DefineableSelectAttribute attr = (DefineableSelectAttribute)attribute;
-            var type = attr.InstanceType;
-            var method = type.GetMethod("GetGenericType");
-            type = (Type)method.Invoke(null, null);
+            SelectTypeAttribute attr = (SelectTypeAttribute)attribute;
+            var type = attr.SelectType;
             return type;
         }
 

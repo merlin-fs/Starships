@@ -1,14 +1,11 @@
 using System;
-
 using Unity.Collections;
 using Unity.Entities;
 
 namespace Common.Defs
 {
-    public interface IDefineable
-    {
-    }
-    
+    public interface IDefineable { }
+
     public interface IDefineableContext
     {
         DynamicBuffer<T> AddBuffer<T>(Entity entity) where T : unmanaged, IBufferElementData;
@@ -16,7 +13,7 @@ namespace Common.Defs
         void RemoveComponent<T>(Entity entity) where T : unmanaged, IComponentData;
         void AddComponentData(IDef def, Entity entity);
         void RemoveComponentData<T>(IDef<T> def, Entity entity, T data) where T : IDefineable;
-        Entity CreateEntity();
+        Entity CreateEntity(string name = "");
         void SetName(Entity entity, string name);
     }
 
