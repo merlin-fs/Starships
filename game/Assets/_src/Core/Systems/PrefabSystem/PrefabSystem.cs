@@ -1,23 +1,32 @@
 using System;
+using System.Linq;
 using Unity.Entities;
 using Unity.Burst;
 using Unity.Collections;
 using Common.Defs;
+using System.Threading.Tasks;
 
 namespace Game.Core.Prefabs
 {
-    using System.Linq;
-
     using Repositories;
 
-    using Unity.Transforms;
-
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
-    //[UpdateInGroup(typeof(LateSimulationSystemGroup))]
     partial class PrefabSystem : SystemBase
     {
         EntityQuery m_Query;
         EntityQuery m_StoreQuery;
+
+        private bool m_Done;
+
+        public Task<bool> IsDone()
+        {
+            return Task.Run(() =>
+            {
+                while (!m_Done)
+                    Task.Yield();
+                return m_Done;
+            });
+        }
 
         protected override void OnCreate()
         {
@@ -35,50 +44,16 @@ namespace Game.Core.Prefabs
             RequireForUpdate(m_Query);
         }
 
-        /*
-        partial struct PrepareJob : IJobEntity
-        {
-            public Entity Store;
-            public EntityCommandBuffer.ParallelWriter Writer;
-            //public EntityManager Writer;
-
-
-            void Execute([EntityIndexInQuery] int idx, in Entity entity, PrefabTargetData data)
-            {
-                if (data.IsChild)
-                    return;
-
-                var repo = Repositories.Instance.ConfigsAsync().Result;
-
-                var configs = repo.Find((i) => i.PrefabID == data.PrefabID);
-                foreach (var config in configs)
-                {
-                    var prefab = Writer.Instantiate(idx, entity);
-                    Writer.AddComponent<Prefab>(idx, prefab);
-
-                    Writer.AppendToBuffer(idx, Store, new PreparePrefabData()
-                    {
-                        Entity = prefab,
-                        ID = config.ID,
-                    });
-
-                    Writer.RemoveComponent<PrefabTargetData>(idx, prefab);
-                    Writer.RemoveComponent<PrefabTargetData>(idx, entity);
-                }
-            }
-        }
-        */
-
         [BurstDiscard]
         protected async override void OnUpdate()
         {
             if (m_StoreQuery.IsEmpty || m_Query.IsEmpty)
                 return;
 
+            m_Done = false;
+
             var repo = await Repositories.Instance.ConfigsAsync();
             var system = World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>();
-
-            UnityEngine.Debug.Log($"[Prefab system] Init");
 
             var ecb = system.CreateCommandBuffer();
             var storeEntity = m_StoreQuery.GetSingletonEntity();
@@ -90,7 +65,6 @@ namespace Game.Core.Prefabs
             using var dst = new NativeArray<Entity>(1, Allocator.Temp);
 
             var writer = EntityManager;
-            UnityEngine.Debug.Log($"[Prefab system] found {datas.Length} PrefabTargetData");
 
             foreach (var data in datas)
             {
@@ -99,8 +73,6 @@ namespace Game.Core.Prefabs
                     continue;
 
                 var configs = repo.Find((i) => i.PrefabID == data.PrefabID);
-
-                UnityEngine.Debug.Log($"[Prefab system] {data.PrefabID} configs: {configs.Count()}");
 
                 foreach (var config in configs)
                 {
@@ -143,22 +115,10 @@ namespace Game.Core.Prefabs
                 }
                 var context = new DefExt.CommandBufferContext(ecb, map);
                 config.Configurate(prefab.Entity, context);
-                UnityEngine.Debug.Log($"[Prefab system] prefab {prefab.ID}, {config.ID}, {config.Prefab}");
             }
-            /*
-            Dependency = new PrepareJob()
-            {
-                Store = store,
-                Writer = ecb.AsParallelWriter(),
+            UnityEngine.Debug.Log($"[Prefab system] Init prefabs: {prefabs.Length}");
 
-            }
-            .Schedule(m_Query, Dependency);
-            //.ScheduleParallel(m_Query, Dependency);
-            //system.AddJobHandleForProducer(Dependency);
-            Dependency.Complete();
-            ecb.RemoveComponent<PrefabData>(store);
-            //EntityManager.DestroyEntity(m_Query);
-            */
+            m_Done = true;
         }
     }
 }
