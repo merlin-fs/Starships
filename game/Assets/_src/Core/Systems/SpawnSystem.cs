@@ -1,11 +1,13 @@
 using System;
 using Unity.Entities;
+using Unity.Transforms;
 
 namespace Game.Model
 {
     public struct SpawnTag : IComponentData
     {
         public Entity Entity;
+        public WorldTransform WorldTransform;
     }
 }
 
@@ -31,11 +33,13 @@ namespace Game.Systems
         {
             public EntityCommandBuffer.ParallelWriter Writer;
 
-            void Execute([EntityIndexInQuery] int entityIndexInQuery, in Entity entity, in SpawnTag spawn)
+            void Execute([EntityIndexInQuery] int idx, in Entity entity, in SpawnTag spawn)
             {
-                UnityEngine.Debug.Log($"try spawn: {spawn.Entity}");
-                Writer.Instantiate(entityIndexInQuery, spawn.Entity);
-                Writer.DestroyEntity(entityIndexInQuery, entity);
+                var inst = Writer.Instantiate(idx, spawn.Entity);
+                Writer.AddComponent(idx, inst, new Move { Position = spawn.WorldTransform.Position });
+                Writer.AddComponent(idx, inst, new Target());
+
+                Writer.DestroyEntity(idx, entity);
             }
         }
 

@@ -2,6 +2,7 @@
 using Common.Defs;
 using Unity.Entities;
 using Unity.Transforms;
+using Unity.Mathematics;
 
 namespace Game.Model
 {
@@ -24,9 +25,12 @@ namespace Game.Model.Units
     {
         public Def<UnitConfig> Def { get; }
 
+        public float3 Position;
+
         public Unit(Def<UnitConfig> config)
         {
             Def = config;
+            Position = default;
         }
         #region IDefineableCallback
         public void AddComponentData(Entity entity, IDefineableContext context)
@@ -49,6 +53,11 @@ namespace Game.Model.Units
 
         }
         #endregion
+        public enum State
+        {
+            Stop,
+        }
+
         public enum Stats
         {
             Speed,

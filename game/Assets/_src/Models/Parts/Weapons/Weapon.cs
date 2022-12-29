@@ -37,6 +37,7 @@ namespace Game.Model.Weapons
             Stat.AddStat(buff, Stats.Damage, m_Config.Value.DamageValue);
             Stat.AddStat(buff, Stats.ReloadTime, m_Config.Value.ReloadTime);
             Stat.AddStat(buff, Stats.ClipSize, m_Config.Value.ClipSize);
+            context.AddComponentData(entity, new Target());
 
             //m_Config.Value.Bullet.Value.AddComponentData(entity, context);
         }

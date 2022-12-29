@@ -11,6 +11,8 @@ using Game.Systems;
 using Game.Core.Repositories;
 using System;
 using UnityEngine.AddressableAssets;
+using Unity.Transforms;
+using Game.Core.Prefabs;
 
 public class TestSpawn : MonoBehaviour
 {
@@ -37,13 +39,41 @@ public class TestSpawn : MonoBehaviour
             });
     }
 
+    private async void StartBatle()
+    {
+        var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
+        await prefab.IsDone();
+
+        var config = !Config.IsValid()
+            ? await Config.LoadAssetAsync().Task
+            : (UnitConfig)Config.Asset;
+
+        var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
+            .CreateCommandBuffer();
+
+        var entity = ecb.CreateEntity();
+        ecb.AddComponent(entity, new SpawnTag()
+        {
+            Entity = config.Prefab,
+            WorldTransform = WorldTransform.FromPosition(-10, 0, 0)
+        });
+
+        entity = ecb.CreateEntity();
+        ecb.AddComponent(entity, new SpawnTag()
+        {
+            Entity = config.Prefab,
+            WorldTransform = WorldTransform.FromPosition(10, 0, 0)
+        });
+    }
+
+
     private async void CreateEntities(int count)
     {
         var config = !Config.IsValid()
             ? await Config.LoadAssetAsync().Task
             : (UnitConfig)Config.Asset;
 
-        UnityEngine.Debug.Log($"try spawn config: {config.Prefab}");
+        Debug.Log($"try spawn config: {config.Prefab}");
         var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
             .CreateCommandBuffer();
 
@@ -64,7 +94,10 @@ public class TestSpawn : MonoBehaviour
         //SceneSystem.LoadPrefabAsync(m_EntityManager.WorldUnmanaged, guid);
         */
         await Repositories.Instance.ConfigsAsync();
+
+        StartBatle();
     }
+
 
     private void Update()
     {
