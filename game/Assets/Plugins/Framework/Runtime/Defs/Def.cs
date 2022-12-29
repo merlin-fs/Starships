@@ -6,6 +6,7 @@ using Unity.Entities;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using System.Collections.Concurrent;
 
 namespace Common.Defs
 {
@@ -313,7 +314,7 @@ namespace Common.Defs
                     Def = null,
                     Initialize = null,
                 };
-                m_Initializes.Add(id, info);
+                m_Initializes.TryAdd(id, info);
             }
             else
             {
@@ -359,7 +360,7 @@ namespace Common.Defs
             if (defs.Length > 0)
                 value = defs[0].GetGenericArguments()[0];
 
-            m_Targets.Add(findType, value);
+            m_Targets.TryAdd(findType, value);
 
             return (value, findType);
         }
@@ -371,8 +372,8 @@ namespace Common.Defs
             public ConstructorInfo Initialize;
         }
 
-        private static Dictionary<long, DefInfo> m_Initializes = new Dictionary<long, DefInfo>();
-        private static Dictionary<Type, Type> m_Targets = new Dictionary<Type, Type>();
+        private static ConcurrentDictionary<long, DefInfo> m_Initializes = new ConcurrentDictionary<long, DefInfo>();
+        private static ConcurrentDictionary<Type, Type> m_Targets = new ConcurrentDictionary<Type, Type>();
     }
 
     internal static class DefExtensions

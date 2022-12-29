@@ -22,11 +22,11 @@ namespace Game.Core.Prefabs
         {
             public unsafe override void Bake(PrefabsStoreConfig authoring)
             {
+#if UNITY_EDITOR
                 var buffer = AddBuffer<PrefabData>();
-                //this.SetComponentEnabled<PrefabData>(GetEntity(), false);
-                
                 buffer.Add(new PrefabData { Prefab = GetEntity(authoring.Config2.PrefabObject) });
                 buffer.Add(new PrefabData { Prefab = GetEntity(authoring.Config1.PrefabObject) });
+#endif
             }
         }
     }

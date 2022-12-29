@@ -57,10 +57,12 @@ public class TestSpawn : MonoBehaviour
     private async void Start()
     {
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        /*
         var guid = SceneSystem.GetSceneGUID(ref m_EntityManager.WorldUnmanaged.GetExistingSystemState<SceneSystem>(), "Assets/Scenes/SampleScene/New Sub Scene.unity");
         //var loadParameters = new SceneSystem.LoadParameters { Flags = SceneLoadFlags.LoadAdditive | SceneLoadFlags.NewInstance };
         var sceneEntity = SceneSystem.LoadSceneAsync(m_EntityManager.WorldUnmanaged, guid);
         //SceneSystem.LoadPrefabAsync(m_EntityManager.WorldUnmanaged, guid);
+        */
         await Repositories.Instance.ConfigsAsync();
     }
 

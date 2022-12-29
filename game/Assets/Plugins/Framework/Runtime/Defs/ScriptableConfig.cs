@@ -9,7 +9,9 @@ namespace Common.Defs
 
     public abstract class ScriptableConfig : ScriptableObject, IConfig, IIdentifiable<ObjectID>, ISerializationCallbackReceiver
     {
+#if UNITY_EDITOR
         public GameObject PrefabObject;
+#endif
 
         [SerializeField, HideInInspector]
         private Hash128 m_PrefabID;
