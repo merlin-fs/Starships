@@ -1,6 +1,7 @@
 ﻿using System;
 using Common.Defs;
 using Unity.Entities;
+using Unity.Transforms;
 
 namespace Game.Model
 {
@@ -12,29 +13,35 @@ namespace Game.Model
 
 namespace Game.Model.Units
 {
-    using Game.Model.Weapons;
-
+    using Weapons;
     using Stats;
 
     /// <summary>
     /// Реализация юнита (корабля)
     /// </summary>
     [Serializable]
-    public unsafe struct Unit : IUnit, IDefineable, IComponentData, IDefineableCallback
+    public struct Unit : IUnit, IDefineable, IComponentData, IDefineableCallback
     {
-        private readonly Def<UnitConfig> m_Config;
-        public UnitConfig Config => m_Config.Value;
+        public Def<UnitConfig> Def { get; }
 
         public Unit(Def<UnitConfig> config)
         {
-            m_Config = config;
+            Def = config;
         }
         #region IDefineableCallback
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
+            context.AddBuffer<Modifier>(entity);
+
             var buff = context.AddBuffer<Stat>(entity);
-            Stat.AddStat(buff, GlobalStat.Health, m_Config.Value.Speed);
-            Stat.AddStat(buff, Stats.Speed, m_Config.Value.Speed);
+            Stat.AddStat(buff, GlobalStat.Health, Def.Value.Speed);
+            Stat.AddStat(buff, Stats.Speed, Def.Value.Speed);
+
+            context.SetName(entity, GetType().Name);
+
+            var weapon = context.FindEntity(Def.Value.Weapon.PrefabID);
+            Def.Value.Weapon.Value.AddComponentData(weapon, context);
+            Def.Value.Weapon.Logic.AddComponentData(weapon, context);
         }
 
         public void RemoveComponentData(Entity entity, IDefineableContext context)
@@ -42,7 +49,6 @@ namespace Game.Model.Units
 
         }
         #endregion
-
         public enum Stats
         {
             Speed,

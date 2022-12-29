@@ -12,7 +12,6 @@ namespace Game.Model.Logics
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Logic>()
-                .WithOptions(EntityQueryOptions.IncludePrefab | EntityQueryOptions.IncludeDisabledEntities)
                 .Build();
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
             RequireForUpdate(m_Query);

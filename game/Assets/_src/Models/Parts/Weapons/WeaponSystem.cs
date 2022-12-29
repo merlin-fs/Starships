@@ -17,7 +17,6 @@ namespace Game.Model.Weapons
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Weapon>()
                 .WithAll<Logic>()
-                .WithOptions(EntityQueryOptions.IncludePrefab | EntityQueryOptions.IncludeDisabledEntities)
                 .Build();
 
             state.RequireForUpdate(m_Query);

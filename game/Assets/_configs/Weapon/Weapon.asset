@@ -12,6 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fae114fcc2e167541a1bf00b4698ad62, type: 3}
   m_Name: Weapon
   m_EditorClassIdentifier: 
+  PrefabObject: {fileID: 3139204547736633351, guid: e68621411f71031488e2552f57db202a,
+    type: 3}
+  m_PrefabID:
+    Value:
+      x: 336750702
+      y: 1093670897
+      z: 4065668744
+      w: 2718088565
   Value:
     Bullet: {fileID: 11400000, guid: c94f740253ba24c4db17d250612946be, type: 2}
     DamageValue:
@@ -25,8 +33,8 @@ MonoBehaviour:
         Max: 1
         Value: 1
         Normalize: 1
-    BarrelCount: 0
-    ClipSize: 10
+    BarrelCount: 2
+    ClipSize: 11
     Rate:
       m_Original:
         Min: 0

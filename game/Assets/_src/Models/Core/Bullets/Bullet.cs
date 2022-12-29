@@ -8,6 +8,7 @@ namespace Game.Model.Weapons
 {
     using Stats;
 
+    [Serializable]
     public struct Bullet: IModifier, IDefineable, IComponentData, IDefineableCallback
     {
         [DontSerialize]

@@ -1,6 +1,8 @@
 ﻿using System;
 using Unity.Entities;
 
+using UnityEngine;
+
 namespace Common.Defs
 {
     public interface IDef
@@ -11,4 +13,11 @@ namespace Common.Defs
         where T : IDefineable
     {
     }
+
+    /*
+    public interface IConfig : ScriptableObject
+    {
+        GameObject Prefab { get; }
+    }
+    */
 }

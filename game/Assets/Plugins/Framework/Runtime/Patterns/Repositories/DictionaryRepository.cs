@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace Common.Repositories
 {
@@ -11,7 +10,6 @@ namespace Common.Repositories
     public sealed class DictionaryRepository<TID, TEntity> : IRepository<TID, TEntity>
         where TEntity: IIdentifiable<TID>
     {
-        [SerializeField]
         private readonly Dictionary<TID, TEntity> m_Items;
 
         public DictionaryRepository()
@@ -51,8 +49,6 @@ namespace Common.Repositories
 
         public void Insert(TID id, TEntity entity)
         {
-            if (m_Items.ContainsKey(id))
-                return;
             m_Items.Add(id, entity);
         }
 

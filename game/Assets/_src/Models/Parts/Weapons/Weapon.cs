@@ -9,7 +9,7 @@ namespace Game.Model.Weapons
     /// <summary>
     /// Реализация оружия
     /// </summary>
-    [ChunkSerializable]
+    [Serializable]
     public struct Weapon: IPart, IDefineable, IComponentData, IDefineableCallback
     {
         private readonly Def<WeaponConfig> m_Config;
@@ -28,15 +28,17 @@ namespace Game.Model.Weapons
         #region IDefineableCallback
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
+            context.SetName(entity, GetType().Name);
+
+            context.AddBuffer<Modifier>(entity);
             var buff = context.AddBuffer<Stat>(entity);
             Stat.AddStat(buff, GlobalStat.Health, 10);
-
             Stat.AddStat(buff, Stats.Rate, m_Config.Value.Rate);
             Stat.AddStat(buff, Stats.Damage, m_Config.Value.DamageValue);
             Stat.AddStat(buff, Stats.ReloadTime, m_Config.Value.ReloadTime);
             Stat.AddStat(buff, Stats.ClipSize, m_Config.Value.ClipSize);
 
-            m_Config.Value.Bullet.Value.AddComponentData(entity, context);
+            //m_Config.Value.Bullet.Value.AddComponentData(entity, context);
         }
 
         public void RemoveComponentData(Entity entity, IDefineableContext context)
