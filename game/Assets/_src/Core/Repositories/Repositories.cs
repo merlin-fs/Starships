@@ -17,6 +17,8 @@ namespace Game.Core.Repositories
 
         private ConcurrentDictionary<Type, object> m_Items = new ConcurrentDictionary<Type, object>();
 
+        private Task m_Task;
+        private object m_Look = new object();
         public Task<IReadonlyRepository<ObjectID, IConfig>> ConfigsAsync()
         {
             return RepositoryAsync<IConfig>();
@@ -32,7 +34,6 @@ namespace Game.Core.Repositories
             else
             {
                 var result = await NewRepositoryAsync<TDef>();
-                m_Items.TryAdd(type, result);
                 return result;
             }
         }
@@ -40,22 +41,29 @@ namespace Game.Core.Repositories
         private Task<DefsRepository<TDef>> NewRepositoryAsync<TDef>()
             where TDef : IIdentifiable<ObjectID>
         {
-            return Addressables.LoadAssetsAsync<TDef>(LABEL_DEF, null).Task
-                .ContinueWith(t =>
-                {
-                    var repository = new DefsRepository<TDef>();
-                    repository.Repo.Clear();
-                    try
+            lock (m_Look)
+            {
+                m_Task ??= Addressables.LoadAssetsAsync<TDef>(LABEL_DEF, null).Task
+                    .ContinueWith(t =>
                     {
-                        repository.Repo.Insert(t.Result);
-                        return repository;
-                    }
-                    catch (Exception ex)
-                    {
-                        UnityEngine.Debug.LogException(ex);
-                        return null;
-                    }
-                });
+                        var repository = new DefsRepository<TDef>();
+                        repository.Repo.Clear();
+                        try
+                        {
+                            repository.Repo.Insert(t.Result);
+                            m_Items.TryAdd(typeof(TDef), repository);
+                            m_Task = null;
+                            return repository;
+                        }
+                        catch (Exception ex)
+                        {
+                            UnityEngine.Debug.LogException(ex);
+                            return null;
+                        }
+
+                    });
+            }
+            return (Task<DefsRepository<TDef>>)m_Task;
         }
     }
 }

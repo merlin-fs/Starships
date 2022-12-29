@@ -7,36 +7,62 @@ namespace Common.Defs
 {
     using Core;
 
-    public class ScriptableConfig : ScriptableObject, IConfig, IIdentifiable<ObjectID>
+    public abstract class ScriptableConfig : ScriptableObject, IConfig, IIdentifiable<ObjectID>, ISerializationCallbackReceiver
     {
-        public GameObject Prefab;
+        public GameObject PrefabObject;
 
-        [SerializeField, HideInInspector] 
+        [SerializeField, HideInInspector]
         private Hash128 m_PrefabID;
-        [SerializeField] private ObjectID m_ID;
+
+        private ObjectID m_ID;
+        private Entity m_Prefab;
 
         public Hash128 PrefabID => m_PrefabID;
         public ObjectID ID => m_ID;
+        public Entity Prefab => m_Prefab;
 
-        private Entity m_Entity;
-
-        public void SetPrefab(Entity entity)
+        void IConfig.Configurate(Entity root, IDefineableContext context)
         {
-            m_Entity = entity;
+            m_Prefab = root;
+            Configurate(root, context);
         }
 
-        //public abstract Entity Instantiate();
+        protected abstract void Configurate(Entity entity, IDefineableContext context);
 
-#if UNITY_EDITOR 
+        public virtual void OnBeforeSerialize()
+        {
+            m_ID = ObjectID.Create(name);
+            CreateID();
+        }
+
+        public virtual void OnAfterDeserialize()
+        {
+        }
+
+        private void OnEnable()
+        {
+            m_ID = ObjectID.Create(name);
+        }
+
         private void OnValidate()
         {
             m_ID = ObjectID.Create(name);
-            if (Prefab)
+            CreateID();
+        }
+
+        private void CreateID()
+        {
+
+#if UNITY_EDITOR
+            if (Application.isPlaying)
+                return;
+
+            if (PrefabObject)
             {
-                UnityEditor.AssetDatabase.TryGetGUIDAndLocalFileIdentifier(Prefab, out string guid, out long localId);
+                UnityEditor.AssetDatabase.TryGetGUIDAndLocalFileIdentifier(PrefabObject, out string guid, out long localId);
                 m_PrefabID = new Hash128(guid);
             }
-        }
 #endif
+        }
     }
 }

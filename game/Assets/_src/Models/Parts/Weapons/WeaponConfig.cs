@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using Common.Defs;
+using Unity.Entities;
 
 namespace Game.Model.Weapons
 {
@@ -11,17 +12,19 @@ namespace Game.Model.Weapons
     /// Конфиг оружия
     /// </summary>
     [CreateAssetMenu(fileName = "Weapon", menuName = "Configs/Parts/Weapon")]
-    public class WeaponConfig: ScriptableConfig, IInitializable, ISerializationCallbackReceiver
+    public class WeaponConfig: ScriptableConfig, IInitializable
     {
         public Weapon.WeaponConfig Value = new Weapon.WeaponConfig();
 
         public Logic.Config Logic = new Logic.Config();
 
-        public void OnBeforeSerialize()
+        protected override void Configurate(Entity prefab, IDefineableContext context)
         {
+            Value.AddComponentData(prefab, context);
+            Logic.AddComponentData(prefab, context);
         }
 
-        public void OnAfterDeserialize()
+        public override void OnAfterDeserialize()
         {
             Init();
         }

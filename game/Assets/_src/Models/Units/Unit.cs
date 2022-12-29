@@ -38,12 +38,10 @@ namespace Game.Model.Units
             Stat.AddStat(buff, Stats.Speed, Def.Value.Speed);
 
             context.SetName(entity, GetType().Name);
-            /*
-            var weapon = context.CreateEntity();
-            Config.Weapon.Value.AddComponentData(weapon, context);
-            Config.Weapon.Logic.AddComponentData(weapon, context);
-            context.AddComponentData(weapon, new Parent() { Value = entity });
-            */
+
+            var weapon = context.FindEntity(Def.Value.Weapon.PrefabID);
+            Def.Value.Weapon.Value.AddComponentData(weapon, context);
+            Def.Value.Weapon.Logic.AddComponentData(weapon, context);
         }
 
         public void RemoveComponentData(Entity entity, IDefineableContext context)

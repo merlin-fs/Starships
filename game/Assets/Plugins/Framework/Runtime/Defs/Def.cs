@@ -39,20 +39,18 @@ namespace Common.Defs
         public struct EntityManagerContext: IDefineableContext
         {
             private EntityManager m_Manager;
-            private bool m_NeedPrefab;
-            public EntityManagerContext(EntityManager manager, bool needPrefab = false)
+            private NativeHashMap<Hash128, Entity> m_Childs;
+            public EntityManagerContext(EntityManager manager, NativeHashMap<Hash128, Entity> childs = default)
             {
-                m_NeedPrefab = needPrefab;
                 m_Manager = manager;
+                m_Childs = childs;
             }
 
-            public Entity CreateEntity(string name)
+            public Entity FindEntity(Hash128 prefabId)
             {
-                var entity = m_Manager.CreateEntity();
-                if (!string.IsNullOrEmpty(name))
-                    SetName(entity, name);
-                if (m_NeedPrefab)
-                    m_Manager.AddComponent<Prefab>(entity);
+                if (!m_Childs.IsCreated)
+                    return default;
+                m_Childs.TryGetValue(prefabId, out Entity entity);
                 return entity;
             }
 
@@ -92,73 +90,22 @@ namespace Common.Defs
             }
         }
 
-        public struct IBakerContext : IDefineableContext
-        {
-            private readonly IBaker m_Manager;
-            private bool m_NeedPrefab;
-            public IBakerContext(IBaker manager, bool needPrefab = false)
-            {
-                m_NeedPrefab = needPrefab;
-                m_Manager = manager;
-            }
-
-            public DynamicBuffer<T> AddBuffer<T>(Entity entity)
-                where T : unmanaged, IBufferElementData
-            {
-                return m_Manager.AddBuffer<T>(entity);
-            }
-            public void AddComponentData<T>(Entity entity, T data)
-                where T : unmanaged, IComponentData
-            {
-                m_Manager.AddComponent<T>(entity, data);
-            }
-
-            public void RemoveComponent<T>(Entity entity)
-                where T : unmanaged, IComponentData
-            {
-                throw new NotImplementedException();
-            }
-            public void AddComponentData(IDef def, Entity entity)
-            {
-                def.AddComponentData(entity, m_Manager, this);
-            }
-            public void RemoveComponentData<T>(IDef<T> def, Entity entity, T data)
-                where T : IDefineable
-            {
-                throw new NotImplementedException();
-            }
-
-            public Entity CreateEntity(string name)
-            {
-                var entity = m_Manager.CreateAdditionalEntity(TransformUsageFlags.Default, entityName: name);
-                if (m_NeedPrefab)
-                    m_Manager.AddComponent<Prefab>(entity);
-                return entity;
-            }
-
-            public void SetName(Entity entity, string name)
-            {
-            }
-        }
-
         public struct CommandBufferContext : IDefineableContext
         {
             private EntityCommandBuffer m_Manager;
-            private bool m_NeedPrefab;
+            private NativeHashMap<Hash128, Entity> m_Childs;
 
-            public CommandBufferContext(EntityCommandBuffer manager, bool needPrefab = false)
+            public CommandBufferContext(EntityCommandBuffer manager, NativeHashMap<Hash128, Entity> childs = default)
             {
                 m_Manager = manager;
-                m_NeedPrefab = needPrefab;
+                m_Childs = childs;
             }
 
-            public Entity CreateEntity(string name)
+            public Entity FindEntity(Hash128 prefabId)
             {
-                var entity = m_Manager.CreateEntity();
-                if (!string.IsNullOrEmpty(name))
-                    SetName(entity, name);
-                if (m_NeedPrefab)
-                    m_Manager.AddComponent<Prefab>(entity);
+                if (!m_Childs.IsCreated)
+                    return default;
+                m_Childs.TryGetValue(prefabId, out Entity entity);
                 return entity;
             }
 
@@ -200,22 +147,20 @@ namespace Common.Defs
         {
             private EntityCommandBuffer.ParallelWriter m_Manager;
             private readonly int m_SortKey;
-            private bool m_NeedPrefab;
+            private NativeHashMap<Hash128, Entity> m_Childs;
 
-            public WriterContext(EntityCommandBuffer.ParallelWriter manager, int sortKey, bool needPrefab = false)
+            public WriterContext(EntityCommandBuffer.ParallelWriter manager, int sortKey, NativeHashMap<Hash128, Entity> childs = default)
             {
                 m_Manager = manager;
                 m_SortKey = sortKey;
-                m_NeedPrefab = needPrefab;
+                m_Childs = childs;
             }
 
-            public Entity CreateEntity(string name)
+            public Entity FindEntity(Hash128 prefabId)
             {
-                var entity = m_Manager.CreateEntity(m_SortKey);
-                if (!string.IsNullOrEmpty(name))
-                    SetName(entity, name);
-                if (m_NeedPrefab)
-                    m_Manager.AddComponent<Prefab>(m_SortKey, entity);
+                if (!m_Childs.IsCreated)
+                    return default;
+                m_Childs.TryGetValue(prefabId, out Entity entity);
                 return entity;
             }
 
@@ -267,18 +212,6 @@ namespace Common.Defs
                 context ??= new EntityManagerContext(manager);
                 callback.AddComponentData(entity, context);
             }
-            manager.AddComponentIData(entity, ref data);
-        }
-
-        public static void AddComponentData(this IDef self, Entity entity, IBaker manager, IDefineableContext context = null)
-        {
-            var data = CreateInstance(ref self);
-            if (data is IDefineableCallback callback)
-            {
-                context ??= new IBakerContext(manager);
-                callback.AddComponentData(entity, context);
-            }
-                
             manager.AddComponentIData(entity, ref data);
         }
 

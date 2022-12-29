@@ -13,8 +13,8 @@ namespace Common.Defs
         void RemoveComponent<T>(Entity entity) where T : unmanaged, IComponentData;
         void AddComponentData(IDef def, Entity entity);
         void RemoveComponentData<T>(IDef<T> def, Entity entity, T data) where T : IDefineable;
-        Entity CreateEntity(string name = "");
         void SetName(Entity entity, string name);
+        Entity FindEntity(Hash128 prefabId);
     }
 
     public interface IDefineableCallback

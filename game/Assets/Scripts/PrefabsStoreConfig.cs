@@ -25,8 +25,8 @@ namespace Game.Core.Prefabs
                 var buffer = AddBuffer<PrefabData>();
                 //this.SetComponentEnabled<PrefabData>(GetEntity(), false);
                 
-                buffer.Add(new PrefabData { Prefab = GetEntity(authoring.Config2.Prefab) });
-                buffer.Add(new PrefabData { Prefab = GetEntity(authoring.Config1.Prefab) });
+                buffer.Add(new PrefabData { Prefab = GetEntity(authoring.Config2.PrefabObject) });
+                buffer.Add(new PrefabData { Prefab = GetEntity(authoring.Config1.PrefabObject) });
             }
         }
     }

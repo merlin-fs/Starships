@@ -9,6 +9,8 @@ using Game.Model;
 using Game.Model.Units;
 using Game.Systems;
 using Game.Core.Repositories;
+using System;
+using UnityEngine.AddressableAssets;
 
 public class TestSpawn : MonoBehaviour
 {
@@ -16,7 +18,7 @@ public class TestSpawn : MonoBehaviour
     TMP_Text m_Text;
 
     [SerializeField]
-    public UnitConfig Config;
+    public AssetReferenceT<UnitConfig> Config;
 
     [SerializeField]
     Button m_BtnReload;
@@ -35,30 +37,21 @@ public class TestSpawn : MonoBehaviour
             });
     }
 
-    /*
-    public class MyBaker : Baker<TestPrefab>
+    private async void CreateEntities(int count)
     {
-        public override void Bake(TestPrefab authoring)
-        {
-            var entity = this.GetEntity();
-            authoring.weaponConfig.Value.AddComponentData(entity, this);
-            AddComponent<Prefab>();
-        }
-    }
-    */
+        var config = !Config.IsValid()
+            ? await Config.LoadAssetAsync().Task
+            : (UnitConfig)Config.Asset;
 
-    private void CreateEntities(int count)
-    {
-        var ecb = m_EntityManager.World.GetExistingSystemManaged<GameSpawnSystemCommandBufferSystem>()
+        UnityEngine.Debug.Log($"try spawn config: {config.Prefab}");
+        var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
             .CreateCommandBuffer();
 
-
-        if (PrefabStore.Instance.TryGet("Unit", out Entity prefab))
-            for (var i = 0; i < count; i++)
-            {
-                var entity = ecb.CreateEntity();
-                ecb.AddComponent(entity, new SpawnTag() { Entity = prefab });
-            }
+        for (var i = 0; i < count; i++)
+        {
+            var entity = ecb.CreateEntity();
+            ecb.AddComponent(entity, new SpawnTag() { Entity = config.Prefab });
+        }
     }
 
     private async void Start()
@@ -69,9 +62,6 @@ public class TestSpawn : MonoBehaviour
         var sceneEntity = SceneSystem.LoadSceneAsync(m_EntityManager.WorldUnmanaged, guid);
         //SceneSystem.LoadPrefabAsync(m_EntityManager.WorldUnmanaged, guid);
         await Repositories.Instance.ConfigsAsync();
-        
-        //var store = SystemAPI.GetSingletonEntity<Game.Core.Prefabs.PrefabData>();
-        //SystemAPI.SetBufferEnabled<Game.Core.Prefabs.PrefabData>(store, true);
     }
 
     private void Update()

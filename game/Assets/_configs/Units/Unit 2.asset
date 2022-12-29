@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2e41f3957ca1b641952eb890f0f5956, type: 3}
   m_Name: Unit 2
   m_EditorClassIdentifier: 
-  Prefab: {fileID: 8434163211771786228, guid: f91c07baf31faba439175b9701fa3b76, type: 3}
-  Guid: f91c07baf31faba439175b9701fa3b76
+  PrefabObject: {fileID: 8434163211771786228, guid: f91c07baf31faba439175b9701fa3b76,
+    type: 3}
+  m_PrefabID:
+    Value:
+      x: 2876293535
+      y: 1253765439
+      z: 2041934227
+      w: 1739829008
   Value:
     Weapon: {fileID: 11400000, guid: 4ebc84f02e2b6dc42be590d5613f4838, type: 2}
     Speed:
