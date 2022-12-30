@@ -46,6 +46,7 @@ namespace Game.Model.Units
             var weapon = context.FindEntity(Def.Value.Weapon.PrefabID);
             Def.Value.Weapon.Value.AddComponentData(weapon, context);
             Def.Value.Weapon.Logic.AddComponentData(weapon, context);
+            context.AddComponentData<Part>(weapon, new Part { Unit = entity });
         }
 
         public void RemoveComponentData(Entity entity, IDefineableContext context)

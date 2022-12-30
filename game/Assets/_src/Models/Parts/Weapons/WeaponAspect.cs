@@ -5,6 +5,8 @@ using Common.Defs;
 
 namespace Game.Model.Weapons
 {
+    using Units;
+
     public readonly partial struct WeaponAspect: IAspect
     {
         public readonly Entity Self;
@@ -12,10 +14,22 @@ namespace Game.Model.Weapons
         readonly RefRW<Weapon> m_Weapon;
 
         [Optional] readonly RefRW<Bullet> m_Bullet;
+        [Optional] readonly RefRO<Part> m_Part;
+        readonly RefRW<Target> m_Target;
 
         [CreateProperty]
         public Bullet Bullet => m_Bullet.IsValid ? m_Bullet.ValueRO : default;
-        
+        [CreateProperty]
+        public Entity Unit => m_Part.IsValid ? m_Part.ValueRO.Unit : default;
+        [CreateProperty]
+        public Entity Target => m_Target.ValueRO.Value;
+
+        [CreateProperty]
+        public uint SoughtTeams {
+            get => m_Target.ValueRO.SoughtTeams;
+            set => m_Target.ValueRW.SoughtTeams = value;
+        }
+
         public Weapon.WeaponConfig Config => m_Weapon.ValueRO.Config;
 
         public int Count => m_Weapon.ValueRO.Count;

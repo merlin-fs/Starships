@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-namespace Game.Model.Weapons
+namespace Game.Model
 {
     public interface IPart
     {

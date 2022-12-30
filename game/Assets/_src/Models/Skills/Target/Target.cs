@@ -1,6 +1,5 @@
 using System;
 using Unity.Entities;
-using Unity.Mathematics;
 
 namespace Game.Model
 {
@@ -8,7 +7,7 @@ namespace Game.Model
     public struct Target : IComponentData
     {
         public Entity Value;
-        //public Team Team;
+        public uint SoughtTeams;
 
         public enum State
         {

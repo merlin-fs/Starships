@@ -33,3 +33,9 @@ MonoBehaviour:
         Max: 1
         Value: 1
         Normalize: 1
+  Team:
+    m_SelfTeam:
+      Value: 1
+    m_EnemyTeams:
+    - Value: 2
+    - Value: 4

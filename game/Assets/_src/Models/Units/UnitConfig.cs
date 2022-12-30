@@ -16,11 +16,13 @@ namespace Game.Model.Units
     {
         public Unit.UnitConfig Value = new Unit.UnitConfig();
         public Logic.Config Logic = new Logic.Config();
+        public Team.Def Team = new Team.Def();
 
         protected override void Configurate(Entity prefab, IDefineableContext context)
         {
             Value.AddComponentData(prefab, context);
             Logic.AddComponentData(prefab, context);
+            Team.AddComponentData(prefab, context);
         }
 
         public override void OnAfterDeserialize()

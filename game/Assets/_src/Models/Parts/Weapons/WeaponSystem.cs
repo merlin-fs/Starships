@@ -1,6 +1,7 @@
 using System;
 using Unity.Entities;
 using Common.Defs;
+using Unity.Collections;
 
 namespace Game.Model.Weapons
 {
@@ -29,6 +30,7 @@ namespace Game.Model.Weapons
             var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
             var job = new WeaponJob()
             {
+                Teams = state.GetComponentLookup<Team>(false),
                 Writer = ecb.AsParallelWriter(),
                 Delta = SystemAPI.Time.DeltaTime,
             };
@@ -39,10 +41,22 @@ namespace Game.Model.Weapons
         partial struct WeaponJob : IJobEntity
         {
             public float Delta;
+            [ReadOnly]
+            public ComponentLookup<Team> Teams;
             public EntityCommandBuffer.ParallelWriter Writer;
 
             void Execute([EntityIndexInQuery] int entityIndexInQuery, ref WeaponAspect weapon, ref LogicAspect logic)
             {
+                if (logic.Equals(Target.State.Find))
+                {
+                    if (weapon.Unit != Entity.Null)
+                        weapon.SoughtTeams = Teams[weapon.Unit].EnemyTeams;
+                    else
+                    {
+                        logic.SetResult(Result.Error);
+                    }
+                }
+
                 if (logic.Equals(Weapon.State.Shooting))
                 {
                     weapon.Time += Delta;

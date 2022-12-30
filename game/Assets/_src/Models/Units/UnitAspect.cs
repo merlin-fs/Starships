@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Entities;
+using Unity.Properties;
 
 namespace Game.Model.Units
 {
@@ -8,5 +9,10 @@ namespace Game.Model.Units
         public readonly Entity Self;
 
         readonly RefRW<Unit> m_Unit;
+
+        readonly RefRO<Team> m_Team;
+        
+        [CreateProperty]
+        public string Team => GlobalTeamsConfig.Instance.GetName(new TeamValue { Value = m_Team.ValueRO.SelfTeam });
     }
 }

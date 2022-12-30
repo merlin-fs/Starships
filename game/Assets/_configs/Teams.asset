@@ -9,12 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83423c6821253f946aa2dd9db23584ed, type: 3}
-  m_Name: GlobalEntitySceneDependency
+  m_Script: {fileID: 11500000, guid: cff8dc69bd8e16d4b892989d9cf77e29, type: 3}
+  m_Name: Teams
   m_EditorClassIdentifier: 
-  cacheGUID:
+  PrefabObject: {fileID: 0}
+  m_PrefabID:
     Value:
-      x: 1437029355
-      y: 1258994759
-      z: 146065582
-      w: 2749901476
+      x: 0
+      y: 0
+      z: 0
+      w: 0
+  m_Teams:
+  - Player
+  - Enemy 1
+  - Enemy 2
