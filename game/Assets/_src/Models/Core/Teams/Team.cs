@@ -31,14 +31,11 @@ namespace Game.Model
             public uint SelfTeam => m_SelfTeam;
             public uint EnemyTeams => m_EnemyTeamsValue;
 
-            void ISerializationCallbackReceiver.OnBeforeSerialize()
+            void ISerializationCallbackReceiver.OnBeforeSerialize() { }
+
+            void ISerializationCallbackReceiver.OnAfterDeserialize() 
             {
-
-            }
-
-            void ISerializationCallbackReceiver.OnAfterDeserialize()
-            {
-
+                m_EnemyTeamsValue = GetTeams(m_EnemyTeams);
             }
 
             private TeamValue GetTeams(TeamValue[] values)

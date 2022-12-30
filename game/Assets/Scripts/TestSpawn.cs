@@ -20,7 +20,9 @@ public class TestSpawn : MonoBehaviour
     TMP_Text m_Text;
 
     [SerializeField]
-    public AssetReferenceT<UnitConfig> Config;
+    public AssetReferenceT<UnitConfig> Player;
+    [SerializeField]
+    public AssetReferenceT<UnitConfig> Enemy;
 
     [SerializeField]
     Button m_BtnReload;
@@ -44,9 +46,12 @@ public class TestSpawn : MonoBehaviour
         var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
         await prefab.IsDone();
 
-        var config = !Config.IsValid()
-            ? await Config.LoadAssetAsync().Task
-            : (UnitConfig)Config.Asset;
+        var player = !Player.IsValid()
+            ? await Player.LoadAssetAsync().Task
+            : (UnitConfig)Player.Asset;
+        var enemy  = !Enemy.IsValid()
+            ? await Enemy.LoadAssetAsync().Task
+            : (UnitConfig)Enemy.Asset;
 
         var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
             .CreateCommandBuffer();
@@ -54,14 +59,14 @@ public class TestSpawn : MonoBehaviour
         var entity = ecb.CreateEntity();
         ecb.AddComponent(entity, new SpawnTag()
         {
-            Entity = config.Prefab,
+            Entity = player.Prefab,
             WorldTransform = WorldTransform.FromPosition(-10, 0, 0)
         });
 
         entity = ecb.CreateEntity();
         ecb.AddComponent(entity, new SpawnTag()
         {
-            Entity = config.Prefab,
+            Entity = enemy.Prefab,
             WorldTransform = WorldTransform.FromPosition(10, 0, 0)
         });
     }
@@ -69,9 +74,9 @@ public class TestSpawn : MonoBehaviour
 
     private async void CreateEntities(int count)
     {
-        var config = !Config.IsValid()
-            ? await Config.LoadAssetAsync().Task
-            : (UnitConfig)Config.Asset;
+        var config = !Enemy.IsValid()
+            ? await Enemy.LoadAssetAsync().Task
+            : (UnitConfig)Enemy.Asset;
 
         Debug.Log($"try spawn config: {config.Prefab}");
         var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()

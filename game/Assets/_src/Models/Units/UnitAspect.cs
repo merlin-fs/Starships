@@ -14,5 +14,7 @@ namespace Game.Model.Units
         
         [CreateProperty]
         public string Team => GlobalTeamsConfig.Instance.GetName(new TeamValue { Value = m_Team.ValueRO.SelfTeam });
+        [CreateProperty]
+        public string[] Enemy => GlobalTeamsConfig.Instance.GetNames(new TeamValue { Value = m_Team.ValueRO.EnemyTeams });
     }
 }

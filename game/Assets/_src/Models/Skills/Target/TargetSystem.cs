@@ -8,6 +8,8 @@ using Unity.Jobs;
 
 namespace Game.Model
 {
+    using Game.Model.Weapons;
+
     using Logics;
     using Result = Logics.Logic.Result;
 
@@ -15,13 +17,19 @@ namespace Game.Model
     public partial struct TargetSystem : ISystem
     {
         EntityQuery m_Query;
-               
+        EntityQuery m_QueryTargets;
+
         public void OnCreate(ref SystemState state)
         {
+            m_QueryTargets = SystemAPI.QueryBuilder()
+                .WithAll<Team>()
+                .Build();
+
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Target>()
                 .Build();
 
+            m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Target>());
             state.RequireForUpdate(m_Query);
         }
 
@@ -29,11 +37,11 @@ namespace Game.Model
 
         public void OnUpdate(ref SystemState state)
         {
-            var entities = m_Query.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle handle);
+            var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle handle);
 
             var job = new Job()
             {
-                Transforms = state.GetComponentLookup<LocalTransform>(true),
+                Transforms = state.GetComponentLookup<WorldTransform>(true),
                 Teams = state.GetComponentLookup<Team>(true),
                 Entities = entities,
                 Delta = SystemAPI.Time.DeltaTime,
@@ -47,17 +55,18 @@ namespace Game.Model
         {
             public float Delta;
             [ReadOnly]
-            public ComponentLookup<LocalTransform> Transforms;
+            public ComponentLookup<WorldTransform> Transforms;
             [ReadOnly]
             public ComponentLookup<Team> Teams;
             [ReadOnly]
             public NativeList<Entity> Entities;
 
-            void Execute(in Entity entity, ref Target data, ref LogicAspect logic)
+            void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target data, ref LogicAspect logic)
             {
                 if (logic.Equals(Target.State.Find))
                 {
-                    if (FindEnemy(data.SoughtTeams, entity, 5f, Transforms, Teams, out data.Value))
+                    UnityEngine.Debug.Log($"[{entity}]Try find {data.SoughtTeams}");
+                    if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value))
                         logic.SetResult(Result.Done);
                     else
                         logic.SetResult(Result.Error);
@@ -71,7 +80,7 @@ namespace Game.Model
             }
 
             public bool FindEnemy(uint soughtTeams, Entity self, float selfRadius,
-                ComponentLookup<LocalTransform> transforms, ComponentLookup<Team> teams, out Entity target)
+                ComponentLookup<WorldTransform> transforms, ComponentLookup<Team> teams, out Entity target)
             {
                 TempFindTarget find = new TempFindTarget { Entity = Entity.Null, Magnitude = float.MaxValue };
                 var CounterLock = new object();

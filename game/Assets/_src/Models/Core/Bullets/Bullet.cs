@@ -18,6 +18,8 @@ namespace Game.Model.Weapons
 
         public float MultiplierInner;
 
+        public Config Def => m_Config.Value;
+
         public Bullet(Def<Config> config)
         {
             m_Config = config;

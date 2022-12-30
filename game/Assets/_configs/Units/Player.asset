@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e2e41f3957ca1b641952eb890f0f5956, type: 3}
-  m_Name: Unit 2
+  m_Name: Player
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 8434163211771786228, guid: f91c07baf31faba439175b9701fa3b76,
     type: 3}

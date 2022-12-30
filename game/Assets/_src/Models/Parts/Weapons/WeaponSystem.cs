@@ -50,25 +50,34 @@ namespace Game.Model.Weapons
                 if (logic.Equals(Target.State.Find))
                 {
                     if (weapon.Unit != Entity.Null)
+                    {
                         weapon.SoughtTeams = Teams[weapon.Unit].EnemyTeams;
+                        UnityEngine.Debug.Log($"[{weapon.Self}]Set find {weapon.SoughtTeams}");
+                    }
                     else
                     {
                         logic.SetResult(Result.Error);
                     }
+                    return;
                 }
 
                 if (logic.Equals(Weapon.State.Shooting))
                 {
+                    if (weapon.Count == 0)
+                    {
+                        logic.SetResult(Result.Error);
+                        return;
+                    }
                     weapon.Time += Delta;
                     if (weapon.Time >= weapon.Config.Rate.Value)
                     {
                         weapon.Time = 0;
                         weapon.Shot();
-                        if (weapon.Count == 0)
-                            logic.SetResult(Result.Done);
+                        logic.SetResult(Result.Done);
                     }
+                    return;
                 }
-                
+
                 if (logic.Equals(Weapon.State.Sleep))
                 {
                     weapon.Time += Delta;
@@ -77,6 +86,7 @@ namespace Game.Model.Weapons
                         weapon.Time = 0;
                         logic.SetResult(Result.Done);
                     }
+                    return;
                 }
 
                 if (logic.Equals(Weapon.State.Reload))
@@ -91,6 +101,7 @@ namespace Game.Model.Weapons
                         else
                             logic.SetResult(Result.Done);
                     }
+                    return;
                 }
             }
         }

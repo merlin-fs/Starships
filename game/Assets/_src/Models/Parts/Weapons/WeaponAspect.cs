@@ -10,17 +10,20 @@ namespace Game.Model.Weapons
     public readonly partial struct WeaponAspect: IAspect
     {
         public readonly Entity Self;
-
         readonly RefRW<Weapon> m_Weapon;
-
         [Optional] readonly RefRW<Bullet> m_Bullet;
         [Optional] readonly RefRO<Part> m_Part;
         readonly RefRW<Target> m_Target;
 
         [CreateProperty]
-        public Bullet Bullet => m_Bullet.IsValid ? m_Bullet.ValueRO : default;
+        public string Bullet => Config.Bullet.name;
+
+        [CreateProperty]
+        public int Count => m_Weapon.ValueRO.Count;
+
         [CreateProperty]
         public Entity Unit => m_Part.IsValid ? m_Part.ValueRO.Unit : default;
+
         [CreateProperty]
         public Entity Target => m_Target.ValueRO.Value;
 
@@ -32,7 +35,6 @@ namespace Game.Model.Weapons
 
         public Weapon.WeaponConfig Config => m_Weapon.ValueRO.Config;
 
-        public int Count => m_Weapon.ValueRO.Count;
 
         public float Time
         {

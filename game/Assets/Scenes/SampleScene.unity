@@ -1075,11 +1075,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Text: {fileID: 467820797}
-  Config:
+  Player:
+    m_AssetGUID: 2c3d48684f280be4a8cde77ecefea1da
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  Enemy:
     m_AssetGUID: 33afe59c7168f4a4d92d08fc86373d52
     m_SubObjectName: 
     m_SubObjectType: 
-    m_EditorAssetChanged: 1
+    m_EditorAssetChanged: 0
   m_BtnReload: {fileID: 35430600}
   m_Count: 1000
 --- !u!1 &1323945829

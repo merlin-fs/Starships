@@ -32,17 +32,18 @@ namespace Game.Model.Weapons
         public void Init()
         {
             Logic.Configure()
-                .Transition(Result.Done, null, Weapon.State.Reload)
-
-                .Transition(Result.Done, Weapon.State.Reload, Target.State.Find)
-                .Transition(Result.Error, Weapon.State.Reload, Weapon.State.Sleep)
+                .Transition(Result.Done, null, Target.State.Find)
 
                 .Transition(Result.Done, Target.State.Find, Weapon.State.Shooting)
                 .Transition(Result.Error, Target.State.Find, Weapon.State.Sleep)
 
-                .Transition(Result.Done, Weapon.State.Sleep, Target.State.Find)
+                .Transition(Result.Done, Weapon.State.Shooting, Target.State.Find)
+                .Transition(Result.Error, Weapon.State.Shooting, Weapon.State.Reload)
 
-                .Transition(Result.Done, Weapon.State.Shooting, Weapon.State.Reload);
+                .Transition(Result.Done, Weapon.State.Reload, Target.State.Find)
+                .Transition(Result.Error, Weapon.State.Reload, Weapon.State.Sleep)
+
+                .Transition(Result.Done, Weapon.State.Sleep, Target.State.Find);
         }
     }
 }

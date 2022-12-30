@@ -115,6 +115,7 @@ namespace Game.Core.Prefabs
                 }
                 var context = new DefExt.CommandBufferContext(ecb, map);
                 config.Configurate(prefab.Entity, context);
+                context.SetName(prefab.Entity, config.ID.ToString());
             }
             UnityEngine.Debug.Log($"[Prefab system] Init prefabs: {prefabs.Length}");
 

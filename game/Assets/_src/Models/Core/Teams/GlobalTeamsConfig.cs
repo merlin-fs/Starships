@@ -5,6 +5,7 @@ using Unity.Entities;
 using Common.Defs;
 using Common.Core;
 using UnityEditor;
+using System.Collections.Generic;
 
 namespace Game.Model
 {
@@ -52,6 +53,18 @@ namespace Game.Model
             return idx < -1 
                 ? "null" 
                 : Teams[idx];
+        }
+
+        public string[] GetNames(TeamValue value)
+        {
+            var list = new List<string>();
+            var src = (int)value.Value;
+            for (int iter = (int)Mathf.Log(src, 2); iter >= 0; 
+                iter = (int)Mathf.Log(src -= (int)Math.Pow(2, iter), 2))
+            {
+                list.Add(Teams[iter]);
+            }
+            return list.ToArray();
         }
 
         public int GetIndex(TeamValue value)
