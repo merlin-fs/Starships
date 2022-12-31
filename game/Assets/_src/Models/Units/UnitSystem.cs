@@ -5,7 +5,6 @@ using Common.Defs;
 namespace Game.Model.Units
 {
     using Logics;
-    using Result = Logics.Logic.Result;
 
     [UpdateInGroup(typeof(GameLogicSystemGroup))]
     public partial struct UnitSystem : ISystem
@@ -45,7 +44,6 @@ namespace Game.Model.Units
             {
                 if (logic.Equals(Unit.State.Stop))
                 {
-
                     //logic.SetResult(Result.Done);
                 }
             }

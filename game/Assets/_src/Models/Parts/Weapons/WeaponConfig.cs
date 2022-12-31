@@ -6,7 +6,6 @@ using Unity.Entities;
 namespace Game.Model.Weapons
 {
     using Logics;
-    using Result = Logics.Logic.Result;
 
     /// <summary>
     /// Конфиг оружия
@@ -32,18 +31,19 @@ namespace Game.Model.Weapons
         public void Init()
         {
             Logic.Configure()
-                .Transition(Result.Done, null, Target.State.Find)
+                .Transition(null, null, Target.State.Find)
 
-                .Transition(Result.Done, Target.State.Find, Weapon.State.Shooting)
-                .Transition(Result.Error, Target.State.Find, Weapon.State.Sleep)
+                .Transition(Target.State.Find, Target.Result.Found, Weapon.State.Shooting)
+                .Transition(Target.State.Find, Target.Result.NoTarget, Weapon.State.Sleep)
 
-                .Transition(Result.Done, Weapon.State.Shooting, Target.State.Find)
-                .Transition(Result.Error, Weapon.State.Shooting, Weapon.State.Reload)
+                .Transition(Weapon.State.Shooting, Weapon.Result.Done, Target.State.Find)
+                .Transition(Weapon.State.Shooting, Weapon.Result.NoAmmo, Weapon.State.Reload)
 
-                .Transition(Result.Done, Weapon.State.Reload, Target.State.Find)
-                .Transition(Result.Error, Weapon.State.Reload, Weapon.State.Sleep)
+                .Transition(Weapon.State.Reload, Weapon.Result.Done, Target.State.Find)
+                .Transition(Weapon.State.Reload, Weapon.Result.NoAmmo, Weapon.State.Sleep)
 
-                .Transition(Result.Done, Weapon.State.Sleep, Target.State.Find);
+                .Transition(Weapon.State.Sleep, Weapon.Result.NoAmmo, Weapon.State.Reload)
+                .Transition(Weapon.State.Sleep, Target.Result.NoTarget, Weapon.State.Reload);
         }
     }
 }

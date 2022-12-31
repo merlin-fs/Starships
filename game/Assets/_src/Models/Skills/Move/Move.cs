@@ -13,5 +13,10 @@ namespace Game.Model
         {
             Init,
         }
+
+        public enum Result
+        {
+            Done,
+        }
     }
 }

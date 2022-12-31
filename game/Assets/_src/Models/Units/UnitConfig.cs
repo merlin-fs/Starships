@@ -6,7 +6,6 @@ using UnityEngine;
 namespace Game.Model.Units
 {
     using Logics;
-    using Result = Logics.Logic.Result;
 
     /// <summary>
     /// Конфиг корабля
@@ -33,8 +32,8 @@ namespace Game.Model.Units
         public void Init()
         {
             Logic.Configure()
-                .Transition(Result.Done, null, Move.State.Init)
-                .Transition(Result.Done, Move.State.Init, Unit.State.Stop);
+                .Transition(null, null, Move.State.Init)
+                .Transition(Move.State.Init, Move.Result.Done, Unit.State.Stop);
         }
     }
 }

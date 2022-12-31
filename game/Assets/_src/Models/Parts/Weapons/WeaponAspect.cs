@@ -5,15 +5,14 @@ using Common.Defs;
 
 namespace Game.Model.Weapons
 {
-    using Units;
-
     public readonly partial struct WeaponAspect: IAspect
     {
-        public readonly Entity Self;
+        private readonly Entity m_Self;
         readonly RefRW<Weapon> m_Weapon;
         [Optional] readonly RefRW<Bullet> m_Bullet;
         [Optional] readonly RefRO<Part> m_Part;
         readonly RefRW<Target> m_Target;
+        public Weapon.WeaponConfig Config => m_Weapon.ValueRO.Config;
 
         [CreateProperty]
         public string Bullet => Config.Bullet.name;
@@ -28,13 +27,7 @@ namespace Game.Model.Weapons
         public Entity Target => m_Target.ValueRO.Value;
 
         [CreateProperty]
-        public uint SoughtTeams {
-            get => m_Target.ValueRO.SoughtTeams;
-            set => m_Target.ValueRW.SoughtTeams = value;
-        }
-
-        public Weapon.WeaponConfig Config => m_Weapon.ValueRO.Config;
-
+        public uint SoughtTeams => m_Target.ValueRO.SoughtTeams;
 
         public float Time
         {
@@ -52,10 +45,11 @@ namespace Game.Model.Weapons
         public void Reload(IDefineableContext context)
         {
             if (m_Bullet.IsValid)
-                Config.Bullet.Value.RemoveComponentData(Self, context, m_Bullet.ValueRO);
+                Config.Bullet.Value.RemoveComponentData(m_Self, context, m_Bullet.ValueRO);
             
-            Config.Bullet.Value.AddComponentData(Self, context);
+            Config.Bullet.Value.AddComponentData(m_Self, context);
             m_Weapon.ValueRW.Count = Config.ClipSize;
         }
+        public void SetSoughtTeams(uint value) => m_Target.ValueRW.SoughtTeams = value;
     }
 }

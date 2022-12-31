@@ -5,7 +5,6 @@ using Unity.Transforms;
 namespace Game.Model
 {
     using Logics;
-    using Result = Logics.Logic.Result;
 
     [UpdateInGroup(typeof(GameLogicSystemGroup))]
     public partial struct MoveSystem : ISystem
@@ -46,7 +45,7 @@ namespace Game.Model
                 if (logic.Equals(Move.State.Init))
                 {
                     transform.WorldPosition = data.Position;
-                    logic.SetResult(Result.Done);
+                    logic.SetResult(Move.Result.Done);
                 }
             }
         }

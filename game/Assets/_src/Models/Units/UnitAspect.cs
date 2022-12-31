@@ -6,15 +6,21 @@ namespace Game.Model.Units
 {
     public readonly partial struct UnitAspect: IAspect
     {
-        public readonly Entity Self;
+        private readonly Entity m_Self;
 
         readonly RefRW<Unit> m_Unit;
 
         readonly RefRO<Team> m_Team;
-        
+
+        #region DesignTime
+
+#if UNITY_EDITOR
+
         [CreateProperty]
-        public string Team => GlobalTeamsConfig.Instance.GetName(new TeamValue { Value = m_Team.ValueRO.SelfTeam });
+        public readonly string Team => GlobalTeamsConfig.Instance.GetName(new TeamValue { Value = m_Team.ValueRO.SelfTeam });
         [CreateProperty]
-        public string[] Enemy => GlobalTeamsConfig.Instance.GetNames(new TeamValue { Value = m_Team.ValueRO.EnemyTeams });
+        public readonly string[] Enemy => GlobalTeamsConfig.Instance.GetNames(new TeamValue { Value = m_Team.ValueRO.EnemyTeams });
+#endif
+        #endregion
     }
 }

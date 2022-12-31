@@ -8,10 +8,7 @@ using Unity.Jobs;
 
 namespace Game.Model
 {
-    using Game.Model.Weapons;
-
     using Logics;
-    using Result = Logics.Logic.Result;
 
     [UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
     public partial struct TargetSystem : ISystem
@@ -67,9 +64,9 @@ namespace Game.Model
                 {
                     UnityEngine.Debug.Log($"[{entity}]Try find {data.SoughtTeams}");
                     if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value))
-                        logic.SetResult(Result.Done);
+                        logic.SetResult(Target.Result.Found);
                     else
-                        logic.SetResult(Result.Error);
+                        logic.SetResult(Target.Result.NoTarget);
                 }
             }
 

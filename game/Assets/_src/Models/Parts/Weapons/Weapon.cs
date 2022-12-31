@@ -51,10 +51,14 @@ namespace Game.Model.Weapons
         /// </summary>
         public enum State
         {
-            NoTarget,
             Shooting,
             Reload,
             Sleep,
+        }
+        public enum Result
+        { 
+            Done,
+            NoAmmo,
         }
 
         /// <summary>

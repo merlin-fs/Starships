@@ -6,7 +6,6 @@ using Unity.Collections;
 namespace Game.Model.Weapons
 {
     using Logics;
-    using Result = Logics.Logic.Result;
 
     [UpdateInGroup(typeof(GameLogicSystemGroup))]
     public partial struct WeaponSystem : ISystem
@@ -50,14 +49,10 @@ namespace Game.Model.Weapons
                 if (logic.Equals(Target.State.Find))
                 {
                     if (weapon.Unit != Entity.Null)
-                    {
-                        weapon.SoughtTeams = Teams[weapon.Unit].EnemyTeams;
-                        UnityEngine.Debug.Log($"[{weapon.Self}]Set find {weapon.SoughtTeams}");
-                    }
+                        weapon.SetSoughtTeams(Teams[weapon.Unit].EnemyTeams);
                     else
-                    {
-                        logic.SetResult(Result.Error);
-                    }
+                        logic.SetResult(Target.Result.NoTarget);
+
                     return;
                 }
 
@@ -65,7 +60,7 @@ namespace Game.Model.Weapons
                 {
                     if (weapon.Count == 0)
                     {
-                        logic.SetResult(Result.Error);
+                        logic.SetResult(Weapon.Result.NoAmmo);
                         return;
                     }
                     weapon.Time += Delta;
@@ -73,7 +68,7 @@ namespace Game.Model.Weapons
                     {
                         weapon.Time = 0;
                         weapon.Shot();
-                        logic.SetResult(Result.Done);
+                        logic.SetResult(Weapon.Result.Done);
                     }
                     return;
                 }
@@ -84,7 +79,7 @@ namespace Game.Model.Weapons
                     if (weapon.Time >= weapon.Config.ReloadTime.Value)
                     {
                         weapon.Time = 0;
-                        logic.SetResult(Result.Done);
+                        logic.SetResult(logic.Result);
                     }
                     return;
                 }
@@ -97,9 +92,9 @@ namespace Game.Model.Weapons
                         weapon.Time = 0;
                         weapon.Reload(new DefExt.WriterContext(Writer, entityIndexInQuery));
                         if (weapon.Count == 0)
-                            logic.SetResult(Result.Error);
+                            logic.SetResult(Weapon.Result.NoAmmo);
                         else
-                            logic.SetResult(Result.Done);
+                            logic.SetResult(Weapon.Result.Done);
                     }
                     return;
                 }

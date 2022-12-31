@@ -13,33 +13,41 @@ namespace Game.Model.Logics
         [DontSerialize]
         private readonly Def<Config> m_Config;
         
-        private int2 m_State;
-        public Result CurrentResult;
-        public bool Work;
+        private int m_State;
+        public int m_Result;
 
-        public Enum CurrentState => m_Config.Value.GetState(m_State);
+        public bool Work;
+        public int StateID => m_State;
 
         [CreateProperty]
-        public string StateName => CurrentState != null
-            ? Enum.GetName(CurrentState.GetType(), CurrentState)
-            : "null";
+        public Enum State => GetValue(m_State);
+        [CreateProperty]
+        public Enum Result => GetValue(m_Result);
 
-        public int2 StateID => m_State;
+        public Enum GetValue(int id)
+        {
+            return m_Config.Value.GetState(id);
+        }
 
         public Logic(Def<Config> config)
         {
             m_Config = config;
             m_State = 0;
-            CurrentResult = Result.Done;
+            m_Result = 0;
             Work = false;
         }
 
-        public void SetStateID(int2 value)
+        public void SetStateID(int value)
         {
             m_State = value;
         }
 
-        public int2 GetNextStateID(Result result)
+        public void SetResult(Enum value)
+        {
+            m_Result = Config.GetID(value);
+        }
+
+        public int GetNextStateID(Enum result)
         {
             return m_Config.Value.GetNextStateID(ref this, result);
         }

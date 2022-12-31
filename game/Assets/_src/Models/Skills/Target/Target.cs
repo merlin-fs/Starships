@@ -13,5 +13,11 @@ namespace Game.Model
         {
             Find,
         }
+
+        public enum Result
+        {
+            Found,
+            NoTarget,
+        }
     }
 }

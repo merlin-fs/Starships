@@ -1,7 +1,9 @@
 ﻿using System;
 using Common.Defs;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using Unity.Mathematics;
+using NMemory.DataStructures;
 
 namespace Game.Model.Logics
 {
@@ -10,31 +12,41 @@ namespace Game.Model.Logics
         [Serializable]
         public class Config : IDef<Logic>
         {
-            private Dictionary<int2, StateInfo> m_States = new Dictionary<int2, StateInfo>();
+            private static ConcurrentDictionary<Enum, int> m_AllStates = new ConcurrentDictionary<Enum, int>();
+
+            Dictionary<int, StateInfo> m_States = new Dictionary<int, StateInfo>();
             public Configuration Configure() => new Configuration(this);
 
-            public int2 GetNextStateID(ref Logic logic, Result result)
+            public int GetNextStateID(ref Logic logic, Enum result)
             {
-                var info = GetInfo(logic.CurrentState);
+                var info = GetInfo(logic.State);
                 var list = info.GetTransitions(result);
                 var next = list.RandomElement();
                 return next == null 
-                    ? new int2() 
+                    ? 0
                     : next.ID;
             }
 
-            public Enum GetState(int2 value)
+            public Enum GetState(int value)
             {
-                return math.all(value == int2.zero) 
+                return (value == 0) 
                     ? null 
                     : m_States[value].Value;
             }
 
-            public static int2 GetID(Enum value)
+            public static int GetID(Enum value)
             {
-                return value == null 
-                    ? new int2() 
-                    : new int2(value.GetType().GetHashCode(), value.GetHashCode());
+                if (value == null)
+                    return 0;
+
+                if (!m_AllStates.TryGetValue(value, out var id))
+                {
+                    id = value != null
+                        ? new int2(value.GetType().GetHashCode(), value.GetHashCode()).GetHashCode()
+                        : 0;
+                    m_AllStates.TryAdd(value, id);
+                }
+                return id;
             }
 
             private StateInfo GetInfo(Enum state, bool need = false)
@@ -48,11 +60,13 @@ namespace Game.Model.Logics
                 return info;
             }
 
-            private void AddTransition(Result result, Enum _from, Enum _to)
+            private void AddTransition(Enum _from, Enum _result, Enum _to)
             {
                 StateInfo from = GetInfo(_from, true);
                 StateInfo to = GetInfo(_to, true);
-                from.AddTransition(to, result);
+                StateInfo result = GetInfo(_result, true);
+
+                from.AddTransition(to, result.ID);
             }
 
             public class Configuration
@@ -64,9 +78,9 @@ namespace Game.Model.Logics
                     m_Owner = owner;
                 }
 
-                public Configuration Transition(Result result, Enum from, Enum to)
+                public Configuration Transition(Enum from, Enum result, Enum to)
                 {
-                    m_Owner.AddTransition(result, from, to);
+                    m_Owner.AddTransition(from, result, to);
                     return this;
                 }
             }
@@ -74,11 +88,10 @@ namespace Game.Model.Logics
             [Serializable]
             private class StateInfo
             {
-                public int2 ID { get; }
+                public int ID { get; }
                 public Enum Value { get; }
 
-                private readonly List<StateInfo> m_Done = new List<StateInfo>();
-                private readonly List<StateInfo> m_Error = new List<StateInfo>();
+                private readonly RedBlackTree<int, StateInfo> m_Transition = new RedBlackTree<int, StateInfo>();
 
                 public StateInfo(Enum value)
                 {
@@ -86,23 +99,15 @@ namespace Game.Model.Logics
                     ID = GetID(value);
                 }
 
-                public void AddTransition(StateInfo info, Result result)
+                public void AddTransition(StateInfo info, int resultID)
                 {
-                    switch (result)
-                    {
-                        case Result.Done: m_Done.Add(info); break;
-                        case Result.Error: m_Error.Add(info); break;
-                    }
+                    m_Transition.Insert(resultID, info);
                 }
 
-                public IEnumerable<StateInfo> GetTransitions(Result result)
+                public IEnumerable<StateInfo> GetTransitions(Enum result)
                 {
-                    return result switch
-                    {
-                        Result.Done => m_Done,
-                        Result.Error => m_Error,
-                        _ => throw new NotImplementedException(),
-                    };
+                    var select = m_Transition.Select(GetID(result));
+                    return select;
                 }
             }
         }
