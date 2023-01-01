@@ -1,40 +1,57 @@
 using System;
 using Unity.Entities;
-using Common.Defs;
 using Unity.Collections;
+using Common.Defs;
 
-namespace Game.Model.Weapons
+namespace Game.Model.Units
 {
+    using Weapons;
     using Logics;
 
-    [UpdateInGroup(typeof(GameLogicSystemGroup))]
-    public partial struct WeaponSystem : ISystem
+    public partial class LogicWeapon : LogicConcreteSystem
     {
-        EntityQuery m_Query;
-               
-        public void OnCreate(ref SystemState state)
+        protected override void Init(Logic.Config logic)
+        {
+            logic.Configure()
+                .Transition(null, null, Target.State.Find)
+
+                .Transition(Target.State.Find, Target.Result.Found, Weapon.State.Shooting)
+
+                .Transition(Target.State.Find, Target.Result.NoTarget, Weapon.State.Sleep)
+
+                .Transition(Weapon.State.Shooting, Weapon.Result.Done, Weapon.State.Shoot)
+                .Transition(Weapon.State.Shooting, Weapon.Result.NoAmmo, Weapon.State.Reload)
+
+                .Transition(Weapon.State.Shoot, Weapon.Result.Done, Target.State.Find)
+
+                .Transition(Weapon.State.Reload, Weapon.Result.Done, Target.State.Find)
+                .Transition(Weapon.State.Reload, Weapon.Result.NoAmmo, Weapon.State.Sleep)
+
+                .Transition(Weapon.State.Sleep, Weapon.Result.NoAmmo, Weapon.State.Reload)
+                .Transition(Weapon.State.Sleep, Target.Result.NoTarget, Weapon.State.Reload);
+        }
+
+        protected override void OnCreate()
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Weapon>()
                 .WithAll<Logic>()
                 .Build();
-
-            state.RequireForUpdate(m_Query);
+            RequireForUpdate(m_Query);
+            base.OnCreate();
         }
 
-        public void OnDestroy(ref SystemState state) { }
-
-        public void OnUpdate(ref SystemState state)
+        protected override void OnUpdate()
         {
-            var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
+            var ecb = World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
             var job = new WeaponJob()
             {
-                Teams = state.GetComponentLookup<Team>(false),
+                Teams = GetComponentLookup<Team>(false),
                 Writer = ecb.AsParallelWriter(),
                 Delta = SystemAPI.Time.DeltaTime,
             };
-            state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
-            state.Dependency.Complete();
+            Dependency = job.ScheduleParallel(m_Query, Dependency);
+            Dependency.Complete();
         }
 
         partial struct WeaponJob : IJobEntity

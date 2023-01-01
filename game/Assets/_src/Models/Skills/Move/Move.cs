@@ -13,6 +13,7 @@ namespace Game.Model
         public enum State
         {
             Init,
+            MoveTo,
         }
 
         public enum Result

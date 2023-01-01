@@ -1,8 +1,6 @@
 ﻿using System;
 using Common.Defs;
 using Unity.Entities;
-using Unity.Transforms;
-using Unity.Mathematics;
 
 namespace Game.Model
 {
@@ -25,14 +23,12 @@ namespace Game.Model.Units
     {
         public Def<UnitConfig> Def { get; }
 
-        public float3 Position;
-
         public Unit(Def<UnitConfig> config)
         {
             Def = config;
-            Position = default;
         }
         #region IDefineableCallback
+        
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
             context.AddBuffer<Modifier>(entity);
@@ -43,16 +39,16 @@ namespace Game.Model.Units
 
             context.SetName(entity, GetType().Name);
 
-            var weapon = context.FindEntity(Def.Value.Weapon.PrefabID);
-            Def.Value.Weapon.Value.AddComponentData(weapon, context);
-            Def.Value.Weapon.Logic.AddComponentData(weapon, context);
-            context.AddComponentData<Part>(weapon, new Part { Unit = entity });
+            if (Def.Value.Weapon != null)
+            {
+                var weapon = context.FindEntity(Def.Value.Weapon.PrefabID);
+                Def.Value.Weapon.Value.AddComponentData(weapon, context);
+                Def.Value.Weapon.Logic.AddComponentData(weapon, context);
+                context.AddComponentData<Part>(weapon, new Part { Unit = entity });
+            }
         }
 
-        public void RemoveComponentData(Entity entity, IDefineableContext context)
-        {
-
-        }
+        public void RemoveComponentData(Entity entity, IDefineableContext context) { }
         #endregion
         public enum State
         {

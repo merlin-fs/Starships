@@ -4,18 +4,33 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using Unity.Mathematics;
 using NMemory.DataStructures;
+using Unity.Entities;
+using UnityEngine;
 
 namespace Game.Model.Logics
 {
     public partial struct Logic
     {
+        public interface IConfigurator
+        {
+            void Init(Config config);
+        }
+
         [Serializable]
         public class Config : IDef<Logic>
         {
+            [SerializeField, SelectType(typeof(IConfigurator))]
+            private string m_Configurator;
             private static ConcurrentDictionary<Enum, int> m_AllStates = new ConcurrentDictionary<Enum, int>();
 
             Dictionary<int, StateInfo> m_States = new Dictionary<int, StateInfo>();
             public Configuration Configure() => new Configuration(this);
+
+            public void Init()
+            {
+                var type = Type.GetType(m_Configurator);
+                LogicConcreteSystem.AddInit(this, type);
+            }
 
             public int GetNextStateID(ref Logic logic, Enum result)
             {

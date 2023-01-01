@@ -10,11 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e2e41f3957ca1b641952eb890f0f5956, type: 3}
-  m_Name: Unit
+  m_Name: Meteorite
   m_EditorClassIdentifier: 
-  PrefabObject: {fileID: 8434163211771786228, guid: f91c07baf31faba439175b9701fa3b76,
+  PrefabObject: {fileID: 1214454638534738304, guid: 1688c5823dca4a64a9c7e123bb1dee5b,
     type: 3}
-  m_PrefabID: f91c07baf31faba439175b9701fa3b76
+  m_PrefabID:
+    Value:
+      x: 677152865
+      y: 1185197267
+      z: 840858778
+      w: 3052327355
   Value:
     Weapon: {fileID: 0}
     Speed:
@@ -28,3 +33,10 @@ MonoBehaviour:
         Max: 1
         Value: 1
         Normalize: 1
+  Logic:
+    Configurator: Game.Model.Units.LogicMeteorite
+  Team:
+    m_SelfTeam:
+      Value: 2
+    m_EnemyTeams:
+    - Value: 1

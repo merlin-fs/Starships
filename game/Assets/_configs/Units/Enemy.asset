@@ -33,6 +33,8 @@ MonoBehaviour:
         Max: 1
         Value: 1
         Normalize: 1
+  Logic:
+    Configurator: Game.Model.Units.LogicUnit
   Team:
     m_SelfTeam:
       Value: 2

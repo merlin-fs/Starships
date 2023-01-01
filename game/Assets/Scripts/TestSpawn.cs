@@ -58,8 +58,11 @@ public class TestSpawn : MonoBehaviour
             .CreateCommandBuffer();
 
         var entity = ecb.CreateEntity();
-        var transform = WorldTransform.FromPosition(-10, 0, 0);
-        transform.Rotation = quaternion.RotateY(-180);
+        var transform = WorldTransform.FromPosition(0f, -3f, -1.54f);
+        //transform.Rotation = quaternion.RotateY(-180);
+        
+        transform.Rotation = quaternion.RotateZ(math.radians(-90));
+        transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(-90)));
 
         ecb.AddComponent(entity, new SpawnTag()
         {

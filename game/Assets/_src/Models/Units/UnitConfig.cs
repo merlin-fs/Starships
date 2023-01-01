@@ -20,8 +20,8 @@ namespace Game.Model.Units
         protected override void Configurate(Entity prefab, IDefineableContext context)
         {
             Value.AddComponentData(prefab, context);
-            Logic.AddComponentData(prefab, context);
             Team.AddComponentData(prefab, context);
+            Logic?.AddComponentData(prefab, context);
         }
 
         public override void OnAfterDeserialize()
@@ -31,9 +31,7 @@ namespace Game.Model.Units
 
         public void Init()
         {
-            Logic.Configure()
-                .Transition(null, null, Move.State.Init)
-                .Transition(Move.State.Init, Move.Result.Done, Unit.State.Stop);
+            Logic.Init();
         }
     }
 }

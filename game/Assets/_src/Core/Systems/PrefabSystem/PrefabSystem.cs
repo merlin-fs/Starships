@@ -100,6 +100,7 @@ namespace Game.Core.Prefabs
                 }
             }
 
+            UnityEngine.Debug.Log($"[Prefab system] Init prefabs: {prefabs.Length}");
             foreach (var prefab in prefabs)
             {
                 using var map = new NativeHashMap<Hash128, Entity>(5, this.WorldUpdateAllocator);
@@ -116,8 +117,9 @@ namespace Game.Core.Prefabs
                 var context = new DefExt.CommandBufferContext(ecb, map);
                 config.Configurate(prefab.Entity, context);
                 context.SetName(prefab.Entity, config.ID.ToString());
+                UnityEngine.Debug.Log($"[Prefab system] Init prefab: {config.ID}, {prefab.Entity}");
             }
-            UnityEngine.Debug.Log($"[Prefab system] Init prefabs: {prefabs.Length}");
+            
 
             m_Done = true;
         }

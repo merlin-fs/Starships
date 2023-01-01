@@ -59,6 +59,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - defs
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bf9bf38987a411045bec52e03ed7852d
+    m_Address: Assets/_configs/Units/Meteorite.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - defs
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ed21bb125e95a2b41a3ef0fc04dd10bd, type: 2}
   m_SchemaSet:
