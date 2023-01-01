@@ -29,8 +29,10 @@ namespace Game.Model
             get {
                 if (m_Instance == null)
                 {
+#if UNITY_EDITOR
                     var asset = AssetDatabase.FindAssets($"t:{nameof(GlobalTeamsConfig)}").First();
                     m_Instance = AssetDatabase.LoadAssetAtPath<GlobalTeamsConfig>(AssetDatabase.GUIDToAssetPath(asset));
+#endif
                 }
                 return m_Instance;
             }

@@ -67,9 +67,15 @@ namespace Game.Model.Weapons
                     if (weapon.Time >= weapon.Config.Rate.Value)
                     {
                         weapon.Time = 0;
-                        weapon.Shot();
                         logic.SetResult(Weapon.Result.Done);
                     }
+                    return;
+                }
+
+                if (logic.Equals(Weapon.State.Shoot))
+                {
+                    weapon.Shot(new DefExt.WriterContext(Writer, entityIndexInQuery));
+                    logic.SetResult(Weapon.Result.Done);
                     return;
                 }
 
@@ -90,11 +96,10 @@ namespace Game.Model.Weapons
                     if (weapon.Time >= weapon.Config.ReloadTime.Value)
                     {
                         weapon.Time = 0;
-                        weapon.Reload(new DefExt.WriterContext(Writer, entityIndexInQuery));
-                        if (weapon.Count == 0)
-                            logic.SetResult(Weapon.Result.NoAmmo);
-                        else
+                        if (weapon.Reload(new DefExt.WriterContext(Writer, entityIndexInQuery)))
                             logic.SetResult(Weapon.Result.Done);
+                        else
+                            logic.SetResult(Weapon.Result.NoAmmo);
                     }
                     return;
                 }

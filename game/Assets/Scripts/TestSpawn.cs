@@ -13,6 +13,7 @@ using System;
 using UnityEngine.AddressableAssets;
 using Unity.Transforms;
 using Game.Core.Prefabs;
+using Unity.Mathematics;
 
 public class TestSpawn : MonoBehaviour
 {
@@ -57,17 +58,21 @@ public class TestSpawn : MonoBehaviour
             .CreateCommandBuffer();
 
         var entity = ecb.CreateEntity();
+        var transform = WorldTransform.FromPosition(-10, 0, 0);
+        transform.Rotation = quaternion.RotateY(-180);
+
         ecb.AddComponent(entity, new SpawnTag()
         {
             Entity = player.Prefab,
-            WorldTransform = WorldTransform.FromPosition(-10, 0, 0)
+            WorldTransform = transform,
         });
 
+        transform = WorldTransform.FromPosition(10, 0, 0);
         entity = ecb.CreateEntity();
         ecb.AddComponent(entity, new SpawnTag()
         {
             Entity = enemy.Prefab,
-            WorldTransform = WorldTransform.FromPosition(10, 0, 0)
+            WorldTransform = transform
         });
     }
 

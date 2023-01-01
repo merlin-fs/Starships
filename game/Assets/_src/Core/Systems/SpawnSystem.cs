@@ -36,7 +36,11 @@ namespace Game.Systems
             void Execute([EntityIndexInQuery] int idx, in Entity entity, in SpawnTag spawn)
             {
                 var inst = Writer.Instantiate(idx, spawn.Entity);
-                Writer.AddComponent(idx, inst, new Move { Position = spawn.WorldTransform.Position });
+                Writer.AddComponent(idx, inst, new Move 
+                { 
+                    Position = spawn.WorldTransform.Position,
+                    Rotation = spawn.WorldTransform.Rotation,
+                });
                 Writer.AddComponent(idx, inst, new Target());
 
                 Writer.DestroyEntity(idx, entity);

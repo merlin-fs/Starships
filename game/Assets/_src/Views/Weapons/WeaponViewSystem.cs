@@ -1,20 +1,22 @@
 using System;
 using Unity.Entities;
-using Unity.Transforms;
+using Common.Defs;
+using Unity.Collections;
 
-namespace Game.Model
+namespace Game.Views.Weapons
 {
-    using Logics;
+    using Model.Logics;
+    using Model.Weapons;
 
     [UpdateInGroup(typeof(GameLogicSystemGroup))]
-    public partial struct MoveSystem : ISystem
+    public partial struct WeaponViewSystem : ISystem
     {
         EntityQuery m_Query;
                
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Move>()
+                .WithAll<Weapon>()
                 .WithAll<Logic>()
                 .Build();
 
@@ -26,7 +28,7 @@ namespace Game.Model
         public void OnUpdate(ref SystemState state)
         {
             var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
-            var job = new MoveJob()
+            var job = new WeaponJob()
             {
                 Writer = ecb.AsParallelWriter(),
                 Delta = SystemAPI.Time.DeltaTime,
@@ -35,18 +37,17 @@ namespace Game.Model
             state.Dependency.Complete();
         }
 
-        partial struct MoveJob : IJobEntity
+        partial struct WeaponJob : IJobEntity
         {
             public float Delta;
             public EntityCommandBuffer.ParallelWriter Writer;
 
-            void Execute([EntityIndexInQuery] int idx, ref Move data, ref TransformAspect transform, ref LogicAspect logic)
+            void Execute([EntityIndexInQuery] int idx, in WeaponAspect weapon, in LogicAspect logic)
             {
-                if (logic.Equals(Move.State.Init))
+                if (logic.Equals(Weapon.State.Shoot))
                 {
-                    transform.WorldPosition = data.Position;
-                    transform.RotateLocal(data.Rotation);
-                    logic.SetResult(Move.Result.Done);
+                    Writer.AddComponent(idx, weapon.Self, (Game.Views.Particle)"shot");
+                    return;
                 }
             }
         }

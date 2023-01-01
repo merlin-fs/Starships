@@ -34,10 +34,13 @@ namespace Game.Model.Weapons
                 .Transition(null, null, Target.State.Find)
 
                 .Transition(Target.State.Find, Target.Result.Found, Weapon.State.Shooting)
+
                 .Transition(Target.State.Find, Target.Result.NoTarget, Weapon.State.Sleep)
 
-                .Transition(Weapon.State.Shooting, Weapon.Result.Done, Target.State.Find)
+                .Transition(Weapon.State.Shooting, Weapon.Result.Done, Weapon.State.Shoot)
                 .Transition(Weapon.State.Shooting, Weapon.Result.NoAmmo, Weapon.State.Reload)
+
+                .Transition(Weapon.State.Shoot, Weapon.Result.Done, Target.State.Find)
 
                 .Transition(Weapon.State.Reload, Weapon.Result.Done, Target.State.Find)
                 .Transition(Weapon.State.Reload, Weapon.Result.NoAmmo, Weapon.State.Sleep)

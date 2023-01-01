@@ -2,12 +2,15 @@
 using Unity.Entities;
 using Unity.Properties;
 using Common.Defs;
+using Game.Core.Repositories;
 
 namespace Game.Model.Weapons
 {
     public readonly partial struct WeaponAspect: IAspect
     {
         private readonly Entity m_Self;
+        public Entity Self => m_Self;
+
         readonly RefRW<Weapon> m_Weapon;
         [Optional] readonly RefRW<Bullet> m_Bullet;
         [Optional] readonly RefRO<Part> m_Part;
@@ -35,20 +38,26 @@ namespace Game.Model.Weapons
             set => m_Weapon.ValueRW.Time = value;
         }
 
-        public void Shot()
+        public void Shot(IDefineableContext context)
         {
             m_Weapon.ValueRW.Count -= Config.BarrelCount;
             if (m_Weapon.ValueRW.Count < 0)
                 m_Weapon.ValueRW.Count = 0;
         }
 
-        public void Reload(IDefineableContext context)
+        public bool Reload(IDefineableContext context)
         {
             if (m_Bullet.IsValid)
-                Config.Bullet.Value.RemoveComponentData(m_Self, context, m_Bullet.ValueRO);
-            
-            Config.Bullet.Value.AddComponentData(m_Self, context);
+                m_Bullet.ValueRO.Def.RemoveComponentData(m_Self, context, m_Bullet.ValueRO);
+
+            var bullet = Repositories.Instance.ConfigsAsync().Result
+                .FindByID(m_Weapon.ValueRO.BulletID);
+            if (bullet == null)
+                return false;
+
+            bullet.Configurate(m_Self, context);
             m_Weapon.ValueRW.Count = Config.ClipSize;
+            return true;
         }
         public void SetSoughtTeams(uint value) => m_Target.ValueRW.SoughtTeams = value;
     }

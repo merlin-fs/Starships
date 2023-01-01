@@ -62,7 +62,6 @@ namespace Game.Model
             {
                 if (logic.Equals(Target.State.Find))
                 {
-                    UnityEngine.Debug.Log($"[{entity}]Try find {data.SoughtTeams}");
                     if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value))
                         logic.SetResult(Target.Result.Found);
                     else

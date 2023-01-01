@@ -1,6 +1,7 @@
 ﻿using System;
 using Unity.Entities;
 using Common.Defs;
+using Common.Core;
 
 namespace Game.Model.Weapons
 {
@@ -19,11 +20,14 @@ namespace Game.Model.Weapons
 
         public float Time;
 
+        public ObjectID BulletID;
+
         public Weapon(Def<WeaponConfig> config)
         {
             m_Config = config;
             Time = 0;
             Count = 0;
+            BulletID = m_Config.Value.Bullet.ID;
         }
         #region IDefineableCallback
         public void AddComponentData(Entity entity, IDefineableContext context)
@@ -52,6 +56,7 @@ namespace Game.Model.Weapons
         public enum State
         {
             Shooting,
+            Shoot,
             Reload,
             Sleep,
         }
