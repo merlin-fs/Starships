@@ -53,6 +53,7 @@ namespace Game.Model.Units
         public enum State
         {
             Stop,
+            Destroy,
         }
 
         public enum Stats

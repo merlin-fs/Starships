@@ -27,7 +27,7 @@ namespace Game.Model.Weapons
         public Entity Unit => m_Part.IsValid ? m_Part.ValueRO.Unit : default;
 
         [CreateProperty]
-        public Entity Target => m_Target.ValueRO.Value;
+        public Target Target => m_Target.ValueRO;
 
         [CreateProperty]
         public uint SoughtTeams => m_Target.ValueRO.SoughtTeams;

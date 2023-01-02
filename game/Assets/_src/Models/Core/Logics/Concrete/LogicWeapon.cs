@@ -1,6 +1,8 @@
 using System;
 using Unity.Entities;
 using Unity.Collections;
+using Unity.Transforms;
+using Unity.Mathematics;
 using Common.Defs;
 
 namespace Game.Model.Units
@@ -28,7 +30,7 @@ namespace Game.Model.Units
                 .Transition(Weapon.State.Reload, Weapon.Result.NoAmmo, Weapon.State.Sleep)
 
                 .Transition(Weapon.State.Sleep, Weapon.Result.NoAmmo, Weapon.State.Reload)
-                .Transition(Weapon.State.Sleep, Target.Result.NoTarget, Weapon.State.Reload);
+                .Transition(Weapon.State.Sleep, Target.Result.NoTarget, Target.State.Find);
         }
 
         protected override void OnCreate()
@@ -61,7 +63,8 @@ namespace Game.Model.Units
             public ComponentLookup<Team> Teams;
             public EntityCommandBuffer.ParallelWriter Writer;
 
-            void Execute([EntityIndexInQuery] int entityIndexInQuery, ref WeaponAspect weapon, ref LogicAspect logic)
+            void Execute([EntityIndexInQuery] int entityIndexInQuery, ref WeaponAspect weapon, ref LogicAspect logic, 
+                ref TransformAspect transform)
             {
                 if (logic.Equals(Target.State.Find))
                 {
@@ -75,6 +78,10 @@ namespace Game.Model.Units
 
                 if (logic.Equals(Weapon.State.Shooting))
                 {
+                    var direction = weapon.Target.WorldTransform.Position;
+                    //UnityEngine.Debug.Log($"[{logic.Self}] LookAt: {direction}");
+                    transform.LookAt(direction);
+
                     if (weapon.Count == 0)
                     {
                         logic.SetResult(Weapon.Result.NoAmmo);

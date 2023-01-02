@@ -2,21 +2,34 @@ using System;
 using Unity.Entities;
 using Common.Defs;
 using UnityEngine;
+using Unity.Properties;
+using Game.Model.Logics;
 
 namespace Game.Model
 {
     [Serializable]
-    public struct Team : IComponentData, IDefineable
+    public struct Team : IComponentData, IDefineable, IDefineableCallback
     {
         private readonly Def<Def> m_Def;
 
+        [CreateProperty]
         public uint SelfTeam => m_Def.Value.SelfTeam;
+        [CreateProperty]
         public uint EnemyTeams => m_Def.Value.EnemyTeams;
 
         public Team(Def<Def> def)
         {
             m_Def = def;
         }
+        #region IDefineableCallback
+        public void AddComponentData(Entity entity, IDefineableContext context)
+        {
+            context.AddComponentData(entity, new Target());
+        }
+
+        public void RemoveComponentData(Entity entity, IDefineableContext context) { }
+        #endregion
+
 
         [Serializable]
         public struct Def: IDef<Team>, ISerializationCallbackReceiver

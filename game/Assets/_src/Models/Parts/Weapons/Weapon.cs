@@ -44,11 +44,7 @@ namespace Game.Model.Weapons
             Count = m_Config.Value.ClipSize;
             context.AddComponentData(entity, new Target());
         }
-
-        public void RemoveComponentData(Entity entity, IDefineableContext context)
-        {
-
-        }
+        public void RemoveComponentData(Entity entity, IDefineableContext context) { }
         #endregion
         /// <summary>
         /// Состояние оружия

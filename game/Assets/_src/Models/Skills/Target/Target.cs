@@ -1,5 +1,6 @@
 using System;
 using Unity.Entities;
+using Unity.Transforms;
 
 namespace Game.Model
 {
@@ -8,6 +9,7 @@ namespace Game.Model
     {
         public Entity Value;
         public uint SoughtTeams;
+        public WorldTransform WorldTransform;
 
         public enum State
         {

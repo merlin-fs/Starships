@@ -8,6 +8,7 @@ namespace Game.Model.Logics
     public readonly partial struct LogicAspect : IAspect
     {
         private readonly Entity m_Self;
+        public Entity Self => m_Self;
         private readonly RefRW<Logic> m_Logic;
 
         #region DesignTime
@@ -25,6 +26,8 @@ namespace Game.Model.Logics
        
         [CreateProperty]
         public bool IsWork => m_Logic.ValueRO.Work;
+        [CreateProperty]
+        public bool IsValid => m_Logic.ValueRO.IsValid;
 
         public void SetResult(Enum result)
         {

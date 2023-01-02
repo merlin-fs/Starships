@@ -32,6 +32,8 @@ namespace Game.Model.Logics
                 LogicConcreteSystem.AddInit(this, type);
             }
 
+            public bool IsValid => m_States.Count > 0;
+
             public int GetNextStateID(ref Logic logic, Enum result)
             {
                 var info = GetInfo(logic.State);

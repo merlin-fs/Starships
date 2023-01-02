@@ -5,6 +5,8 @@ using Unity.Transforms;
 namespace Game.Model
 {
     using Logics;
+    using Unity.Mathematics;
+    using UnityEngine;
 
     [UpdateInGroup(typeof(GameLogicSystemGroup))]
     public partial struct MoveSystem : ISystem
@@ -18,6 +20,7 @@ namespace Game.Model
                 .WithAll<Logic>()
                 .Build();
 
+            m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Move>());
             state.RequireForUpdate(m_Query);
         }
 
@@ -47,6 +50,22 @@ namespace Game.Model
                     transform.WorldPosition = data.Position;
                     transform.RotateLocal(data.Rotation);
                     logic.SetResult(Move.Result.Done);
+                    return;
+                }
+
+                if (logic.Equals(Move.State.MoveTo))
+                {
+                    float3 direction = data.Position - transform.WorldPosition;
+                    var dt = math.distancesq(transform.WorldPosition, data.Position);
+                    if (dt < 0.1f)
+                    {
+                        UnityEngine.Debug.Log($"[{logic.Self}] destroy in {transform.WorldPosition}, target{data.Position}, dot {dt}");
+                        logic.SetResult(Move.Result.Done);
+                    }
+                    var lookRotation = quaternion.LookRotation(direction, transform.Up);
+                    transform.WorldRotation = lookRotation;
+                    transform.WorldPosition += math.normalize(direction) * Delta * data.Speed;
+                    return;
                 }
             }
         }

@@ -5,7 +5,7 @@ using Unity.Entities;
 
 namespace Game.Model.Logics
 {
-    [UpdateInGroup(typeof(GameLogicSystemGroup))]
+    [UpdateInGroup(typeof(GameLogicSystemGroup), OrderFirst = true)]
     public abstract partial class LogicConcreteSystem : SystemBase, Logic.IConfigurator
     {
         protected EntityQuery m_Query;
@@ -15,7 +15,11 @@ namespace Game.Model.Logics
         public static void AddInit(Logic.Config config, Type type)
         {
             if (!m_Actions.ContainsKey(config))
+            {
                 m_Actions.Add(config, type);
+                var system = World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged(type) as LogicConcreteSystem;
+                system?.Init(config);
+            }
         }
 
         protected override void OnCreate()

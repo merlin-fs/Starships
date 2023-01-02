@@ -1,46 +1,55 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Common.Singletons;
+﻿using System;
+using Unity.Entities;
 
-namespace Game.Systems
+namespace Game.Model.Weapons
 {
-    using Model;
-    using Model.Units;
-
-    /// <summary>
-    /// Тестовая реализация BatleManager`а
-    /// </summary>
-    public class BatleManager : MonoSingleton<BatleManager>
+    using Stats;
+    using Logics;
+    
+    [UpdateInGroup(typeof(GameLogicSystemGroup))]
+    public partial struct WeaponViewSystem : ISystem
     {
-        public static BatleManager Inststance => Inst;
+        EntityQuery m_Query;
 
-        /// <summary>
-        ///Производит "выстрел" по указанной цели
-        /// </summary>
-        /// <param name="target">Цель</param>
-        /// <param name="source">Исходный корабль</param>
-        /// <param name="damage">Урон</param>
-        /// <param name="damageType">Тип урона</param>
-        public void Hot(IUnit target, IUnit source, float damage, DamageType damageType)
+        public void OnCreate(ref SystemState state)
         {
-            /*
-            //Ищем все модификаторы у корабля - цели
-            var mods = target.FindParts<IModifierDamage>();
-            //Вычисляем конечный урон
-            foreach(var iter in mods)
+            m_Query = SystemAPI.QueryBuilder()
+                .WithAll<Weapon>()
+                .WithAll<Logic>()
+                .Build();
+
+            state.RequireForUpdate(m_Query);
+        }
+
+        public void OnDestroy(ref SystemState state) { }
+
+        public void OnUpdate(ref SystemState state)
+        {
+            //Stats.Stat.
+
+            var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
+            var job = new WeaponJob()
             {
-                iter.Сalculation(ref damage, damageType);
-            }
-            
-            //Наносим урон HP
-            /*
-            var health = target.GetStat(GlobalStatType.Health);
-            using (var writer = health.GetWritable())
+                Writer = ecb.AsParallelWriter(),
+                Delta = SystemAPI.Time.DeltaTime,
+            };
+            state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
+            state.Dependency.Complete();
+        }
+
+        partial struct WeaponJob : IJobEntity
+        {
+            public float Delta;
+            public EntityCommandBuffer.ParallelWriter Writer;
+
+            void Execute([EntityIndexInQuery] int idx, in WeaponAspect weapon, in LogicAspect logic)
             {
-                writer.Dec(damage);
+                if (logic.Equals(Weapon.State.Shoot))
+                {
+                    //weapon.Target
+                    return;
+                }
             }
-            */
         }
     }
 }

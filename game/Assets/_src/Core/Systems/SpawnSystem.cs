@@ -41,9 +41,8 @@ namespace Game.Systems
                     Position = spawn.WorldTransform.Position,
                     Rotation = spawn.WorldTransform.Rotation,
                 });
-                Writer.AddComponent(idx, inst, new Target());
-
                 Writer.DestroyEntity(idx, entity);
+                UnityEngine.Debug.Log($"[{inst}] Inst: {spawn.WorldTransform.Position}");
             }
         }
 

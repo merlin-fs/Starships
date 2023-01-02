@@ -9,6 +9,7 @@ namespace Game.Model
     {
         public float3 Position;
         public quaternion Rotation;
+        public float Speed;
 
         public enum State
         {

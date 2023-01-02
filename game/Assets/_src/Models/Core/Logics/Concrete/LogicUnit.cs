@@ -4,7 +4,14 @@ using Common.Defs;
 
 namespace Game.Model.Units
 {
+    using Game.Model.Weapons;
+
     using Logics;
+
+    using Unity.Mathematics;
+    using Unity.Transforms;
+
+    using UnityEngine;
 
     public partial class LogicUnit : LogicConcreteSystem
     {
@@ -12,7 +19,10 @@ namespace Game.Model.Units
         {
             logic.Configure()
                 .Transition(null, null, Move.State.Init)
-                .Transition(Move.State.Init, Move.Result.Done, Unit.State.Stop);
+                .Transition(Move.State.Init, Move.Result.Done, Unit.State.Stop)
+                //.Transition(Move.State.Init, Move.Result.Done, Target.State.Find)
+                .Transition(Target.State.Find, Target.Result.NoTarget, Target.State.Find)
+                .Transition(Target.State.Find, Target.Result.Found, Target.State.Find);
         }
 
         protected override void OnCreate()
@@ -43,12 +53,10 @@ namespace Game.Model.Units
             public float Delta;
             //public EntityCommandBuffer.ParallelWriter Writer;
 
-            void Execute([EntityIndexInQuery] int idx, ref UnitAspect unit, ref LogicAspect logic)
+            void Execute([EntityIndexInQuery] int idx, ref UnitAspect unit, ref LogicAspect logic,
+                ref TransformAspect transform,
+                in Target target)
             {
-                if (logic.Equals(Unit.State.Stop))
-                {
-                    //logic.SetResult(Result.Done);
-                }
             }
         }
     }

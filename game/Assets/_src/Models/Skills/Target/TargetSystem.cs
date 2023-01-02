@@ -24,6 +24,7 @@ namespace Game.Model
 
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Target>()
+                .WithAll<Logic>()
                 .Build();
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Target>());
@@ -62,8 +63,10 @@ namespace Game.Model
             {
                 if (logic.Equals(Target.State.Find))
                 {
-                    if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value))
+                    if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value, out data.WorldTransform))
+                    {
                         logic.SetResult(Target.Result.Found);
+                    }
                     else
                         logic.SetResult(Target.Result.NoTarget);
                 }
@@ -73,10 +76,12 @@ namespace Game.Model
             {
                 public Entity Entity;
                 public float Magnitude;
+                public WorldTransform Transform;
             }
 
             public bool FindEnemy(uint soughtTeams, Entity self, float selfRadius,
-                ComponentLookup<WorldTransform> transforms, ComponentLookup<Team> teams, out Entity target)
+                ComponentLookup<WorldTransform> transforms, ComponentLookup<Team> teams, 
+                out Entity target, out WorldTransform transform)
             {
                 TempFindTarget find = new TempFindTarget { Entity = Entity.Null, Magnitude = float.MaxValue };
                 var CounterLock = new object();
@@ -104,10 +109,12 @@ namespace Game.Model
                         {
                             find.Magnitude = magnitude;
                             find.Entity = target;
+                            find.Transform = transforms[target];
                         }
                     }
                 });
                 target = find.Entity;
+                transform = find.Transform;
                 return target != Entity.Null;
             }
         }

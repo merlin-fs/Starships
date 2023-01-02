@@ -26,21 +26,9 @@ public class TestSpawn : MonoBehaviour
     public AssetReferenceT<UnitConfig> Enemy;
 
     [SerializeField]
-    Button m_BtnReload;
-
-    [SerializeField]
     private int m_Count = 1;
 
     private EntityManager m_EntityManager;
-
-    private void Awake()
-    {
-        m_BtnReload.onClick.AddListener(
-            () =>
-            {
-                CreateEntities(m_Count);
-            });
-    }
 
     private async void StartBatle()
     {
@@ -61,8 +49,8 @@ public class TestSpawn : MonoBehaviour
         var transform = WorldTransform.FromPosition(0f, -3f, -1.54f);
         //transform.Rotation = quaternion.RotateY(-180);
         
-        transform.Rotation = quaternion.RotateZ(math.radians(-90));
-        transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(-90)));
+        transform.Rotation = quaternion.RotateX(math.radians(-90));
+        //transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(-90)));
 
         ecb.AddComponent(entity, new SpawnTag()
         {
@@ -70,6 +58,7 @@ public class TestSpawn : MonoBehaviour
             WorldTransform = transform,
         });
 
+        /*
         transform = WorldTransform.FromPosition(10, 0, 0);
         entity = ecb.CreateEntity();
         ecb.AddComponent(entity, new SpawnTag()
@@ -77,6 +66,7 @@ public class TestSpawn : MonoBehaviour
             Entity = enemy.Prefab,
             WorldTransform = transform
         });
+        */
     }
 
 

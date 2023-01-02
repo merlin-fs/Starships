@@ -34,7 +34,7 @@ MonoBehaviour:
         Value: 1
         Normalize: 1
     BarrelCount: 1
-    ClipSize: 2
+    ClipSize: 12
     Rate:
       m_Original:
         Min: 0
@@ -49,13 +49,13 @@ MonoBehaviour:
     ReloadTime:
       m_Original:
         Min: 0
-        Max: 5
-        Value: 5
+        Max: 1
+        Value: 1
         Normalize: 1
       m_Value:
         Min: 0
-        Max: 5
-        Value: 5
+        Max: 1
+        Value: 1
         Normalize: 1
   Logic:
-    Configurator: Game.Model.Weapons.LogicWeapon
+    m_Configurator: Game.Model.Units.LogicWeapon

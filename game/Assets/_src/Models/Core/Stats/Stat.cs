@@ -13,15 +13,13 @@ namespace Game.Model.Stats
 #if DEBUG
         private static Dictionary<int, Enum> m_DebugNames = new Dictionary<int, Enum>();
         public static string GetName(int statID) => Enum.GetName(m_DebugNames[statID].GetType(), m_DebugNames[statID]);
+        [CreateProperty]
+        public string StatName => GetName(StatID);
 #endif
         [HideInInspector]
         public int StatID;
         public StatValue Value;
 
-#if DEBUG
-        [CreateProperty]
-        public string StatName => GetName(StatID);
-#endif
         public static unsafe void AddStat(DynamicBuffer<Stat> buff, Enum value, StatValue* stat = null)
         {
             AddStat(buff, value, (stat != null) ? *stat : StatValue.Default);
