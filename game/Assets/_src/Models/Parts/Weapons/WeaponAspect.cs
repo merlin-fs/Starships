@@ -2,20 +2,26 @@
 using Unity.Entities;
 using Unity.Properties;
 using Common.Defs;
-using Game.Core.Repositories;
+using Unity.Collections;
 
 namespace Game.Model.Weapons
 {
+    using Stats;
+    using Core.Repositories;
+
     public readonly partial struct WeaponAspect: IAspect
     {
         private readonly Entity m_Self;
         public Entity Self => m_Self;
 
         readonly RefRW<Weapon> m_Weapon;
+        readonly RefRW<Target> m_Target;
+
         [Optional] readonly RefRW<Bullet> m_Bullet;
         [Optional] readonly RefRO<Part> m_Part;
-        readonly RefRW<Target> m_Target;
-        public Weapon.WeaponConfig Config => m_Weapon.ValueRO.Config;
+        [ReadOnly] readonly DynamicBuffer<Stat> m_Stats;
+
+        public Weapon.WeaponConfig Config => m_Weapon.ValueRO.Def;
 
         [CreateProperty]
         public string Bullet => Config.Bullet.name;
@@ -31,6 +37,8 @@ namespace Game.Model.Weapons
 
         [CreateProperty]
         public uint SoughtTeams => m_Target.ValueRO.SoughtTeams;
+
+        public Stat Stat(Enum stat) => m_Stats.GetRO(stat);
 
         public float Time
         {

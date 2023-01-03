@@ -11,11 +11,11 @@ namespace Game.Model.Stats
 
         public void Estimation(ref Stat stat, float delta)
         {
-            stat.Value.Reset();
+            stat.Reset();
             foreach (var item in Items)
                 if (item.Active && item.StatID == stat.StatID)
                 {
-                    item.Estimation(m_Self, ref stat.Value, delta);
+                    item.Estimation(m_Self, ref stat, delta);
                 }
         }
 

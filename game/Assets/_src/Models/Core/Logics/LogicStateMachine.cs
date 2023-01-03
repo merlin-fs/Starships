@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using NMemory.DataStructures;
 using Unity.Entities;
 using UnityEngine;
+using Unity.VisualScripting;
 
 namespace Game.Model.Logics
 {
@@ -29,7 +30,8 @@ namespace Game.Model.Logics
             public void Init()
             {
                 var type = Type.GetType(m_Configurator);
-                LogicConcreteSystem.AddInit(this, type);
+                if (type != null)
+                    LogicConcreteSystem.AddInit(this, type);
             }
 
             public bool IsValid => m_States.Count > 0;

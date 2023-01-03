@@ -1,11 +1,14 @@
 using System;
 using Unity.Entities;
 using Unity.Mathematics;
+using Common.Defs;
 
 namespace Game.Model.Units
 {
+    using Stats;
     using Logics;
-
+    using Weapons;
+    
     public partial class LogicMeteorite : LogicConcreteSystem
     {
         protected override void Init(Logic.Config logic)
@@ -17,13 +20,14 @@ namespace Game.Model.Units
                 .Transition(Target.State.Find, Target.Result.Found, Move.State.MoveTo)
                 .Transition(Target.State.Find, Target.Result.NoTarget, Target.State.Find)
 
-                .Transition(Move.State.MoveTo, Move.Result.Done, Unit.State.Destroy);
+                .Transition(Move.State.MoveTo, Move.Result.Done, Weapon.State.Shoot);
         }
 
         protected override void OnCreate()
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Unit>()
+                .WithAll<Weapon>()
                 .WithAll<Logic>()
                 .Build();
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
@@ -47,7 +51,9 @@ namespace Game.Model.Units
             public float Delta;
             public EntityCommandBuffer.ParallelWriter Writer;
 
-            void Execute([EntityIndexInQuery] int idx, ref Move data, in UnitAspect unit, in LogicAspect logic, ref Target target)
+            void Execute([EntityIndexInQuery] int idx, in UnitAspect unit, in LogicAspect logic,
+                ref WeaponAspect weapon,
+                ref Move data)
             {
                 if (logic.Equals(Unit.State.Stop))
                 {
@@ -56,21 +62,23 @@ namespace Game.Model.Units
 
                 if (logic.Equals(Target.State.Find))
                 {
-                    target.SoughtTeams = unit.Team.EnemyTeams;
+                    weapon.SetSoughtTeams(unit.Team.EnemyTeams);
                     return;
                 }
 
                 if (logic.Equals(Move.State.MoveTo))
                 {
-                    float3 pos = target.WorldTransform.Position;
+                    float3 pos = weapon.Target.WorldTransform.Position;
                     data.Position = pos;
-                    data.Speed = 1f;
+                    data.Speed = unit.Stat(Unit.Stats.Speed).Value;
                     return;
                 }
 
-                if (logic.Equals(Unit.State.Destroy))
+                if (logic.Equals(Weapon.State.Shoot))
                 {
-                    Writer.DestroyEntity(idx, logic.Self);
+                    //weapon.Shot(new DefExt.WriterContext(Writer, idx));
+                    //Writer.AddComponent<DeadTag>(idx, logic.Self);
+                    //Writer.DestroyEntity(idx, logic.Self);
                     return;
                 }
             }

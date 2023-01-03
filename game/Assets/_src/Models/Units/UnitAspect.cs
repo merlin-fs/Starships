@@ -1,4 +1,6 @@
 ﻿using System;
+using Game.Model.Stats;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Properties;
 
@@ -13,7 +15,10 @@ namespace Game.Model.Units
 
         readonly RefRO<Team> m_Team;
 
+        [ReadOnly] readonly DynamicBuffer<Stat> m_Stats;
+
         public Team Team => m_Team.ValueRO;
+        public Stat Stat(Enum stat) => m_Stats.GetRO(stat);
 
         #region DesignTime
 #if UNITY_EDITOR

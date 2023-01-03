@@ -2,7 +2,6 @@ using System;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Transforms;
-using Unity.Mathematics;
 using Common.Defs;
 
 namespace Game.Model.Units
@@ -88,7 +87,7 @@ namespace Game.Model.Units
                         return;
                     }
                     weapon.Time += Delta;
-                    if (weapon.Time >= weapon.Config.Rate.Value)
+                    if (weapon.Time >= weapon.Stat(Weapon.Stats.Rate).Value)
                     {
                         weapon.Time = 0;
                         logic.SetResult(Weapon.Result.Done);
@@ -106,7 +105,7 @@ namespace Game.Model.Units
                 if (logic.Equals(Weapon.State.Sleep))
                 {
                     weapon.Time += Delta;
-                    if (weapon.Time >= weapon.Config.ReloadTime.Value)
+                    if (weapon.Time >= weapon.Stat(Weapon.Stats.ReloadTime).Value)
                     {
                         weapon.Time = 0;
                         logic.SetResult(logic.Result);
@@ -117,7 +116,7 @@ namespace Game.Model.Units
                 if (logic.Equals(Weapon.State.Reload))
                 {
                     weapon.Time += Delta;
-                    if (weapon.Time >= weapon.Config.ReloadTime.Value)
+                    if (weapon.Time >= weapon.Stat(Weapon.Stats.ReloadTime).Value)
                     {
                         weapon.Time = 0;
                         if (weapon.Reload(new DefExt.WriterContext(Writer, entityIndexInQuery)))

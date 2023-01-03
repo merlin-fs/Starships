@@ -11,7 +11,7 @@ using Game.Model.Stats;
 namespace UnityEditor.Inspector
 {
 
-    [CustomPropertyDrawer(typeof(StatValue), true)]
+    //[CustomPropertyDrawer(typeof(StatValue), true)]
     public class StatValueEdit : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

@@ -13,8 +13,8 @@ namespace Game.Model.Weapons
     [Serializable]
     public struct Weapon: IPart, IDefineable, IComponentData, IDefineableCallback
     {
-        private readonly Def<WeaponConfig> m_Config;
-        public WeaponConfig Config => m_Config.Value;
+        private readonly Def<WeaponConfig> m_Def;
+        public WeaponConfig Def => m_Def.Value;
 
         public int Count;
 
@@ -24,25 +24,28 @@ namespace Game.Model.Weapons
 
         public Weapon(Def<WeaponConfig> config)
         {
-            m_Config = config;
+            m_Def = config;
             Time = 0;
             Count = 0;
-            BulletID = m_Config.Value.Bullet.ID;
+            BulletID = m_Def.Value.Bullet.ID;
         }
         #region IDefineableCallback
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
             context.SetName(entity, GetType().Name);
 
+            context.AddComponentData(entity, new Target());
+            
             context.AddBuffer<Modifier>(entity);
             var buff = context.AddBuffer<Stat>(entity);
-            Stat.AddStat(buff, GlobalStat.Health, 10);
-            Stat.AddStat(buff, Stats.Rate, m_Config.Value.Rate);
-            Stat.AddStat(buff, Stats.Damage, m_Config.Value.DamageValue);
-            Stat.AddStat(buff, Stats.ReloadTime, m_Config.Value.ReloadTime);
-            Stat.AddStat(buff, Stats.ClipSize, m_Config.Value.ClipSize);
-            Count = m_Config.Value.ClipSize;
-            context.AddComponentData(entity, new Target());
+
+            buff.AddStat(GlobalStat.Health, Def.Health);
+            buff.AddStat(Stats.Rate, Def.Rate);
+            buff.AddStat(Stats.Damage, Def.DamageValue);
+            buff.AddStat(Stats.ReloadTime, Def.ReloadTime);
+            buff.AddStat(Stats.ClipSize, Def.ClipSize);
+
+            Count = Def.ClipSize;
         }
         public void RemoveComponentData(Entity entity, IDefineableContext context) { }
         #endregion
@@ -95,7 +98,9 @@ namespace Game.Model.Weapons
             /// <summary>
             /// Значение урона
             /// </summary>
-            public StatValue DamageValue = 1;
+            public int Health = 5;
+
+            public float DamageValue = 1;
             /// <summary>
             /// Количество стволов
             /// </summary>
@@ -107,11 +112,11 @@ namespace Game.Model.Weapons
             /// <summary>
             /// Период стрельбы
             /// </summary>
-            public StatValue Rate = 1;
+            public float Rate = 1;
             /// <summary>
             /// Время перезарядки оружия
             /// </summary>
-            public StatValue ReloadTime = 5;
+            public float ReloadTime = 5;
         }
     }
 }

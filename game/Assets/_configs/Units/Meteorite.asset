@@ -21,18 +21,19 @@ MonoBehaviour:
       z: 840858778
       w: 3052327355
   Value:
-    Weapon: {fileID: 0}
+    Weapon: {fileID: 11400000, guid: d1923d49bbd41c64abecd1d6199aaf7d, type: 2}
     Speed:
-      m_Original:
+      Original:
         Min: 0
         Max: 1
         Value: 1
         Normalize: 1
-      m_Value:
+      Current:
         Min: 0
         Max: 1
         Value: 1
         Normalize: 1
+    Health: 10
   Logic:
     m_Configurator: Game.Model.Units.LogicMeteorite
   Team:

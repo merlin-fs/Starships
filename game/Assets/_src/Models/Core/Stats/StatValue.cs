@@ -16,33 +16,14 @@ namespace Game.Model.Stats
             public float Normalize;
         }
 
-        [HideInInspector, SerializeField]
-        private ValueStruct m_Original;
-        [HideInInspector, SerializeField]
-        private ValueStruct m_Value;
-
-        [CreateProperty] public float Min => m_Value.Min;
-        [CreateProperty] public float Max => m_Value.Max;
-        [CreateProperty] public float Value => m_Value.Value;
-        [CreateProperty] public float Normalize => m_Value.Normalize;
-
-        public ValueStruct Original => m_Original;
-
-        public void SetMin(float value) => m_Value.Min = value;
-        public void SetMax(float value) => m_Value.Max = value;
-        public void SetValue(float value) => m_Value.Value = value;
-        public void SetNornalize(float value) => m_Value.Normalize = value;
-        
-        public void Reset()
-        {
-            m_Value = m_Original;
-        }
+        public ValueStruct Original;
+        public ValueStruct Current;
         #region extension
         public static implicit operator StatValue(float value)
         {
             return new StatValue()
             {
-                m_Original = new ValueStruct()
+                Original = new ValueStruct()
                 {
                     Min = 0,
                     Max = value,
@@ -50,7 +31,7 @@ namespace Game.Model.Stats
                     Normalize = 1f,
                 },
 
-                m_Value = new ValueStruct()
+                Current = new ValueStruct()
                 {
                     Min = 0,
                     Max = value,
@@ -67,11 +48,5 @@ namespace Game.Model.Stats
     public static class StatValueExt
     {
         public static readonly StatValue Default = 1f;
-
-        public static void Mull(ref this StatValue stat, float mull)
-        {
-            stat.SetValue(stat.Value * mull);
-        }
     }
-
 }

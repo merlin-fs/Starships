@@ -5,7 +5,10 @@ using UnityEngine;
 
 namespace Game.Model.Units
 {
+    using Game.Model.Stats;
     using Logics;
+
+    using static UnityEngine.EventSystems.EventTrigger;
 
     /// <summary>
     /// Конфиг корабля

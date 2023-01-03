@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Properties;
@@ -8,17 +8,44 @@ using UnityEngine;
 namespace Game.Model.Stats
 {
     [Serializable]
+    [WriteGroup(typeof(Stat))]
     public struct Stat : IBufferElementData
     {
+        #region debug
 #if DEBUG
-        private static Dictionary<int, Enum> m_DebugNames = new Dictionary<int, Enum>();
+        private static readonly ConcurrentDictionary<int, Enum> m_DebugNames = new ConcurrentDictionary<int, Enum>();
         public static string GetName(int statID) => Enum.GetName(m_DebugNames[statID].GetType(), m_DebugNames[statID]);
         [CreateProperty]
         public string StatName => GetName(StatID);
 #endif
+        #endregion
+        private static readonly ConcurrentDictionary<Enum, int> m_AllStats = new ConcurrentDictionary<Enum, int>();
+        private static Stat m_Null = new Stat() { StatID = 0, };
+
         [HideInInspector]
         public int StatID;
-        public StatValue Value;
+        private StatValue m_Value;
+
+        public bool IsValid => StatID != 0;
+
+        [CreateProperty]
+        public float Value => m_Value.Current.Value;
+
+        public void ModMull(float value)
+        {
+            m_Value.Current.Value *= value;
+        }
+
+        public void Damage(float value)
+        {
+            m_Value.Current.Value -= value;
+            m_Value.Original.Value = m_Value.Current.Value;
+        }
+
+        public void Reset()
+        {
+            m_Value.Current = m_Value.Original;
+        }
 
         public static unsafe void AddStat(DynamicBuffer<Stat> buff, Enum value, StatValue* stat = null)
         {
@@ -32,17 +59,78 @@ namespace Game.Model.Stats
 
         public static unsafe void AddStat(DynamicBuffer<Stat> buff, Enum value, StatValue stat)
         {
+            var id = FindStat(buff, value);
             var element = new Stat(value)
             {
-                Value = stat,
+                m_Value = stat,
             };
-            buff.Add(element);
+
+            if (id < 0)
+                buff.Add(element);
+            else
+                buff[id] = element;
+        }
+
+        public static ref Stat GetRW(DynamicBuffer<Stat> buff, Enum stat)
+        {
+            var id = FindStat(buff, stat);
+            if (id == -1)
+                throw new NotImplementedException($"Stat: {stat}");
+            return ref buff.ElementAt(id);
+        }
+
+        public static Stat GetRO(DynamicBuffer<Stat> buff, Enum stat)
+        {
+            var id = FindStat(buff, stat);
+            if (id == -1)
+                throw new NotImplementedException($"Stat: {stat}");
+            return buff[id];
+        }
+
+        public static bool TryGetStat(DynamicBuffer<Stat> buff, Enum stat, out Stat data)
+        {
+            data = m_Null;
+            var id = FindStat(buff, stat);
+            if (id == -1)
+                return false;
+            data = buff[id];
+            return true;
+        }
+
+        public static void SetStat(DynamicBuffer<Stat> buff, Enum stat, ref Stat data)
+        {
+            var id = FindStat(buff, stat);
+            if (id == -1)
+                return;
+
+            buff.ElementAt(id) = data;
+        }
+
+        private static int FindStat(DynamicBuffer<Stat> buff, Enum stat)
+        {
+            var id = GetID(stat);
+            for (int i = 0; i < buff.Length; i++)
+            {
+                if (buff[i].StatID == id)
+                    return i;
+            }
+            return -1;
+        }
+
+        public static int GetID(Enum value)
+        {
+            if (!m_AllStats.TryGetValue(value, out int id))
+            {
+                id = new int2(value.GetType().GetHashCode(), value.GetHashCode()).GetHashCode();
+                m_AllStats.TryAdd(value, id);
+            }
+            return id;
         }
 
         private Stat(Enum value)
         {
-            StatID = new int2(value.GetType().GetHashCode(), value.GetHashCode()).GetHashCode();
-            Value = StatValue.Default;
+            StatID = GetID(value);
+            m_Value = StatValue.Default;
 #if DEBUG
             m_DebugNames.TryAdd(StatID, value);
 #endif
@@ -51,6 +139,39 @@ namespace Game.Model.Stats
         public static implicit operator Stat(Enum @enum)
         {
             return new Stat(@enum);
+        }
+    }
+
+    public static class StatExt
+    {
+        public static unsafe void AddStat(this DynamicBuffer<Stat> buff, Enum value, StatValue* stat = null)
+        {
+            Stat.AddStat(buff, value, stat);
+        }
+
+        public static unsafe void AddStat(this DynamicBuffer<Stat> buff, Enum value, float initial)
+        {
+            Stat.AddStat(buff, value, initial);
+        }
+
+        public static unsafe void AddStat(this DynamicBuffer<Stat> buff, Enum value, StatValue stat)
+        {
+            Stat.AddStat(buff, value, stat);
+        }
+
+        public static bool TryGetStat(this DynamicBuffer<Stat> buff, Enum stat, out Stat data)
+        {
+            return Stat.TryGetStat(buff, stat, out data);
+        }
+
+        public static ref Stat GetRW(this DynamicBuffer<Stat> buff, Enum stat)
+        {
+            return ref Stat.GetRW(buff, stat);
+        }
+
+        public static Stat GetRO(this DynamicBuffer<Stat> buff, Enum stat)
+        {
+            return Stat.GetRO(buff, stat);
         }
     }
 }

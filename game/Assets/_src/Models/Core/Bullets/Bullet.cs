@@ -30,9 +30,9 @@ namespace Game.Model.Weapons
         [CreateProperty] 
         public float Multiplier => m_Config.Value.Multiplier;
         #region IModifier
-        public void Estimation(Entity entity, ref StatValue stat, float delta)
+        public void Estimation(Entity entity, ref Stat stat, float delta)
         {
-            stat.Mull(MultiplierInner);
+            stat.ModMull(MultiplierInner);
         }
 
         public void Attach(Entity entity)

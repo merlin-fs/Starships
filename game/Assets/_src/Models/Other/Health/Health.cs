@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+
+using Unity.Entities;
 
 namespace Game.Model.Stats
 {
-    /// <summary>
-    /// Реализация HP
-    /// </summary>
-    /*
-    public class Health : Stat, IHealth
+
+    public readonly struct DeadTag: IComponentData { }
+
+    public enum GlobalStat
     {
-        public Health(Enum type, float maxValue): base(type, maxValue) { }
-        public bool IsAlive => Value > 0;
+        Health,
     }
-    */
 }

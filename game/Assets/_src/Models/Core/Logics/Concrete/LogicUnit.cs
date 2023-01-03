@@ -1,17 +1,10 @@
 using System;
 using Unity.Entities;
-using Common.Defs;
+using Unity.Transforms;
 
 namespace Game.Model.Units
 {
-    using Game.Model.Weapons;
-
     using Logics;
-
-    using Unity.Mathematics;
-    using Unity.Transforms;
-
-    using UnityEngine;
 
     public partial class LogicUnit : LogicConcreteSystem
     {
