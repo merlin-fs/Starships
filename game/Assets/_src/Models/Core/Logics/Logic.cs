@@ -11,37 +11,52 @@ namespace Game.Model.Logics
     public partial struct Logic : IComponentData, IDefineable
     {
         [DontSerialize]
-        private readonly Def<Config> m_Config;
+        private readonly Def<Config> m_Def;
         
-        private int2 m_State;
-        public Result CurrentResult;
+        private int m_State;
+        public int m_Result;
+        private int m_LogicID;
+        
         public bool Work;
+        public int StateID => m_State;
 
-        public Enum CurrentState => m_Config.Value.GetState(m_State);
+        public bool IsValid => m_Def.Value.IsValid;
+
+
+        public int LogicID => m_LogicID;
 
         [CreateProperty]
-        public string StateName => CurrentState != null
-            ? Enum.GetName(CurrentState.GetType(), CurrentState)
-            : "null";
+        public Enum State => GetValue(m_State);
+        [CreateProperty]
+        public Enum Result => GetValue(m_Result);
 
-        public int2 StateID => m_State;
+        public Enum GetValue(int id)
+        {
+            return m_Def.Value.GetState(id);
+        }
 
         public Logic(Def<Config> config)
         {
-            m_Config = config;
+            m_Def = config;
             m_State = 0;
-            CurrentResult = Result.Done;
+            m_Result = 0;
             Work = false;
+            m_LogicID = config.Value.LogicID;
         }
 
-        public void SetStateID(int2 value)
+        public void SetStateID(int value)
         {
             m_State = value;
         }
 
-        public int2 GetNextStateID(Result result)
+        public void SetResult(Enum value)
         {
-            return m_Config.Value.GetNextStateID(ref this, result);
+            m_Result = Config.GetID(value);
+        }
+
+        public int GetNextStateID(Enum result)
+        {
+            return m_Def.Value.GetNextStateID(ref this, result);
         }
     }
 }

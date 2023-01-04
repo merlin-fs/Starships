@@ -5,8 +5,10 @@ using UnityEngine;
 
 namespace Game.Model.Units
 {
+    using Game.Model.Stats;
     using Logics;
-    using Result = Logics.Logic.Result;
+
+    using static UnityEngine.EventSystems.EventTrigger;
 
     /// <summary>
     /// Конфиг корабля
@@ -16,23 +18,18 @@ namespace Game.Model.Units
     {
         public Unit.UnitConfig Value = new Unit.UnitConfig();
         public Logic.Config Logic = new Logic.Config();
+        public Team.Def Team = new Team.Def();
 
         protected override void Configurate(Entity prefab, IDefineableContext context)
         {
             Value.AddComponentData(prefab, context);
-            Logic.AddComponentData(prefab, context);
+            Team.AddComponentData(prefab, context);
+            Logic?.AddComponentData(prefab, context);
         }
 
         public override void OnAfterDeserialize()
         {
-            Init();
-        }
-
-        public void Init()
-        {
-            Logic.Configure()
-                .Transition(Result.Done, null, Move.State.Init)
-                .Transition(Result.Done, Move.State.Init, Unit.State.Stop);
+            Logic.Init();
         }
     }
 }

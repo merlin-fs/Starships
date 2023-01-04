@@ -9,6 +9,9 @@ namespace Game.Model
         public Entity Entity;
         public WorldTransform WorldTransform;
     }
+
+
+    public struct Spawn : IComponentData { }
 }
 
 namespace Game.Systems
@@ -36,10 +39,15 @@ namespace Game.Systems
             void Execute([EntityIndexInQuery] int idx, in Entity entity, in SpawnTag spawn)
             {
                 var inst = Writer.Instantiate(idx, spawn.Entity);
-                Writer.AddComponent(idx, inst, new Move { Position = spawn.WorldTransform.Position });
-                Writer.AddComponent(idx, inst, new Target());
-
+                
+                Writer.AddComponent<Spawn>(idx, inst);
+                Writer.AddComponent(idx, inst, new Move 
+                { 
+                    Position = spawn.WorldTransform.Position,
+                    Rotation = spawn.WorldTransform.Rotation,
+                });
                 Writer.DestroyEntity(idx, entity);
+                UnityEngine.Debug.Log($"[{inst}] Inst: {spawn.WorldTransform.Position}");
             }
         }
 

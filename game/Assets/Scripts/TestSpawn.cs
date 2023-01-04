@@ -13,6 +13,7 @@ using System;
 using UnityEngine.AddressableAssets;
 using Unity.Transforms;
 using Game.Core.Prefabs;
+using Unity.Mathematics;
 
 public class TestSpawn : MonoBehaviour
 {
@@ -20,58 +21,60 @@ public class TestSpawn : MonoBehaviour
     TMP_Text m_Text;
 
     [SerializeField]
-    public AssetReferenceT<UnitConfig> Config;
-
+    public AssetReferenceT<UnitConfig> Player;
     [SerializeField]
-    Button m_BtnReload;
+    public AssetReferenceT<UnitConfig> Enemy;
 
     [SerializeField]
     private int m_Count = 1;
 
     private EntityManager m_EntityManager;
 
-    private void Awake()
-    {
-        m_BtnReload.onClick.AddListener(
-            () =>
-            {
-                CreateEntities(m_Count);
-            });
-    }
-
     private async void StartBatle()
     {
         var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
         await prefab.IsDone();
 
-        var config = !Config.IsValid()
-            ? await Config.LoadAssetAsync().Task
-            : (UnitConfig)Config.Asset;
+        var player = !Player.IsValid()
+            ? await Player.LoadAssetAsync().Task
+            : (UnitConfig)Player.Asset;
+        var enemy  = !Enemy.IsValid()
+            ? await Enemy.LoadAssetAsync().Task
+            : (UnitConfig)Enemy.Asset;
 
         var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
             .CreateCommandBuffer();
 
         var entity = ecb.CreateEntity();
+        var transform = WorldTransform.FromPosition(0f, -3f, -1.54f);
+        //transform.Rotation = quaternion.RotateY(-180);
+        
+        transform.Rotation = quaternion.RotateX(math.radians(-90));
+        //transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(-90)));
+
         ecb.AddComponent(entity, new SpawnTag()
         {
-            Entity = config.Prefab,
-            WorldTransform = WorldTransform.FromPosition(-10, 0, 0)
+            Entity = player.Prefab,
+            WorldTransform = transform,
         });
 
+        /*
+        transform = WorldTransform.FromPosition(10, 0, 0);
         entity = ecb.CreateEntity();
         ecb.AddComponent(entity, new SpawnTag()
         {
-            Entity = config.Prefab,
-            WorldTransform = WorldTransform.FromPosition(10, 0, 0)
+            Entity = enemy.Prefab,
+            WorldTransform = transform
         });
+        */
     }
 
 
     private async void CreateEntities(int count)
     {
-        var config = !Config.IsValid()
-            ? await Config.LoadAssetAsync().Task
-            : (UnitConfig)Config.Asset;
+        var config = !Enemy.IsValid()
+            ? await Enemy.LoadAssetAsync().Task
+            : (UnitConfig)Enemy.Asset;
 
         Debug.Log($"try spawn config: {config.Prefab}");
         var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()

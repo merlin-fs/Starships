@@ -4,7 +4,7 @@ using Unity.Entities;
 
 namespace Game.Model.Stats
 {
-    [UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
+    [UpdateInGroup(typeof(GameLogicDoneSystemGroup), OrderFirst = true)]
     public partial struct StatSystem : ISystem
     {
         private EntityQuery m_Query;
@@ -14,40 +14,23 @@ namespace Game.Model.Stats
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Stat>()
                 .WithAll<Modifier>()
+                .WithOptions(EntityQueryOptions.FilterWriteGroup)
                 .Build();
 
-            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Modifier>());
+            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Stat>());
             state.RequireForUpdate(m_Query);
         }
 
-        public void OnDestroy(ref SystemState state)
-        {
-
-        }
+        public void OnDestroy(ref SystemState state) { }
 
         [BurstCompile]
         partial struct StatJob : IJobEntity
         {
-            public uint LastSystemVersion;
             public float Delta;
 
-            void Execute([WithChangeFilter(typeof(Modifier))] ref DynamicBuffer<Stat> _stats, in ModifiersAspect _aspect)
+            void Execute([WithChangeFilter(typeof(Modifier))] ref StatAspect stats)
             {
-                var aspect = _aspect;
-                var stats = _stats;
-                var delta = Delta;
-
-                for (int i = 0; i < stats.Length; i++)
-                {
-                    Change(i);
-                }
-
-                void Change(int i)
-                {
-                    var stat = stats[i];
-                    aspect.Estimation(ref stat, delta);
-                    stats[i] = stat;
-                }
+                stats.Estimation(Delta);
             }
         }
 
@@ -55,17 +38,10 @@ namespace Game.Model.Stats
         {
             var job = new StatJob()
             {
-                LastSystemVersion = state.LastSystemVersion,
                 Delta = SystemAPI.Time.DeltaTime,
             };
-
             state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
-            //state.Dependency.Complete();
-            //*/
-            /*
-            var handle = job.ScheduleParallel(m_Query, state.Dependency);
-            handle.Complete();
-            */
+            state.Dependency.Complete();
         }
     }
 }

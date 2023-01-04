@@ -3,7 +3,7 @@ using Unity.Entities;
 
 namespace Game.Model.Logics
 {
-    [UpdateInGroup(typeof(GameLogicSystemGroup), OrderFirst = true)]
+    [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderLast = true)]
     public partial class LogicSystem : SystemBase
     {
         EntityQuery m_Query;
@@ -21,6 +21,9 @@ namespace Game.Model.Logics
         {
             void Execute([WithChangeFilter(typeof(Logic))] ref LogicAspect logic)
             {
+                if (!logic.IsValid)
+                    return;
+
                 if (!logic.IsWork)
                 {
                     var next = logic.GetNextStateID();

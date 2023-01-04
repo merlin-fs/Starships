@@ -152,8 +152,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9664f799e157db641a28f537e52babff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Config1: {fileID: 11400000, guid: 33afe59c7168f4a4d92d08fc86373d52, type: 2}
-  Config2: {fileID: 11400000, guid: 4ebc84f02e2b6dc42be590d5613f4838, type: 2}
+  Player: {fileID: 11400000, guid: 2c3d48684f280be4a8cde77ecefea1da, type: 2}
+  Enenmy: {fileID: 11400000, guid: bf9bf38987a411045bec52e03ed7852d, type: 2}
+  Weapon: {fileID: 11400000, guid: 4ebc84f02e2b6dc42be590d5613f4838, type: 2}
 --- !u!4 &1529142351
 Transform:
   m_ObjectHideFlags: 0

@@ -15,8 +15,9 @@ namespace Game.Core.Prefabs
 
     public class PrefabsStoreConfig : MonoBehaviour
     {
-        public ScriptableConfig Config1;
-        public ScriptableConfig Config2;
+        public ScriptableConfig Player;
+        public ScriptableConfig Enenmy;
+        public ScriptableConfig Weapon;
 
         public class _baker : Baker<PrefabsStoreConfig>
         {
@@ -24,8 +25,9 @@ namespace Game.Core.Prefabs
             {
 #if UNITY_EDITOR
                 var buffer = AddBuffer<PrefabData>();
-                buffer.Add(new PrefabData { Prefab = GetEntity(authoring.Config2.PrefabObject) });
-                buffer.Add(new PrefabData { Prefab = GetEntity(authoring.Config1.PrefabObject) });
+                buffer.Add(new PrefabData { Prefab = GetEntity(authoring.Player.PrefabObject) });
+                buffer.Add(new PrefabData { Prefab = GetEntity(authoring.Enenmy.PrefabObject) });
+                buffer.Add(new PrefabData { Prefab = GetEntity(authoring.Weapon.PrefabObject) });
 #endif
             }
         }

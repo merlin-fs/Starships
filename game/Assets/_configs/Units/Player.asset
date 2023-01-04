@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2e41f3957ca1b641952eb890f0f5956, type: 3}
+  m_Name: Player
+  m_EditorClassIdentifier: 
+  PrefabObject: {fileID: 8434163211771786228, guid: f91c07baf31faba439175b9701fa3b76,
+    type: 3}
+  m_PrefabID:
+    Value:
+      x: 2876293535
+      y: 1253765439
+      z: 2041934227
+      w: 1739829008
+  Value:
+    Weapon: {fileID: 11400000, guid: 4ebc84f02e2b6dc42be590d5613f4838, type: 2}
+    Speed:
+      rid: 129887608927158276
+    Health:
+      rid: 129887608927158278
+  Logic:
+    m_Configurator: Game.Model.Units.LogicUnit
+  Team:
+    m_SelfTeam:
+      Value: 1
+    m_EnemyTeams:
+    - Value: 2
+    - Value: 4
+  references:
+    version: 2
+    RefIds:
+    - rid: 129887608927158276
+      type: {class: StaticValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
+      data:
+        Value: 5
+    - rid: 129887608927158278
+      type: {class: StaticValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
+      data:
+        Value: 10

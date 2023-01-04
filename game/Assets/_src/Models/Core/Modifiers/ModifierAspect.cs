@@ -5,17 +5,17 @@ namespace Game.Model.Stats
 {
     public readonly partial struct ModifiersAspect : IAspect
     {
-        public readonly Entity Self;
+        private readonly Entity m_Self;
 
         public readonly DynamicBuffer<Modifier> Items;
 
         public void Estimation(ref Stat stat, float delta)
         {
-            stat.Value.Reset();
+            stat.Reset();
             foreach (var item in Items)
                 if (item.Active && item.StatID == stat.StatID)
                 {
-                    item.Estimation(Self, ref stat.Value, delta);
+                    item.Estimation(m_Self, ref stat, delta);
                 }
         }
 

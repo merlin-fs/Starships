@@ -1,6 +1,6 @@
 using System;
 using Unity.Entities;
-using Unity.Mathematics;
+using Unity.Transforms;
 
 namespace Game.Model
 {
@@ -8,11 +8,18 @@ namespace Game.Model
     public struct Target : IComponentData
     {
         public Entity Value;
-        //public Team Team;
+        public uint SoughtTeams;
+        public WorldTransform WorldTransform;
 
         public enum State
         {
             Find,
+        }
+
+        public enum Result
+        {
+            Found,
+            NoTarget,
         }
     }
 }

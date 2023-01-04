@@ -13,6 +13,7 @@ using UnityEngine;
 namespace Game.Model.Stats
 {
     [Serializable]
+    [WriteGroup(typeof(Stat))]
     public unsafe struct Modifier : IBufferElementData, IEquatable<Modifier>
     {
         private static readonly MethodInfo m_Method = typeof(IModifier).GetMethod(nameof(IModifier.Estimation));
@@ -55,7 +56,7 @@ namespace Game.Model.Stats
         }
 
         [BurstDiscard]
-        public void Estimation(Entity entity, ref StatValue stat, float delta)
+        public void Estimation(Entity entity, ref Stat stat, float delta)
         {
             var obj = (IModifier)Marshal.PtrToStructure(new IntPtr((void*)m_ModifierPtr), TypeManager.GetTypeInfo(TypeIndex).Type);
             obj.Estimation(entity, ref stat, delta);

@@ -8,10 +8,18 @@ namespace Game.Model
     public struct Move : IComponentData
     {
         public float3 Position;
+        public quaternion Rotation;
+        public float Speed;
 
         public enum State
         {
             Init,
+            MoveTo,
+        }
+
+        public enum Result
+        {
+            Done,
         }
     }
 }

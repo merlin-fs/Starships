@@ -28,6 +28,7 @@ namespace Game
         [UpdateInGroup(typeof(GameSystemGroup), OrderLast = true)]
         public class GameLogicDoneSystemGroup : ComponentSystemGroup { }
 
+    
     /*
     [UpdateInGroup(typeof(SimulationSystemGroup), OrderLast = true)]
     public class GameDoneSystemGroup : ComponentSystemGroup { }
@@ -35,9 +36,8 @@ namespace Game
 
     [UpdateInGroup(typeof(GameDoneSystemGroup), OrderLast = true)]
     public class GameDoneSystemCommandBufferSystem : EndSimulationEntityCommandBufferSystem { }
-
+    */
 
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public class GamePresentationSystemGroup : ComponentSystemGroup { }
-    */
 }
