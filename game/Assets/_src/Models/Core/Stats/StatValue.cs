@@ -4,6 +4,11 @@ using UnityEngine;
 
 namespace Game.Model.Stats
 {
+    public interface IStatValue
+    {
+        StatValue Value { get; }
+    }
+
     [Serializable]
     public struct StatValue
     {

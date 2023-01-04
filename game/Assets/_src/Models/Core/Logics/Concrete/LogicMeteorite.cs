@@ -40,6 +40,7 @@ namespace Game.Model.Units
             var ecb = World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
             var job = new UnitJob()
             {
+                LogicID = LogicID,
                 Writer = ecb.AsParallelWriter(),
                 Delta = SystemAPI.Time.DeltaTime,
             };
@@ -48,6 +49,7 @@ namespace Game.Model.Units
 
         partial struct UnitJob : IJobEntity
         {
+            public int LogicID;
             public float Delta;
             public EntityCommandBuffer.ParallelWriter Writer;
 
@@ -55,6 +57,8 @@ namespace Game.Model.Units
                 ref WeaponAspect weapon,
                 ref Move data)
             {
+                if (!logic.IsSupports(LogicID)) return;
+
                 if (logic.Equals(Unit.State.Stop))
                 {
                     //logic.SetResult(Result.Done);

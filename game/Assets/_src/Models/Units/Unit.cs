@@ -1,6 +1,7 @@
 ﻿using System;
 using Common.Defs;
 using Unity.Entities;
+using UnityEngine;
 
 namespace Game.Model.Units
 {
@@ -23,12 +24,6 @@ namespace Game.Model.Units
         
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
-            context.AddBuffer<Modifier>(entity);
-
-            var buff = context.AddBuffer<Stat>(entity);
-            buff.AddStat(GlobalStat.Health, Def.Value.Health);
-            buff.AddStat(Stats.Speed, Def.Value.Speed);
-
             context.SetName(entity, GetType().Name);
 
             if (Def.Value.Weapon != null)
@@ -41,6 +36,12 @@ namespace Game.Model.Units
                 Def.Value.Weapon.Logic.AddComponentData(weapon, context);
                 context.AddComponentData<Part>(weapon, new Part { Unit = entity });
             }
+
+            context.AddBuffer<Modifier>(entity);
+            var buff = context.AddBuffer<Stat>(entity);
+
+            buff.AddStat(GlobalStat.Health, Def.Value.Health.Value);
+            buff.AddStat(Stats.Speed, Def.Value.Speed.Value);
         }
 
         public void RemoveComponentData(Entity entity, IDefineableContext context) { }
@@ -61,9 +62,11 @@ namespace Game.Model.Units
         {
             public WeaponConfig Weapon;
 
-            public StatValue Speed = 1;
+            [SerializeReference, ReferenceSelect(typeof(IStatValue))]
+            public IStatValue Speed;
 
-            public int Health = 10;
+            [SerializeReference, ReferenceSelect(typeof(IStatValue))]
+            public IStatValue Health;
         }
     }
 }

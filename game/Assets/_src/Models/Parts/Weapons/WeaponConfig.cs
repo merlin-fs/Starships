@@ -11,7 +11,7 @@ namespace Game.Model.Weapons
     /// Конфиг оружия
     /// </summary>
     [CreateAssetMenu(fileName = "Weapon", menuName = "Configs/Parts/Weapon")]
-    public class WeaponConfig: ScriptableConfig, IInitializable
+    public class WeaponConfig: ScriptableConfig
     {
         public Weapon.WeaponConfig Value = new Weapon.WeaponConfig();
         public Logic.Config Logic = new Logic.Config();
@@ -23,11 +23,6 @@ namespace Game.Model.Weapons
         }
 
         public override void OnAfterDeserialize()
-        {
-            Init();
-        }
-
-        public void Init()
         {
             Logic.Init();
         }

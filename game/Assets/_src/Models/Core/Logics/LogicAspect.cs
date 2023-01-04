@@ -29,6 +29,11 @@ namespace Game.Model.Logics
         [CreateProperty]
         public bool IsValid => m_Logic.ValueRO.IsValid;
 
+        public bool IsSupports(int logicID)
+        {
+            return m_Logic.ValueRO.LogicID == logicID;
+        }
+
         public void SetResult(Enum result)
         {
             m_Logic.ValueRW.SetResult(result);

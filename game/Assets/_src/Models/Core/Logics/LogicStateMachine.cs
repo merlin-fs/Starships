@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using Unity.Mathematics;
 using NMemory.DataStructures;
-using Unity.Entities;
 using UnityEngine;
-using Unity.VisualScripting;
 
 namespace Game.Model.Logics
 {
@@ -27,11 +25,14 @@ namespace Game.Model.Logics
             Dictionary<int, StateInfo> m_States = new Dictionary<int, StateInfo>();
             public Configuration Configure() => new Configuration(this);
 
+            private Type m_TypeSystem;
+            public int LogicID => m_TypeSystem?.GetHashCode() ?? 0;
+
             public void Init()
             {
-                var type = Type.GetType(m_Configurator);
-                if (type != null)
-                    LogicConcreteSystem.AddInit(this, type);
+                m_TypeSystem = Type.GetType(m_Configurator);
+                if (m_TypeSystem != null)
+                    LogicConcreteSystem.AddInit(this, m_TypeSystem);
             }
 
             public bool IsValid => m_States.Count > 0;

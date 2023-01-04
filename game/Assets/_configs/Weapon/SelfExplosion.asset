@@ -24,8 +24,8 @@ MonoBehaviour:
     Health: 5
     DamageValue: 10
     BarrelCount: 1
-    ClipSize: 300
-    Rate: 0.05
-    ReloadTime: 1
+    ClipSize: 1
+    Rate: 0
+    ReloadTime: 0
   Logic:
     m_Configurator: 

@@ -19,7 +19,7 @@ namespace Game.Model.Stats
 
         public void Estimation(float delta)
         {
-            UnityEngine.Debug.Log($"[{Self}] Estimation");
+            //UnityEngine.Debug.Log($"[{Self}] Estimation");
             for (int i = 0; i < m_Items.Length; i++)
             {
                 m_Modifiers.Estimation(ref m_Items.ElementAt(i), delta);

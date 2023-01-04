@@ -36,15 +36,59 @@ namespace Common.Defs
 
     public static class DefExt
     {
+        private struct BuffKey: IEquatable<BuffKey>
+        {
+            Entity m_Entity;
+            TypeIndex m_TypeIndex;
+            object m_Buff;
+
+            public BuffKey(Entity entity, Type type, object buff)
+            {
+                m_Entity = entity;
+                m_TypeIndex = TypeManager.GetTypeIndex(type);
+                m_Buff = buff;
+            }
+
+            public DynamicBuffer<T> GetBuffer<T>()
+                where T : unmanaged
+
+            {
+                return (DynamicBuffer<T>)m_Buff;
+            }
+
+            public bool Equals(BuffKey other)
+            {
+                return other.m_TypeIndex == m_TypeIndex && other.m_Entity == m_Entity;
+            }
+
+            public override int GetHashCode()
+            {
+                return m_TypeIndex;
+            }
+
+            public override bool Equals(object obj)
+            {
+                int result = 0;
+                if (obj is BuffKey key)
+                {
+                    result = (Equals(key) ? 1 : 0);
+                }
+                return (byte)result != 0;
+            }
+        }
+
         #region DefineableContexts
-        public struct EntityManagerContext: IDefineableContext
+        public class EntityManagerContext: IDefineableContext
         {
             private EntityManager m_Manager;
             private NativeHashMap<Hash128, Entity> m_Childs;
+            private HashSet<BuffKey> m_Buffs;
+
             public EntityManagerContext(EntityManager manager, NativeHashMap<Hash128, Entity> childs = default)
             {
                 m_Manager = manager;
                 m_Childs = childs;
+                m_Buffs = null;
             }
 
             public Entity FindEntity(Hash128 prefabId)
@@ -55,11 +99,39 @@ namespace Common.Defs
                 return entity;
             }
 
+            private bool HasChache<T>(Entity entity, out DynamicBuffer<T> value)
+                where T : unmanaged
+            {
+                value = default;
+                if (m_Buffs == null)
+                    return false;
+                var key = new BuffKey(entity, typeof(T), null);
+                if (m_Buffs.TryGetValue(key, out BuffKey found))
+                {
+                    value = found.GetBuffer<T>();
+                    return true;
+                }
+                return false;
+            }
+
+            private void AddToChache<T>(Entity entity, DynamicBuffer<T> value)
+                where T : unmanaged
+            {
+                m_Buffs ??= new HashSet<BuffKey>();
+                m_Buffs.Add(new BuffKey(entity, typeof(T), value));
+            }
+
             public DynamicBuffer<T> AddBuffer<T>(Entity entity) 
                 where T : unmanaged, IBufferElementData
             {
-                return m_Manager.AddBuffer<T>(entity);
+                if (!HasChache(entity, out DynamicBuffer<T> result))
+                {
+                    result = m_Manager.AddBuffer<T>(entity);
+                    AddToChache<T>(entity, result);
+                }
+                return result;
             }
+
             public void AddComponentData<T>(Entity entity, T data) 
                 where T : unmanaged, IComponentData
             {
@@ -91,15 +163,17 @@ namespace Common.Defs
             }
         }
 
-        public struct CommandBufferContext : IDefineableContext
+        public class CommandBufferContext : IDefineableContext
         {
             private EntityCommandBuffer m_Manager;
             private NativeHashMap<Hash128, Entity> m_Childs;
+            private HashSet<BuffKey> m_Buffs;
 
             public CommandBufferContext(EntityCommandBuffer manager, NativeHashMap<Hash128, Entity> childs = default)
             {
                 m_Manager = manager;
                 m_Childs = childs;
+                m_Buffs = null;
             }
 
             public Entity FindEntity(Hash128 prefabId)
@@ -110,11 +184,39 @@ namespace Common.Defs
                 return entity;
             }
 
+            private bool HasChache<T>(Entity entity, out DynamicBuffer<T> value)
+                where T : unmanaged
+            {
+                value = default;
+                if (m_Buffs == null)
+                    return false;
+                var key = new BuffKey(entity, typeof(T), null);
+                if (m_Buffs.TryGetValue(key, out BuffKey found))
+                {
+                    value = found.GetBuffer<T>();
+                    return true;
+                }
+                return false;
+            }
+
+            private void AddToChache<T>(Entity entity, DynamicBuffer<T> value)
+                where T : unmanaged
+            {
+                m_Buffs ??= new HashSet<BuffKey>();
+                m_Buffs.Add(new BuffKey(entity, typeof(T), value));
+            }
+
             public DynamicBuffer<T> AddBuffer<T>(Entity entity)
                 where T : unmanaged, IBufferElementData
             {
-                return m_Manager.AddBuffer<T>(entity);
+                if (!HasChache(entity, out DynamicBuffer<T> result))
+                {
+                    result = m_Manager.AddBuffer<T>(entity);
+                    AddToChache<T>(entity, result);
+                }
+                return result;
             }
+
             public void AddComponentData<T>(Entity entity, T data)
                 where T : unmanaged, IComponentData
             {
@@ -130,6 +232,7 @@ namespace Common.Defs
             {
                 def.AddComponentData(entity, m_Manager, this);
             }
+
             public void RemoveComponentData<T>(IDef<T> def, Entity entity, T data)
                 where T : IDefineable
             {
@@ -144,17 +247,23 @@ namespace Common.Defs
             }
         }
 
-        public struct WriterContext : IDefineableContext
+        public class WriterContext : IDefineableContext
         {
             private EntityCommandBuffer.ParallelWriter m_Manager;
             private readonly int m_SortKey;
             private NativeHashMap<Hash128, Entity> m_Childs;
+            private HashSet<BuffKey> m_Buffs;
+
+            IDefineableContext m_Ref;
+
 
             public WriterContext(EntityCommandBuffer.ParallelWriter manager, int sortKey, NativeHashMap<Hash128, Entity> childs = default)
             {
                 m_Manager = manager;
                 m_SortKey = sortKey;
                 m_Childs = childs;
+                m_Buffs = null;
+                m_Ref = this;
             }
 
             public Entity FindEntity(Hash128 prefabId)
@@ -165,11 +274,39 @@ namespace Common.Defs
                 return entity;
             }
 
+            private bool HasChache<T>(Entity entity, out DynamicBuffer<T> value)
+                where T : unmanaged
+            {
+                value = default;
+                if (m_Buffs == null)
+                    return false;
+                var key = new BuffKey(entity, typeof(T), null);
+                if (m_Buffs.TryGetValue(key, out BuffKey found))
+                {
+                    value = found.GetBuffer<T>();
+                    return true;
+                }
+                return false;
+            }
+
+            private void AddToChache<T>(Entity entity, DynamicBuffer<T> value)
+                where T : unmanaged
+            {
+                m_Buffs ??= new HashSet<BuffKey>();
+                m_Buffs.Add(new BuffKey(entity, typeof(T), value));
+            }
+
             public DynamicBuffer<T> AddBuffer<T>(Entity entity)
                 where T : unmanaged, IBufferElementData
             {
-                return m_Manager.AddBuffer<T>(m_SortKey, entity);
+                if (!HasChache(entity, out DynamicBuffer<T> result))
+                {
+                    result = m_Manager.AddBuffer<T>(m_SortKey, entity);
+                    AddToChache<T>(entity, result);
+                }
+                return result;
             }
+
             public void AddComponentData<T>(Entity entity, T data)
                 where T : unmanaged, IComponentData
             {
@@ -181,10 +318,12 @@ namespace Common.Defs
             {
                 m_Manager.RemoveComponent<T>(m_SortKey, entity);
             }
+            
             public void AddComponentData(IDef def, Entity entity)
             {
                 def.AddComponentData(entity, m_Manager, m_SortKey, this);
             }
+
             public void RemoveComponentData<T>(IDef<T> def, Entity entity, T data)
                 where T : IDefineable
             {
@@ -205,7 +344,7 @@ namespace Common.Defs
             context.AddComponentData(self, entity);
         }
 
-        public static void AddComponentData(this IDef self, Entity entity, EntityManager manager, IDefineableContext context = null)
+        public static void AddComponentData(this IDef self, Entity entity, EntityManager manager, IDefineableContext context)
         {
             var data = CreateInstance(ref self);
             if (data is IDefineableCallback callback)
@@ -216,7 +355,7 @@ namespace Common.Defs
             manager.AddComponentIData(entity, ref data);
         }
 
-        public static void AddComponentData(this IDef self, Entity entity, EntityCommandBuffer.ParallelWriter writer, int sortKey, IDefineableContext context = null)
+        public static void AddComponentData(this IDef self, Entity entity, EntityCommandBuffer.ParallelWriter writer, int sortKey, IDefineableContext context)
         {
             var data = CreateInstance(ref self);
             if (data is IDefineableCallback callback)
@@ -227,7 +366,7 @@ namespace Common.Defs
             writer.AddComponentIData(entity, ref data, sortKey);
         }
 
-        public static void AddComponentData(this IDef self, Entity entity, EntityCommandBuffer writer, IDefineableContext context = null)
+        public static void AddComponentData(this IDef self, Entity entity, EntityCommandBuffer writer, IDefineableContext context)
         {
             var data = CreateInstance(ref self);
             if (data is IDefineableCallback callback)
@@ -244,7 +383,7 @@ namespace Common.Defs
             context.RemoveComponentData(self, entity, data);
         }
 
-        public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityCommandBuffer.ParallelWriter writer, int sortKey, T data, IDefineableContext context = null)
+        public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityCommandBuffer.ParallelWriter writer, int sortKey, T data, IDefineableContext context)
             where T : IDefineable
         {
             if (data is IDefineableCallback callback)
@@ -256,7 +395,7 @@ namespace Common.Defs
             writer.RemoveComponentIData(entity, target, sortKey);
         }
 
-        public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityCommandBuffer writer, T data, IDefineableContext context = null)
+        public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityCommandBuffer writer, T data, IDefineableContext context)
             where T : IDefineable
         {
             if (data is IDefineableCallback callback)
@@ -268,7 +407,7 @@ namespace Common.Defs
             writer.RemoveComponentIData(entity, target);
         }
 
-        public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityManager manager, T data, IDefineableContext context = null) 
+        public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityManager manager, T data, IDefineableContext context) 
             where T : IDefineable  
         {
             if (data is IDefineableCallback callback)

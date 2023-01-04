@@ -57,7 +57,7 @@ namespace UnityEditor.Inspector
             bool isDragging = Event.current.type == EventType.DragUpdated && assetDropDownRect.Contains(Event.current.mousePosition);
             bool isDropping = Event.current.type == EventType.DragPerform && assetDropDownRect.Contains(Event.current.mousePosition);
 
-            var value = property.GetValue();
+            var value = property.boxedValue;
             bool isEmpty = value == null;
 
             var type = GetBaseType(property);
@@ -66,10 +66,14 @@ namespace UnityEditor.Inspector
             GetDisplayValue(value, ref display);
             var isReadOnly = IsReadOnly(property, type);
 
-            var height = GetPropertyHeight(property, label);
+            if (Event.current.type == EventType.MouseDown)
+            {
+                var foldoutRect = new Rect(assetDropDownRect.x - 20, assetDropDownRect.y, 25, assetDropDownRect.height);
 
-            //EditorGUIUtility.
-            //GUI.BeginGroup(assetDropDownRect);
+                bool isFoldoutPressed = Event.current.type == EventType.MouseDown && Event.current.button == 0 && foldoutRect.Contains(Event.current.mousePosition);
+                if (isFoldoutPressed)
+                    property.isExpanded = !property.isExpanded;
+            }
 
             DrawControl(assetDropDownRect, isDragging, isDropping, display, isEmpty, isReadOnly, value?.GetType(),
                 () =>
@@ -86,9 +90,9 @@ namespace UnityEditor.Inspector
                     var pos = new Vector2(assetDropDownRect.center.x, assetDropDownRect.y + (LINE_HEIGHT * 2));
                     SearchWindow.Open(new SearchWindowContext(GUIUtility.GUIToScreenPoint(pos), assetDropDownRect.width), m_TypeProvider);
                 });
-
+            
             FinalizeProperty(position, property, label);
-            //GUI.EndGroup();
+
             property.serializedObject.ApplyModifiedProperties();
             property.serializedObject.Update();
         }
@@ -113,6 +117,7 @@ namespace UnityEditor.Inspector
                 GUI.Box(assetDropDownRect, new GUIContent(nameToUse), m_Normal);
 
                 bool isFieldPressed = Event.current.type == EventType.MouseDown && Event.current.button == 0 && assetDropDownRect.Contains(Event.current.mousePosition);
+
                 if (isFieldPressed)
                 {
                     if (Event.current.clickCount == 1 && m_CanPing)

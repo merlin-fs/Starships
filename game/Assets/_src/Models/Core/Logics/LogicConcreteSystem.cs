@@ -12,6 +12,8 @@ namespace Game.Model.Logics
         
         private static readonly Dictionary<Logic.Config, Type> m_Actions = new Dictionary<Logic.Config, Type>();
 
+        protected int LogicID { get; private set; }
+
         public static void AddInit(Logic.Config config, Type type)
         {
             if (!m_Actions.ContainsKey(config))
@@ -24,10 +26,11 @@ namespace Game.Model.Logics
 
         protected override void OnCreate()
         {
-            var self = GetType();
+            var type = GetType();
+            LogicID = type.GetHashCode();
             foreach (var iter in m_Actions)
             {
-                if (iter.Value == self)
+                if (iter.Value == type)
                     Init(iter.Key);
             }
         }

@@ -2,9 +2,9 @@
 
 namespace System
 {
-	public class ReferenceAttribute : PropertyAttribute
+	public class ReferenceSelectAttribute : PropertyAttribute
     {
-        public ReferenceAttribute(Type type = null, bool readOnly = false)
+        public ReferenceSelectAttribute(Type type = null, bool readOnly = false)
         {
             FieldType = type;
             ReadOnly = readOnly;

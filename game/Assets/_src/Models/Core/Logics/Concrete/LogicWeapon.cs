@@ -47,6 +47,7 @@ namespace Game.Model.Units
             var ecb = World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
             var job = new WeaponJob()
             {
+                LogicID = LogicID,
                 Teams = GetComponentLookup<Team>(false),
                 Writer = ecb.AsParallelWriter(),
                 Delta = SystemAPI.Time.DeltaTime,
@@ -57,6 +58,7 @@ namespace Game.Model.Units
 
         partial struct WeaponJob : IJobEntity
         {
+            public int LogicID;
             public float Delta;
             [ReadOnly]
             public ComponentLookup<Team> Teams;
@@ -65,6 +67,8 @@ namespace Game.Model.Units
             void Execute([EntityIndexInQuery] int entityIndexInQuery, ref WeaponAspect weapon, ref LogicAspect logic, 
                 ref TransformAspect transform)
             {
+                if (!logic.IsSupports(LogicID)) return;
+
                 if (logic.Equals(Target.State.Find))
                 {
                     if (weapon.Unit != Entity.Null)

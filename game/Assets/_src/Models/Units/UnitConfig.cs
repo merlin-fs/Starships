@@ -29,11 +29,6 @@ namespace Game.Model.Units
 
         public override void OnAfterDeserialize()
         {
-            Init();
-        }
-
-        public void Init()
-        {
             Logic.Init();
         }
     }

@@ -23,17 +23,9 @@ MonoBehaviour:
   Value:
     Weapon: {fileID: 11400000, guid: d1923d49bbd41c64abecd1d6199aaf7d, type: 2}
     Speed:
-      Original:
-        Min: 0
-        Max: 1
-        Value: 1
-        Normalize: 1
-      Current:
-        Min: 0
-        Max: 1
-        Value: 1
-        Normalize: 1
-    Health: 10
+      rid: 129887608927158280
+    Health:
+      rid: 129887608927158279
   Logic:
     m_Configurator: Game.Model.Units.LogicMeteorite
   Team:
@@ -41,3 +33,16 @@ MonoBehaviour:
       Value: 2
     m_EnemyTeams:
     - Value: 1
+  references:
+    version: 2
+    RefIds:
+    - rid: 129887608927158279
+      type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
+      data:
+        Min: 1
+        Max: 10
+    - rid: 129887608927158280
+      type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
+      data:
+        Min: 1
+        Max: 5

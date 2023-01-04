@@ -15,11 +15,15 @@ namespace Game.Model.Logics
         
         private int m_State;
         public int m_Result;
-
+        private int m_LogicID;
+        
         public bool Work;
         public int StateID => m_State;
 
         public bool IsValid => m_Def.Value.IsValid;
+
+
+        public int LogicID => m_LogicID;
 
         [CreateProperty]
         public Enum State => GetValue(m_State);
@@ -37,6 +41,7 @@ namespace Game.Model.Logics
             m_State = 0;
             m_Result = 0;
             Work = false;
+            m_LogicID = config.Value.LogicID;
         }
 
         public void SetStateID(int value)
