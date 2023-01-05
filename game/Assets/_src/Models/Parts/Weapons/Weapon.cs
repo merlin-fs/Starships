@@ -5,16 +5,14 @@ using Common.Core;
 
 namespace Game.Model.Weapons
 {
-    using Stats;
-
     /// <summary>
     /// Реализация оружия
     /// </summary>
     [Serializable]
     public struct Weapon: IPart, IDefineable, IComponentData, IDefineableCallback
     {
-        private readonly Def<WeaponConfig> m_Def;
-        public WeaponConfig Def => m_Def.Value;
+        private readonly Def<WeaponDef> m_Def;
+        public WeaponDef Def => m_Def.Value;
 
         public int Count;
 
@@ -22,7 +20,7 @@ namespace Game.Model.Weapons
 
         public ObjectID BulletID;
 
-        public Weapon(Def<WeaponConfig> config)
+        public Weapon(Def<WeaponDef> config)
         {
             m_Def = config;
             Time = 0;
@@ -33,22 +31,12 @@ namespace Game.Model.Weapons
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
             context.SetName(entity, GetType().Name);
-
             context.AddComponentData(entity, new Target());
-            
-            context.AddBuffer<Modifier>(entity);
-            var buff = context.AddBuffer<Stat>(entity);
-
-            buff.AddStat(GlobalStat.Health, Def.Health);
-            buff.AddStat(Stats.Rate, Def.Rate);
-            buff.AddStat(Stats.Damage, Def.DamageValue);
-            buff.AddStat(Stats.ReloadTime, Def.ReloadTime);
-            buff.AddStat(Stats.ClipSize, Def.ClipSize);
-
             Count = Def.ClipSize;
         }
         public void RemoveComponentData(Entity entity, IDefineableContext context) { }
         #endregion
+
         /// <summary>
         /// Состояние оружия
         /// </summary>
@@ -89,7 +77,7 @@ namespace Game.Model.Weapons
         }
 
         [Serializable]
-        public class WeaponConfig : IDef<Weapon>
+        public class WeaponDef : IDef<Weapon>
         {
             /// <summary>
             /// Тип пуль

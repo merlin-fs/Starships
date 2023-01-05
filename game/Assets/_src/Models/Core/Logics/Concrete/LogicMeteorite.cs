@@ -20,7 +20,8 @@ namespace Game.Model.Units
                 .Transition(Target.State.Find, Target.Result.Found, Move.State.MoveTo)
                 .Transition(Target.State.Find, Target.Result.NoTarget, Target.State.Find)
 
-                .Transition(Move.State.MoveTo, Move.Result.Done, Weapon.State.Shoot);
+                .Transition(Move.State.MoveTo, Move.Result.Done, Weapon.State.Shoot)
+                .Transition(Weapon.State.Shoot, Weapon.Result.Done, Unit.State.Destroy);
         }
 
         protected override void OnCreate()
@@ -53,7 +54,7 @@ namespace Game.Model.Units
             public float Delta;
             public EntityCommandBuffer.ParallelWriter Writer;
 
-            void Execute([EntityIndexInQuery] int idx, in UnitAspect unit, in LogicAspect logic,
+            void Execute([EntityIndexInQuery] int idx, in UnitAspect unit, ref LogicAspect logic,
                 ref WeaponAspect weapon,
                 ref Move data)
             {
@@ -80,11 +81,16 @@ namespace Game.Model.Units
 
                 if (logic.Equals(Weapon.State.Shoot))
                 {
-                    //weapon.Shot(new DefExt.WriterContext(Writer, idx));
-                    //Writer.AddComponent<DeadTag>(idx, logic.Self);
-                    //Writer.DestroyEntity(idx, logic.Self);
+                    logic.SetResult(Weapon.Result.Done);
                     return;
                 }
+
+                if (logic.Equals(Unit.State.Destroy))
+                {
+                    Writer.AddComponent<DeadTag>(idx, logic.Self);
+                    return;
+                }
+                
             }
         }
     }

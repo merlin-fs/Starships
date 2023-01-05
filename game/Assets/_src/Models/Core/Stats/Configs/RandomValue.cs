@@ -7,6 +7,6 @@ namespace Game.Model.Stats
     {
         public float Min;
         public float Max;
-        StatValue IStatValue.Value => UnityEngine.Random.Range(Min, Max);
+        StatValue IStatValue.Value => Common.Core.Dice.Range(Min, Max);
     }
 }

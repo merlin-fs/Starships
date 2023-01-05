@@ -1,11 +1,11 @@
 using System;
-using Common.Defs;
-using Game.Model.Units;
 using Unity.Entities;
 using UnityEngine;
 
 namespace Game.Core.Prefabs
 {
+    using Defs;
+
     public struct PrefabData : IBufferElementData, IEnableableComponent
     {
         public Entity Prefab;
@@ -15,9 +15,9 @@ namespace Game.Core.Prefabs
 
     public class PrefabsStoreConfig : MonoBehaviour
     {
-        public ScriptableConfig Player;
-        public ScriptableConfig Enenmy;
-        public ScriptableConfig Weapon;
+        public GameObjectConfig Player;
+        public GameObjectConfig Enenmy;
+        public GameObjectConfig Weapon;
 
         public class _baker : Baker<PrefabsStoreConfig>
         {

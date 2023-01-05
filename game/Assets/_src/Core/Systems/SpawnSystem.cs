@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using Common.Core;
 using Unity.Entities;
 using Unity.Transforms;
 
@@ -8,15 +9,18 @@ namespace Game.Model
     {
         public Entity Entity;
         public WorldTransform WorldTransform;
+        public ObjectID ConfigID;
     }
-
 
     public struct Spawn : IComponentData { }
 }
 
 namespace Game.Systems
 {
+    using Game.Core.Defs;
+    using Game.Core.Repositories;
     using Game.Model;
+    using Game.Model.Stats;
 
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
     partial class SpawnSystem : SystemBase

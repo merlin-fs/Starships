@@ -14,9 +14,9 @@ namespace Game.Model.Units
     [Serializable]
     public struct Unit : IUnit, IDefineable, IComponentData, IDefineableCallback
     {
-        public Def<UnitConfig> Def { get; }
+        public Def<UnitDef> Def { get; }
 
-        public Unit(Def<UnitConfig> config)
+        public Unit(Def<UnitDef> config)
         {
             Def = config;
         }
@@ -31,17 +31,14 @@ namespace Game.Model.Units
                 var weapon = context.FindEntity(Def.Value.Weapon.PrefabID);
                 if (weapon == Entity.Null)
                     weapon = entity;
-
-                Def.Value.Weapon.Value.AddComponentData(weapon, context);
-                Def.Value.Weapon.Logic.AddComponentData(weapon, context);
-                context.AddComponentData<Part>(weapon, new Part { Unit = entity });
+                
+                if (Def.Value.Weapon is IConfig config)
+                {
+                    config.Configurate(weapon, context);
+                    //TODO: перенести в weapon!
+                    context.AddComponentData<Part>(weapon, new Part { Unit = entity });
+                }
             }
-
-            context.AddBuffer<Modifier>(entity);
-            var buff = context.AddBuffer<Stat>(entity);
-
-            buff.AddStat(GlobalStat.Health, Def.Value.Health.Value);
-            buff.AddStat(Stats.Speed, Def.Value.Speed.Value);
         }
 
         public void RemoveComponentData(Entity entity, IDefineableContext context) { }
@@ -58,7 +55,7 @@ namespace Game.Model.Units
         }
 
         [Serializable]
-        public class UnitConfig : IDef<Unit>
+        public class UnitDef : IDef<Unit>
         {
             public WeaponConfig Weapon;
 
