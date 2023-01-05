@@ -40,7 +40,7 @@ MonoBehaviour:
       type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
         Min: 1
-        Max: 10
+        Max: 5
     - rid: 129887608927158280
       type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
