@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+
+using Common.Defs;
+
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Properties;
@@ -149,14 +152,19 @@ namespace Game.Model.Stats
             Stat.AddStat(buff, value, stat);
         }
 
-        public static unsafe void AddStat(this DynamicBuffer<Stat> buff, Enum value, float initial)
+        public static void AddStat(this DynamicBuffer<Stat> buff, Enum value, float initial)
         {
             Stat.AddStat(buff, value, initial);
         }
 
-        public static unsafe void AddStat(this DynamicBuffer<Stat> buff, Enum value, StatValue stat)
+        public static void AddStat(this DynamicBuffer<Stat> buff, Enum value, StatValue stat)
         {
             Stat.AddStat(buff, value, stat);
+        }
+
+        public static void AddStat(this DynamicBuffer<Stat> buff, Enum value, IStatValue stat)
+        {
+            Stat.AddStat(buff, value, stat.Value);
         }
 
         public static bool TryGetStat(this DynamicBuffer<Stat> buff, Enum stat, out Stat data)

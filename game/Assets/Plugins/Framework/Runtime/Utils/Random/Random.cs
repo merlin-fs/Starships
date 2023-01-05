@@ -16,12 +16,9 @@ namespace Common.Core
 
         public static float Range(float min, float max)
         {
-            if (max <= min)
-            {
-                return min;
-            }
-            return Value * (max - min) + min;
-
+            return max <= min 
+                ? min 
+                : (Value * (max - min)) + min;
         }
 
         public static int Range(int min, int max)

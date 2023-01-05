@@ -79,6 +79,7 @@ public class TestSpawnMeteorite : MonoBehaviour
         ecb.AddComponent(entity, new SpawnTag()
         {
             Entity = enemy.Prefab,
+            ConfigID = enemy.ID,
             WorldTransform = transform
         });
     }

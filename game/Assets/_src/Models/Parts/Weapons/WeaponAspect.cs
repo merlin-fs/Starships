@@ -21,7 +21,7 @@ namespace Game.Model.Weapons
         [Optional] readonly RefRO<Part> m_Part;
         [ReadOnly] readonly DynamicBuffer<Stat> m_Stats;
 
-        public Weapon.WeaponConfig Config => m_Weapon.ValueRO.Def;
+        public Weapon.WeaponDef Config => m_Weapon.ValueRO.Def;
 
         [CreateProperty]
         public string Bullet => Config.Bullet.name;

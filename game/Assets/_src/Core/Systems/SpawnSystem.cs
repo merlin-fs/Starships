@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using Common.Core;
 using Unity.Entities;
 using Unity.Transforms;
 
@@ -8,15 +9,18 @@ namespace Game.Model
     {
         public Entity Entity;
         public WorldTransform WorldTransform;
+        public ObjectID ConfigID;
     }
-
 
     public struct Spawn : IComponentData { }
 }
 
 namespace Game.Systems
 {
+    using Game.Core.Defs;
+    using Game.Core.Repositories;
     using Game.Model;
+    using Game.Model.Stats;
 
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
     partial class SpawnSystem : SystemBase
@@ -46,6 +50,16 @@ namespace Game.Systems
                     Position = spawn.WorldTransform.Position,
                     Rotation = spawn.WorldTransform.Rotation,
                 });
+
+                //TODO: нунжно переделать! (дубляж кода из GameObjectConfig. И не расчитано на инициализацию children объектов)
+                var config = Repositories.Instance.ConfigsAsync().Result.FindByID(spawn.ConfigID);
+                if (config is IConfigStats stats)
+                {
+                    Writer.AddBuffer<Modifier>(idx, inst);
+                    var buff = Writer.AddBuffer<Stat>(idx, inst);
+                    stats.Configurate(buff);
+                }
+
                 Writer.DestroyEntity(idx, entity);
                 UnityEngine.Debug.Log($"[{inst}] Inst: {spawn.WorldTransform.Position}");
             }

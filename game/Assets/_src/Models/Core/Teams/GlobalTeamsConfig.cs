@@ -3,12 +3,13 @@ using System.Linq;
 using UnityEngine;
 using Unity.Entities;
 using Common.Defs;
-using Common.Core;
 using UnityEditor;
 using System.Collections.Generic;
 
 namespace Game.Model
 {
+    using Core.Defs;
+
     [Serializable]
     public struct TeamValue
     {
@@ -21,7 +22,7 @@ namespace Game.Model
 
 
     [CreateAssetMenu(fileName = "Teams", menuName = "Configs/Teams")]
-    public class GlobalTeamsConfig : ScriptableConfig
+    public class GlobalTeamsConfig : GameObjectConfig
     {
         private static GlobalTeamsConfig m_Instance;
         public static GlobalTeamsConfig Instance 

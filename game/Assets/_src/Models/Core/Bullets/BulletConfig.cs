@@ -1,12 +1,14 @@
 ﻿using System;
-using Common.Defs;
 using Unity.Entities;
 using UnityEngine;
+using Common.Defs;
 
 namespace Game.Model.Weapons
 {
+    using Core.Defs;
+
     [CreateAssetMenu(fileName = "Bullet", menuName = "Configs/Bullet")]
-    public class BulletConfig: ScriptableConfig
+    public class BulletConfig: GameObjectConfig
     {
         public Bullet.Config Value;
         protected override void Configurate(Entity prefab, IDefineableContext context)
