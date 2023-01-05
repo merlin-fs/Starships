@@ -21,11 +21,15 @@ namespace Game.Systems
     using Game.Core.Repositories;
     using Game.Model;
     using Game.Model.Stats;
+    using Game.Views.Stats;
+
+    using Unity.Collections;
 
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
     partial class SpawnSystem : SystemBase
     {
         EntityQuery m_Query;
+        BufferLookup<StatView> ViewsLookup;
 
         protected override void OnCreate()
         {
@@ -33,12 +37,16 @@ namespace Game.Systems
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<SpawnTag>()
                 .Build();
+
+            ViewsLookup = GetBufferLookup<StatView>();
             RequireForUpdate(m_Query);
         }
 
         partial struct SpawnJob : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter Writer;
+            [NativeDisableParallelForRestriction]
+            public BufferLookup<StatView> ViewsLookup;
 
             void Execute([EntityIndexInQuery] int idx, in Entity entity, in SpawnTag spawn)
             {
@@ -50,6 +58,14 @@ namespace Game.Systems
                     Position = spawn.WorldTransform.Position,
                     Rotation = spawn.WorldTransform.Rotation,
                 });
+
+                if (ViewsLookup.HasBuffer(entity))
+                {
+                    var views = ViewsLookup[entity];
+                    var buff = Writer.AddBuffer<StatView>(idx, inst);
+                    buff.CopyFrom(views);
+                }
+
                 Writer.DestroyEntity(idx, entity);
                 UnityEngine.Debug.Log($"[{inst}] Inst: {spawn.WorldTransform.Position}");
             }
@@ -57,10 +73,12 @@ namespace Game.Systems
 
         protected override void OnUpdate()
         {
+            ViewsLookup.Update(ref CheckedStateRef);
             var system = World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>();
             var ecb = system.CreateCommandBuffer();
             Dependency = new SpawnJob()
             {
+                ViewsLookup = ViewsLookup,
                 Writer = ecb.AsParallelWriter(),
             }.ScheduleParallel(m_Query, Dependency);
 

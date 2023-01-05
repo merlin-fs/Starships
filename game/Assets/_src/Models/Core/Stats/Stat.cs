@@ -15,12 +15,10 @@ namespace Game.Model.Stats
     public struct Stat : IBufferElementData
     {
         #region debug
-#if DEBUG
         private static readonly ConcurrentDictionary<int, Enum> m_DebugNames = new ConcurrentDictionary<int, Enum>();
         public static string GetName(int statID) => Enum.GetName(m_DebugNames[statID].GetType(), m_DebugNames[statID]);
         [CreateProperty]
         public string StatName => GetName(StatID);
-#endif
         #endregion
         private static readonly ConcurrentDictionary<Enum, int> m_AllStats = new ConcurrentDictionary<Enum, int>();
         private static Stat m_Null = new Stat() { StatID = 0, };
@@ -33,6 +31,7 @@ namespace Game.Model.Stats
 
         [CreateProperty]
         public float Value => m_Value.Current.Value;
+        public float Normalize => m_Value.Current.Value / m_Value.Current.Max;
 
         public void ModMull(float value)
         {
@@ -74,19 +73,19 @@ namespace Game.Model.Stats
                 buff[id] = element;
         }
 
-        public static ref Stat GetRW(DynamicBuffer<Stat> buff, Enum stat)
+        public static ref Stat GetRW(DynamicBuffer<Stat> buff, int statId)
         {
-            var id = FindStat(buff, stat);
+            var id = FindStat(buff, statId);
             if (id == -1)
-                throw new NotImplementedException($"Stat: {stat}");
+                throw new NotImplementedException($"Stat: {GetName(statId)}");
             return ref buff.ElementAt(id);
         }
 
-        public static Stat GetRO(DynamicBuffer<Stat> buff, Enum stat)
+        public static Stat GetRO(DynamicBuffer<Stat> buff, int statId)
         {
-            var id = FindStat(buff, stat);
+            var id = FindStat(buff, statId);
             if (id == -1)
-                throw new NotImplementedException($"Stat: {stat}");
+                throw new NotImplementedException($"Stat: {GetName(statId)}");
             return buff[id];
         }
 
@@ -111,10 +110,14 @@ namespace Game.Model.Stats
 
         private static int FindStat(DynamicBuffer<Stat> buff, Enum stat)
         {
-            var id = GetID(stat);
+            return FindStat(buff, GetID(stat));
+        }
+
+        private static int FindStat(DynamicBuffer<Stat> buff, int statId)
+        {
             for (int i = 0; i < buff.Length; i++)
             {
-                if (buff[i].StatID == id)
+                if (buff[i].StatID == statId)
                     return i;
             }
             return -1;
@@ -134,9 +137,7 @@ namespace Game.Model.Stats
         {
             StatID = GetID(value);
             m_Value = StatValue.Default;
-#if DEBUG
             m_DebugNames.TryAdd(StatID, value);
-#endif
         }
 
         public static implicit operator Stat(Enum @enum)
@@ -174,12 +175,22 @@ namespace Game.Model.Stats
 
         public static ref Stat GetRW(this DynamicBuffer<Stat> buff, Enum stat)
         {
-            return ref Stat.GetRW(buff, stat);
+            return ref Stat.GetRW(buff, Stat.GetID(stat));
         }
 
         public static Stat GetRO(this DynamicBuffer<Stat> buff, Enum stat)
         {
-            return Stat.GetRO(buff, stat);
+            return Stat.GetRO(buff, Stat.GetID(stat));
+        }
+
+        public static ref Stat GetRW(this DynamicBuffer<Stat> buff, int statId)
+        {
+            return ref Stat.GetRW(buff, statId);
+        }
+
+        public static Stat GetRO(this DynamicBuffer<Stat> buff, int statId)
+        {
+            return Stat.GetRO(buff, statId);
         }
     }
 }

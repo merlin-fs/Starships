@@ -14,6 +14,8 @@ using UnityEngine.AddressableAssets;
 using Unity.Transforms;
 using Game.Core.Prefabs;
 using Unity.Mathematics;
+using Game.Views.Stats;
+using Game.Model.Stats;
 
 public class TestSpawn : MonoBehaviour
 {
@@ -57,6 +59,12 @@ public class TestSpawn : MonoBehaviour
             Entity = player.Prefab,
             WorldTransform = transform,
         });
+
+        var view = GetComponent<TestHealthView>();
+        var viewObject = GameObject.Instantiate(view.View, view.Canvas.transform);
+        var buff = ecb.AddBuffer<StatView>(entity);
+        buff.Add(new StatView(viewObject, Stat.GetID(GlobalStat.Health)));
+
 
         /*
         transform = WorldTransform.FromPosition(10, 0, 0);

@@ -1,12 +1,41 @@
 using System;
+using System.Runtime.InteropServices;
+using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Mathematics;
+using Unity.Transforms;
+using Unity.Entities;
 
 namespace Game.Views.Stats
 {
     using Model.Stats;
-    using Unity.Transforms;
+    
+    public struct StatView: IBufferElementData, IDisposable
+    {
+        private IntPtr m_ViewHandle;
+        public int StatID;
+
+        public IStatViewComponent View => (IStatViewComponent)GCHandle.FromIntPtr(m_ViewHandle).Target;
+
+        public StatView(IStatViewComponent value, int statId)
+        {
+            StatID = statId;
+            unsafe 
+            {
+                UnsafeUtility.PinGCObjectAndGetAddress(value, out ulong handle);
+                m_ViewHandle = new IntPtr((long)handle);
+            }
+        }
+
+        public void Dispose()
+        {
+            unsafe
+            {
+                UnsafeUtility.ReleaseGCObject((ulong)m_ViewHandle.ToInt64());
+            }
+        }
+    }
 
     public class StatViewComponent : MonoBehaviour, IStatViewComponent
     {
@@ -35,7 +64,7 @@ namespace Game.Views.Stats
         {
             m_Position = transform._Position;
             m_Initialize = true;
-            m_Value = stat.Value;
+            m_Value = stat.Normalize;
         }
 
         public void SetDestroy()
