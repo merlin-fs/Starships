@@ -11,6 +11,8 @@ namespace Game.Core.Defs
         {
             if (this is IConfigStats stats)
             {
+                var prepare = context.AddBuffer<PrepareStat>(entity);
+                prepare.Add(new PrepareStat { ConfigID = ID });
                 context.AddBuffer<Modifier>(entity);
                 var buff = context.AddBuffer<Stat>(entity);
                 stats.Configurate(buff);

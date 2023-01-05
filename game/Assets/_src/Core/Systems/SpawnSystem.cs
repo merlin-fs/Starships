@@ -50,16 +50,6 @@ namespace Game.Systems
                     Position = spawn.WorldTransform.Position,
                     Rotation = spawn.WorldTransform.Rotation,
                 });
-
-                //TODO: нунжно переделать! (дубляж кода из GameObjectConfig. И не расчитано на инициализацию children объектов)
-                var config = Repositories.Instance.ConfigsAsync().Result.FindByID(spawn.ConfigID);
-                if (config is IConfigStats stats)
-                {
-                    Writer.AddBuffer<Modifier>(idx, inst);
-                    var buff = Writer.AddBuffer<Stat>(idx, inst);
-                    stats.Configurate(buff);
-                }
-
                 Writer.DestroyEntity(idx, entity);
                 UnityEngine.Debug.Log($"[{inst}] Inst: {spawn.WorldTransform.Position}");
             }
