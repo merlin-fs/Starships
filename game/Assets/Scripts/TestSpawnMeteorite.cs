@@ -55,7 +55,8 @@ public class TestSpawnMeteorite : MonoBehaviour
         m_BtnReload.onClick.AddListener(
             () =>
             {
-                StartSpawn();
+                m_Current = m_Count;
+                StartCoroutine(Spawn());
             });
     }
 
@@ -74,7 +75,7 @@ public class TestSpawnMeteorite : MonoBehaviour
         if (enemy.Prefab == Entity.Null)
             return;
 
-        var point = RandomBetweenRadius2D(5, 25 / 2);
+        var point = RandomBetweenRadius2D(5, 25 / 2) + new Vector3(0, 8, 0);
         var transform = WorldTransform.FromPosition(point);
         var entity = ecb.CreateEntity();
         ecb.AddComponent(entity, new SpawnTag()
@@ -90,7 +91,7 @@ public class TestSpawnMeteorite : MonoBehaviour
         while (m_Current > 0)
         {
             StartSpawn();
-            var time = UnityEngine.Random.Range(0.5f, m_Count);
+            var time = UnityEngine.Random.Range(0.01f, 1f);
             yield return new WaitForSeconds(time);
             m_Current--;
         }
@@ -99,7 +100,5 @@ public class TestSpawnMeteorite : MonoBehaviour
     private void Start()
     {
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        m_Current = m_Count;
-        //StartCoroutine(Spawn());
     }
 }

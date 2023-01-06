@@ -14,19 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 3139204547736633351, guid: e68621411f71031488e2552f57db202a,
     type: 3}
-  m_PrefabID:
-    Value:
-      x: 336750702
-      y: 1093670897
-      z: 4065668744
-      w: 2718088565
   Value:
     Bullet: {fileID: 11400000, guid: c94f740253ba24c4db17d250612946be, type: 2}
+    DamageType: {fileID: 0}
     Health: 5
-    DamageValue: 5
+    DamageValue: 1
     BarrelCount: 1
     ClipSize: 300
-    Rate: 0.5
+    Rate: 0.05
     ReloadTime: 1
   Logic:
     m_Configurator: Game.Model.Units.LogicWeapon

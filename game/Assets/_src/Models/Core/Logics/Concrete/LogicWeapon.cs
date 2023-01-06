@@ -9,6 +9,8 @@ namespace Game.Model.Units
     using Weapons;
     using Logics;
     using Game.Model.Stats;
+    using TMPro;
+    using Unity.Mathematics;
 
     public partial class LogicWeapon : LogicConcreteSystem
     {
@@ -84,8 +86,12 @@ namespace Game.Model.Units
                 if (logic.Equals(Weapon.State.Shooting))
                 {
                     var direction = weapon.Target.WorldTransform.Position;
-                    //UnityEngine.Debug.Log($"[{logic.Self}] LookAt: {direction}");
-                    transform.LookAt(direction);
+                    //transform.LookAt(direction);
+                    direction = transform.TransformPointWorldToParent(direction) - transform.LocalPosition;
+                    transform.LocalRotation = math.nlerp(
+                        transform.LocalRotation, 
+                        quaternion.LookRotationSafe(direction, math.up()),
+                        weapon.Time + Delta * 10f);
 
                     if (weapon.Count == 0)
                     {

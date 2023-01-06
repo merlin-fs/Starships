@@ -65,12 +65,6 @@ MonoBehaviour:
     m_SerializedLabels:
     - defs
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: bf3b9e24f7f131c479855962a72c5ab1
-    m_Address: Assets/_prefabs/GatelingGun_Yellow_L3.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d1923d49bbd41c64abecd1d6199aaf7d
     m_Address: Assets/_configs/Weapon/SelfExplosion.asset
     m_ReadOnly: 0

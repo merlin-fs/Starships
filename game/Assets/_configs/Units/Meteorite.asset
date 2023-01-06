@@ -37,9 +37,9 @@ MonoBehaviour:
       type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
         Min: 1
-        Max: 6
+        Max: 2
     - rid: 129887608927158280
       type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
-        Min: 0.5
-        Max: 3
+        Min: 0.2
+        Max: 1

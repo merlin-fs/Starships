@@ -22,6 +22,7 @@ namespace Game.Core.Prefabs
         {
             public unsafe override void Bake(PrefabAuthoring authoring)
             {
+
                 var buffer = AddBuffer<BakedPrefabData>();
                 var entity = GetEntity();
                 foreach (var iter in authoring.ConfigIDs)
@@ -32,9 +33,11 @@ namespace Game.Core.Prefabs
                         Prefab = entity,
                     });
                 }
+
                 var parent = authoring.transform;
                 while (parent.transform.parent != null)
-                    parent = authoring.transform.parent;
+                    parent = parent.transform.parent;
+
                 if (parent != authoring.transform)
                 {
                     AddComponent<Part>(new Part { Unit = GetEntity(parent) });
