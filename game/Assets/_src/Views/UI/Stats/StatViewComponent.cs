@@ -30,6 +30,7 @@ namespace Game.Views.Stats
 
         public void Dispose()
         {
+            View.Dispose();
             unsafe
             {
                 UnsafeUtility.ReleaseGCObject((ulong)m_ViewHandle.ToInt64());
@@ -67,7 +68,7 @@ namespace Game.Views.Stats
             m_Value = stat.Normalize;
         }
 
-        public void SetDestroy()
+        public void Dispose()
         {
             m_Destroing = true;
         }

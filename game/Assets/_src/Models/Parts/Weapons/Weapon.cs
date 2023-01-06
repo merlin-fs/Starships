@@ -79,31 +79,13 @@ namespace Game.Model.Weapons
         [Serializable]
         public class WeaponDef : IDef<Weapon>
         {
-            /// <summary>
-            /// Тип пуль
-            /// </summary>
             public BulletConfig Bullet;
-            /// <summary>
-            /// Значение урона
-            /// </summary>
+            public DamageType DamageType;
             public int Health = 5;
-
             public float DamageValue = 1;
-            /// <summary>
-            /// Количество стволов
-            /// </summary>
             public int BarrelCount;
-            /// <summary>
-            /// Размер обоймы
-            /// </summary>
             public int ClipSize;
-            /// <summary>
-            /// Период стрельбы
-            /// </summary>
             public float Rate = 1;
-            /// <summary>
-            /// Время перезарядки оружия
-            /// </summary>
             public float ReloadTime = 5;
         }
     }

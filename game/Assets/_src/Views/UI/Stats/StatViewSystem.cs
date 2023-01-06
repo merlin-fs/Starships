@@ -14,7 +14,6 @@ namespace Game.Views.Stats
     public partial struct StatViewSystem : ISystem
     {
         private EntityQuery m_Query;
-        private EntityQuery m_QueryDelete;
 
         public void OnCreate(ref SystemState state)
         {
@@ -24,12 +23,6 @@ namespace Game.Views.Stats
                 .WithAll<WorldTransform>()
                 .Build();
             state.RequireForUpdate(m_Query);
-
-            m_QueryDelete = SystemAPI.QueryBuilder()
-                .WithAll<StatView>()
-                .WithAll<DeadTag>()
-                .Build();
-
         }
 
         partial struct UpdateViewJob : IJobEntity
@@ -48,13 +41,6 @@ namespace Game.Views.Stats
 
         public void OnUpdate(ref SystemState state)
         {
-            if (!m_QueryDelete.IsEmpty)
-            {
-                var ecb = state.World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>()
-                    .CreateCommandBuffer();
-                ecb.RemoveComponent<StatView>(m_QueryDelete);
-            }
-
             state.Dependency = new UpdateViewJob
             {
                 
@@ -80,10 +66,27 @@ namespace Game.Views.Stats
 
         public void OnUpdate(ref SystemState state)
         {
+            state.Dependency = new RemoveViewJob
+            {
+
+            }.ScheduleParallel(m_Query, state.Dependency);
+
             var ecb = state.World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>()
                 .CreateCommandBuffer();
             ecb.RemoveComponent<StatView>(m_Query);
         }
+
+        partial struct RemoveViewJob : IJobEntity
+        {
+            void Execute(in DynamicBuffer<StatView> views)
+            {
+                foreach (var iter in views)
+                {
+                    iter.Dispose();
+                }
+            }
+        }
+
     }
 
     /*
