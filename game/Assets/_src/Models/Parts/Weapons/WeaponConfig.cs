@@ -22,7 +22,8 @@ namespace Game.Model.Weapons
         {
             base.Configurate(prefab, context);
             Value.AddComponentData(prefab, context);
-            Logic.AddComponentData(prefab, context);
+            if (Logic.IsValid)
+                Logic.AddComponentData(prefab, context);
         }
 
         void IConfigStats.Configurate(DynamicBuffer<Stat> stats)

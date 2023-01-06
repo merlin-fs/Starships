@@ -14,6 +14,7 @@ namespace Game.Model.Stats
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Stat>()
                 .WithAll<Modifier>()
+                .WithNone<DeadTag>()
                 .WithOptions(EntityQueryOptions.FilterWriteGroup)
                 .Build();
 

@@ -18,6 +18,7 @@ namespace Game.Model.Stats
                 .WithAll<Stat>()
                 .WithAll<Spawn>()
                 .WithAll<StatInit>()
+                .WithNone<DeadTag>()
                 .Build();
             state.RequireForUpdate(m_Query);
         }

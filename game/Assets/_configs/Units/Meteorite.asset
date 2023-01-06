@@ -14,14 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 1214454638534738304, guid: 1688c5823dca4a64a9c7e123bb1dee5b,
     type: 3}
-  m_PrefabID:
-    Value:
-      x: 677152865
-      y: 1185197267
-      z: 840858778
-      w: 3052327355
   Value:
-    Weapon: {fileID: 11400000, guid: d1923d49bbd41c64abecd1d6199aaf7d, type: 2}
+    Parts:
+    - Child: {fileID: 11400000, guid: d1923d49bbd41c64abecd1d6199aaf7d, type: 2}
+      PrefabObject: {fileID: 1214454638534738304, guid: 1688c5823dca4a64a9c7e123bb1dee5b,
+        type: 3}
     Speed:
       rid: 129887608927158280
     Health:
@@ -40,9 +37,9 @@ MonoBehaviour:
       type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
         Min: 1
-        Max: 6
+        Max: 2
     - rid: 129887608927158280
       type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
-        Min: 0.5
-        Max: 3
+        Min: 0.2
+        Max: 1

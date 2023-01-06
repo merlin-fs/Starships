@@ -5,6 +5,8 @@ using Unity.Mathematics;
 
 namespace Game.Model
 {
+    using Game.Model.Stats;
+
     using Logics;
 
     [UpdateInGroup(typeof(GameLogicSystemGroup))]
@@ -17,6 +19,7 @@ namespace Game.Model
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Move>()
                 .WithAll<Logic>()
+                .WithNone<DeadTag>()
                 .Build();
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Move>());

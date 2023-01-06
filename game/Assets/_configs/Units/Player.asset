@@ -14,14 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 1979706888108350, guid: bf3b9e24f7f131c479855962a72c5ab1,
     type: 3}
-  m_PrefabID:
-    Value:
-      x: 1122612219
-      y: 1276321663
-      z: 647321751
-      w: 463848058
   Value:
-    Weapon: {fileID: 11400000, guid: 4ebc84f02e2b6dc42be590d5613f4838, type: 2}
+    Parts:
+    - Child: {fileID: 11400000, guid: 4ebc84f02e2b6dc42be590d5613f4838, type: 2}
+      PrefabObject: {fileID: 1157879558086612, guid: bf3b9e24f7f131c479855962a72c5ab1,
+        type: 3}
     Speed:
       rid: 129887608927158276
     Health:
