@@ -1,4 +1,6 @@
 using System;
+using Game.Model.Stats;
+
 using Unity.Entities;
 
 namespace Game.Model.Logics
@@ -12,6 +14,7 @@ namespace Game.Model.Logics
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Logic>()
+                .WithNone<DeadTag>()
                 .Build();
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
             RequireForUpdate(m_Query);

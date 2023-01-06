@@ -7,6 +7,8 @@ namespace Game.Model.Units
 {
     using Weapons;
     using Stats;
+    using System.Collections.Generic;
+    using Game.Core.Defs;
 
     /// <summary>
     /// Реализация юнита (корабля)
@@ -24,21 +26,22 @@ namespace Game.Model.Units
         
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
-            context.SetName(entity, GetType().Name);
-
-            if (Def.Value.Weapon != null)
+            //context.SetName(entity, GetType().Name);
+            /*
+            foreach (var iter in Def.Value.Parts)
             {
-                var weapon = context.FindEntity(Def.Value.Weapon.PrefabID);
-                if (weapon == Entity.Null)
-                    weapon = entity;
-                
-                if (Def.Value.Weapon is IConfig config)
+                var part = context.FindEntity(iter.Child);
+                if (part == Entity.Null)
+                    part = entity;
+
+                if (iter is IConfig config)
                 {
-                    config.Configurate(weapon, context);
+                    config.Configurate(part, context);
                     //TODO: перенести в weapon!
-                    context.AddComponentData<Part>(weapon, new Part { Unit = entity });
+                    context.AddComponentData<Part>(part, new Part { Unit = entity });
                 }
             }
+            */
         }
 
         public void RemoveComponentData(Entity entity, IDefineableContext context) { }
@@ -57,7 +60,7 @@ namespace Game.Model.Units
         [Serializable]
         public class UnitDef : IDef<Unit>
         {
-            public WeaponConfig Weapon;
+            public List<ChildConfig> Parts = new List<ChildConfig>();
 
             [SerializeReference, ReferenceSelect(typeof(IStatValue))]
             public IStatValue Speed;

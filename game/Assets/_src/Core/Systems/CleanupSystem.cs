@@ -38,6 +38,7 @@ namespace Game.Systems
             {
                 Writer = ecb.AsParallelWriter(),
             }.ScheduleParallel(m_Query, state.Dependency);
+            //state.Dependency.Complete();
             system.AddJobHandleForProducer(state.Dependency);
         }
     }

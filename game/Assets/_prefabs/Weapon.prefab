@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5680198562121783494}
-  - component: {fileID: 6773373548498505542}
+  - component: {fileID: 5154046501345762663}
   m_Layer: 0
   m_Name: Weapon
   m_TagString: Untagged
@@ -31,9 +31,9 @@ Transform:
   m_Children:
   - {fileID: 9154092572894978632}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6773373548498505542
+--- !u!114 &5154046501345762663
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c913dc43093fa4042acfcd925afd1071, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Type: Game.Model.Weapons.Weapon
+  m_Type: 
 --- !u!1 &3331130870036934134
 GameObject:
   m_ObjectHideFlags: 0
@@ -57,7 +57,6 @@ GameObject:
   - component: {fileID: 9154092572894978632}
   - component: {fileID: 3088801028806292635}
   - component: {fileID: 1626233254320458303}
-  - component: {fileID: 1344857042511684216}
   m_Layer: 0
   m_Name: Turret
   m_TagString: Untagged
@@ -132,27 +131,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &1344857042511684216
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3331130870036934134}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &5818221738291713301
 GameObject:
   m_ObjectHideFlags: 0

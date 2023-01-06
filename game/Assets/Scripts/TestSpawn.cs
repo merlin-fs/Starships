@@ -51,6 +51,9 @@ public class TestSpawn : MonoBehaviour
         transform.Rotation = quaternion.RotateX(math.radians(-90));
         //transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(-90)));
 
+        if (player.Prefab == Entity.Null)
+            return;
+
         ecb.AddComponent(entity, new SpawnTag()
         {
             Entity = player.Prefab,

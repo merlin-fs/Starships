@@ -20,6 +20,7 @@ namespace Game.Views
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Particle>()
                 .WithNone<ParticleView>()
+                .WithNone<DeadTag>()
                 .Build();
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Particle>());

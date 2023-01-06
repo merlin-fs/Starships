@@ -4,6 +4,8 @@ using Unity.Transforms;
 
 namespace Game.Model.Units
 {
+    using Game.Model.Stats;
+
     using Logics;
 
     public partial class LogicUnit : LogicConcreteSystem
@@ -23,6 +25,7 @@ namespace Game.Model.Units
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Unit>()
                 .WithAll<Logic>()
+                .WithNone<DeadTag>()
                 .Build();
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
             RequireForUpdate(m_Query);
