@@ -1,24 +1,26 @@
 using System;
-using System.Linq;
+using System.Collections.Concurrent;
 using Unity.Entities;
 using Unity.Burst;
-using Unity.Collections;
 using Common.Defs;
 using System.Threading.Tasks;
 
 namespace Game.Core.Prefabs
 {
-    using System.Collections.Generic;
 
     using Repositories;
 
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
     partial class PrefabSystem : SystemBase
     {
-        EntityQuery m_Query;
-        EntityQuery m_StoreQuery;
+        static PrefabSystem Instance { get; set; }
 
+        EntityQuery m_Query;
+        
         private bool m_Done;
+
+        ConcurrentDictionary<Entity, IDefineableContext> m_Contexts = new ConcurrentDictionary<Entity, IDefineableContext>();
+
 
         public Task<bool> IsDone()
         {
@@ -32,99 +34,53 @@ namespace Game.Core.Prefabs
 
         protected override void OnCreate()
         {
+            Instance = this;
             base.OnCreate();
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<PrefabTargetData>()
+                .WithAll<BakedPrefabData>()
                 .WithOptions(EntityQueryOptions.IncludePrefab)
                 .Build();
-            
-            m_StoreQuery = SystemAPI.QueryBuilder()
-                .WithAll<PrefabData>()
-                .WithOptions(EntityQueryOptions.IncludePrefab | EntityQueryOptions.IgnoreComponentEnabledState)
-                .Build();
-
             RequireForUpdate(m_Query);
         }
+
 
         [BurstDiscard]
         protected async override void OnUpdate()
         {
-            if (m_StoreQuery.IsEmpty || m_Query.IsEmpty)
-                return;
-
             m_Done = false;
+            await Repositories.Instance.ConfigsAsync();
 
-            var repo = await Repositories.Instance.ConfigsAsync();
             var system = World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>();
-
             var ecb = system.CreateCommandBuffer();
-            var storeEntity = m_StoreQuery.GetSingletonEntity();
-            EntityManager.AddBuffer<PreparePrefabData>(storeEntity);
-
-            using var prefabs = new NativeList<PreparePrefabData>(this.WorldUpdateAllocator);
-            using var datas = m_Query.ToComponentDataArray<PrefabTargetData>(this.WorldUpdateAllocator);
-            using var uniqids = new NativeHashSet<Entity>(5, this.WorldUpdateAllocator);
-            using var dst = new NativeArray<Entity>(1, Allocator.Temp);
-
-            var writer = EntityManager;
-
-            foreach (var data in datas)
+            Dependency = new PrefabJob()
             {
-                EntityManager.SetComponentEnabled<PrefabTargetData>(data.Target, false);
-                if (data.IsChild)
-                    continue;
+                Writer = ecb.AsParallelWriter(),
+            }.ScheduleParallel(m_Query, Dependency);
+            Dependency.Complete();
+            m_Contexts.Clear();
 
-                var configs = repo.Find((i) => i.PrefabID == data.PrefabID);
-
-                foreach (var config in configs)
-                {
-                    var prefab = data.Target;
-                    if (uniqids.Contains(data.Target))
-                    {
-                        prefab = EntityManager.Instantiate(data.Target);
-                        var h = GetBufferTypeHandle<LinkedEntityGroup>(true);
-                        var children = writer.GetBuffer<LinkedEntityGroup>(prefab);
-                        
-                        foreach (var child in children)
-                            ecb.AddComponent<Prefab>(child.Value);
-                        
-                    }
-                    uniqids.Add(data.Target);
-
-                    var prefabData = new PreparePrefabData()
-                    {
-                        Entity = prefab,
-                        ID = config.ID,
-                        PrefabID = data.PrefabID,
-                    };
-                    prefabs.Add(prefabData);
-                    ecb.AppendToBuffer(storeEntity, prefabData);
-                }
-            }
-
-            UnityEngine.Debug.Log($"[Prefab system] Init prefabs: {prefabs.Length}");
-            foreach (var prefab in prefabs)
-            {
-                using var map = new NativeHashMap<Hash128, Entity>(5, this.WorldUpdateAllocator);
-                var config = repo.FindByID(prefab.ID);
-                var group = writer.GetBuffer<LinkedEntityGroup>(prefab.Entity).AsNativeArray();
-                foreach (var child in group)
-                {
-                    if (writer.HasComponent<PrefabTargetData>(child.Value))
-                    {
-                        var data = writer.GetComponentData<PrefabTargetData>(child.Value);
-                        map.Add(data.PrefabID, child.Value);
-                    }
-                }
-                
-                var context = new DefExt.CommandBufferContext(ecb, map);
-                config.Configurate(prefab.Entity, context);
-                context.SetName(prefab.Entity, config.ID.ToString());
-                UnityEngine.Debug.Log($"[Prefab system] Init prefab: {config.ID}, {prefab.Entity}");
-            }
-            
-
+            ecb.RemoveComponent<BakedPrefabData>(m_Query);
             m_Done = true;
+        }
+
+        partial struct PrefabJob : IJobEntity
+        {
+            public EntityCommandBuffer.ParallelWriter Writer;
+
+            void Execute([EntityIndexInQuery] int idx, in Entity entity, in DynamicBuffer<BakedPrefabData> bakeds)
+            {
+                if (!Instance.m_Contexts.TryGetValue(entity, out IDefineableContext context))
+                {
+                    context = new DefExt.WriterContext(Writer, idx);
+                    Instance.m_Contexts.TryAdd(entity, context);
+                }
+
+                foreach (var iter in bakeds)
+                {
+                    var config = Repositories.Instance.ConfigsAsync().Result.FindByID(iter.ConfigID);
+                    config.Configurate(entity, context);
+                }
+            }
         }
     }
 }

@@ -280,7 +280,6 @@ MonoBehaviour:
     m_SubObjectType: 
     m_EditorAssetChanged: 1
   m_Count: 1
-  m_Time: 5
   m_BtnReload: {fileID: 35430600}
 --- !u!4 &255184317
 Transform:
@@ -1033,7 +1032,6 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 1
-  m_Count: 1000
 --- !u!114 &1272894015
 MonoBehaviour:
   m_ObjectHideFlags: 0

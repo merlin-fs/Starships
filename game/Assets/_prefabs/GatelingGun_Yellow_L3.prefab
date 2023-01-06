@@ -210,7 +210,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4144936528890730}
-  - component: {fileID: 7764484139711701955}
+  - component: {fileID: 4291853336035423879}
   m_Layer: 0
   m_Name: GatelingGun_L3_BaseRotation
   m_TagString: Untagged
@@ -237,7 +237,7 @@ Transform:
   m_Father: {fileID: 4014590737078988}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7764484139711701955
+--- !u!114 &4291853336035423879
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -249,7 +249,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c913dc43093fa4042acfcd925afd1071, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Type: Game.Model.Weapons.Weapon
+  m_Type: 
 --- !u!1 &1158759922637424
 GameObject:
   m_ObjectHideFlags: 0
@@ -467,9 +467,9 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 0
-  looping: 1
+  looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -5323,7 +5323,7 @@ ParticleSystem:
   emitterVelocityMode: 0
   looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -10424,9 +10424,9 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -15445,9 +15445,9 @@ ParticleSystem:
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
-  looping: 1
+  looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -20863,7 +20863,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4514986444668122}
   - component: {fileID: 205676091413216282}
-  - component: {fileID: 6534547459111265872}
+  - component: {fileID: 4601491945137774279}
   m_Layer: 0
   m_Name: GatelingGun_Yellow_L3
   m_TagString: Untagged
@@ -20926,7 +20926,7 @@ LODGroup:
     - renderer: {fileID: 23170395206664584}
     - renderer: {fileID: 23686297716175772}
   m_Enabled: 1
---- !u!114 &6534547459111265872
+--- !u!114 &4601491945137774279
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -20938,4 +20938,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c913dc43093fa4042acfcd925afd1071, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Type: Game.Model.Units.Unit
+  m_Type: 

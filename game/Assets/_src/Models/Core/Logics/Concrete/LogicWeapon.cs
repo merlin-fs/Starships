@@ -8,6 +8,7 @@ namespace Game.Model.Units
 {
     using Weapons;
     using Logics;
+    using Game.Model.Stats;
 
     public partial class LogicWeapon : LogicConcreteSystem
     {
@@ -37,6 +38,7 @@ namespace Game.Model.Units
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Weapon>()
                 .WithAll<Logic>()
+                .WithNone<DeadTag>()
                 .Build();
             RequireForUpdate(m_Query);
             base.OnCreate();

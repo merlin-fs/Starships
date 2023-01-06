@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Linq;
 using Unity.Entities;
 using System.Runtime.InteropServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using System.Collections.Concurrent;
 
 namespace Common.Defs
 {
@@ -91,12 +91,15 @@ namespace Common.Defs
                 m_Buffs = null;
             }
 
-            public Entity FindEntity(Hash128 prefabId)
-            {
+            //public Entity FindEntity(Hash128 prefabId)
+            public Entity FindEntity(IConfig config)
+            { 
+                /*
                 if (!m_Childs.IsCreated)
                     return default;
                 m_Childs.TryGetValue(prefabId, out Entity entity);
-                return entity;
+                */
+                return Entity.Null;
             }
 
             private bool HasChache<T>(Entity entity, out DynamicBuffer<T> value)
@@ -176,12 +179,16 @@ namespace Common.Defs
                 m_Buffs = null;
             }
 
-            public Entity FindEntity(Hash128 prefabId)
+            public Entity FindEntity(IConfig config)
+            //public Entity FindEntity(Hash128 prefabId)
             {
+                /*
                 if (!m_Childs.IsCreated)
                     return default;
                 m_Childs.TryGetValue(prefabId, out Entity entity);
                 return entity;
+                */
+                return Entity.Null;  
             }
 
             private bool HasChache<T>(Entity entity, out DynamicBuffer<T> value)
@@ -266,12 +273,16 @@ namespace Common.Defs
                 m_Ref = this;
             }
 
-            public Entity FindEntity(Hash128 prefabId)
+            public Entity FindEntity(IConfig config)
+            //public Entity FindEntity(Hash128 prefabId)
             {
+                /*
                 if (!m_Childs.IsCreated)
                     return default;
                 m_Childs.TryGetValue(prefabId, out Entity entity);
                 return entity;
+                */
+                return Entity.Null;
             }
 
             private bool HasChache<T>(Entity entity, out DynamicBuffer<T> value)
@@ -329,7 +340,7 @@ namespace Common.Defs
             {
                 def.RemoveComponentData(entity, m_Manager, m_SortKey, data, this);
             }
-            
+
             public void SetName(Entity entity, string name)
             {
                 FixedString64Bytes fs = default;
@@ -520,7 +531,7 @@ namespace Common.Defs
         public static void AddComponentIData(this EntityManager manager, Entity entity, ref object componentData)
         {
             Type DefType = componentData.GetType();
-
+            
             if (!m_Infos.TryGetValue(DefType, out DefineableInfo value) || value.ManagerAdd == null)
             {
                 var type = manager.GetType();
@@ -658,6 +669,6 @@ namespace Common.Defs
             public MethodInfo CmbBuffDel;
             public MethodInfo BakerDel;
         }
-        private static Dictionary<Type, DefineableInfo> m_Infos = new Dictionary<Type, DefineableInfo>();
+        private static ConcurrentDictionary<Type, DefineableInfo> m_Infos = new ConcurrentDictionary<Type, DefineableInfo>();
     }
 }

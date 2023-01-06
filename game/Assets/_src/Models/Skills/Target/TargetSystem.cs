@@ -8,6 +8,8 @@ using Unity.Jobs;
 
 namespace Game.Model
 {
+    using Game.Model.Stats;
+
     using Logics;
 
     [UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
@@ -21,11 +23,13 @@ namespace Game.Model
         {
             m_QueryTargets = SystemAPI.QueryBuilder()
                 .WithAll<Team>()
+                .WithNone<DeadTag>()
                 .Build();
 
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Target>()
                 .WithAll<Logic>()
+                .WithNone<DeadTag>()
                 .Build();
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Target>());

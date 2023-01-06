@@ -71,6 +71,9 @@ public class TestSpawnMeteorite : MonoBehaviour
         var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
             .CreateCommandBuffer();
 
+        if (enemy.Prefab == Entity.Null)
+            return;
+
         var point = RandomBetweenRadius2D(5, 25 / 2);
         var transform = WorldTransform.FromPosition(point);
         var entity = ecb.CreateEntity();

@@ -5,6 +5,8 @@ using Unity.Collections;
 
 namespace Game.Views.Weapons
 {
+    using Game.Model.Stats;
+
     using Model.Logics;
     using Model.Weapons;
 
@@ -18,6 +20,7 @@ namespace Game.Views.Weapons
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Weapon>()
                 .WithAll<Logic>()
+                .WithNone<DeadTag>()
                 .Build();
 
             state.RequireForUpdate(m_Query);

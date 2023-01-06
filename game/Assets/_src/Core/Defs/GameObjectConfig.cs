@@ -9,6 +9,7 @@ namespace Game.Core.Defs
     {
         protected override void Configurate(Entity entity, IDefineableContext context)
         {
+            context.SetName(entity, ID.ToString());
             if (this is IConfigStats stats)
             {
                 var prepare = context.AddBuffer<PrepareStat>(entity);

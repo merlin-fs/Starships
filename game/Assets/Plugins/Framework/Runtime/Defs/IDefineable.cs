@@ -14,7 +14,8 @@ namespace Common.Defs
         void AddComponentData(IDef def, Entity entity);
         void RemoveComponentData<T>(IDef<T> def, Entity entity, T data) where T : IDefineable;
         void SetName(Entity entity, string name);
-        Entity FindEntity(Hash128 prefabId);
+        //Entity FindEntity(Hash128 prefabId);
+        Entity FindEntity(IConfig config);
     }
 
     public interface IDefineableCallback

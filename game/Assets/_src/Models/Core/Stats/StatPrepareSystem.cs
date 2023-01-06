@@ -20,6 +20,7 @@ namespace Game.Model.Stats
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<PrepareStat>()
                 .WithAll<Stat>()
+                .WithNone<DeadTag>()
                 .Build();
             state.RequireForUpdate(m_Query);
         }

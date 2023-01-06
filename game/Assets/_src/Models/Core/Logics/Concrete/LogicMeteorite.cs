@@ -18,7 +18,7 @@ namespace Game.Model.Units
                 .Transition(Move.State.Init, Move.Result.Done, Target.State.Find)
 
                 .Transition(Target.State.Find, Target.Result.Found, Move.State.MoveTo)
-                .Transition(Target.State.Find, Target.Result.NoTarget, Target.State.Find)
+                .Transition(Target.State.Find, Target.Result.NoTarget, Move.State.MoveTo)
 
                 .Transition(Move.State.MoveTo, Move.Result.Done, Weapon.State.Shoot)
                 .Transition(Weapon.State.Shoot, Weapon.Result.Done, Unit.State.Destroy);
@@ -30,6 +30,7 @@ namespace Game.Model.Units
                 .WithAll<Unit>()
                 .WithAll<Weapon>()
                 .WithAll<Logic>()
+                .WithNone<DeadTag>()
                 .Build();
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
             RequireForUpdate(m_Query);
@@ -73,7 +74,10 @@ namespace Game.Model.Units
 
                 if (logic.Equals(Move.State.MoveTo))
                 {
-                    float3 pos = weapon.Target.WorldTransform.Position;
+                    float3 pos = (logic.Result.Equals(Target.Result.NoTarget))
+                        ? float3.zero
+                        : weapon.Target.WorldTransform.Position;
+
                     data.Position = pos;
                     data.Speed = unit.Stat(Unit.Stats.Speed).Value;
                     return;

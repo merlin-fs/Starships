@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.IMGUI.Controls;
+using Unity.Transforms;
 
 
 namespace UnityEditor.Inspector
@@ -63,7 +64,7 @@ namespace UnityEditor.Inspector
         string GetName(GameObject value, GameObject owner)
         {
             string path = value.name;
-            value = value.transform.parent.gameObject;
+            value = value.transform.parent?.gameObject;
             while (value != null) 
             {
                 path = value.name + "." + path;
@@ -244,7 +245,16 @@ namespace UnityEditor.Inspector
             {
                 var root = new TreeViewItemData { id = 0, depth = -1, displayName = "Root" };
                 root.AddChild(new TreeViewItemData { id = -1, depth = 0, displayName = "(null)", Data = null, });
-                BuildTree(root, m_GameObject);
+                var owner = new TreeViewItemData 
+                { 
+                    id = m_GameObject.GetInstanceID(), 
+                    displayName = m_GameObject.name, 
+                    icon = GetIcon(m_GameObject),
+                    Data = m_GameObject, 
+                };
+
+                root.AddChild(owner);
+                BuildTree(owner, m_GameObject);
 
                 void BuildTree(TreeViewItem root, GameObject value)
                 {

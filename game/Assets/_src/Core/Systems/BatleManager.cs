@@ -19,6 +19,7 @@ namespace Game.Model.Weapons
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Weapon>()
                 .WithAll<Logic>()
+                .WithNone<DeadTag>()
                 .Build();
             state.RequireForUpdate(m_Query);
             m_LookupStats = state.GetBufferLookup<Stat>(false);
