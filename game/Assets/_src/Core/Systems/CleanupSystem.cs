@@ -5,7 +5,7 @@ namespace Game.Systems
 {
     using Game.Model.Stats;
 
-    [UpdateInGroup(typeof(GameSpawnSystemGroup))]
+    [UpdateInGroup(typeof(GameEndSystemGroup), OrderLast = true)]
     public partial struct CleanupSystem : ISystem
     {
         EntityQuery m_Query;

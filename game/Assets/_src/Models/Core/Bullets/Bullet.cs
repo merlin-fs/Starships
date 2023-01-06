@@ -12,27 +12,24 @@ namespace Game.Model.Weapons
     public struct Bullet: IModifier, IDefineable, IComponentData, IDefineableCallback
     {
         [DontSerialize]
-        private readonly Def<Config> m_Config;
+        private readonly Def<BulletDef> m_Config;
 
         private ulong m_ModUID;
 
-        public float MultiplierInner;
+        public BulletDef Def => m_Config.Value;
 
-        public Config Def => m_Config.Value;
+        [CreateProperty] public float Multiplier => m_Config.Value.Multiplier;
+        [CreateProperty] public float Range => m_Config.Value.Range;
 
-        public Bullet(Def<Config> config)
+        public Bullet(Def<BulletDef> config)
         {
             m_Config = config;
             m_ModUID = 0;
-            MultiplierInner = m_Config.Value.Multiplier;
         }
-
-        [CreateProperty] 
-        public float Multiplier => m_Config.Value.Multiplier;
         #region IModifier
         public void Estimation(Entity entity, ref Stat stat, float delta)
         {
-            stat.ModMull(MultiplierInner);
+            stat.ModMull(Multiplier);
         }
 
         public void Attach(Entity entity)
@@ -56,11 +53,10 @@ namespace Game.Model.Weapons
             Dettach(entity);
         }
         #endregion
-        
-        [Serializable]
-        public class Config : IDef<Bullet>
+        public class BulletDef : IDef<Bullet>
         {
             public float Multiplier;
+            public float Range;
         }
     }
 }

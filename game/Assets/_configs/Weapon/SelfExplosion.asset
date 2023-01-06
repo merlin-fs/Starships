@@ -22,7 +22,7 @@ MonoBehaviour:
   Value:
     Bullet: {fileID: 11400000, guid: c94f740253ba24c4db17d250612946be, type: 2}
     Health: 5
-    DamageValue: 10
+    DamageValue: 1
     BarrelCount: 1
     ClipSize: 1
     Rate: 0

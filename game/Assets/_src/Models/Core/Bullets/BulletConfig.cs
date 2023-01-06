@@ -10,7 +10,7 @@ namespace Game.Model.Weapons
     [CreateAssetMenu(fileName = "Bullet", menuName = "Configs/Bullet")]
     public class BulletConfig: GameObjectConfig
     {
-        public Bullet.Config Value;
+        public Bullet.BulletDef Value;
         protected override void Configurate(Entity prefab, IDefineableContext context)
         {
         }

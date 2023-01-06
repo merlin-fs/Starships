@@ -42,13 +42,13 @@ MonoBehaviour:
     - defs
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2c3d48684f280be4a8cde77ecefea1da
-    m_Address: Assets/_configs/Units/Unit 2.asset
+    m_Address: Assets/_configs/Units/Player.asset
     m_ReadOnly: 0
     m_SerializedLabels:
     - defs
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 33afe59c7168f4a4d92d08fc86373d52
-    m_Address: Assets/_configs/Units/Unit 1.asset
+    m_Address: Assets/_configs/Units/Enemy.asset
     m_ReadOnly: 0
     m_SerializedLabels:
     - defs
