@@ -65,6 +65,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - defs
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bf3b9e24f7f131c479855962a72c5ab1
+    m_Address: Assets/_prefabs/GatelingGun_Yellow_L3.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - defs
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ed21bb125e95a2b41a3ef0fc04dd10bd, type: 2}
   m_SchemaSet:
