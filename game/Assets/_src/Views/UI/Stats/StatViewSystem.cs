@@ -11,9 +11,10 @@ namespace Game.Views.Stats
 
 
     [UpdateInGroup(typeof(GamePresentationSystemGroup))]
-    public partial struct CleanupSystem : ISystem
+    public partial struct StatViewSystem : ISystem
     {
         private EntityQuery m_Query;
+        private EntityQuery m_QueryDelete;
 
         public void OnCreate(ref SystemState state)
         {
@@ -23,6 +24,12 @@ namespace Game.Views.Stats
                 .WithAll<WorldTransform>()
                 .Build();
             state.RequireForUpdate(m_Query);
+
+            m_QueryDelete = SystemAPI.QueryBuilder()
+                .WithAll<StatView>()
+                .WithAll<DeadTag>()
+                .Build();
+
         }
 
         partial struct UpdateViewJob : IJobEntity
@@ -41,37 +48,41 @@ namespace Game.Views.Stats
 
         public void OnUpdate(ref SystemState state)
         {
+            if (!m_QueryDelete.IsEmpty)
+            {
+                var ecb = state.World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>()
+                    .CreateCommandBuffer();
+                ecb.RemoveComponent<StatView>(m_QueryDelete);
+            }
+
             state.Dependency = new UpdateViewJob
             {
                 
             }.ScheduleParallel(m_Query, state.Dependency);
         }
     }
-    
-    /*
-    [UpdateInGroup(typeof(GameSpawnSystemGroup))]
-    public partial class HealthDelSystem : SystemBase
+
+    [UpdateInGroup(typeof(GameEndSystemGroup))]
+    public partial struct StatViewRemoveSystem : ISystem
     {
         private EntityQuery m_Query;
 
-        protected override void OnCreate()
+        public void OnCreate(ref SystemState state)
         {
-            m_Query = GetEntityQuery(
-                ComponentType.ReadOnly<HealthView>(),
-                ComponentType.ReadOnly<StateDead>()
-            );
-            RequireForUpdate(m_Query);
+            m_Query = SystemAPI.QueryBuilder()
+                .WithAll<StatView>()
+                .WithAll<DeadTag>()
+                .Build();
+            state.RequireForUpdate(m_Query);
         }
 
-        protected override void OnUpdate()
+        public void OnDestroy(ref SystemState state) { }
+
+        public void OnUpdate(ref SystemState state)
         {
-            var views = m_Query.ToComponentDataArray<HealthView>(Allocator.Temp);
-            foreach (var view in views)
-            {
-                view.Value.SetDestroy();
-                view.Dispose();
-            }
-            views.Dispose();
+            var ecb = state.World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>()
+                .CreateCommandBuffer();
+            ecb.RemoveComponent<StatView>(m_Query);
         }
     }
 

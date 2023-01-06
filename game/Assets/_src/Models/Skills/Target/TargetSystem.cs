@@ -15,7 +15,8 @@ namespace Game.Model
     {
         EntityQuery m_Query;
         EntityQuery m_QueryTargets;
-
+        ComponentLookup<WorldTransform> m_LookupTransforms;
+        ComponentLookup<Team> m_LookupTeams;
         public void OnCreate(ref SystemState state)
         {
             m_QueryTargets = SystemAPI.QueryBuilder()
@@ -29,18 +30,23 @@ namespace Game.Model
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Target>());
             state.RequireForUpdate(m_Query);
+            m_LookupTransforms = state.GetComponentLookup<WorldTransform>(true);
+            m_LookupTeams = state.GetComponentLookup<Team>(true);
         }
 
         public void OnDestroy(ref SystemState state) { }
 
         public void OnUpdate(ref SystemState state)
         {
+            m_LookupTransforms.Update(ref state);
+            m_LookupTeams.Update(ref state);
+
             var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle handle);
 
             var job = new Job()
             {
-                Transforms = state.GetComponentLookup<WorldTransform>(true),
-                Teams = state.GetComponentLookup<Team>(true),
+                Transforms = m_LookupTransforms,
+                Teams = m_LookupTeams,
                 Entities = entities,
                 Delta = SystemAPI.Time.DeltaTime,
             };

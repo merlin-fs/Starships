@@ -27,9 +27,6 @@ public class TestSpawn : MonoBehaviour
     [SerializeField]
     public AssetReferenceT<UnitConfig> Enemy;
 
-    [SerializeField]
-    private int m_Count = 1;
-
     private EntityManager m_EntityManager;
 
     private async void StartBatle()

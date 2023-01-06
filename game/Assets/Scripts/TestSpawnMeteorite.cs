@@ -18,8 +18,6 @@ public class TestSpawnMeteorite : MonoBehaviour
 
     [SerializeField]
     private int m_Count = 1;
-    [SerializeField]
-    private float m_Time = 1f;
 
     [SerializeField]
     Button m_BtnReload;

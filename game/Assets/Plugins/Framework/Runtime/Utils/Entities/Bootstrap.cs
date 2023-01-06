@@ -3,6 +3,7 @@ using Unity.Entities;
 
 namespace Common.Entities.Tools
 {
+    /*
     public static class Bootstrap
     {
         public static T AddInitSystem<T>() where T : ComponentSystemBase
@@ -30,6 +31,6 @@ namespace Common.Entities.Tools
             group.AddSystemToUpdateList(system);
             return system;
         }
-
     }
+    */
 }
