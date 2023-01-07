@@ -62,15 +62,14 @@ namespace Game.Model.Stats
         public static unsafe void AddStat(DynamicBuffer<Stat> buff, Enum value, StatValue stat)
         {
             var id = FindStat(buff, value);
-            var element = new Stat(value)
-            {
-                m_Value = stat,
-            };
-
             if (id < 0)
+            {
+                var element = new Stat(value)
+                {
+                    m_Value = stat,
+                };
                 buff.Add(element);
-            else
-                buff[id] = element;
+            }
         }
 
         public static ref Stat GetRW(DynamicBuffer<Stat> buff, int statId)

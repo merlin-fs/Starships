@@ -7,14 +7,17 @@ namespace Game.Model
 {
     using Core.Defs;
 
+    public enum DamageTargets
+    {
+        One,
+        AoE,
+    }
+
     /// <summary>
     /// Тип урона
     /// </summary>
     [CreateAssetMenu(fileName = "DamageType", menuName = "Configs/DamageType")]
     public class DamageType : GameObjectConfig
     {
-        protected override void Configurate(Entity prefab, IDefineableContext context)
-        {
-        }
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Transforms;
@@ -11,28 +11,31 @@ namespace Game.Model.Units
     using Game.Model.Stats;
     using TMPro;
     using Unity.Mathematics;
+    using static Game.Model.Logics.Logic;
 
     public partial class LogicWeapon : LogicConcreteSystem
     {
         protected override void Init(Logic.Config logic)
         {
             logic.Configure()
-                .Transition(null, null, Target.State.Find)
+                .Transition(null, null, Weapon.State.Init)
 
-                .Transition(Target.State.Find, Target.Result.Found, Weapon.State.Shooting)
+                .Transition(Weapon.State.Init, Weapon.Result.Done, Weapon.State.Shooting)
+                .Transition(Weapon.State.Init, Weapon.Result.NoAmmo, Weapon.State.Sleep)
 
-                .Transition(Target.State.Find, Target.Result.NoTarget, Weapon.State.Sleep)
-
-                .Transition(Weapon.State.Shooting, Weapon.Result.Done, Weapon.State.Shoot)
+                .Transition(Weapon.State.Shooting, Weapon.Result.Done, Target.State.Find)
                 .Transition(Weapon.State.Shooting, Weapon.Result.NoAmmo, Weapon.State.Reload)
 
-                .Transition(Weapon.State.Shoot, Weapon.Result.Done, Target.State.Find)
+                .Transition(Target.State.Find, Target.Result.Found, Weapon.State.Shoot)
+                .Transition(Target.State.Find, Target.Result.NoTarget, Weapon.State.Sleep)
 
-                .Transition(Weapon.State.Reload, Weapon.Result.Done, Target.State.Find)
+                .Transition(Weapon.State.Shoot, Weapon.Result.Done, Weapon.State.Shooting)
+
+                .Transition(Weapon.State.Reload, Weapon.Result.Done, Weapon.State.Shooting)
                 .Transition(Weapon.State.Reload, Weapon.Result.NoAmmo, Weapon.State.Sleep)
 
                 .Transition(Weapon.State.Sleep, Weapon.Result.NoAmmo, Weapon.State.Reload)
-                .Transition(Weapon.State.Sleep, Target.Result.NoTarget, Target.State.Find);
+                .Transition(Weapon.State.Sleep, Target.Result.NoTarget, Weapon.State.Shooting);
         }
 
         protected override void OnCreate()
@@ -68,10 +71,21 @@ namespace Game.Model.Units
             public ComponentLookup<Team> Teams;
             public EntityCommandBuffer.ParallelWriter Writer;
 
-            void Execute([EntityIndexInQuery] int entityIndexInQuery, ref WeaponAspect weapon, ref LogicAspect logic, 
+            void Execute([EntityIndexInQuery] int idx, ref WeaponAspect weapon, ref LogicAspect logic, 
                 ref TransformAspect transform)
             {
                 if (!logic.IsSupports(LogicID)) return;
+
+                if (logic.Equals(Weapon.State.Init))
+                {
+                    var count = (int)weapon.Stat(Weapon.Stats.ClipSize).Value;
+
+                    if (weapon.Reload(new DefExt.WriterContext(Writer, idx), count))
+                        logic.SetResult(Weapon.Result.Done);
+                    else
+                        logic.SetResult(Weapon.Result.NoAmmo);
+                    return;
+                }
 
                 if (logic.Equals(Target.State.Find))
                 {
@@ -86,7 +100,7 @@ namespace Game.Model.Units
                 if (logic.Equals(Weapon.State.Shooting))
                 {
                     var direction = weapon.Target.WorldTransform.Position;
-                    //transform.LookAt(direction);
+
                     direction = transform.TransformPointWorldToParent(direction) - transform.LocalPosition;
                     transform.LocalRotation = math.nlerp(
                         transform.LocalRotation, 
@@ -109,8 +123,8 @@ namespace Game.Model.Units
 
                 if (logic.Equals(Weapon.State.Shoot))
                 {
-                    weapon.Shot(new DefExt.WriterContext(Writer, entityIndexInQuery));
-                    logic.SetResult(Weapon.Result.Done);
+                    weapon.Shot(new DefExt.WriterContext(Writer, idx));
+                    //logic.SetResult(Weapon.Result.Done);
                     return;
                 }
 
@@ -131,7 +145,10 @@ namespace Game.Model.Units
                     if (weapon.Time >= weapon.Stat(Weapon.Stats.ReloadTime).Value)
                     {
                         weapon.Time = 0;
-                        if (weapon.Reload(new DefExt.WriterContext(Writer, entityIndexInQuery)))
+                        //TODO: возможно нужно перенести получение кол. патронов...
+                        var count = (int)weapon.Stat(Weapon.Stats.ClipSize).Value;
+
+                        if (weapon.Reload(new DefExt.WriterContext(Writer, idx), count))
                             logic.SetResult(Weapon.Result.Done);
                         else
                             logic.SetResult(Weapon.Result.NoAmmo);

@@ -11,8 +11,11 @@ namespace Game.Model.Weapons
     public class BulletConfig: GameObjectConfig
     {
         public Bullet.BulletDef Value;
-        protected override void Configurate(Entity prefab, IDefineableContext context)
+
+        protected override void Configurate(Entity entity, IDefineableContext context)
         {
+            base.Configurate(entity, context);
+            Value.AddComponentData(entity, context);
         }
     }
 }

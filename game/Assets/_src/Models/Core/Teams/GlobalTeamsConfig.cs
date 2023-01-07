@@ -87,9 +87,5 @@ namespace Game.Model
         {
             return (uint)Math.Pow(2, value);
         }
-
-        protected override void Configurate(Entity prefab, IDefineableContext context)
-        {
-        }
     }
 }

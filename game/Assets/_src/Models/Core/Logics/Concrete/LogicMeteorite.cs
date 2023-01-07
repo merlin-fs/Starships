@@ -61,9 +61,10 @@ namespace Game.Model.Units
             {
                 if (!logic.IsSupports(LogicID)) return;
 
-                if (logic.Equals(Unit.State.Stop))
+                if (logic.Equals(Move.State.Init))
                 {
-                    //logic.SetResult(Result.Done);
+                    weapon.Reload(new DefExt.WriterContext(Writer, idx), 0);
+                    return;
                 }
 
                 if (logic.Equals(Target.State.Find))
@@ -85,7 +86,7 @@ namespace Game.Model.Units
 
                 if (logic.Equals(Weapon.State.Shoot))
                 {
-                    logic.SetResult(Weapon.Result.Done);
+                    weapon.Target = new Target { Value = weapon.Self };
                     return;
                 }
 
@@ -94,7 +95,6 @@ namespace Game.Model.Units
                     Writer.AddComponent<DeadTag>(idx, logic.Self);
                     return;
                 }
-                
             }
         }
     }

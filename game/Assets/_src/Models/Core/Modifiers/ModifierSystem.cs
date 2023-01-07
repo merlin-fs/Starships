@@ -10,7 +10,8 @@ namespace Game.Model.Stats
     {
         public static ModifiersSystem Instance { get; private set; }
         ConcurrentQueue<Item> m_Queue;
-        //NativeQueue<Item> m_Queue;
+
+        private BufferLookup<Modifier> m_LookupModifiers;
 
         private struct Item
         {
@@ -24,6 +25,7 @@ namespace Game.Model.Stats
             Instance = this;
             //m_Queue = new NativeQueue<Item>(Allocator.Persistent);
             m_Queue = new ConcurrentQueue<Item>();
+            m_LookupModifiers = GetBufferLookup<Modifier>(false);
         }
 
         protected override void OnDestroy()
@@ -70,6 +72,8 @@ namespace Game.Model.Stats
         {
             if (m_Queue.Count == 0)
                 return;
+
+            m_LookupModifiers.Update(ref CheckedStateRef);
             /*
             using var items = m_Queue.ToArray(Allocator.Temp);
             m_Queue.Clear();
@@ -81,14 +85,15 @@ namespace Game.Model.Stats
             {
                 try
                 {
-                    var aspect = EntityManager.GetAspect<ModifiersAspect>(iter.Entity);
+                    var modifiers = m_LookupModifiers[iter.Entity];
+                    var stats = EntityManager.GetAspect<StatAspect>(iter.Entity);
                     if (iter.UID == 0)
                     {
-                        aspect.AddModifier(iter.Modifier);
+                        Modifier.AddModifier(iter.Modifier, ref modifiers);
                     }
                     else
                     {
-                        aspect.DelModifier(iter.UID);
+                        Modifier.DelModifier(iter.UID, ref modifiers);
                     }
                 }
                 catch (Exception e)

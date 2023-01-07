@@ -42,6 +42,7 @@ namespace Game.Model.Weapons
         /// </summary>
         public enum State
         {
+            Init,
             Shooting,
             Shoot,
             Reload,
@@ -80,7 +81,6 @@ namespace Game.Model.Weapons
         public class WeaponDef : IDef<Weapon>
         {
             public BulletConfig Bullet;
-            public DamageType DamageType;
             public int Health = 5;
             public float DamageValue = 1;
             public int BarrelCount;
