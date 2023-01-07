@@ -124,7 +124,7 @@ namespace Game.Model.Units
                 if (logic.Equals(Weapon.State.Shoot))
                 {
                     weapon.Shot(new DefExt.WriterContext(Writer, idx));
-                    //logic.SetResult(Weapon.Result.Done);
+                    logic.SetResult(Weapon.Result.Done);
                     return;
                 }
 

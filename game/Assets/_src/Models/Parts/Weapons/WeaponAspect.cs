@@ -56,6 +56,14 @@ namespace Game.Model.Weapons
             m_Weapon.ValueRW.Count -= Config.BarrelCount;
             if (m_Weapon.ValueRW.Count < 0)
                 m_Weapon.ValueRW.Count = 0;
+
+            var damage = new Damage
+            {
+                DamageType = Bullet.Def.DamageType.ID,
+                Targets = Bullet.Def.DamageTargets,
+                Value = Stat(Weapon.Stats.Damage).Value,
+            };
+            context.AddComponentData(Target.Value, damage);
         }
 
         public bool Reload(IDefineableContext context, int count)

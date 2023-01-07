@@ -61,39 +61,34 @@ namespace Game.Model.Units
             {
                 if (!logic.IsSupports(LogicID)) return;
 
-                if (logic.Equals(Move.State.Init))
+                switch (logic.State)
                 {
-                    weapon.Reload(new DefExt.WriterContext(Writer, idx), 0);
-                    return;
-                }
+                    case Move.State.Init:
+                        weapon.Reload(new DefExt.WriterContext(Writer, idx), 0);
+                        break;
 
-                if (logic.Equals(Target.State.Find))
-                {
-                    weapon.SetSoughtTeams(unit.Team.EnemyTeams);
-                    return;
-                }
+                    case Target.State.Find:
+                        weapon.SetSoughtTeams(unit.Team.EnemyTeams);
+                        break;
 
-                if (logic.Equals(Move.State.MoveTo))
-                {
-                    float3 pos = (logic.Result.Equals(Target.Result.NoTarget))
-                        ? float3.zero
-                        : weapon.Target.WorldTransform.Position;
+                    case Move.State.MoveTo:
+                        float3 pos = (logic.Result.Equals(Target.Result.NoTarget))
+                            ? float3.zero
+                            : weapon.Target.WorldTransform.Position;
 
-                    data.Position = pos;
-                    data.Speed = unit.Stat(Unit.Stats.Speed).Value;
-                    return;
-                }
+                        data.Position = pos;
+                        data.Speed = unit.Stat(Unit.Stats.Speed).Value;
+                        break;
 
-                if (logic.Equals(Weapon.State.Shoot))
-                {
-                    weapon.Target = new Target { Value = weapon.Self };
-                    return;
-                }
+                    case Weapon.State.Shoot:
+                        weapon.Target = new Target { Value = weapon.Self };
+                        logic.SetResult(Weapon.Result.Done);
+                        break;
 
-                if (logic.Equals(Unit.State.Destroy))
-                {
-                    Writer.AddComponent<DeadTag>(idx, logic.Self);
-                    return;
+                    case Unit.State.Destroy:
+                        Writer.AddComponent<DeadTag>(idx, logic.Self);
+                        break;
+
                 }
             }
         }

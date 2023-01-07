@@ -18,6 +18,7 @@ namespace Game.Model.Weapons
         public ObjectID DamageType;
         public DamageTargets Targets;
         public float Value;
+        public float Range;
     }
 
 
@@ -27,14 +28,14 @@ namespace Game.Model.Weapons
         EntityQuery m_Query;
         ComponentLookup<WorldTransform> m_LookupTransforms;
         BufferLookup<Stat> m_LookupStats;
+        ComponentLookup<Weapon> m_LookupWeapon;
 
         EntityQuery m_QueryTargets;
 
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Weapon>()
-                .WithAll<Logic>()
+                .WithAll<Damage>()
                 .WithNone<DeadTag>()
                 .Build();
             state.RequireForUpdate(m_Query);
@@ -45,6 +46,7 @@ namespace Game.Model.Weapons
                 .Build();
             m_LookupTransforms = state.GetComponentLookup<WorldTransform>(true);
             m_LookupStats = state.GetBufferLookup<Stat>(false);
+            m_LookupWeapon = state.GetComponentLookup<Weapon>(true);
         }
 
         public void OnDestroy(ref SystemState state) { }
@@ -53,6 +55,8 @@ namespace Game.Model.Weapons
         {
             m_LookupTransforms.Update(ref state);
             m_LookupStats.Update(ref state);
+            m_LookupWeapon.Update(ref state);
+
             var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle handle);
 
             var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
@@ -61,6 +65,7 @@ namespace Game.Model.Weapons
                 Entities = entities,
                 LookupStats = m_LookupStats,
                 LookupTransforms = m_LookupTransforms,
+                LookupWeapon = m_LookupWeapon,
                 Writer = ecb.AsParallelWriter(),
             };
             state.Dependency = job.ScheduleParallel(m_Query, handle);
@@ -71,55 +76,44 @@ namespace Game.Model.Weapons
         partial struct WeaponJob : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter Writer;
-            //[NoAlias]
+
             [NativeDisableParallelForRestriction]
             [NativeDisableContainerSafetyRestriction]
             public BufferLookup<Stat> LookupStats;
             [ReadOnly] public ComponentLookup<WorldTransform> LookupTransforms;
             [ReadOnly] public NativeList<Entity> Entities;
+            [ReadOnly] public ComponentLookup<Weapon> LookupWeapon;
 
-            void Execute([EntityIndexInQuery] int idx, in WeaponAspect weapon, ref LogicAspect logic)
+            void Execute([EntityIndexInQuery] int idx, in Entity entity, in Damage damage)
             {
-                if (logic.Equals(Weapon.State.Shoot))
+                if (damage.Targets == DamageTargets.AoE)
                 {
-                    if (weapon.Bullet.Def.DamageTargets == DamageTargets.AoE)
-                    {
-                        AoE(idx, weapon.Self, weapon.Target.Value, weapon);
-                    }
-                    else
-                    {
-                        Damage(idx, weapon.Target.Value, weapon);
-                    }
-                    logic.SetResult(Weapon.Result.Done);
+                    AoE(idx, entity, damage);
                 }
+                else
+                {
+                    Damage(idx, entity, damage);
+                }
+                Writer.RemoveComponent<Damage>(idx, entity);
             }
 
-            void Damage(int idx, Entity target, in WeaponAspect weapon)
+            void Damage(int idx, Entity target, Damage damage)
             {
                 if (!LookupStats.HasBuffer(target)) return;
                 var stats = LookupStats[target];
-                var damage = weapon.Stat(Weapon.Stats.Damage);
+                //var damage = weapon.Stat(Weapon.Stats.Damage);
                 stats.GetRW(GlobalStat.Health).Damage(damage.Value);
-                /*
-                var damage = new Damage
-                {
-                    DamageType = weapon.Bullet.Def.DamageType.ID,
-                    Targets = weapon.Bullet.Def.DamageTargets,
-                    Value = weapon.Stat(Weapon.Stats.Damage).Value,
-                };
-                Writer.AddComponent(idx, target, damage);
-                */
             }
 
-            void AoE(int idx, Entity self, Entity center, in WeaponAspect weapon)
+            void AoE(int idx, Entity center, Damage damage)
             {
                 using var targets = new NativeList<Entity>(Allocator.TempJob);
-                FindEnemy(center, weapon.Bullet.Def.Range, LookupTransforms, targets);
+                FindEnemy(center, damage.Range, LookupTransforms, targets);
                 
                 foreach(var target in targets)
                 {
-                    if (target == self) continue;
-                    Damage(idx, target, weapon);
+                    //if (target == self) continue;
+                    Damage(idx, target, damage);
                 }
             }
 
