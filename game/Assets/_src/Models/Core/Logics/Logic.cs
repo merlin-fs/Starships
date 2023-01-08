@@ -11,7 +11,7 @@ namespace Game.Model.Logics
     public partial struct Logic : IComponentData, IDefineable
     {
         [DontSerialize]
-        private readonly Def<Config> m_Def;
+        private readonly Def<LogicDef> m_Def;
         
         private int m_State;
         public int m_Result;
@@ -35,13 +35,13 @@ namespace Game.Model.Logics
             return m_Def.Value.GetState(id);
         }
 
-        public Logic(Def<Config> config)
+        public Logic(Def<LogicDef> def)
         {
-            m_Def = config;
+            m_Def = def;
             m_State = 0;
             m_Result = 0;
             Work = false;
-            m_LogicID = config.Value.LogicID;
+            m_LogicID = def.Value.LogicID;
         }
 
         public void SetStateID(int value)
@@ -51,7 +51,7 @@ namespace Game.Model.Logics
 
         public void SetResult(Enum value)
         {
-            m_Result = Config.GetID(value);
+            m_Result = LogicDef.GetID(value);
         }
 
         public int GetNextStateID(Enum result)

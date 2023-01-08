@@ -35,8 +35,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - defs
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 431d085ae3ec85644b3dfc1f3cdc2a1c
-    m_Address: Assets/_configs/DamageTypes/Kinetic.asset
+  - m_GUID: c2dfd8214ed0def4396b0b09bb877a3d
+    m_Address: Assets/_configs/DamageTypes/Kinetic explose.asset
     m_ReadOnly: 0
     m_SerializedLabels:
     - defs
@@ -67,6 +67,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d1923d49bbd41c64abecd1d6199aaf7d
     m_Address: Assets/_configs/Weapon/SelfExplosion.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - defs
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 431d085ae3ec85644b3dfc1f3cdc2a1c
+    m_Address: Assets/_configs/DamageTypes/Kinetic.asset
     m_ReadOnly: 0
     m_SerializedLabels:
     - defs

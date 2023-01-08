@@ -57,8 +57,7 @@ namespace Game.Model.Weapons
         [Serializable]
         public class BulletDef : IDef<Bullet>
         {
-            public DamageType DamageType;
-            public DamageTargets DamageTargets;
+            public DamageConfig DamageType;
             public float Multiplier;
             public float Range;
         }

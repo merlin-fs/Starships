@@ -10,7 +10,7 @@ namespace Game.Model.Units
 
     public partial class LogicUnit : LogicConcreteSystem
     {
-        protected override void Init(Logic.Config logic)
+        protected override void Init(Logic.LogicDef logic)
         {
             logic.Configure()
                 .Transition(null, null, Move.State.Init)

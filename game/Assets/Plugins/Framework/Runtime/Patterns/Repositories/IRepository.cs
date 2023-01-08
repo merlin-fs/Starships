@@ -11,6 +11,7 @@ namespace Common.Repositories
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null);
 
         TEntity FindByID(TID id);
+        T FindByID<T>(TID id) where T : TEntity;
     }
 
     public interface IRepository<TID, TEntity>: IReadonlyRepository<TID, TEntity>

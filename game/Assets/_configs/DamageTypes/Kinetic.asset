@@ -12,3 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1cd7c0de4343f946b131adb88ecd1e2, type: 3}
   m_Name: Kinetic
   m_EditorClassIdentifier: 
+  PrefabObject: {fileID: 0}
+  Damages:
+  - rid: 129887698325340168
+  references:
+    version: 2
+    RefIds:
+    - rid: 129887698325340168
+      type: {class: DamageHealth, ns: Game.Model, asm: Assembly-CSharp}

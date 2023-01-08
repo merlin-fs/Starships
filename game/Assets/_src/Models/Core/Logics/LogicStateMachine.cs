@@ -12,11 +12,11 @@ namespace Game.Model.Logics
     {
         public interface IConfigurator
         {
-            void Init(Config config);
+            void Init(LogicDef def);
         }
 
         [Serializable]
-        public class Config : IDef<Logic>
+        public class LogicDef : IDef<Logic>
         {
             [SerializeField, SelectType(typeof(IConfigurator))]
             private string m_Configurator;
@@ -91,9 +91,9 @@ namespace Game.Model.Logics
 
             public class Configuration
             {
-                private Config m_Owner;
+                private LogicDef m_Owner;
 
-                public Configuration(Config owner)
+                public Configuration(LogicDef owner)
                 {
                     m_Owner = owner;
                 }

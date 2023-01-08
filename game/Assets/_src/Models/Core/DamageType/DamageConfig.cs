@@ -1,23 +1,18 @@
 ﻿using System;
-using Unity.Entities;
+using System.Collections.Generic;
 using UnityEngine;
-using Common.Defs;
 
 namespace Game.Model
 {
     using Core.Defs;
 
-    public enum DamageTargets
-    {
-        One,
-        AoE,
-    }
-
     /// <summary>
     /// Тип урона
     /// </summary>
     [CreateAssetMenu(fileName = "DamageType", menuName = "Configs/DamageType")]
-    public class DamageType : GameObjectConfig
+    public class DamageConfig : GameObjectConfig
     {
+        [SerializeReference, ReferenceSelect(typeof(IDamage))]
+        public List<IDamage> Damages = new List<IDamage>();
     }
 }

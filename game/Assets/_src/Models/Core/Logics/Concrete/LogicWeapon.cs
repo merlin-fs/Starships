@@ -13,7 +13,7 @@ namespace Game.Model.Units
 
     public partial class LogicWeapon : LogicConcreteSystem
     {
-        protected override void Init(Logic.Config logic)
+        protected override void Init(Logic.LogicDef logic)
         {
             logic.Configure()
                 .Transition(null, null, Weapon.State.Init)

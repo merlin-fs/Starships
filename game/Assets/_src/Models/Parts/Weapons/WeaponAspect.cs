@@ -57,11 +57,9 @@ namespace Game.Model.Weapons
             if (m_Weapon.ValueRW.Count < 0)
                 m_Weapon.ValueRW.Count = 0;
 
-            var damage = new Damage
+            var damage = new DamageItems
             {
-                DamageType = Bullet.Def.DamageType.ID,
-                Targets = Bullet.Def.DamageTargets,
-                Range = Bullet.Def.Range,
+                Sender = Self,
                 Value = Stat(Weapon.Stats.Damage).Value,
             };
             context.AppendToBuffer(Target.Value, damage);

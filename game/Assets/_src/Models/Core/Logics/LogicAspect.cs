@@ -53,7 +53,7 @@ namespace Game.Model.Logics
 
         public bool Equals(Enum @enum)
         {
-            return m_Logic.ValueRO.StateID == Logic.Config.GetID(@enum);
+            return m_Logic.ValueRO.StateID == Logic.LogicDef.GetID(@enum);
         }
     }
 }

@@ -1,28 +1,22 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Jobs;
 using Unity.Collections.LowLevel.Unsafe;
-using Common.Core;
-using Common.Repositories;
 using Common.Defs;
 
 
 namespace Game.Model.Weapons
 {
     using Stats;
-    using Core.Repositories;
 
-    public struct Damage: IBufferElementData
+    public struct DamageItems: IBufferElementData
     {
-        public ObjectID DamageType;
-        public DamageTargets Targets;
+        public Entity Sender;
         public float Value;
-        public float Range;
     }
 
 
@@ -32,12 +26,13 @@ namespace Game.Model.Weapons
         EntityQuery m_Query;
         ComponentLookup<WorldTransform> m_LookupTransforms;
         BufferLookup<Stat> m_LookupStats;
+        ComponentLookup<Bullet> m_LookupBullets;
         EntityQuery m_QueryTargets;
 
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Damage>()
+                .WithAll<DamageItems>()
                 .WithNone<DeadTag>()
                 .Build();
             state.RequireForUpdate(m_Query);
@@ -48,6 +43,7 @@ namespace Game.Model.Weapons
                 .Build();
             m_LookupTransforms = state.GetComponentLookup<WorldTransform>(true);
             m_LookupStats = state.GetBufferLookup<Stat>(false);
+            m_LookupBullets = state.GetComponentLookup<Bullet>(true);
         }
 
         public void OnDestroy(ref SystemState state) { }
@@ -56,89 +52,79 @@ namespace Game.Model.Weapons
         {
             m_LookupTransforms.Update(ref state);
             m_LookupStats.Update(ref state);
+            m_LookupBullets.Update(ref state);
 
             var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle jobHandle);
             var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
-            var repo = Repositories.Instance.ConfigsAsync().Result;
-            UnsafeUtility.PinGCObjectAndGetAddress(repo, out ulong handle);
 
             var job = new WeaponJob()
             {
-                Handle = new IntPtr((long)handle),
                 Entities = entities,
                 LookupStats = m_LookupStats,
                 LookupTransforms = m_LookupTransforms,
+                LookupBullets = m_LookupBullets,
                 Writer = ecb.AsParallelWriter(),
             };
             state.Dependency = job.ScheduleParallel(m_Query, jobHandle);
-            state.Dependency = new ClearJob
-            {
-                Handle = new IntPtr((long)handle),
-            }.Schedule(state.Dependency);
-
             state.Dependency.Complete();
+
             entities.Dispose(state.Dependency);
-        }
-
-        struct ClearJob: IJob
-        {
-            [NativeDisableUnsafePtrRestriction]
-            public IntPtr Handle;
-
-            public void Execute() 
-            {
-                UnsafeUtility.ReleaseGCObject((ulong)Handle.ToInt64());
-            }
         }
 
         partial struct WeaponJob : IJobEntity
         {
-            [NativeDisableUnsafePtrRestriction]
-            public IntPtr Handle;
-            IReadonlyRepository<ObjectID, IConfig> m_Repo => (IReadonlyRepository<ObjectID, IConfig>)GCHandle.FromIntPtr(Handle).Target;
-
-
             public EntityCommandBuffer.ParallelWriter Writer;
 
             [NativeDisableParallelForRestriction]
             [NativeDisableContainerSafetyRestriction]
             public BufferLookup<Stat> LookupStats;
+
             [ReadOnly] public ComponentLookup<WorldTransform> LookupTransforms;
             [ReadOnly] public NativeList<Entity> Entities;
+            [ReadOnly] public ComponentLookup<Bullet> LookupBullets;
 
-            void Execute([EntityIndexInQuery] int idx, in Entity entity, ref DynamicBuffer<Damage> damages)
+            void Execute([EntityIndexInQuery] int idx, in Entity entity, ref DynamicBuffer<DamageItems> damages)
             {
+                var context = new DefExt.WriterContext(Writer, idx);
                 foreach (var damage in damages)
                 {
-                    if (damage.Targets == DamageTargets.AoE)
+                    if (!LookupBullets.HasComponent(damage.Sender)) continue;
+                    var bullet = LookupBullets[damage.Sender];
+
+                    var damageConfig = bullet.Def.DamageType;
+
+                    foreach(var iter in damageConfig.Damages)
                     {
-                        AoE(idx, entity, damage);
-                    }
-                    else
-                    {
-                        Damage(idx, entity, damage);
+                        if (iter.Targets == DamageTargets.AoE)
+                        {
+                            AoE(idx, entity, iter, bullet.Range, damage.Value, context);
+                        }
+                        else
+                        {
+                            Damage(idx, entity, iter, damage.Value, context);
+                        }
+
                     }
                 }
                 damages.Clear();
             }
 
-            void Damage(int idx, Entity target, Damage damage)
+            void Damage(int idx, Entity target, IDamage damage, float value, IDefineableContext context)
             {
                 if (!LookupStats.HasBuffer(target)) return;
                 var stats = LookupStats[target];
-                var damageType = m_Repo.FindByID(damage.DamageType);
 
-                stats.GetRW(GlobalStat.Health).Damage(damage.Value);
+                damage.Apply(ref stats, value, context);
             }
 
-            void AoE(int idx, Entity center, Damage damage)
+            void AoE(int idx, Entity center, IDamage damage, float range, float value, IDefineableContext context)
             {
                 using var targets = new NativeList<Entity>(Allocator.TempJob);
-                FindEnemy(center, damage.Range, LookupTransforms, targets);
+                FindEnemy(center, range, LookupTransforms, targets);
 
                 foreach(var target in targets)
                 {
-                    Damage(idx, target, damage);
+                    Damage(idx, target, damage, value, context);
                 }
             }
 

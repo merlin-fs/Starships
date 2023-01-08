@@ -69,6 +69,11 @@ namespace Game.Model.Stats
             }
         }
 
+        public static bool Has(DynamicBuffer<Stat> buff, int statId)
+        {
+            return FindStat(buff, statId) >= 0;
+        }
+
         public static ref Stat GetRW(DynamicBuffer<Stat> buff, int statId)
         {
             var id = FindStat(buff, statId);
@@ -162,6 +167,11 @@ namespace Game.Model.Stats
         public static void AddStat(this DynamicBuffer<Stat> buff, Enum value, IStatValue stat)
         {
             Stat.AddStat(buff, value, stat.Value);
+        }
+
+        public static bool Has(this DynamicBuffer<Stat> buff, Enum stat)
+        {
+            return Stat.Has(buff, Stat.GetID(stat));
         }
 
         public static bool TryGetStat(this DynamicBuffer<Stat> buff, Enum stat, out Stat data)

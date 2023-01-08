@@ -17,7 +17,7 @@ namespace Game.Model.Units
     public class UnitConfig: GameObjectConfig, IConfigContainer, IConfigStats
     {
         public Unit.UnitDef Value = new Unit.UnitDef();
-        public Logic.Config Logic = new Logic.Config();
+        public Logic.LogicDef Logic = new Logic.LogicDef();
         public Team.Def Team = new Team.Def();
 
         protected override void Configurate(Entity prefab, IDefineableContext context)
