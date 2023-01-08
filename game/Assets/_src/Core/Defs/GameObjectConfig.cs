@@ -2,6 +2,7 @@ using System;
 using Unity.Entities;
 using Common.Defs;
 using Game.Model.Stats;
+using Game.Model.Weapons;
 
 namespace Game.Core.Defs
 {
@@ -15,8 +16,11 @@ namespace Game.Core.Defs
             {
                 var prepare = context.AddBuffer<PrepareStat>(entity);
                 prepare.Add(new PrepareStat { ConfigID = ID });
+
                 context.AddBuffer<Modifier>(entity);
+                context.AddBuffer<Damage>(entity);
                 var buff = context.AddBuffer<Stat>(entity);
+
                 stats.Configurate(buff);
             }
         }

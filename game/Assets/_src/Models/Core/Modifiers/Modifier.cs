@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Properties;
-
 using UnityEngine;
-
-using static UnityEditor.Progress;
 
 namespace Game.Model.Stats
 {

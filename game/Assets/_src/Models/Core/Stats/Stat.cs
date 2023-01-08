@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-
-using Common.Defs;
-
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Properties;

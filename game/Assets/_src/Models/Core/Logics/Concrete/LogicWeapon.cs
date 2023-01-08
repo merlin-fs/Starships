@@ -2,16 +2,14 @@
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Transforms;
+using Unity.Mathematics;
 using Common.Defs;
 
 namespace Game.Model.Units
 {
     using Weapons;
     using Logics;
-    using Game.Model.Stats;
-    using TMPro;
-    using Unity.Mathematics;
-    using static Game.Model.Logics.Logic;
+    using Stats;
 
     public partial class LogicWeapon : LogicConcreteSystem
     {
@@ -76,84 +74,76 @@ namespace Game.Model.Units
             {
                 if (!logic.IsSupports(LogicID)) return;
 
-                if (logic.Equals(Weapon.State.Init))
+                switch (logic.State)
                 {
-                    var count = (int)weapon.Stat(Weapon.Stats.ClipSize).Value;
+                    case Weapon.State.Init:
+                        var newClips = (int)weapon.Stat(Weapon.Stats.ClipSize).Value;
 
-                    if (weapon.Reload(new DefExt.WriterContext(Writer, idx), count))
-                        logic.SetResult(Weapon.Result.Done);
-                    else
-                        logic.SetResult(Weapon.Result.NoAmmo);
-                    return;
-                }
-
-                if (logic.Equals(Target.State.Find))
-                {
-                    if (weapon.Unit != Entity.Null)
-                        weapon.SetSoughtTeams(Teams[weapon.Unit].EnemyTeams);
-                    else
-                        logic.SetResult(Target.Result.NoTarget);
-
-                    return;
-                }
-
-                if (logic.Equals(Weapon.State.Shooting))
-                {
-                    var direction = weapon.Target.WorldTransform.Position;
-
-                    direction = transform.TransformPointWorldToParent(direction) - transform.LocalPosition;
-                    transform.LocalRotation = math.nlerp(
-                        transform.LocalRotation, 
-                        quaternion.LookRotationSafe(direction, math.up()),
-                        weapon.Time + Delta * 10f);
-
-                    if (weapon.Count == 0)
-                    {
-                        logic.SetResult(Weapon.Result.NoAmmo);
-                        return;
-                    }
-                    weapon.Time += Delta;
-                    if (weapon.Time >= weapon.Stat(Weapon.Stats.Rate).Value)
-                    {
-                        weapon.Time = 0;
-                        logic.SetResult(Weapon.Result.Done);
-                    }
-                    return;
-                }
-
-                if (logic.Equals(Weapon.State.Shoot))
-                {
-                    weapon.Shot(new DefExt.WriterContext(Writer, idx));
-                    logic.SetResult(Weapon.Result.Done);
-                    return;
-                }
-
-                if (logic.Equals(Weapon.State.Sleep))
-                {
-                    weapon.Time += Delta;
-                    if (weapon.Time >= weapon.Stat(Weapon.Stats.ReloadTime).Value)
-                    {
-                        weapon.Time = 0;
-                        logic.SetResult(logic.Result);
-                    }
-                    return;
-                }
-
-                if (logic.Equals(Weapon.State.Reload))
-                {
-                    weapon.Time += Delta;
-                    if (weapon.Time >= weapon.Stat(Weapon.Stats.ReloadTime).Value)
-                    {
-                        weapon.Time = 0;
-                        //TODO: возможно нужно перенести получение кол. патронов...
-                        var count = (int)weapon.Stat(Weapon.Stats.ClipSize).Value;
-
-                        if (weapon.Reload(new DefExt.WriterContext(Writer, idx), count))
+                        if (weapon.Reload(new DefExt.WriterContext(Writer, idx), newClips))
                             logic.SetResult(Weapon.Result.Done);
                         else
                             logic.SetResult(Weapon.Result.NoAmmo);
-                    }
-                    return;
+                        break;
+
+                    case Weapon.State.Reload:
+                        weapon.Time += Delta;
+                        if (weapon.Time >= weapon.Stat(Weapon.Stats.ReloadTime).Value)
+                        {
+                            weapon.Time = 0;
+                            //TODO: возможно нужно перенести получение кол. патронов...
+                            var count = (int)weapon.Stat(Weapon.Stats.ClipSize).Value;
+
+                            if (weapon.Reload(new DefExt.WriterContext(Writer, idx), count))
+                                logic.SetResult(Weapon.Result.Done);
+                            else
+                                logic.SetResult(Weapon.Result.NoAmmo);
+                        }
+                        break;
+
+
+                    case Target.State.Find:
+                        if (weapon.Unit != Entity.Null)
+                            weapon.SetSoughtTeams(Teams[weapon.Unit].EnemyTeams);
+                        else
+                            logic.SetResult(Target.Result.NoTarget);
+                        break;
+
+                    case Weapon.State.Shooting:
+                        //TODO: Перенести в отдельный system "Turret"
+                        var direction = weapon.Target.WorldTransform.Position;
+                        direction = transform.TransformPointWorldToParent(direction) - transform.LocalPosition;
+                        transform.LocalRotation = math.nlerp(
+                            transform.LocalRotation,
+                            quaternion.LookRotationSafe(direction, math.up()),
+                            weapon.Time + Delta * 10f);
+
+                        if (weapon.Count == 0)
+                        {
+                            logic.SetResult(Weapon.Result.NoAmmo);
+                            return;
+                        }
+
+                        weapon.Time += Delta;
+                        if (weapon.Time >= weapon.Stat(Weapon.Stats.Rate).Value)
+                        {
+                            weapon.Time = 0;
+                            logic.SetResult(Weapon.Result.Done);
+                        }
+                        break;
+
+                    case Weapon.State.Shoot:
+                        weapon.Shot(new DefExt.WriterContext(Writer, idx));
+                        logic.SetResult(Weapon.Result.Done);
+                        break;
+
+                    case Weapon.State.Sleep:
+                        weapon.Time += Delta;
+                        if (weapon.Time >= weapon.Stat(Weapon.Stats.ReloadTime).Value)
+                        {
+                            weapon.Time = 0;
+                            logic.SetResult(logic.Result);
+                        }
+                        break;
                 }
             }
         }

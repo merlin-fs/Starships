@@ -19,6 +19,7 @@ namespace Game.Core.Repositories
 
         private Task m_Task;
         private object m_Look = new object();
+
         public Task<IReadonlyRepository<ObjectID, IConfig>> ConfigsAsync()
         {
             return RepositoryAsync<IConfig>();

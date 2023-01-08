@@ -61,9 +61,10 @@ namespace Game.Model.Weapons
             {
                 DamageType = Bullet.Def.DamageType.ID,
                 Targets = Bullet.Def.DamageTargets,
+                Range = Bullet.Def.Range,
                 Value = Stat(Weapon.Stats.Damage).Value,
             };
-            context.AddComponentData(Target.Value, damage);
+            context.AppendToBuffer(Target.Value, damage);
         }
 
         public bool Reload(IDefineableContext context, int count)
@@ -81,6 +82,7 @@ namespace Game.Model.Weapons
             m_Weapon.ValueRW.Count = count;
             return true;
         }
+
         public void SetSoughtTeams(uint value) => m_Target.ValueRW.SoughtTeams = value;
     }
 }

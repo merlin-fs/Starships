@@ -82,6 +82,7 @@ namespace Game.Model.Units
 
                     case Weapon.State.Shoot:
                         weapon.Target = new Target { Value = weapon.Self };
+                        weapon.Shot(new DefExt.WriterContext(Writer, idx));
                         logic.SetResult(Weapon.Result.Done);
                         break;
 
