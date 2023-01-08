@@ -57,12 +57,7 @@ namespace Game.Model.Weapons
             if (m_Weapon.ValueRW.Count < 0)
                 m_Weapon.ValueRW.Count = 0;
 
-            var damage = new DamageItems
-            {
-                Sender = Self,
-                Value = Stat(Weapon.Stats.Damage).Value,
-            };
-            context.AppendToBuffer(Target.Value, damage);
+            DamageManager.Damage(Self, Target.Value, Stat(Weapon.Stats.Damage).Value, context);
         }
 
         public bool Reload(IDefineableContext context, int count)

@@ -18,7 +18,8 @@ namespace Game.Core.Defs
                 prepare.Add(new PrepareStat { ConfigID = ID });
 
                 context.AddBuffer<Modifier>(entity);
-                context.AddBuffer<DamageItems>(entity);
+                context.AddBuffer<LastDamages>(entity);
+                context.AddBuffer<DamageManager.NewDamages>(entity);
                 var buff = context.AddBuffer<Stat>(entity);
 
                 stats.Configurate(buff);

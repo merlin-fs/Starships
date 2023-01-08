@@ -4,6 +4,7 @@ using Unity.Properties;
 using Unity.Serialization;
 using Common.Defs;
 using Unity.Mathematics;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace Game.Model.Logics
 {
@@ -16,14 +17,12 @@ namespace Game.Model.Logics
         private int m_State;
         public int m_Result;
         private int m_LogicID;
-        
-        public bool Work;
+        private bool m_Work;
+
         public int StateID => m_State;
-
         public bool IsValid => m_Def.Value.IsValid;
-
-
         public int LogicID => m_LogicID;
+        public bool IsWork => m_Work;
 
         [CreateProperty]
         public Enum State => GetValue(m_State);
@@ -38,25 +37,48 @@ namespace Game.Model.Logics
         public Logic(Def<LogicDef> def)
         {
             m_Def = def;
-            m_State = 0;
-            m_Result = 0;
-            Work = false;
+            m_Work = false;
+            def.Value.TryGetID(null, out m_State);
+            def.Value.TryGetID(null, out m_Result);
             m_LogicID = def.Value.LogicID;
         }
 
-        public void SetStateID(int value)
+        public void SetState(int value)
         {
             m_State = value;
+            m_Work = true;
         }
 
-        public void SetResult(Enum value)
+        public int GetNextState()
         {
-            m_Result = LogicDef.GetID(value);
+            return m_Def.Value.GetNextState(ref this, m_Result);
         }
 
-        public int GetNextStateID(Enum result)
+        public int GetNextState(int value)
         {
-            return m_Def.Value.GetNextStateID(ref this, result);
+            return m_Def.Value.GetNextState(ref this, value);
+        }
+
+        public bool HasState(Enum value)
+        {
+            return m_Def.Value.TryGetID(value, out int _);
+        }
+
+        public void TrySetState(Enum value)
+        {
+            if (m_Def.Value.TryGetID(value, out int id))
+                SetState(id);
+        }
+
+        public void TrySetResult(Enum value)
+        {
+            if (m_Def.Value.TryGetID(value, out int id))
+            {
+                m_Result = id;
+                m_Work = false;
+            }
+            else
+                throw new ArgumentException($"{value} is not result this machine");
         }
     }
 }

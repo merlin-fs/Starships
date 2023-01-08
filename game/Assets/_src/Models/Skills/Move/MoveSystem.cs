@@ -43,25 +43,24 @@ namespace Game.Model
 
             void Execute(in Move data, ref TransformAspect transform, ref LogicAspect logic)
             {
-                if (logic.Equals(Move.State.Init))
+                switch (logic.State)
                 {
-                    transform.WorldPosition = data.Position;
-                    transform.RotateLocal(data.Rotation);
-                    logic.SetResult(Move.Result.Done);
-                    return;
-                }
+                    case Move.State.Init:
+                        transform.WorldPosition = data.Position;
+                        transform.RotateLocal(data.Rotation);
+                        logic.TrySetResult(Move.Result.Done);
+                        break;
 
-                if (logic.Equals(Move.State.MoveTo))
-                {
-                    float3 direction = data.Position - transform.WorldPosition;
-                    var dt = math.distancesq(transform.WorldPosition, data.Position);
-                    if (dt < 0.1f)
-                        logic.SetResult(Move.Result.Done);
+                    case Move.State.MoveTo:
+                        float3 direction = data.Position - transform.WorldPosition;
+                        var dt = math.distancesq(transform.WorldPosition, data.Position);
+                        if (dt < 0.1f)
+                            logic.TrySetResult(Move.Result.Done);
 
-                    var lookRotation = quaternion.LookRotation(direction, transform.Up);
-                    transform.WorldRotation = lookRotation;
-                    transform.WorldPosition += math.normalize(direction) * Delta * data.Speed;
-                    return;
+                        var lookRotation = quaternion.LookRotation(direction, transform.Up);
+                        transform.WorldRotation = lookRotation;
+                        transform.WorldPosition += math.normalize(direction) * Delta * data.Speed;
+                        break;
                 }
             }
         }

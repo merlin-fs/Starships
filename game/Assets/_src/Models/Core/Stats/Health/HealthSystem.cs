@@ -3,6 +3,8 @@ using Unity.Entities;
     
 namespace Game.Model.Stats
 {
+    using Logics;
+
     [UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
     public partial struct HealthSystem : ISystem
     {
@@ -12,6 +14,7 @@ namespace Game.Model.Stats
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Stat>()
+                .WithAll<Logic>()
                 .WithNone<DeadTag>()
                 .WithOptions(EntityQueryOptions.FilterWriteGroup)
                 .Build();
@@ -24,25 +27,21 @@ namespace Game.Model.Stats
 
         public void OnUpdate(ref SystemState state)
         {
-            var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
             var job = new HealthJob()
             {
-                Writer = ecb.AsParallelWriter(),
             };
             state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
-            state.Dependency.Complete();
         }
 
         partial struct HealthJob : IJobEntity
         {
-            public EntityCommandBuffer.ParallelWriter Writer;
-
-            void Execute([EntityIndexInQuery] int idx, in Entity entity, in DynamicBuffer<Stat> stats)
+            void Execute(in DynamicBuffer<Stat> stats, ref LogicAspect logic)
             {
                 if (stats.TryGetStat(GlobalStat.Health, out Stat health) &&
-                    health.Value <= 0)
+                    health.Value <= 0 
+                    && logic.HasState(GlobalState.Destroy) && !logic.State.Equals(GlobalState.Destroy))
                 {
-                    Writer.AddComponent<DeadTag>(idx, entity);
+                    logic.TrySetState(GlobalState.Destroy);
                 }
             }
         }

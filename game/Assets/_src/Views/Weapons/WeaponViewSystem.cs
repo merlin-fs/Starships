@@ -47,7 +47,7 @@ namespace Game.Views.Weapons
 
             void Execute([EntityIndexInQuery] int idx, in WeaponAspect weapon, in LogicAspect logic)
             {
-                if (logic.Equals(Weapon.State.Shoot))
+                if (logic.State.Equals(Weapon.State.Shoot))
                 {
                     Writer.AddComponent(idx, weapon.Self, (Game.Views.Particle)"shot");
                     return;

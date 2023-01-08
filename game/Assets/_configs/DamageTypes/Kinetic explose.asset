@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: Kinetic explose
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 0}
+  Targets: 1
   Damages:
-  - rid: 129887698325340165
+  - rid: 129887703279075331
   references:
     version: 2
     RefIds:
-    - rid: 129887698325340165
-      type: {class: DamageExplose, ns: Game.Model, asm: Assembly-CSharp}
+    - rid: 129887703279075331
+      type: {class: DamageHealth, ns: Game.Model, asm: Assembly-CSharp}

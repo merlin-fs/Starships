@@ -1,7 +1,6 @@
 ﻿using System;
 using Unity.Entities;
 using Unity.Properties;
-using Unity.Mathematics;
 
 namespace Game.Model.Logics
 {
@@ -25,7 +24,7 @@ namespace Game.Model.Logics
         public Enum Result => m_Logic.ValueRO.Result;
        
         [CreateProperty]
-        public bool IsWork => m_Logic.ValueRO.Work;
+        public bool IsWork => m_Logic.ValueRO.IsWork;
         [CreateProperty]
         public bool IsValid => m_Logic.ValueRO.IsValid;
 
@@ -34,26 +33,29 @@ namespace Game.Model.Logics
             return m_Logic.ValueRO.LogicID == logicID;
         }
 
-        public void SetResult(Enum result)
+        public bool HasState(Enum value)
         {
-            m_Logic.ValueRW.SetResult(result);
-            m_Logic.ValueRW.Work = false;
+            return m_Logic.ValueRO.HasState(value);
         }
 
-        public void SetStateID(int value)
+        public void TrySetResult(Enum result)
         {
-            m_Logic.ValueRW.SetStateID(value);
-            m_Logic.ValueRW.Work = true;
+            m_Logic.ValueRW.TrySetResult(result);
         }
 
-        public int GetNextStateID()
+        public void TrySetState(Enum state)
         {
-            return m_Logic.ValueRO.GetNextStateID(Result);
+            m_Logic.ValueRW.TrySetState(state);
         }
 
-        public bool Equals(Enum @enum)
+        public void SetState(int value)
         {
-            return m_Logic.ValueRO.StateID == Logic.LogicDef.GetID(@enum);
+            m_Logic.ValueRW.SetState(value);
+        }
+
+        public int GetNextState()
+        {
+            return m_Logic.ValueRO.GetNextState();
         }
     }
 }

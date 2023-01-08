@@ -66,16 +66,18 @@ namespace Game.Model
 
             void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target data, ref LogicAspect logic)
             {
-                if (logic.Equals(Target.State.Find))
+                switch (logic.State)
                 {
-                    if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value, out data.WorldTransform))
-                    {
-                        logic.SetResult(Target.Result.Found);
-                    }
-                    else
-                    {   
-                        logic.SetResult(Target.Result.NoTarget);
-                    }
+                    case Target.State.Find:
+                        if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value, out data.WorldTransform))
+                        {
+                            logic.TrySetResult(Target.Result.Found);
+                        }
+                        else
+                        {
+                            logic.TrySetResult(Target.Result.NoTarget);
+                        }
+                        break;
                 }
             }
 

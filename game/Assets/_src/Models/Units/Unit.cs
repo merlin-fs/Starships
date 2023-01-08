@@ -23,25 +23,8 @@ namespace Game.Model.Units
             Def = config;
         }
         #region IDefineableCallback
-        
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
-            //context.SetName(entity, GetType().Name);
-            /*
-            foreach (var iter in Def.Value.Parts)
-            {
-                var part = context.FindEntity(iter.Child);
-                if (part == Entity.Null)
-                    part = entity;
-
-                if (iter is IConfig config)
-                {
-                    config.Configurate(part, context);
-                    //TODO: перенести в weapon!
-                    context.AddComponentData<Part>(part, new Part { Unit = entity });
-                }
-            }
-            */
         }
 
         public void RemoveComponentData(Entity entity, IDefineableContext context) { }
@@ -49,7 +32,11 @@ namespace Game.Model.Units
         public enum State
         {
             Stop,
-            Destroy,
+        }
+
+        public enum Result
+        {
+            Done,
         }
 
         public enum Stats

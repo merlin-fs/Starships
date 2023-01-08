@@ -13,6 +13,8 @@ namespace Game.Model.Units
         protected override void Init(Logic.LogicDef logic)
         {
             logic.Configure()
+                .State(GlobalState.Destroy)
+
                 .Transition(null, null, Move.State.Init)
                 .Transition(Move.State.Init, Move.Result.Done, Unit.State.Stop)
                 //.Transition(Move.State.Init, Move.Result.Done, Target.State.Find)
