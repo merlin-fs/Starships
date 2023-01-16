@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
+using Game.Core.Repositories;
 using Common.Defs;
 
 namespace Game.Model.Units
@@ -9,25 +10,46 @@ namespace Game.Model.Units
     using Stats;
     using Logics;
     using Weapons;
-    using Game.Core.Repositories;
-    using UnityEngine.XR;
+    using UnityEngine.SocialPlatforms;
 
     public partial class LogicMeteorite : LogicConcreteSystem
     {
         protected override void Init(Logic.LogicDef logic)
         {
+            /*
             logic.Configure()
-                .State(GlobalState.Destroy)
+                .Transition(Start, Init)
+                .Transition(Init, Find)
+                
+                .Transition(Find, MoveTo).Condition(Found == true)
+                .Transition(Find, MoveTo).Condition(Found == false)
 
-                .Transition(null, null, Move.State.Init)
-                .Transition(Move.State.Init, Move.Result.Done, Target.State.Find)
+                .Transition(MoveTo, Shot).Condition(Position == Target)
 
-                .Transition(Target.State.Find, Target.Result.Found, Move.State.MoveTo)
-                .Transition(Target.State.Find, Target.Result.NoTarget, Move.State.MoveTo)
+                .Transition(Shot, Stop)
 
-                .Transition(Move.State.MoveTo, Move.Result.Done, Weapon.State.Shoot)
-                .Transition(Weapon.State.Shoot, Weapon.Result.Done, Unit.State.Stop)
-                .Transition(GlobalState.Destroy, Unit.Result.Done, Unit.State.Stop);
+                .Transition(Destroy, Shot).Condition(AOE = true)
+                .Transition(Destroy, Stop).Condition(AOE = false)
+            */
+
+            //Пересмотреть логику!!!
+            logic.Configure()
+
+                .Transition(Logic.State.AnyState, Unit.State.Destroy).Condition(Unit.Params.Destroy)
+
+                .Transition(Logic.State.Start, Move.State.Init).Always()
+                .Transition(Move.State.Init, Target.State.Find).Condition(Move.Params.Done)
+
+                .Transition(Target.State.Find, Move.State.MoveTo).Condition(Target.Params.Found)
+                    .Else(Move.State.MoveTo)
+
+                .Transition(Move.State.MoveTo, Weapon.State.Shoot).Condition(Move.Params.Done)
+
+                .Transition(Weapon.State.Shoot, Unit.State.Stop).Always()
+
+                .Transition(Unit.State.Destroy, Weapon.State.Shoot).Condition("damage aoe")
+                    .Else(Unit.State.Stop);
+
         }
 
         protected override void OnCreate()
@@ -74,19 +96,23 @@ namespace Game.Model.Units
                         break;
 
                     case GlobalState.Destroy:
-
+                        if (logic.Result.Equals(Move.Result.Done))
+                        {
+                            logic.TrySetResult(Unit.Result.Done);
+                            return;
+                        }
+                        UnityEngine.Debug.Log($"[{logic.Self}] damage count {damages.Length}");
                         var repo = Repositories.Instance.ConfigsAsync().Result;
                         foreach (var iter in damages)
                         {
                             var damageCfg = (DamageConfig)repo.FindByID(iter.DamageConfigID);
                             if (damageCfg.Targets == DamageTargets.AoE)
                             {
-                                UnityEngine.Debug.Log($"[{logic.Self}], self explose");
-                                Shot(ref weapon, ref logic, Writer);
-                                break;
+                                logic.TrySetResult(Unit.Result.Done);
+                                return;
                             }
                         }
-                        logic.TrySetResult(Unit.Result.Done);
+                        logic.TrySetResult(Unit.Result.Failed);
                         break;
 
                     case Weapon.State.Shoot:

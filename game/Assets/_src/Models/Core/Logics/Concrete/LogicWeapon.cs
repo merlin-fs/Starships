@@ -11,6 +11,7 @@ namespace Game.Model.Units
     using Logics;
     using Stats;
 
+    [DisableAutoCreation]
     public partial class LogicWeapon : LogicConcreteSystem
     {
         protected override void Init(Logic.LogicDef logic)

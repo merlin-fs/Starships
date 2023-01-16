@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 8614281852687634302}
   - component: {fileID: 8449845346434200754}
   - component: {fileID: 8450884501049583340}
-  - component: {fileID: 4863989912930254839}
   m_Layer: 0
   m_Name: Tracer
   m_TagString: Untagged
@@ -4783,19 +4782,6 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &4863989912930254839
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8612599291476716336}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5eb12eb2036972042ba25cbd672ebb44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ID: shot
 --- !u!1 &8612839502894592308
 GameObject:
   m_ObjectHideFlags: 0
@@ -4807,7 +4793,6 @@ GameObject:
   - component: {fileID: 8615980560357755716}
   - component: {fileID: 8448768925235273354}
   - component: {fileID: 8450081765223883984}
-  - component: {fileID: 2086171380296051158}
   m_Layer: 0
   m_Name: Mobile
   m_TagString: Untagged
@@ -9570,19 +9555,6 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &2086171380296051158
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8612839502894592308}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5eb12eb2036972042ba25cbd672ebb44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ID: shot
 --- !u!1 &8612975500380340196
 GameObject:
   m_ObjectHideFlags: 0
@@ -9595,7 +9567,6 @@ GameObject:
   - component: {fileID: 8448822578245568908}
   - component: {fileID: 8450975005681206708}
   - component: {fileID: 8548133967304595776}
-  - component: {fileID: 5794561301308746275}
   m_Layer: 10
   m_Name: MachineGunLvl1Effect
   m_TagString: Untagged
@@ -9617,7 +9588,7 @@ Transform:
   m_Children:
   - {fileID: 8615980560357755716}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!198 &8448822578245568908
 ParticleSystem:
@@ -14500,16 +14471,3 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
---- !u!114 &5794561301308746275
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8612975500380340196}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5eb12eb2036972042ba25cbd672ebb44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ID: shot

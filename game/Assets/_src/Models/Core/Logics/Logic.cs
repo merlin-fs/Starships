@@ -3,8 +3,6 @@ using Unity.Entities;
 using Unity.Properties;
 using Unity.Serialization;
 using Common.Defs;
-using Unity.Mathematics;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace Game.Model.Logics
 {
@@ -25,9 +23,9 @@ namespace Game.Model.Logics
         public bool IsWork => m_Work;
 
         [CreateProperty]
-        public Enum State => GetValue(m_State);
+        public Enum CurrentState => GetValue(m_State);
         [CreateProperty]
-        public Enum Result => GetValue(m_Result);
+        public Enum CurrentResult => GetValue(m_Result);
 
         public Enum GetValue(int id)
         {

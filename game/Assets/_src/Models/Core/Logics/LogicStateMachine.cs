@@ -10,6 +10,20 @@ namespace Game.Model.Logics
 {
     public partial struct Logic
     {
+        public enum State
+        {
+            Start,
+            AnyState,
+            Finish,
+        }
+
+        public enum Result
+        {
+            Always,
+            AnyState,
+            Finish,
+        }
+
         public interface IConfigurator
         {
             void Init(LogicDef def);

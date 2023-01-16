@@ -13,6 +13,7 @@ namespace Game.Systems
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<DeadTag>()
+                .WithNone<WaitTag>()
                 .Build();
 
             state.RequireForUpdate(m_Query);

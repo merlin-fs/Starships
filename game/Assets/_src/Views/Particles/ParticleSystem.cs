@@ -1,81 +1,71 @@
 using System;
 using Unity.Entities;
-using Unity.Collections;
 using Unity.Transforms;
-using UnityEngine;
 using Game.Model.Logics;
-using Game.Model.Weapons;
-using Game.Model.Stats;
+using Unity.Collections;
 
 namespace Game.Views
 {
     [UpdateInGroup(typeof(GamePresentationSystemGroup))]
     public partial class TestParticleSystem : SystemBase
     {
-        private EntityCommandBufferSystem m_CommandBuffer;
         private EntityQuery m_Query;
+        private ComponentLookup<WorldTransform> m_LookupWorldTransform;
+
         protected override void OnCreate()
         {
-            m_CommandBuffer = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+            m_LookupWorldTransform = GetComponentLookup<WorldTransform>();
+
             m_Query = SystemAPI.QueryBuilder()
+                .WithAll<Logic>()
                 .WithAll<Particle>()
-                .WithNone<ParticleView>()
-                .WithNone<DeadTag>()
                 .Build();
 
-            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Particle>());
+            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
             RequireForUpdate(m_Query);
         }
 
         protected override void OnUpdate()
         {
-            var childs = GetBufferLookup<Child>(true);
-            var views = GetComponentLookup<ParticleView>(true);
-            //var particles = GetComponentLookup<ParticleSystem>(true);
+            m_LookupWorldTransform.Update(ref CheckedStateRef);
 
-            using var entities = m_Query.ToEntityArray(Allocator.Temp);
-            using var tags = m_Query.ToComponentDataArray<Particle>(Allocator.Temp);
-            var writer = m_CommandBuffer.CreateCommandBuffer();
-
-            for (int i = 0; i < entities.Length; i++)
+            new PlayParticleJob
             {
-                var iter = entities[i];
-                
-                RecursiveChilds(iter, childs, (child) =>
-                {
-                    var view = views.GetRefROOptional(child);
-
-                    if (view.IsValid && view.ValueRO.ID == tags[i].ID)
-                    {
-                        //var particle = particles.GetRefROOptional(child);
-                        if (EntityManager.HasComponent<ParticleSystem>(child))
-                        {
-                            var ps = EntityManager.GetComponentObject<ParticleSystem>(child);
-                            ps.Play();
-                        }
-                        if (EntityManager.HasComponent<AudioSource>(child))
-                        {
-                            var audio = EntityManager.GetComponentObject<AudioSource>(child);
-                            audio.Play();
-                        }
-                    }
-                });
-                writer.RemoveComponent<Particle>(iter);
-                //writer.SetComponent<Particle>(iter, "");
+                LookupWorldTransform = m_LookupWorldTransform,
             }
+            .ScheduleParallel(m_Query, Dependency)
+            .Complete();
         }
 
-        void RecursiveChilds(Entity entity, BufferLookup<Child> childs, Action<Entity> action)
+        partial struct PlayParticleJob : IJobEntity
         {
-            action?.Invoke(entity);
-            if (!childs.HasBuffer(entity))
-                return;
-            var child = childs[entity];
-            for (var i = 0; i < child.Length; ++i)
+            [ReadOnly, NativeDisableParallelForRestriction]
+            public ComponentLookup<WorldTransform> LookupWorldTransform;
+
+            void Execute(in Entity entity, in LogicAspect logic, in DynamicBuffer<Particle> particles)
             {
-                var iter = child[i].Value;
-                RecursiveChilds(iter, childs, action);
+                foreach(var iter in particles)
+                {
+                    if (iter.StateID == logic.StateID)
+                    {
+                        ParticleManager.Play(entity, iter.StateID, LookupWorldTransform[iter.Target]);
+                    }
+                }
             }
         }
+
+        //void RecursiveChilds(Entity entity, BufferLookup<Child> childs, Action<Entity> action)
+        //{
+        //    action?.Invoke(entity);
+        //    if (!childs.HasBuffer(entity))
+        //        return;
+        //    var child = childs[entity];
+        //    for (var i = 0; i < child.Length; ++i)
+        //    {
+        //        var iter = child[i].Value;
+        //        RecursiveChilds(iter, childs, action);
+        //    }
+        //}
     }
-}
+    }
+    

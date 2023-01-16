@@ -37,6 +37,7 @@ namespace Game.Model.Units
         public enum Result
         {
             Done,
+            Failed,
         }
 
         public enum Stats

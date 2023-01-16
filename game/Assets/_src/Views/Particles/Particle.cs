@@ -1,25 +1,21 @@
 using System;
 using Unity.Entities;
+using Unity.Transforms;
 
 namespace Game.Views
 {
-    public struct Particle : IComponentData
+    public struct Particle : IBufferElementData
     {
-        public int ID;
+        public Entity Target;
+        public int StateID;
+    }
 
-        public static implicit operator Particle(string value)
+    public static class ParticleManager
+    {
+        public static void Play(Entity entity, int stateID, WorldTransform transform)
         {
-            return new Particle { ID = value.GetHashCode(), };
+
         }
     }
 
-    public struct ParticleView : IComponentData
-    {
-        public int ID;
-
-        public static implicit operator ParticleView(string value)
-        {
-            return new ParticleView { ID = value.GetHashCode(), };
-        }
-    }
 }

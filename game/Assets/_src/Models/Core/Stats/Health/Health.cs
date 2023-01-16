@@ -4,7 +4,8 @@ using Unity.Entities;
 namespace Game.Model.Stats
 {
 
-    public readonly struct DeadTag: IComponentData { }
+    public struct DeadTag: IComponentData { }
+    public struct WaitTag : ICleanupComponentData { }
 
     public enum GlobalState
     {

@@ -14,14 +14,15 @@ namespace Game.Model.Logics
 
 #if UNITY_EDITOR
         [CreateProperty]
-        public string StateName => m_Logic.ValueRO.State?.ToString();
+        public string StateName => m_Logic.ValueRO.CurrentState?.ToString();
         [CreateProperty]
-        public string ResultName => m_Logic.ValueRO.Result?.ToString();
+        public string ResultName => m_Logic.ValueRO.CurrentResult?.ToString();
 
 #endif
         #endregion
-        public Enum State => m_Logic.ValueRO.State;
-        public Enum Result => m_Logic.ValueRO.Result;
+        public int StateID => m_Logic.ValueRO.StateID;
+        public Enum State => m_Logic.ValueRO.CurrentState;
+        public Enum Result => m_Logic.ValueRO.CurrentResult;
        
         [CreateProperty]
         public bool IsWork => m_Logic.ValueRO.IsWork;

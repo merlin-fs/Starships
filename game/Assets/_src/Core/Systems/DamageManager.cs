@@ -129,8 +129,6 @@ namespace Game.Model.Weapons
 
             void Damage(int idx, ObjectID cfgID, Entity sender, Entity target, IDamage damage, float value, ref DynamicBuffer<LastDamages> damages, IDefineableContext context)
             {
-                UnityEngine.Debug.Log($"[{target}], sender: {sender}, damage: {value}");
-
                 if (!LookupStats.HasBuffer(target)) return;
                 var stats = LookupStats[target];
                 damage.Apply(ref stats, value, context);

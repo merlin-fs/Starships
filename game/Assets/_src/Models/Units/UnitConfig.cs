@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 using Common.Defs;
@@ -8,7 +9,6 @@ namespace Game.Model.Units
     using Stats;
     using Logics;
     using Core.Defs;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Конфиг корабля
