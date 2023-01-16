@@ -16,7 +16,7 @@ namespace Game.Model.Weapons
     public class WeaponConfig: GameObjectConfig, IConfigStats
     {
         public Weapon.WeaponDef Value = new Weapon.WeaponDef();
-        public Logic.Config Logic = new Logic.Config();
+        public Logic.LogicDef Logic = new Logic.LogicDef();
 
         protected override void Configurate(Entity prefab, IDefineableContext context)
         {

@@ -1,6 +1,8 @@
-using System;
+﻿using System;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Collections;
+using Game.Core.Repositories;
 using Common.Defs;
 
 namespace Game.Model.Units
@@ -8,20 +10,46 @@ namespace Game.Model.Units
     using Stats;
     using Logics;
     using Weapons;
-    
+    using UnityEngine.SocialPlatforms;
+
     public partial class LogicMeteorite : LogicConcreteSystem
     {
-        protected override void Init(Logic.Config logic)
+        protected override void Init(Logic.LogicDef logic)
         {
+            /*
             logic.Configure()
-                .Transition(null, null, Move.State.Init)
-                .Transition(Move.State.Init, Move.Result.Done, Target.State.Find)
+                .Transition(Start, Init)
+                .Transition(Init, Find)
+                
+                .Transition(Find, MoveTo).Condition(Found == true)
+                .Transition(Find, MoveTo).Condition(Found == false)
 
-                .Transition(Target.State.Find, Target.Result.Found, Move.State.MoveTo)
-                .Transition(Target.State.Find, Target.Result.NoTarget, Move.State.MoveTo)
+                .Transition(MoveTo, Shot).Condition(Position == Target)
 
-                .Transition(Move.State.MoveTo, Move.Result.Done, Weapon.State.Shoot)
-                .Transition(Weapon.State.Shoot, Weapon.Result.Done, Unit.State.Destroy);
+                .Transition(Shot, Stop)
+
+                .Transition(Destroy, Shot).Condition(AOE = true)
+                .Transition(Destroy, Stop).Condition(AOE = false)
+            */
+
+            //Пересмотреть логику!!!
+            logic.Configure()
+
+                .Transition(Logic.State.AnyState, Unit.State.Destroy).Condition(Unit.Params.Destroy)
+
+                .Transition(Logic.State.Start, Move.State.Init).Always()
+                .Transition(Move.State.Init, Target.State.Find).Condition(Move.Params.Done)
+
+                .Transition(Target.State.Find, Move.State.MoveTo).Condition(Target.Params.Found)
+                    .Else(Move.State.MoveTo)
+
+                .Transition(Move.State.MoveTo, Weapon.State.Shoot).Condition(Move.Params.Done)
+
+                .Transition(Weapon.State.Shoot, Unit.State.Stop).Always()
+
+                .Transition(Unit.State.Destroy, Weapon.State.Shoot).Condition("damage aoe")
+                    .Else(Unit.State.Stop);
+
         }
 
         protected override void OnCreate()
@@ -56,45 +84,65 @@ namespace Game.Model.Units
             public EntityCommandBuffer.ParallelWriter Writer;
 
             void Execute([EntityIndexInQuery] int idx, in UnitAspect unit, ref LogicAspect logic,
-                ref WeaponAspect weapon,
+                ref WeaponAspect weapon, in DynamicBuffer<LastDamages> damages,
                 ref Move data)
             {
                 if (!logic.IsSupports(LogicID)) return;
 
-                if (logic.Equals(Unit.State.Stop))
+                switch (logic.State)
                 {
-                    //logic.SetResult(Result.Done);
+                    case Unit.State.Stop:
+                        Writer.AddComponent<DeadTag>(idx, logic.Self);
+                        break;
+
+                    case GlobalState.Destroy:
+                        if (logic.Result.Equals(Move.Result.Done))
+                        {
+                            logic.TrySetResult(Unit.Result.Done);
+                            return;
+                        }
+                        UnityEngine.Debug.Log($"[{logic.Self}] damage count {damages.Length}");
+                        var repo = Repositories.Instance.ConfigsAsync().Result;
+                        foreach (var iter in damages)
+                        {
+                            var damageCfg = (DamageConfig)repo.FindByID(iter.DamageConfigID);
+                            if (damageCfg.Targets == DamageTargets.AoE)
+                            {
+                                logic.TrySetResult(Unit.Result.Done);
+                                return;
+                            }
+                        }
+                        logic.TrySetResult(Unit.Result.Failed);
+                        break;
+
+                    case Weapon.State.Shoot:
+                        Shot(ref weapon, ref logic, Writer);
+                        break;
+
+                    case Move.State.Init:
+                        weapon.Reload(new DefExt.WriterContext(Writer, idx), 0);
+                        break;
+
+                    case Target.State.Find:
+                        weapon.SetSoughtTeams(unit.Team.EnemyTeams);
+                        break;
+
+                    case Move.State.MoveTo:
+                        float3 pos = (logic.Result.Equals(Target.Result.NoTarget))
+                            ? float3.zero
+                            : weapon.Target.WorldTransform.Position;
+
+                        data.Position = pos;
+                        data.Speed = unit.Stat(Unit.Stats.Speed).Value;
+                        break;
                 }
 
-                if (logic.Equals(Target.State.Find))
+                void Shot(ref WeaponAspect weapon, ref LogicAspect logic, EntityCommandBuffer.ParallelWriter Writer)
                 {
-                    weapon.SetSoughtTeams(unit.Team.EnemyTeams);
-                    return;
+                    weapon.Target = new Target { Value = weapon.Self };
+                    weapon.Shot(new DefExt.WriterContext(Writer, idx));
+                    logic.TrySetResult(Weapon.Result.Done);
                 }
-
-                if (logic.Equals(Move.State.MoveTo))
-                {
-                    float3 pos = (logic.Result.Equals(Target.Result.NoTarget))
-                        ? float3.zero
-                        : weapon.Target.WorldTransform.Position;
-
-                    data.Position = pos;
-                    data.Speed = unit.Stat(Unit.Stats.Speed).Value;
-                    return;
-                }
-
-                if (logic.Equals(Weapon.State.Shoot))
-                {
-                    logic.SetResult(Weapon.Result.Done);
-                    return;
-                }
-
-                if (logic.Equals(Unit.State.Destroy))
-                {
-                    Writer.AddComponent<DeadTag>(idx, logic.Self);
-                    return;
-                }
-                
             }
         }
     }

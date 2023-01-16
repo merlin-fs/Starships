@@ -1,13 +1,13 @@
 ﻿using System;
 using Unity.Entities;
 using Unity.Properties;
-using Common.Defs;
 using Unity.Collections;
+using Common.Defs;
 
 namespace Game.Model.Weapons
 {
-    using Stats;
     using Core.Repositories;
+    using Stats;
 
     public readonly partial struct WeaponAspect: IAspect
     {
@@ -17,14 +17,18 @@ namespace Game.Model.Weapons
         readonly RefRW<Weapon> m_Weapon;
         readonly RefRW<Target> m_Target;
 
-        [Optional] readonly RefRW<Bullet> m_Bullet;
+        [Optional] readonly RefRO<Bullet> m_Bullet;
         [Optional] readonly RefRO<Part> m_Part;
         [ReadOnly] readonly DynamicBuffer<Stat> m_Stats;
 
-        public Weapon.WeaponDef Config => m_Weapon.ValueRO.Def;
+        #region DesignTime
 
+#if UNITY_EDITOR
         [CreateProperty]
-        public string Bullet => Config.Bullet.name;
+        public string BulletName => m_Weapon.ValueRO.BulletID.ToString();
+#endif
+        #endregion
+        public Weapon.WeaponDef Config => m_Weapon.ValueRO.Def;
 
         [CreateProperty]
         public int Count => m_Weapon.ValueRO.Count;
@@ -33,11 +37,12 @@ namespace Game.Model.Weapons
         public Entity Unit => m_Part.IsValid ? m_Part.ValueRO.Unit : default;
 
         [CreateProperty]
-        public Target Target => m_Target.ValueRO;
+        public Target Target { get => m_Target.ValueRO; set => m_Target.ValueRW = value; }
 
         [CreateProperty]
         public uint SoughtTeams => m_Target.ValueRO.SoughtTeams;
 
+        public Bullet Bullet => m_Bullet.ValueRO;
         public Stat Stat(Enum stat) => m_Stats.GetRO(stat);
 
         public float Time
@@ -51,22 +56,26 @@ namespace Game.Model.Weapons
             m_Weapon.ValueRW.Count -= Config.BarrelCount;
             if (m_Weapon.ValueRW.Count < 0)
                 m_Weapon.ValueRW.Count = 0;
+
+            DamageManager.Damage(Self, Target.Value, Stat(Weapon.Stats.Damage).Value, context);
         }
 
-        public bool Reload(IDefineableContext context)
+        public bool Reload(IDefineableContext context, int count)
         {
             if (m_Bullet.IsValid)
                 m_Bullet.ValueRO.Def.RemoveComponentData(m_Self, context, m_Bullet.ValueRO);
 
-            var bullet = Repositories.Instance.ConfigsAsync().Result
+            var bulletConfig = Repositories.Instance.ConfigsAsync().Result
                 .FindByID(m_Weapon.ValueRO.BulletID);
-            if (bullet == null)
+
+            if (bulletConfig == null)
                 return false;
 
-            bullet.Configurate(m_Self, context);
-            m_Weapon.ValueRW.Count = Config.ClipSize;
+            bulletConfig.Configurate(m_Self, context);
+            m_Weapon.ValueRW.Count = count;
             return true;
         }
+
         public void SetSoughtTeams(uint value) => m_Target.ValueRW.SoughtTeams = value;
     }
 }

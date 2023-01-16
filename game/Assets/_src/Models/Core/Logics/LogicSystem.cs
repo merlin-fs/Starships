@@ -29,8 +29,8 @@ namespace Game.Model.Logics
 
                 if (!logic.IsWork)
                 {
-                    var next = logic.GetNextStateID();
-                    logic.SetStateID(next);
+                    var next = logic.GetNextState();
+                    logic.SetState(next);
                 }
             }
         }

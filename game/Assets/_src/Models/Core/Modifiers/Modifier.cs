@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
-
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Properties;
-
 using UnityEngine;
 
 namespace Game.Model.Stats
@@ -48,17 +46,23 @@ namespace Game.Model.Stats
         public static Modifier Create<T>(ref T modifier, Enum stat)
             where T : struct, IModifier
         {
-            var ptr = UnsafeUtility.AddressOf<T>(ref modifier);
-            return new Modifier(ptr, stat)
+            UnsafeUtility.PinGCObjectAndGetAddress(modifier, out ulong handle);
+            return new Modifier((void*)handle, stat)
             {
                 TypeIndex = TypeManager.GetTypeIndex<T>(),
             };
         }
 
+        public void Dispose()
+        {
+            UnsafeUtility.ReleaseGCObject(m_ModifierPtr);
+        }
+
         [BurstDiscard]
         public void Estimation(Entity entity, ref Stat stat, float delta)
         {
-            var obj = (IModifier)Marshal.PtrToStructure(new IntPtr((void*)m_ModifierPtr), TypeManager.GetTypeInfo(TypeIndex).Type);
+            //var obj = (IModifier)Marshal.PtrToStructure(new IntPtr((void*)m_ModifierPtr), TypeManager.GetTypeInfo(TypeIndex).Type);
+            var obj = (IModifier)GCHandle.FromIntPtr(new IntPtr((void*)m_ModifierPtr)).Target;
             obj.Estimation(entity, ref stat, delta);
         }
 
@@ -71,6 +75,60 @@ namespace Game.Model.Stats
         public static void DelModifierAsync(Entity entity, ulong uid)
         {
             ModifiersSystem.Instance.DelModifier(entity, uid);
+        }
+
+        public static void Estimation(Entity entity, ref Stat stat, in DynamicBuffer<Modifier> items, float delta)
+        {
+            stat.Reset();
+            foreach (var item in items)
+                if (item.Active && item.StatID == stat.StatID)
+                {
+                    item.Estimation(entity, ref stat, delta);
+                }
+        }
+
+        public static int AddModifier(Modifier modifier, ref DynamicBuffer<Modifier> items)
+        {
+            var id = FindFreeItem(items);
+            if (id < 0)
+                id = items.Add(modifier);
+            else
+                items[id] = modifier;
+
+            return id;
+
+            int FindFreeItem(DynamicBuffer<Modifier> items)
+            {
+                for (int i = 0; i < items.Length; i++)
+                {
+                    if (!items[i].Active)
+                        return i;
+                }
+                return -1;
+            }
+        }
+
+        public static void DelModifier(ulong uid, ref DynamicBuffer<Modifier> items)
+        {
+            if (uid == 0)
+                return;
+
+            var id = FindFreeItem(items);
+            if (id < 0)
+                return;
+
+            items[id].Dispose();
+            items[id] = new Modifier() { Active = false };
+
+            int FindFreeItem(DynamicBuffer<Modifier> items)
+            {
+                for (int i = 0; i < items.Length; i++)
+                {
+                    if (items[i].UID == uid)
+                        return i;
+                }
+                return -1;
+            }
         }
     }
 }

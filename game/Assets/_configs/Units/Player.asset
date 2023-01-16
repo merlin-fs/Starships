@@ -41,4 +41,4 @@ MonoBehaviour:
     - rid: 129887608927158278
       type: {class: StaticValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
-        Value: 100
+        Value: 1000

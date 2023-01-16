@@ -12,6 +12,6 @@ namespace Game.Model
         /// </summary>
         /// <param name="value">Урон</param>
         /// <param name="damageType">Тип урона</param>
-        void Сalculation(ref float value, DamageType damageType);
+        void Сalculation(ref float value, DamageConfig damageType);
     }
 }

@@ -65,9 +65,7 @@ namespace Game.Systems
                     var buff = Writer.AddBuffer<StatView>(idx, inst);
                     buff.CopyFrom(views);
                 }
-
                 Writer.DestroyEntity(idx, entity);
-                UnityEngine.Debug.Log($"[{inst}] Inst: {spawn.WorldTransform.Position}");
             }
         }
 

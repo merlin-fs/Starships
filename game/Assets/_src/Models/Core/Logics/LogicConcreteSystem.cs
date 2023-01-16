@@ -10,11 +10,11 @@ namespace Game.Model.Logics
     {
         protected EntityQuery m_Query;
         
-        private static readonly Dictionary<Logic.Config, Type> m_Actions = new Dictionary<Logic.Config, Type>();
+        private static readonly Dictionary<Logic.LogicDef, Type> m_Actions = new Dictionary<Logic.LogicDef, Type>();
 
         protected int LogicID { get; private set; }
 
-        public static void AddInit(Logic.Config config, Type type)
+        public static void AddInit(Logic.LogicDef config, Type type)
         {
             if (!m_Actions.ContainsKey(config))
             {
@@ -35,9 +35,9 @@ namespace Game.Model.Logics
             }
         }
 
-        void Logic.IConfigurator.Init(Logic.Config config) => Init(config);
+        void Logic.IConfigurator.Init(Logic.LogicDef config) => Init(config);
 
-        protected abstract void Init(Logic.Config config);
+        protected abstract void Init(Logic.LogicDef config);
 
     }
 }

@@ -24,6 +24,10 @@ namespace Game.Core.Repositories
         {
             return Repo.FindByID(id);
         }
+        newT IReadonlyRepository<ObjectID, T>.FindByID<newT>(ObjectID id)
+        {
+            return Repo.FindByID<newT>(id);
+        }
         #endregion
     }
 }

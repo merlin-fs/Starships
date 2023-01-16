@@ -53,8 +53,11 @@ namespace Game.Model.Weapons
             Dettach(entity);
         }
         #endregion
+        
+        [Serializable]
         public class BulletDef : IDef<Bullet>
         {
+            public DamageConfig DamageType;
             public float Multiplier;
             public float Range;
         }

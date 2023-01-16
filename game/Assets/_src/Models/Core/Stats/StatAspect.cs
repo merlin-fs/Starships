@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Properties;
+using Unity.Collections;
 
 namespace Game.Model.Stats
 {
@@ -13,7 +14,7 @@ namespace Game.Model.Stats
 
         private readonly DynamicBuffer<Stat> m_Items;
 
-        private readonly ModifiersAspect m_Modifiers;
+        [ReadOnly] private readonly DynamicBuffer<Modifier> m_Modifiers;
 
         public DynamicBuffer<Stat> Values => m_Items;
 
@@ -22,13 +23,17 @@ namespace Game.Model.Stats
             //UnityEngine.Debug.Log($"[{Self}] Estimation");
             for (int i = 0; i < m_Items.Length; i++)
             {
-                m_Modifiers.Estimation(ref m_Items.ElementAt(i), delta);
+                Modifier.Estimation(Self, ref m_Items.ElementAt(i), m_Modifiers, delta);
             }
         }
 
-#if DEBUG
+        #region DesignTime
+
+#if UNITY_EDITOR
         [CreateProperty]
         public readonly List<Stat> StatsNames => m_Items.AsNativeArray().ToArray().ToList();//Select(i => i.StatName)
+
 #endif
+        #endregion
     }
 }

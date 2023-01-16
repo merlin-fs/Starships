@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-
-using Common.Defs;
-
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Properties;
@@ -62,15 +59,19 @@ namespace Game.Model.Stats
         public static unsafe void AddStat(DynamicBuffer<Stat> buff, Enum value, StatValue stat)
         {
             var id = FindStat(buff, value);
-            var element = new Stat(value)
-            {
-                m_Value = stat,
-            };
-
             if (id < 0)
+            {
+                var element = new Stat(value)
+                {
+                    m_Value = stat,
+                };
                 buff.Add(element);
-            else
-                buff[id] = element;
+            }
+        }
+
+        public static bool Has(DynamicBuffer<Stat> buff, int statId)
+        {
+            return FindStat(buff, statId) >= 0;
         }
 
         public static ref Stat GetRW(DynamicBuffer<Stat> buff, int statId)
@@ -166,6 +167,11 @@ namespace Game.Model.Stats
         public static void AddStat(this DynamicBuffer<Stat> buff, Enum value, IStatValue stat)
         {
             Stat.AddStat(buff, value, stat.Value);
+        }
+
+        public static bool Has(this DynamicBuffer<Stat> buff, Enum stat)
+        {
+            return Stat.Has(buff, Stat.GetID(stat));
         }
 
         public static bool TryGetStat(this DynamicBuffer<Stat> buff, Enum stat, out Stat data)

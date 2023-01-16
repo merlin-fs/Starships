@@ -40,6 +40,11 @@ namespace Common.Repositories
             return qry;
         }
 
+        public T FindByID<T>(TID id) 
+            where T : TEntity
+        {
+            return (T)FindByID(id);
+        }
         public TEntity FindByID(TID id)
         {
             return m_Items.TryGetValue(id, out TEntity value) 

@@ -13,14 +13,8 @@ MonoBehaviour:
   m_Name: SelfExplosion
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 0}
-  m_PrefabID:
-    Value:
-      x: 336750702
-      y: 1093670897
-      z: 4065668744
-      w: 2718088565
   Value:
-    Bullet: {fileID: 11400000, guid: c94f740253ba24c4db17d250612946be, type: 2}
+    Bullet: {fileID: 11400000, guid: 66f7d6355df69d84b9218c301788a517, type: 2}
     Health: 5
     DamageValue: 1
     BarrelCount: 1

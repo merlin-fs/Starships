@@ -8,11 +8,11 @@ using Unity.Jobs;
 
 namespace Game.Model
 {
-    using Game.Model.Stats;
-
+    using Stats;
     using Logics;
 
-    [UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
+    //[UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
+    [UpdateInGroup(typeof(GameLogicInitSystemGroup))]
     public partial struct TargetSystem : ISystem
     {
         EntityQuery m_Query;
@@ -44,9 +44,7 @@ namespace Game.Model
         {
             m_LookupTransforms.Update(ref state);
             m_LookupTeams.Update(ref state);
-
             var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle handle);
-
             var job = new Job()
             {
                 Transforms = m_LookupTransforms,
@@ -62,23 +60,24 @@ namespace Game.Model
         partial struct Job : IJobEntity
         {
             public float Delta;
-            [ReadOnly]
-            public ComponentLookup<WorldTransform> Transforms;
-            [ReadOnly]
-            public ComponentLookup<Team> Teams;
-            [ReadOnly]
-            public NativeList<Entity> Entities;
+            [ReadOnly] public ComponentLookup<WorldTransform> Transforms;
+            [ReadOnly] public ComponentLookup<Team> Teams;
+            [ReadOnly] public NativeList<Entity> Entities;
 
             void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target data, ref LogicAspect logic)
             {
-                if (logic.Equals(Target.State.Find))
+                switch (logic.State)
                 {
-                    if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value, out data.WorldTransform))
-                    {
-                        logic.SetResult(Target.Result.Found);
-                    }
-                    else
-                        logic.SetResult(Target.Result.NoTarget);
+                    case Target.State.Find:
+                        if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value, out data.WorldTransform))
+                        {
+                            logic.TrySetResult(Target.Result.Found);
+                        }
+                        else
+                        {
+                            logic.TrySetResult(Target.Result.NoTarget);
+                        }
+                        break;
                 }
             }
 

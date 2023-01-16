@@ -7,6 +7,7 @@ using Common.Defs;
 namespace Game.Core.Prefabs
 {
     using Defs;
+    using Unity.Entities.Hybrid.Baking;
 
     public struct BakedPrefabData : IBufferElementData, IEnableableComponent
     {

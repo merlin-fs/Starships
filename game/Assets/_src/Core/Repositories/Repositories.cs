@@ -16,9 +16,8 @@ namespace Game.Core.Repositories
         public static Repositories Instance => Inst;
 
         private ConcurrentDictionary<Type, object> m_Items = new ConcurrentDictionary<Type, object>();
+        private ConcurrentDictionary<Type, Task> m_Tasks = new ConcurrentDictionary<Type, Task>();
 
-        private Task m_Task;
-        private object m_Look = new object();
         public Task<IReadonlyRepository<ObjectID, IConfig>> ConfigsAsync()
         {
             return RepositoryAsync<IConfig>();
@@ -41,9 +40,10 @@ namespace Game.Core.Repositories
         private Task<DefsRepository<TDef>> NewRepositoryAsync<TDef>()
             where TDef : IIdentifiable<ObjectID>
         {
-            lock (m_Look)
+            var type = typeof(TDef);
+            if (!m_Tasks.TryGetValue(type, out Task task))
             {
-                m_Task ??= Addressables.LoadAssetsAsync<TDef>(LABEL_DEF, null).Task
+                task ??= Addressables.LoadAssetsAsync<TDef>(LABEL_DEF, null).Task
                     .ContinueWith(t =>
                     {
                         var repository = new DefsRepository<TDef>();
@@ -52,7 +52,7 @@ namespace Game.Core.Repositories
                         {
                             repository.Repo.Insert(t.Result);
                             m_Items.TryAdd(typeof(TDef), repository);
-                            m_Task = null;
+                            m_Tasks.TryRemove(type, out task);
                             return repository;
                         }
                         catch (Exception ex)
@@ -63,7 +63,7 @@ namespace Game.Core.Repositories
 
                     });
             }
-            return (Task<DefsRepository<TDef>>)m_Task;
+            return (Task<DefsRepository<TDef>>)task;
         }
     }
 }

@@ -81,25 +81,12 @@ namespace Common.Defs
         public class EntityManagerContext: IDefineableContext
         {
             private EntityManager m_Manager;
-            private NativeHashMap<Hash128, Entity> m_Childs;
             private HashSet<BuffKey> m_Buffs;
 
-            public EntityManagerContext(EntityManager manager, NativeHashMap<Hash128, Entity> childs = default)
+            public EntityManagerContext(EntityManager manager)
             {
                 m_Manager = manager;
-                m_Childs = childs;
                 m_Buffs = null;
-            }
-
-            //public Entity FindEntity(Hash128 prefabId)
-            public Entity FindEntity(IConfig config)
-            { 
-                /*
-                if (!m_Childs.IsCreated)
-                    return default;
-                m_Childs.TryGetValue(prefabId, out Entity entity);
-                */
-                return Entity.Null;
             }
 
             private bool HasChache<T>(Entity entity, out DynamicBuffer<T> value)
@@ -133,6 +120,13 @@ namespace Common.Defs
                     AddToChache<T>(entity, result);
                 }
                 return result;
+            }
+
+            public void AppendToBuffer<T>(Entity entity, T data) 
+                where T : unmanaged, IBufferElementData
+            {
+                var buff = m_Manager.GetBuffer<T>(entity);
+                buff.Add(data);
             }
 
             public void AddComponentData<T>(Entity entity, T data) 
@@ -169,26 +163,12 @@ namespace Common.Defs
         public class CommandBufferContext : IDefineableContext
         {
             private EntityCommandBuffer m_Manager;
-            private NativeHashMap<Hash128, Entity> m_Childs;
             private HashSet<BuffKey> m_Buffs;
 
-            public CommandBufferContext(EntityCommandBuffer manager, NativeHashMap<Hash128, Entity> childs = default)
+            public CommandBufferContext(EntityCommandBuffer manager)
             {
                 m_Manager = manager;
-                m_Childs = childs;
                 m_Buffs = null;
-            }
-
-            public Entity FindEntity(IConfig config)
-            //public Entity FindEntity(Hash128 prefabId)
-            {
-                /*
-                if (!m_Childs.IsCreated)
-                    return default;
-                m_Childs.TryGetValue(prefabId, out Entity entity);
-                return entity;
-                */
-                return Entity.Null;  
             }
 
             private bool HasChache<T>(Entity entity, out DynamicBuffer<T> value)
@@ -222,6 +202,12 @@ namespace Common.Defs
                     AddToChache<T>(entity, result);
                 }
                 return result;
+            }
+
+            public void AppendToBuffer<T>(Entity entity, T data)
+                where T : unmanaged, IBufferElementData
+            {
+                m_Manager.AppendToBuffer<T>(entity, data);
             }
 
             public void AddComponentData<T>(Entity entity, T data)
@@ -258,31 +244,13 @@ namespace Common.Defs
         {
             private EntityCommandBuffer.ParallelWriter m_Manager;
             private readonly int m_SortKey;
-            private NativeHashMap<Hash128, Entity> m_Childs;
             private HashSet<BuffKey> m_Buffs;
 
-            IDefineableContext m_Ref;
-
-
-            public WriterContext(EntityCommandBuffer.ParallelWriter manager, int sortKey, NativeHashMap<Hash128, Entity> childs = default)
+            public WriterContext(EntityCommandBuffer.ParallelWriter manager, int sortKey)
             {
                 m_Manager = manager;
                 m_SortKey = sortKey;
-                m_Childs = childs;
                 m_Buffs = null;
-                m_Ref = this;
-            }
-
-            public Entity FindEntity(IConfig config)
-            //public Entity FindEntity(Hash128 prefabId)
-            {
-                /*
-                if (!m_Childs.IsCreated)
-                    return default;
-                m_Childs.TryGetValue(prefabId, out Entity entity);
-                return entity;
-                */
-                return Entity.Null;
             }
 
             private bool HasChache<T>(Entity entity, out DynamicBuffer<T> value)
@@ -316,6 +284,12 @@ namespace Common.Defs
                     AddToChache<T>(entity, result);
                 }
                 return result;
+            }
+
+            public void AppendToBuffer<T>(Entity entity, T data)
+                where T : unmanaged, IBufferElementData
+            {
+                m_Manager.AppendToBuffer<T>(m_SortKey, entity, data);
             }
 
             public void AddComponentData<T>(Entity entity, T data)
