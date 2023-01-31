@@ -5,6 +5,7 @@ using Unity.Mathematics;
 namespace Game.Model
 {
     [Serializable]
+
     public struct Move : IComponentData
     {
         public float3 Position;
@@ -17,9 +18,10 @@ namespace Game.Model
             MoveTo,
         }
 
-        public enum Result
+        public enum Condition
         {
-            Done,
+            Init,
+            MoveDone,
         }
     }
 }

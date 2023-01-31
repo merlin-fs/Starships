@@ -31,7 +31,7 @@ namespace Game.Model.Units
                 .Transition(Destroy, Shot).Condition(AOE = true)
                 .Transition(Destroy, Stop).Condition(AOE = false)
             */
-
+            /*
             //Пересмотреть логику!!!
             logic.Configure()
 
@@ -49,7 +49,7 @@ namespace Game.Model.Units
 
                 .Transition(Unit.State.Destroy, Weapon.State.Shoot).Condition("damage aoe")
                     .Else(Unit.State.Stop);
-
+            */
         }
 
         protected override void OnCreate()
@@ -96,7 +96,7 @@ namespace Game.Model.Units
                         break;
 
                     case GlobalState.Destroy:
-                        if (logic.Result.Equals(Move.Result.Done))
+                        if (logic.Result.Equals(Move.Condition.MoveDone))
                         {
                             logic.TrySetResult(Unit.Result.Done);
                             return;
@@ -128,7 +128,8 @@ namespace Game.Model.Units
                         break;
 
                     case Move.State.MoveTo:
-                        float3 pos = (logic.Result.Equals(Target.Result.NoTarget))
+                        //!!!
+                        float3 pos = (logic.Result.Equals(Target.Condition.Dead))
                             ? float3.zero
                             : weapon.Target.WorldTransform.Position;
 
@@ -141,7 +142,8 @@ namespace Game.Model.Units
                 {
                     weapon.Target = new Target { Value = weapon.Self };
                     weapon.Shot(new DefExt.WriterContext(Writer, idx));
-                    logic.TrySetResult(Weapon.Result.Done);
+                    //!!!
+                    logic.TrySetResult(Weapon.Condition.NoAmmo);
                 }
             }
         }

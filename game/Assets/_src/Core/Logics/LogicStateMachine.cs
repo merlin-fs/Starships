@@ -1,34 +1,29 @@
 ﻿using System;
-using Common.Defs;
-using System.Collections.Generic;
-using Unity.Mathematics;
-using NMemory.DataStructures;
-using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace Game.Model.Logics
 {
     public partial struct Logic
     {
-        public enum State
+        public partial class LogicDef
         {
-            Start,
-            AnyState,
-            Finish,
+            public bool IsValid => true;
+            public int LogicID => 0;
+            public Enum GetState(int value) => null;
+            public bool TryGetID(Enum value, out int id)
+            {
+                id = 0;
+                return false;
+            }
+            public void Init() { }
+            public int GetNextState(ref Logic logic, int resultId) => 0;
         }
-
-        public enum Result
-        {
-            Always,
-            AnyState,
-            Finish,
-        }
-
+        /*
         public interface IConfigurator
         {
             void Init(LogicDef def);
         }
-
+        */
+        /*
         [Serializable]
         public class LogicDef : IDef<Logic>
         {
@@ -62,7 +57,7 @@ namespace Game.Model.Logics
                 var list = info.GetTransitions(resultId);
                 var next = list.RandomElement();
                 return next == null 
-                    ? m_IDs[InternalType.Null].ID
+                    ? m_IDs[null].ID
                     : next.ID;
             }
 
@@ -73,7 +68,7 @@ namespace Game.Model.Logics
 
             public bool TryGetID(Enum value, out int id)
             {
-                value ??= InternalType.Null;
+                value ??= null;
                 id = -1;
                 if (m_IDs.TryGetValue(value, out StateInfo info))
                 {
@@ -85,7 +80,7 @@ namespace Game.Model.Logics
 
             private StateInfo NeedInfo(Enum state)
             {
-                state ??= InternalType.Null;
+                state ??= null;
                 StateInfo info = !m_IDs.ContainsKey(state) 
                     ? new StateInfo(this, state) 
                     : m_IDs[state];
@@ -161,5 +156,6 @@ namespace Game.Model.Logics
                 }
             }
         }
+        */
     }
 }

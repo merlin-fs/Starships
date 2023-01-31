@@ -45,12 +45,15 @@ namespace Game.Model.Weapons
             Init,
             Shooting,
             Shoot,
+
+            bomb,
+
             Reload,
             Sleep,
         }
-        public enum Result
+
+        public enum Condition
         { 
-            Done,
             NoAmmo,
         }
 

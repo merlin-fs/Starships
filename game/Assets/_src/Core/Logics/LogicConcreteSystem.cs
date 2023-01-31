@@ -6,7 +6,7 @@ using Unity.Entities;
 namespace Game.Model.Logics
 {
     [UpdateInGroup(typeof(GameLogicSystemGroup), OrderFirst = true)]
-    public abstract partial class LogicConcreteSystem : SystemBase, Logic.IConfigurator
+    public abstract partial class LogicConcreteSystem : SystemBase//, Logic.IConfigurator
     {
         protected EntityQuery m_Query;
         
@@ -35,7 +35,7 @@ namespace Game.Model.Logics
             }
         }
 
-        void Logic.IConfigurator.Init(Logic.LogicDef config) => Init(config);
+        //void Logic.IConfigurator.Init(Logic.LogicDef config) => Init(config);
 
         protected abstract void Init(Logic.LogicDef config);
 

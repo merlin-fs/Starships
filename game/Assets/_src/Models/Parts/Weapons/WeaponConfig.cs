@@ -12,6 +12,7 @@ namespace Game.Model.Weapons
     /// <summary>
     /// Конфиг оружия
     /// </summary>
+    /*
     [CreateAssetMenu(fileName = "Weapon", menuName = "Configs/Parts/Weapon")]
     public class WeaponConfig: GameObjectConfig, IConfigStats
     {
@@ -40,4 +41,5 @@ namespace Game.Model.Weapons
             Logic.Init();
         }
     }
+    */
 }

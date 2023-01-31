@@ -16,6 +16,7 @@ namespace Game.Model.Units
     {
         protected override void Init(Logic.LogicDef logic)
         {
+            /*
             logic.Configure()
                 .State(GlobalState.Destroy)
 
@@ -37,6 +38,7 @@ namespace Game.Model.Units
 
                 .Transition(Weapon.State.Sleep, Weapon.Result.NoAmmo, Weapon.State.Reload)
                 .Transition(Weapon.State.Sleep, Target.Result.NoTarget, Weapon.State.Shooting);
+            */
         }
 
         protected override void OnCreate()
@@ -87,9 +89,10 @@ namespace Game.Model.Units
                         var newClips = (int)weapon.Stat(Weapon.Stats.ClipSize).Value;
 
                         if (weapon.Reload(new DefExt.WriterContext(Writer, idx), newClips))
-                            logic.TrySetResult(Weapon.Result.Done);
+                            //!!!
+                            logic.TrySetResult(Weapon.Condition.NoAmmo);
                         else
-                            logic.TrySetResult(Weapon.Result.NoAmmo);
+                            logic.TrySetResult(Weapon.Condition.NoAmmo);
                         break;
 
                     case Weapon.State.Reload:
@@ -101,9 +104,10 @@ namespace Game.Model.Units
                             var count = (int)weapon.Stat(Weapon.Stats.ClipSize).Value;
 
                             if (weapon.Reload(new DefExt.WriterContext(Writer, idx), count))
-                                logic.TrySetResult(Weapon.Result.Done);
+                                //!!!
+                                logic.TrySetResult(Weapon.Condition.NoAmmo);
                             else
-                                logic.TrySetResult(Weapon.Result.NoAmmo);
+                                logic.TrySetResult(Weapon.Condition.NoAmmo);
                         }
                         break;
 
@@ -112,7 +116,7 @@ namespace Game.Model.Units
                         if (weapon.Unit != Entity.Null)
                             weapon.SetSoughtTeams(Teams[weapon.Unit].EnemyTeams);
                         else
-                            logic.TrySetResult(Target.Result.NoTarget);
+                            logic.TrySetResult(Target.Condition.Dead);
                         break;
 
                     case Weapon.State.Shooting:
@@ -126,7 +130,7 @@ namespace Game.Model.Units
 
                         if (weapon.Count == 0)
                         {
-                            logic.TrySetResult(Weapon.Result.NoAmmo);
+                            logic.TrySetResult(Weapon.Condition.NoAmmo);
                             return;
                         }
 
@@ -134,13 +138,15 @@ namespace Game.Model.Units
                         if (weapon.Time >= weapon.Stat(Weapon.Stats.Rate).Value)
                         {
                             weapon.Time = 0;
-                            logic.TrySetResult(Weapon.Result.Done);
+                            //!!!
+                            logic.TrySetResult(Weapon.Condition.NoAmmo);
                         }
                         break;
 
                     case Weapon.State.Shoot:
                         weapon.Shot(new DefExt.WriterContext(Writer, idx));
-                        logic.TrySetResult(Weapon.Result.Done);
+                        //!!!
+                        logic.TrySetResult(Weapon.Condition.NoAmmo);
                         break;
 
                     case Weapon.State.Sleep:

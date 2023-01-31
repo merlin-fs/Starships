@@ -12,6 +12,7 @@ namespace Game.Model.Units
     {
         protected override void Init(Logic.LogicDef logic)
         {
+            /*
             logic.Configure()
                 .State(GlobalState.Destroy)
 
@@ -20,6 +21,7 @@ namespace Game.Model.Units
                 //.Transition(Move.State.Init, Move.Result.Done, Target.State.Find)
                 .Transition(Target.State.Find, Target.Result.NoTarget, Target.State.Find)
                 .Transition(Target.State.Find, Target.Result.Found, Target.State.Find);
+            */
         }
 
         protected override void OnCreate()

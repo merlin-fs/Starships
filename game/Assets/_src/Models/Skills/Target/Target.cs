@@ -16,10 +16,10 @@ namespace Game.Model
             Find,
         }
 
-        public enum Result
+        public enum Condition
         {
             Found,
-            NoTarget,
+            Dead,
         }
     }
 }

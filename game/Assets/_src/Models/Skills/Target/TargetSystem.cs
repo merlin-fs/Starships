@@ -71,11 +71,12 @@ namespace Game.Model
                     case Target.State.Find:
                         if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value, out data.WorldTransform))
                         {
-                            logic.TrySetResult(Target.Result.Found);
+                            logic.TrySetResult(Target.Condition.Found);
                         }
                         else
                         {
-                            logic.TrySetResult(Target.Result.NoTarget);
+                            //!!!
+                            logic.TrySetResult(Target.Condition.Dead);
                         }
                         break;
                 }
