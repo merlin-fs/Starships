@@ -16,7 +16,7 @@ namespace Game.Model.Logics
                 m_States = new NativeHashMap<LogicHandle, bool>(1, allocator);
             }
 
-            public NativeHashMap<LogicHandle, bool> .ReadOnly GetReadOnly()
+            public NativeHashMap<LogicHandle, bool>.ReadOnly GetReadOnly()
             {
                 return m_States.AsReadOnly();
             }

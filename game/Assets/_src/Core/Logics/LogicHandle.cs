@@ -58,9 +58,6 @@ namespace Game.Model.Logics
         public int CompareTo(LogicHandle other)
         {
             return m_ID - other.m_ID;
-            //return (int)((uint)m_ID - (uint)other.m_ID);
-            //return string.Compare(m_Name.ToString(), other.m_Name.ToString());
         }
-
     }
 }

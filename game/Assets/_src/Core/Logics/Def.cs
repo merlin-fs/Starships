@@ -12,8 +12,8 @@ namespace Game.Model.Logics
         [Serializable]
         public partial class LogicDef : IDef<Logic>
         {
-            private Dictionary<LogicHandle, GoapAction> m_Actions = new Dictionary<LogicHandle, GoapAction>();
-            private Map<LogicHandle, LogicHandle> m_Effects = new Map<LogicHandle, LogicHandle>(true);
+            private Dictionary<LogicHandle, ConfigAction> m_Actions = new Dictionary<LogicHandle, ConfigAction>();
+            private Map<GoalHandle, LogicHandle> m_Effects = new Map<GoalHandle, LogicHandle>(true);
 
             private LogicHandle m_Goal;
             private bool m_GoalValue;
@@ -30,18 +30,16 @@ namespace Game.Model.Logics
 
             public ConfigAction AddAction(Enum value)
             {
-                var config = new ConfigAction(value, (ref GoapAction action) =>
-                {
-                    m_Actions.Add(action.Handle, action);
-                }, m_Effects);
+                var config = new ConfigAction(value, m_Effects);
+                m_Actions.Add(config.Action.Handle, config);
                 return config;
             }
 
-            public IEnumerable<LogicHandle> GetActionsFromGoal(LogicHandle goal)
+            public IEnumerable<LogicHandle> GetActionsFromGoal(GoalHandle goal)
             {
                 m_Effects.TryGetValues(goal, out IEnumerable<LogicHandle> values);
                 return values;
-            }
+            } 
 
             public void AddGoal(Enum goal, bool value)
             {
@@ -49,9 +47,14 @@ namespace Game.Model.Logics
                 m_GoalValue = value;
             }
 
+            public GoapAction GetAction(LogicHandle handle)
+            {
+                return m_Actions[handle].Action;
+            }
+
             public NativeArray<GoapAction> GetActions(Allocator allocator)
             {
-                return new NativeArray<GoapAction>(m_Actions.Values.ToArray(), allocator);
+                return new NativeArray<GoapAction>(m_Actions.Values.Select(c => c.Action).ToArray(), allocator);
             }
 
             public class ConfigAction
@@ -59,14 +62,13 @@ namespace Game.Model.Logics
                 public delegate void AddAction(ref GoapAction action);
 
                 private GoapAction m_Action;
-                private ref GoapAction Action => ref m_Action;
-                private Map<LogicHandle, LogicHandle> m_Hash;
+                public ref GoapAction Action => ref m_Action;
+                private Map<GoalHandle, LogicHandle> m_Hash;
 
-                public ConfigAction(Enum value, AddAction callback, Map<LogicHandle, LogicHandle> hash)
+                public ConfigAction(Enum value, Map<GoalHandle, LogicHandle> hash)
                 {
                     m_Hash = hash;
                     m_Action = new GoapAction(LogicHandle.FromEnum(value));
-                    callback(ref Action);
                 }
 
                 public ConfigAction AddPreconditions(Enum condition, bool value)
@@ -78,8 +80,14 @@ namespace Game.Model.Logics
                 public ConfigAction AddEffect(Enum effect, bool value)
                 {
                     var handle = LogicHandle.FromEnum(effect);
-                    m_Hash.Add(handle, Action.Handle);
+                    m_Hash.Add(GoalHandle.FromHandle(handle, value), Action.Handle);
                     m_Action.GetWriter().AddEffect(handle, value);
+                    return this;
+                }
+
+                public ConfigAction Cost(float value)
+                {
+                    m_Action.GetWriter().SetCost(value);
                     return this;
                 }
             }

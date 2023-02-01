@@ -8,6 +8,7 @@ using Game.Model.Logics;
 using Game.Model;
 using Game.Model.Weapons;
 using static Game.Model.Logics.Logic;
+using System.Linq;
 
 public class TestGoapPlan : MonoBehaviour
 {
@@ -21,28 +22,46 @@ public class TestGoapPlan : MonoBehaviour
     void Start()
     {
         m_Button.onClick.AddListener(OnClick);
+        PlanFinder.Init();
     }
 
     void OnClick()
     {
-        //(var goal, var value) = m_Logic.Logic.GetGoal();
-        using var actions = m_Logic.Logic.GetActions(Allocator.Persistent);
         var woldStates = new States(Allocator.Persistent);
-
         woldStates
-            .SetState(Move.Condition.Init, false)
+            .SetState(Move.Condition.Init, true)
             .SetState(Target.Condition.Dead, false)
             .SetState(Target.Condition.Found, false)
-            .SetState(Weapon.Condition.NoAmmo, false);
+            .SetState(Weapon.Condition.NoAmmo, false)
+            .SetState(Weapon.Condition.HasAmo, true);
+
 
         var goal = new States(Allocator.Persistent)
             .SetState(Target.Condition.Dead, true)
             .SetState(Move.Condition.Init, true);
 
-        var plan = PlanFinder.Execute(LogicHandle.Null, goal, m_Logic.Logic, actions, woldStates);
+        var sw = new System.Diagnostics.Stopwatch();
+        NativeArray<LogicHandle> plan = default;
+
+        sw.Start();
+        plan = PlanFinder.Execute(0, m_Logic.Logic, goal, woldStates, Allocator.Persistent);
+        Debug.Log($"{string.Join(", ", plan.ToArray().Select(i => $"{i}"))}, {sw.Elapsed}");
+        plan.Dispose();
 
         woldStates.SetState(Weapon.Condition.NoAmmo, true);
 
-        plan = PlanFinder.Execute(LogicHandle.Null, goal, m_Logic.Logic, actions, woldStates);
+        sw.Restart();
+        plan = PlanFinder.Execute(0, m_Logic.Logic, goal, woldStates, Allocator.Persistent);
+        Debug.Log($"{string.Join(", ", plan.ToArray().Select(i => $"{i}"))}, {sw.Elapsed}");
+        plan.Dispose();
+
+        woldStates
+            .SetState(Weapon.Condition.NoAmmo, true)
+            .SetState(Weapon.Condition.HasAmo, false);
+
+        sw.Restart();
+        plan = PlanFinder.Execute(0, m_Logic.Logic, goal, woldStates, Allocator.Persistent);
+        Debug.Log($"{string.Join(", ", plan.ToArray().Select(i => $"{i}"))}, {sw.Elapsed}");
+        plan.Dispose();
     }
 }

@@ -53,7 +53,7 @@ namespace Unity.Collections
 
         public bool TryGetValues(TKey key, out IEnumerable<TValue> values)
         {
-            var low = m_Tree.Lower_bound(key);
+            var low = m_Tree.Find(key);
             var high = m_Tree.Upper_bound(key);
             values = !m_Tree.atEnd(low)
                 ? new Enumerable(low, high) 

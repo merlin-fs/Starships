@@ -55,6 +55,7 @@ namespace Game.Model.Weapons
         public enum Condition
         { 
             NoAmmo,
+            HasAmo,
         }
 
         /// <summary>

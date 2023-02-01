@@ -25,6 +25,13 @@ namespace Game.Model.Logics
                 m_Data = null;
             }
 
+
+            public NativeHashMap<LogicHandle, bool>.ReadOnly GetEffects()
+            {
+                return m_Effects.GetReadOnly();
+            }
+
+
             public void Dispose()
             {
                 m_Preconditions.Dispose();
@@ -34,6 +41,11 @@ namespace Game.Model.Logics
             public bool CanTransition(States states)
             {
                 return m_Preconditions.All(states);
+            }
+
+            public States GetPreconditions()
+            {
+                return m_Preconditions;
             }
 
             public void ApplyEffect(States states)
