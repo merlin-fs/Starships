@@ -1,0 +1,8 @@
+.ge-port--data-type-execution-flow .ge-port__icon {
+	--port-color: #b4ff69;
+    --unity-image: url("Icons/Favorite@x3.png");
+}
+
+.ge-node--collapsed .ge-port--not-connected {
+    --port-color: #b4ff69;
+}
