@@ -10,7 +10,7 @@ namespace Common.States.Editor
 {
     public class SmGraphAssetModel : GraphAssetModel
     {
-        [MenuItem("Assets/Create/StateMachine")]
+        [MenuItem("Assets/Create/Configs/Goap")]
         public static void CreateGraph(MenuCommand menuCommand)
         {
             const string path = "Assets";

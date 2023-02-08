@@ -8,15 +8,10 @@ namespace Game.Model.Logics
         {
             public bool IsValid => true;
             public int LogicID => 0;
-            public Enum GetState(int value) => null;
-            public bool TryGetID(Enum value, out int id)
-            {
-                id = 0;
-                return false;
-            }
             public void Init() { }
-            public int GetNextState(ref Logic logic, int resultId) => 0;
+            public LogicHandle GetNextAction(ref Logic logic) => LogicHandle.Null;
         }
+
         /*
         public interface IConfigurator
         {

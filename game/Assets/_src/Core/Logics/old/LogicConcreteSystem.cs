@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-
 using Unity.Entities;
 
+/*
 namespace Game.Model.Logics
 {
     [UpdateInGroup(typeof(GameLogicSystemGroup), OrderFirst = true)]
@@ -41,3 +41,4 @@ namespace Game.Model.Logics
 
     }
 }
+*/

@@ -12,71 +12,35 @@ namespace Game.Model.Logics
         [DontSerialize]
         private readonly Def<LogicDef> m_Def;
         
-        private int m_State;
-        public int m_Result;
-        private int m_LogicID;
+        private LogicHandle m_Action;
         private bool m_Work;
 
-        public int StateID => m_State;
-        public bool IsValid => m_Def.Value.IsValid;
-        public int LogicID => m_LogicID;
+        [CreateProperty]
+        public LogicHandle CurrentAction => m_Action;
+        [CreateProperty]
         public bool IsWork => m_Work;
-
-        [CreateProperty]
-        public Enum CurrentState => GetValue(m_State);
-        [CreateProperty]
-        public Enum CurrentResult => GetValue(m_Result);
-
-        public Enum GetValue(int id)
-        {
-            return m_Def.Value.GetState(id);
-        }
 
         public Logic(Def<LogicDef> def)
         {
             m_Def = def;
             m_Work = false;
-            def.Value.TryGetID(null, out m_State);
-            def.Value.TryGetID(null, out m_Result);
-            m_LogicID = def.Value.LogicID;
+            m_Action = LogicHandle.Null;
         }
 
-        public void SetState(int value)
+        public void SetState(LogicHandle value)
         {
-            m_State = value;
+            m_Action = value;
             m_Work = true;
         }
 
-        public int GetNextState()
+        public void SetDone()
         {
-            return m_Def.Value.GetNextState(ref this, m_Result);
+            m_Work = false;
         }
 
-        public int GetNextState(int value)
+        public LogicHandle GetNextState()
         {
-            return m_Def.Value.GetNextState(ref this, value);
-        }
-
-        public bool HasState(Enum value)
-        {
-            return m_Def.Value.TryGetID(value, out int _);
-        }
-
-        public void TrySetState(Enum value)
-        {
-            if (m_Def.Value.TryGetID(value, out int id))
-                SetState(id);
-        }
-
-        public void TrySetResult(Enum value)
-        {
-            if (m_Def.Value.TryGetID(value, out int id))
-            {
-                m_Result = id;
-                m_Work = false;
-            }
-            else
-                throw new ArgumentException($"{value} is not result this machine");
+            return m_Def.Value.GetNextAction(ref this);
         }
     }
 }

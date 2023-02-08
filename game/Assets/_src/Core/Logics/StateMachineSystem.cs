@@ -1,12 +1,12 @@
 using System;
-using Game.Model.Stats;
-
 using Unity.Entities;
 
 namespace Game.Model.Logics
 {
+    using Stats;
+
     [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderLast = true)]
-    public partial class LogicSystem : SystemBase
+    public partial class StateMachineSystem : SystemBase
     {
         EntityQuery m_Query;
 
@@ -20,13 +20,10 @@ namespace Game.Model.Logics
             RequireForUpdate(m_Query);
         }
 
-        partial struct LogicJob : IJobEntity
+        partial struct StateMachineJob : IJobEntity
         {
             void Execute([WithChangeFilter(typeof(Logic))] ref LogicAspect logic)
             {
-                if (!logic.IsValid)
-                    return;
-
                 if (!logic.IsWork)
                 {
                     var next = logic.GetNextState();
@@ -37,7 +34,7 @@ namespace Game.Model.Logics
 
         protected override void OnUpdate()
         {
-            var selectJob = new LogicJob()
+            var selectJob = new StateMachineJob()
             {
             };
             var handle = selectJob.ScheduleParallel(m_Query, Dependency);
