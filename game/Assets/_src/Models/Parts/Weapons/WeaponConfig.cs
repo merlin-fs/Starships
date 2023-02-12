@@ -12,19 +12,18 @@ namespace Game.Model.Weapons
     /// <summary>
     /// Конфиг оружия
     /// </summary>
-    /*
     [CreateAssetMenu(fileName = "Weapon", menuName = "Configs/Parts/Weapon")]
     public class WeaponConfig: GameObjectConfig, IConfigStats
     {
         public Weapon.WeaponDef Value = new Weapon.WeaponDef();
-        public Logic.LogicDef Logic = new Logic.LogicDef();
+        public LogicConfig Logic;
 
         protected override void Configurate(Entity prefab, IDefineableContext context)
         {
             base.Configurate(prefab, context);
             Value.AddComponentData(prefab, context);
-            if (Logic.IsValid)
-                Logic.AddComponentData(prefab, context);
+            if (Logic is IConfig config)
+                config.Configurate(prefab, context);
         }
 
         void IConfigStats.Configurate(DynamicBuffer<Stat> stats)
@@ -35,11 +34,5 @@ namespace Game.Model.Weapons
             stats.AddStat(Weapon.Stats.ReloadTime, Value.ReloadTime);
             stats.AddStat(Weapon.Stats.ClipSize, Value.ClipSize);
         }
-
-        public override void OnAfterDeserialize()
-        {
-            Logic.Init();
-        }
     }
-    */
 }

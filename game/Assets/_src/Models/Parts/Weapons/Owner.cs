@@ -3,8 +3,8 @@ using Unity.Entities;
 
 namespace Game.Model
 {
-    public struct Part: IComponentData
+    public struct Root: IComponentData
     {
-        public Entity Unit;
+        public Entity Value;
     }
 }

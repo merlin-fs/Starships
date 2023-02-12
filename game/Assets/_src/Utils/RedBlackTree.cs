@@ -12,9 +12,9 @@ namespace Unity.Collections
     {
         DRedBlackTree<TKey, TValue> m_Tree;
 
-        public Map(bool insertAlways)
+        public Map(int capacity, AllocatorManager.AllocatorHandle allocator, bool insertAlways)
         {
-            m_Tree = new DRedBlackTree<TKey, TValue>(1, Allocator.Persistent, insertAlways);
+            m_Tree = new DRedBlackTree<TKey, TValue>(capacity, allocator, insertAlways);
         }
 
         public void Dispose()

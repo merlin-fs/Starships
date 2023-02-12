@@ -17,14 +17,13 @@ MonoBehaviour:
   Value:
     Parts:
     - Child: {fileID: 11400000, guid: d1923d49bbd41c64abecd1d6199aaf7d, type: 2}
-      PrefabObject: {fileID: 1214454638534738304, guid: 1688c5823dca4a64a9c7e123bb1dee5b,
+      PrefabObject: {fileID: 3758233817938580044, guid: 1688c5823dca4a64a9c7e123bb1dee5b,
         type: 3}
     Speed:
       rid: 129887608927158280
     Health:
       rid: 129887608927158279
-  Logic:
-    m_Configurator: Game.Model.Units.LogicMeteorite
+  Logic: {fileID: 11400000, guid: 62c92162166a388489fdd8e6bc4988c9, type: 2}
   Team:
     m_SelfTeam:
       Value: 2
@@ -41,5 +40,5 @@ MonoBehaviour:
     - rid: 129887608927158280
       type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
-        Min: 1
-        Max: 8
+        Min: 2
+        Max: 3

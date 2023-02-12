@@ -5,11 +5,13 @@ using Common.Core;
 
 namespace Game.Model.Weapons
 {
+    using static Game.Model.Logics.Logic;
+
     /// <summary>
     /// Реализация оружия
     /// </summary>
     [Serializable]
-    public struct Weapon: IPart, IDefineable, IComponentData, IDefineableCallback
+    public partial struct Weapon: IPart, IDefineable, IComponentData, IDefineableCallback, IStateData
     {
         private readonly Def<WeaponDef> m_Def;
         public WeaponDef Def => m_Def.Value;
@@ -40,7 +42,7 @@ namespace Game.Model.Weapons
         /// <summary>
         /// Состояние оружия
         /// </summary>
-        public enum State
+        public enum Action
         {
             Init,
             Shooting,
@@ -52,7 +54,7 @@ namespace Game.Model.Weapons
             Sleep,
         }
 
-        public enum Condition
+        public enum State
         { 
             NoAmmo,
             HasAmo,

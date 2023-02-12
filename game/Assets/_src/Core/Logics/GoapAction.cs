@@ -1,6 +1,7 @@
 using System;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Entities;
 
 namespace Game.Model.Logics
 {
@@ -43,14 +44,36 @@ namespace Game.Model.Logics
                 return m_Preconditions.All(states);
             }
 
+            public bool CanTransition(DynamicBuffer<WorldState> states, LogicDef def)
+            {
+                foreach (var iter in m_Preconditions.GetReadOnly())
+                {
+                    var index = def.StateMapping[iter.Key].Index;
+                    if (states[index].Value != iter.Value)
+                        return false;
+                }
+                return true;
+            }
+
             public States GetPreconditions()
             {
                 return m_Preconditions;
             }
 
-            public void ApplyEffect(States states)
+            public void ApplyEffect(BufferLookup<WorldState> states, LogicDef def)
             {
-                states.SetState(m_Effects);
+                //states.SetState(m_Effects);
+            }
+
+            public bool IsSuccess(DynamicBuffer<WorldState> states, LogicDef def)
+            {
+                foreach (var iter in m_Effects.GetReadOnly())
+                {
+                    var index = def.StateMapping[iter.Key].Index;
+                    if (states[index].Value != iter.Value)
+                        return false;
+                }
+                return true;
             }
 
             public Writer GetWriter() => new Writer(ref this);

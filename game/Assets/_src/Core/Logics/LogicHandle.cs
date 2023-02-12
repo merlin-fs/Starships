@@ -1,10 +1,10 @@
 using System;
-
 using Unity.Collections;
+using Unity.Entities;
 
 namespace Game.Model.Logics
 {
-    public readonly struct LogicHandle : IEquatable<LogicHandle>, IComparable<LogicHandle>
+    public readonly struct LogicHandle : IEquatable<LogicHandle>, IComparable<LogicHandle>, IBufferElementData
     {
         private readonly int m_ID;
 
@@ -15,14 +15,27 @@ namespace Game.Model.Logics
         public static LogicHandle FromEnum(Enum value)
         {
             return new LogicHandle(
-                new Unity.Mathematics.int2(value.GetType().GetHashCode(), value.GetHashCode()).GetHashCode(),
+                new Unity.Mathematics.int2(value.GetType().MetadataToken, value.GetHashCode()).GetHashCode(),
+                $"{value} ({value.GetType().DeclaringType.Name})");
+        }
+
+        public static LogicHandle FromEnumTest(Enum value)
+        {
+            return new LogicHandle(
+                new Unity.Mathematics.int2(value.GetType().MetadataToken, value.GetHashCode()).GetHashCode(), null);
+        }
+
+        public static LogicHandle FromType(Type value)
+        {
+            return new LogicHandle(
+                new Unity.Mathematics.int2(value.MetadataToken, value.GetHashCode()).GetHashCode(),
                 $"{value} ({value.GetType().DeclaringType.Name})");
         }
 
         private LogicHandle(int id, string name)
         {
             m_ID = id;
-            m_Name = name;
+            m_Name = name ?? default(FixedString64Bytes);
         }
 
         public override string ToString()

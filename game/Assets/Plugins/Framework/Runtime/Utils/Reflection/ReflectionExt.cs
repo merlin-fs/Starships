@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace System.Reflection.Ext
+namespace System.Reflection
 {
 	#if UNITY_EDITOR
 	public static class ReflectionEditorExt
@@ -115,6 +115,15 @@ namespace System.Reflection.Ext
 
     public static class ReflectionExt
     {
+        public static IEnumerable<Type> GetDerivedTypes(this Type baseType, bool includeAbstract)
+        {
+            var types = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(s => s.GetTypes())
+                .Where(p => baseType.IsAssignableFrom(p));
+            return includeAbstract ? types : types.Where(type => !type.IsAbstract);
+        }
+        
+
         public static bool IsSubclassOf(Type rType, Type rBaseType)
         {
             return rType == rBaseType || rType.IsSubclassOf(rBaseType);

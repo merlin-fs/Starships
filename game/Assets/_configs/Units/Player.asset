@@ -23,8 +23,7 @@ MonoBehaviour:
       rid: 129887608927158276
     Health:
       rid: 129887608927158278
-  Logic:
-    m_Configurator: Game.Model.Units.LogicUnit
+  Logic: {fileID: 0}
   Team:
     m_SelfTeam:
       Value: 1

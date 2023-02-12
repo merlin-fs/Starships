@@ -1,0 +1,368 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 769404b436f500e4996e55b576adeed3, type: 3}
+  m_Name: Recipe
+  m_EditorClassIdentifier: 
+  m_GraphModel:
+    rid: 7383090937395675139
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 7383090937395675139
+      type: {class: RecipeGraphModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.Samples.Recipes,
+        asm: RecipesEditor}
+      data:
+        m_AssetModel: {fileID: 11400000}
+        m_GraphNodeModels:
+        - rid: 7383090937395675141
+        - rid: 7383090937395675144
+        - rid: 7383090937395675145
+        - rid: 7383090937395675146
+        - rid: 7383090937395675150
+        - rid: 7383090937395675153
+        - rid: 7383090937395675154
+        - rid: 7383090937395675165
+        m_EdgeModels: []
+        m_BadgeModels: []
+        m_GraphEdgeModels:
+        - rid: 7383090937395675147
+        - rid: 7383090937395675162
+        - rid: 7383090937395675163
+        m_PolymorphicEdgeModels: []
+        m_StickyNoteModels: []
+        m_GraphStickyNoteModels: []
+        m_PlacematModels: []
+        m_GraphPlacematModels: []
+        m_GraphVariableModels:
+        - rid: 7383090937395675149
+        - rid: 7383090937395675151
+        - rid: 7383090937395675152
+        - rid: 7383090937395675164
+        m_GraphPortalModels: []
+        m_Name: 
+        m_StencilTypeName: UnityEditor.GraphToolsFoundation.Overdrive.Samples.Recipes.RecipeStencil,
+          RecipesEditor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+    - rid: 7383090937395675141
+      type: {class: MixNodeModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.Samples.Recipes,
+        asm: RecipesEditor}
+      data:
+        m_Guid:
+          m_Value0: 11906264016381081764
+          m_Value1: 4845433091243717036
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_Position: {x: 326, y: -91.59999}
+        m_Title: Mix
+        m_InputConstantsById:
+          m_KeyList: []
+          m_ValueList: []
+        m_State: 0
+        m_Collapsed: 0
+        m_IngredientCount: 2
+    - rid: 7383090937395675144
+      type: {class: BeatNodeModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.Samples.Recipes,
+        asm: RecipesEditor}
+      data:
+        m_Guid:
+          m_Value0: 1988449722625789433
+          m_Value1: 16145625407133455725
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_Position: {x: 589.2, y: 122.8}
+        m_Title: Beat
+        m_InputConstantsById:
+          m_KeyList: []
+          m_ValueList: []
+        m_State: 0
+        m_Collapsed: 0
+    - rid: 7383090937395675145
+      type: {class: BakeNodeModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.Samples.Recipes,
+        asm: RecipesEditor}
+      data:
+        m_Guid:
+          m_Value0: 9883397185219031735
+          m_Value1: 12070513381752942230
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_Position: {x: 157.20001, y: 373.2}
+        m_Title: Bake
+        m_InputConstantsById:
+          m_KeyList: []
+          m_ValueList: []
+        m_State: 0
+        m_Collapsed: 0
+        m_TemperatureC: 180
+        m_Minutes: 60
+    - rid: 7383090937395675146
+      type: {class: FryNodeModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.Samples.Recipes,
+        asm: RecipesEditor}
+      data:
+        m_Guid:
+          m_Value0: 6717985089232285863
+          m_Value1: 1798703348265926625
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_Position: {x: 468.80002, y: 245.8}
+        m_Title: Fry
+        m_InputConstantsById:
+          m_KeyList: []
+          m_ValueList: []
+        m_State: 0
+        m_Collapsed: 0
+    - rid: 7383090937395675147
+      type: {class: EdgeModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.BasicModel,
+        asm: Unity.GraphTools.Foundation.Overdrive.Model}
+      data:
+        m_Guid:
+          m_Value0: 8618324407846886018
+          m_Value1: 17654020191729250568
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_FromPortReference:
+          m_NodeModelGuid:
+            m_Value0: 9883397185219031735
+            m_Value1: 12070513381752942230
+          m_GraphAssetModel: {fileID: 11400000}
+          m_UniqueId: Result
+        m_ToPortReference:
+          m_NodeModelGuid:
+            m_Value0: 6717985089232285863
+            m_Value1: 1798703348265926625
+          m_GraphAssetModel: {fileID: 11400000}
+          m_UniqueId: Ingredients
+        m_EdgeControlPoints: []
+        m_EditMode: 0
+        m_EdgeLabel: 
+    - rid: 7383090937395675149
+      type: {class: VariableDeclarationModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.BasicModel,
+        asm: Unity.GraphTools.Foundation.Overdrive.Model}
+      data:
+        m_Guid:
+          m_Value0: 11245365714294500001
+          m_Value1: 4103133756084502726
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_Name: Ingredient
+        m_DataType:
+          Identification: Ingredient
+        m_IsExposed: 1
+        m_Tooltip: 
+        m_InitializationValue:
+          rid: -2
+        m_Modifiers: 0
+        variableFlags: 0
+    - rid: 7383090937395675150
+      type: {class: VariableNodeModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.BasicModel,
+        asm: Unity.GraphTools.Foundation.Overdrive.Model}
+      data:
+        m_Guid:
+          m_Value0: 4980676647606810189
+          m_Value1: 11366146608946016430
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0.9433962, g: 0.26548037, b: 0.0658597, a: 0.74509805}
+        m_HasUserColor: 1
+        m_Version: 1
+        m_Position: {x: 113.99999, y: -64.8}
+        m_Title: Ingredient
+        m_InputConstantsById:
+          m_KeyList: []
+          m_ValueList: []
+        m_State: 0
+        m_Collapsed: 0
+        m_DeclarationModel:
+          rid: 7383090937395675149
+    - rid: 7383090937395675151
+      type: {class: VariableDeclarationModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.BasicModel,
+        asm: Unity.GraphTools.Foundation.Overdrive.Model}
+      data:
+        m_Guid:
+          m_Value0: 2592548942381403529
+          m_Value1: 8775025521819113659
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_Name: Ingredient0
+        m_DataType:
+          Identification: Ingredient
+        m_IsExposed: 1
+        m_Tooltip: 
+        m_InitializationValue:
+          rid: -2
+        m_Modifiers: 0
+        variableFlags: 0
+    - rid: 7383090937395675152
+      type: {class: VariableDeclarationModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.BasicModel,
+        asm: Unity.GraphTools.Foundation.Overdrive.Model}
+      data:
+        m_Guid:
+          m_Value0: 2582405242416153021
+          m_Value1: 17960163502915451761
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_Name: Ingredient1
+        m_DataType:
+          Identification: Ingredient
+        m_IsExposed: 1
+        m_Tooltip: 
+        m_InitializationValue:
+          rid: -2
+        m_Modifiers: 0
+        variableFlags: 0
+    - rid: 7383090937395675153
+      type: {class: VariableNodeModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.BasicModel,
+        asm: Unity.GraphTools.Foundation.Overdrive.Model}
+      data:
+        m_Guid:
+          m_Value0: 5030277952636686282
+          m_Value1: 9103138271208149670
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_Position: {x: 79.600006, y: 151.59999}
+        m_Title: Ingredient 0
+        m_InputConstantsById:
+          m_KeyList: []
+          m_ValueList: []
+        m_State: 0
+        m_Collapsed: 0
+        m_DeclarationModel:
+          rid: 7383090937395675151
+    - rid: 7383090937395675154
+      type: {class: VariableNodeModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.BasicModel,
+        asm: Unity.GraphTools.Foundation.Overdrive.Model}
+      data:
+        m_Guid:
+          m_Value0: 5628676323092277054
+          m_Value1: 848202663269472688
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_Position: {x: 73.200005, y: 187}
+        m_Title: Ingredient 1
+        m_InputConstantsById:
+          m_KeyList: []
+          m_ValueList: []
+        m_State: 0
+        m_Collapsed: 0
+        m_DeclarationModel:
+          rid: 7383090937395675152
+    - rid: 7383090937395675162
+      type: {class: EdgeModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.BasicModel,
+        asm: Unity.GraphTools.Foundation.Overdrive.Model}
+      data:
+        m_Guid:
+          m_Value0: 17656505175852194238
+          m_Value1: 9661243374549490903
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_FromPortReference:
+          m_NodeModelGuid:
+            m_Value0: 4980676647606810189
+            m_Value1: 11366146608946016430
+          m_GraphAssetModel: {fileID: 11400000}
+          m_UniqueId: MainPortName
+        m_ToPortReference:
+          m_NodeModelGuid:
+            m_Value0: 11906264016381081764
+            m_Value1: 4845433091243717036
+          m_GraphAssetModel: {fileID: 11400000}
+          m_UniqueId: Ingredient 1
+        m_EdgeControlPoints: []
+        m_EditMode: 0
+        m_EdgeLabel: 
+    - rid: 7383090937395675163
+      type: {class: EdgeModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.BasicModel,
+        asm: Unity.GraphTools.Foundation.Overdrive.Model}
+      data:
+        m_Guid:
+          m_Value0: 14523588927392022409
+          m_Value1: 6763590631865500343
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_FromPortReference:
+          m_NodeModelGuid:
+            m_Value0: 11906264016381081764
+            m_Value1: 4845433091243717036
+          m_GraphAssetModel: {fileID: 11400000}
+          m_UniqueId: Result
+        m_ToPortReference:
+          m_NodeModelGuid:
+            m_Value0: 1988449722625789433
+            m_Value1: 16145625407133455725
+          m_GraphAssetModel: {fileID: 11400000}
+          m_UniqueId: Ingredient
+        m_EdgeControlPoints: []
+        m_EditMode: 0
+        m_EdgeLabel: 
+    - rid: 7383090937395675164
+      type: {class: VariableDeclarationModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.BasicModel,
+        asm: Unity.GraphTools.Foundation.Overdrive.Model}
+      data:
+        m_Guid:
+          m_Value0: 2260207287219036823
+          m_Value1: 18197271164861767145
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_Name: Cookware
+        m_DataType:
+          Identification: Cookware
+        m_IsExposed: 1
+        m_Tooltip: 
+        m_InitializationValue:
+          rid: -2
+        m_Modifiers: 0
+        variableFlags: 0
+    - rid: 7383090937395675165
+      type: {class: VariableNodeModel, ns: UnityEditor.GraphToolsFoundation.Overdrive.BasicModel,
+        asm: Unity.GraphTools.Foundation.Overdrive.Model}
+      data:
+        m_Guid:
+          m_Value0: 5197157863049326202
+          m_Value1: 14737696267661437868
+        m_AssetModel: {fileID: 11400000}
+        m_Color: {r: 0, g: 0, b: 0, a: 0}
+        m_HasUserColor: 0
+        m_Version: 1
+        m_Position: {x: 117.4, y: -7.199997}
+        m_Title: Cookware
+        m_InputConstantsById:
+          m_KeyList: []
+          m_ValueList: []
+        m_State: 0
+        m_Collapsed: 0
+        m_DeclarationModel:
+          rid: 7383090937395675164

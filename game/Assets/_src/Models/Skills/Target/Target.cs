@@ -4,19 +4,21 @@ using Unity.Transforms;
 
 namespace Game.Model
 {
+    using static Game.Model.Logics.Logic;
+
     [Serializable]
-    public struct Target : IComponentData
+    public partial struct Target : IComponentData, IStateData
     {
         public Entity Value;
-        public uint SoughtTeams;
         public WorldTransform WorldTransform;
+        public uint SoughtTeams;
 
-        public enum State
+        public enum Action
         {
             Find,
         }
 
-        public enum Condition
+        public enum State
         {
             Found,
             Dead,

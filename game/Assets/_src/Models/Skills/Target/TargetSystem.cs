@@ -11,121 +11,116 @@ namespace Game.Model
     using Stats;
     using Logics;
 
-    //[UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
-    [UpdateInGroup(typeof(GameLogicInitSystemGroup))]
-    public partial struct TargetSystem : ISystem
+    public partial struct Target
     {
-        EntityQuery m_Query;
-        EntityQuery m_QueryTargets;
-        ComponentLookup<WorldTransform> m_LookupTransforms;
-        ComponentLookup<Team> m_LookupTeams;
-        public void OnCreate(ref SystemState state)
+        [UpdateInGroup(typeof(GameLogicSystemGroup))]
+        public partial struct TargetSystem : ISystem
         {
-            m_QueryTargets = SystemAPI.QueryBuilder()
-                .WithAll<Team>()
-                .WithNone<DeadTag>()
-                .Build();
-
-            m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Target>()
-                .WithAll<Logic>()
-                .WithNone<DeadTag>()
-                .Build();
-
-            m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Target>());
-            state.RequireForUpdate(m_Query);
-            m_LookupTransforms = state.GetComponentLookup<WorldTransform>(true);
-            m_LookupTeams = state.GetComponentLookup<Team>(true);
-        }
-
-        public void OnDestroy(ref SystemState state) { }
-
-        public void OnUpdate(ref SystemState state)
-        {
-            m_LookupTransforms.Update(ref state);
-            m_LookupTeams.Update(ref state);
-            var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle handle);
-            var job = new Job()
+            EntityQuery m_Query;
+            EntityQuery m_QueryTargets;
+            ComponentLookup<WorldTransform> m_LookupTransforms;
+            ComponentLookup<Team> m_LookupTeams;
+            
+            public void OnCreate(ref SystemState state)
             {
-                Transforms = m_LookupTransforms,
-                Teams = m_LookupTeams,
-                Entities = entities,
-                Delta = SystemAPI.Time.DeltaTime,
-            };
-            state.Dependency = job.ScheduleParallel(m_Query, handle);
+                m_QueryTargets = SystemAPI.QueryBuilder()
+                    .WithAll<Team>()
+                    .WithNone<DeadTag>()
+                    .Build();
 
-            entities.Dispose(state.Dependency);
-        }
+                m_Query = SystemAPI.QueryBuilder()
+                    .WithAll<Target>()
+                    .WithAll<Logic>()
+                    .WithNone<DeadTag>()
+                    .Build();
 
-        partial struct Job : IJobEntity
-        {
-            public float Delta;
-            [ReadOnly] public ComponentLookup<WorldTransform> Transforms;
-            [ReadOnly] public ComponentLookup<Team> Teams;
-            [ReadOnly] public NativeList<Entity> Entities;
+                m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Target>());
+                state.RequireForUpdate(m_Query);
+                m_LookupTransforms = state.GetComponentLookup<WorldTransform>(true);
+                m_LookupTeams = state.GetComponentLookup<Team>(true);
+            }
 
-            void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target data, ref LogicAspect logic)
+            public void OnDestroy(ref SystemState state) { }
+
+            public void OnUpdate(ref SystemState state)
             {
-                switch (logic.State)
+                m_LookupTransforms.Update(ref state);
+                m_LookupTeams.Update(ref state);
+                var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle handle);
+                var job = new Job()
                 {
-                    case Target.State.Find:
-                        if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value, out data.WorldTransform))
-                        {
-                            logic.TrySetResult(Target.Condition.Found);
-                        }
-                        else
-                        {
-                            //!!!
-                            logic.TrySetResult(Target.Condition.Dead);
-                        }
-                        break;
+                    Transforms = m_LookupTransforms,
+                    Teams = m_LookupTeams,
+                    Entities = entities,
+                    Delta = SystemAPI.Time.DeltaTime,
+                };
+                state.Dependency = job.ScheduleParallel(m_Query, handle);
+
+                entities.Dispose(state.Dependency);
+            }
+
+            partial struct Job : IJobEntity
+            {
+                public float Delta;
+                [ReadOnly] public ComponentLookup<WorldTransform> Transforms;
+                [ReadOnly] public ComponentLookup<Team> Teams;
+                [ReadOnly] public NativeList<Entity> Entities;
+
+                void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target data, ref LogicAspect logic)
+                {
+                    if (!logic.IsCurrentAction(Action.Find)) return;
+
+                    if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value, out data.WorldTransform))
+                        logic.SetWorldState(State.Found, true);
+                    else
+                        logic.SetWorldState(State.Found, false);
                 }
-            }
 
-            struct TempFindTarget
-            {
-                public Entity Entity;
-                public float Magnitude;
-                public WorldTransform Transform;
-            }
-
-            public bool FindEnemy(uint soughtTeams, Entity self, float selfRadius,
-                ComponentLookup<WorldTransform> transforms, ComponentLookup<Team> teams, 
-                out Entity target, out WorldTransform transform)
-            {
-                TempFindTarget find = new TempFindTarget { Entity = Entity.Null, Magnitude = float.MaxValue };
-                var CounterLock = new object();
-                var selfPosition = transforms[self].Position;
-                var entities = Entities;
-
-                Parallel.For(0, entities.Length, (i) =>
+                struct TempFindTarget
                 {
-                    var target = entities[i];
-                    if (!teams.HasComponent(target))
-                        return;
+                    public Entity Entity;
+                    public float Magnitude;
+                    public WorldTransform Transform;
+                }
 
-                    var team = teams[target];
-                    if ((team.SelfTeam & soughtTeams) == 0)
-                        return;
+                public bool FindEnemy(uint soughtTeams, Entity self, float selfRadius,
+                    ComponentLookup<WorldTransform> transforms, ComponentLookup<Team> teams,
+                    out Entity target, out WorldTransform transform)
+                {
+                    TempFindTarget find = new TempFindTarget { Entity = Entity.Null, Magnitude = float.MaxValue };
+                    var CounterLock = new object();
+                    var selfPosition = transforms[self].Position;
+                    var entities = Entities;
 
-                    var targetPos = transforms[target].Position;
-
-                    var magnitude = (selfPosition - targetPos).magnitude();
-
-                    if (magnitude < find.Magnitude &&
-                        utils.SpheresIntersect(selfPosition, selfRadius, targetPos, 5f, out float3 vector))
+                    Parallel.For(0, entities.Length, (i) =>
                     {
-                        lock (CounterLock)
+                        var target = entities[i];
+                        if (!teams.HasComponent(target))
+                            return;
+
+                        var team = teams[target];
+                        if ((team.SelfTeam & soughtTeams) == 0)
+                            return;
+
+                        var targetPos = transforms[target].Position;
+
+                        var magnitude = (selfPosition - targetPos).magnitude();
+
+                        if (magnitude < find.Magnitude &&
+                            utils.SpheresIntersect(selfPosition, selfRadius, targetPos, 5f, out float3 vector))
                         {
-                            find.Magnitude = magnitude;
-                            find.Entity = target;
-                            find.Transform = transforms[target];
+                            lock (CounterLock)
+                            {
+                                find.Magnitude = magnitude;
+                                find.Entity = target;
+                                find.Transform = transforms[target];
+                            }
                         }
-                    }
-                });
-                target = find.Entity;
-                transform = find.Transform;
-                return target != Entity.Null;
+                    });
+                    target = find.Entity;
+                    transform = find.Transform;
+                    return target != Entity.Null;
+                }
             }
         }
     }

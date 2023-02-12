@@ -18,21 +18,23 @@ namespace Game.Model.Logics
 
             public static void Init()
             {
-                var cpus = Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount + 1;
+                var cpus = Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount + 2;
                 m_Costs = new NativeHashMap<LogicHandle, Node>[cpus];
-                Array.Fill(m_Costs, new NativeHashMap<LogicHandle, Node>(100, Allocator.Persistent));
+                for (int i = 0; i < m_Costs.Length; i++)
+                    m_Costs[i] = new NativeHashMap<LogicHandle, Node>(100, Allocator.Persistent);
 
                 m_Hierarchy = new NativeHashMap<LogicHandle, LogicHandle>[cpus];
-                Array.Fill(m_Hierarchy, new NativeHashMap<LogicHandle, LogicHandle>(100, Allocator.Persistent));
+                for (int i = 0; i < m_Hierarchy.Length; i++)
+                    m_Hierarchy[i] = new NativeHashMap<LogicHandle, LogicHandle>(100, Allocator.Persistent);
 
                 m_Queue = new SortedQueue<Node>[cpus];
-                Array.Fill(m_Queue, new SortedQueue<Node>(100, Allocator.Persistent,
+                for (int i = 0; i < m_Queue.Length; i++)
+                    m_Queue[i] = new SortedQueue<Node>(100, Allocator.Persistent,
                     (Node i1, Node i2) =>
                     {
                         float result = i1.HeuristicCost.Value - i2.HeuristicCost.Value;
                         return Math.Sign(result);
-                    }));
-
+                    });
             }
 
             public static void InitFinder(int threadIdx)
@@ -52,7 +54,9 @@ namespace Game.Model.Logics
 
             public static void Dispose()
             {
-
+                Array.ForEach(m_Costs, iter => iter.Dispose());
+                Array.ForEach(m_Hierarchy, iter => iter.Dispose());
+                Array.ForEach(m_Queue, iter => iter.Dispose());
             }
 
             public struct SortedQueue<TKey>

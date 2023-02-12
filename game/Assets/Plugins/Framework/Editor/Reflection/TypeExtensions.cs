@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace System.Reflection
 {
@@ -89,7 +88,7 @@ namespace System.Reflection
 			return false;
 		}
 
-		public static IEnumerable<Type> GetDerivedTypes(this Type baseType, bool includeAbstract)
+		public static IEnumerable<Type> EditorGetDerivedTypes(this Type baseType, bool includeAbstract)
 		{
 			var types = TypeCache.GetTypesDerivedFrom(baseType)
                 .Prepend(baseType);

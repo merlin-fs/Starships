@@ -16,12 +16,10 @@ MonoBehaviour:
     type: 3}
   Value:
     Bullet: {fileID: 11400000, guid: c94f740253ba24c4db17d250612946be, type: 2}
-    DamageType: {fileID: 0}
     Health: 5
     DamageValue: 1
     BarrelCount: 1
     ClipSize: 300
     Rate: 0.05
     ReloadTime: 1
-  Logic:
-    m_Configurator: Game.Model.Units.LogicWeapon
+  Logic: {fileID: 11400000, guid: e50676406152ff04da03a5cf707b2cd9, type: 2}

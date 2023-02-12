@@ -7,14 +7,14 @@ using Common.Defs;
 namespace Game.Model.Logics
 {
     [Serializable]
-    public partial struct Logic : IComponentData, IDefineable
+    [WriteGroup(typeof(WorldState))] 
+    public partial struct Logic : IComponentData, IDefineable, IDefineableCallback
     {
         [DontSerialize]
         private readonly Def<LogicDef> m_Def;
-        
         private LogicHandle m_Action;
         private bool m_Work;
-
+        public LogicDef Def => m_Def.Value;
         [CreateProperty]
         public LogicHandle CurrentAction => m_Action;
         [CreateProperty]
@@ -27,7 +27,7 @@ namespace Game.Model.Logics
             m_Action = LogicHandle.Null;
         }
 
-        public void SetState(LogicHandle value)
+        public void SetAction(LogicHandle value)
         {
             m_Action = value;
             m_Work = true;
@@ -37,10 +37,24 @@ namespace Game.Model.Logics
         {
             m_Work = false;
         }
-
-        public LogicHandle GetNextState()
+        #region IDefineableCallback
+        void IDefineableCallback.AddComponentData(Entity entity, IDefineableContext context)
         {
-            return m_Def.Value.GetNextAction(ref this);
+            context.AddBuffer<LogicHandle>(entity);
+            context.AddBuffer<WaitState>(entity);
+
+            var buff = context.AddBuffer<WorldState>(entity);
+            buff.ResizeUninitialized(m_Def.Value.StateMapping.Count);
+            foreach (var iter in m_Def.Value.StateMapping)
+            {
+                buff[iter.Value.Index] = new WorldState { Value = iter.Value.Initialize, };
+            }
         }
+
+        void IDefineableCallback.RemoveComponentData(Entity entity, IDefineableContext context)
+        {
+
+        }
+        #endregion
     }
 }

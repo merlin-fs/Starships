@@ -19,7 +19,6 @@ namespace Game.Core.Defs
 
                 context.AddBuffer<Modifier>(entity);
                 context.AddBuffer<LastDamages>(entity);
-                context.AddBuffer<DamageManager.NewDamages>(entity);
                 var buff = context.AddBuffer<Stat>(entity);
 
                 stats.Configurate(buff);

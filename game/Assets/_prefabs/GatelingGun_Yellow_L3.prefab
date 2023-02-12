@@ -1445,7 +1445,6 @@ GameObject:
   - component: {fileID: 4514986444668122}
   - component: {fileID: 205676091413216282}
   - component: {fileID: 4601491945137774279}
-  - component: {fileID: 6854342372235310821}
   m_Layer: 0
   m_Name: GatelingGun_Yellow_L3
   m_TagString: Untagged
@@ -1521,19 +1520,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Type: 
---- !u!114 &6854342372235310821
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1979706888108350}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5eb12eb2036972042ba25cbd672ebb44, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Target: {fileID: 1918381801879508}
 --- !u!1001 &2020149155342949183
 PrefabInstance:
   m_ObjectHideFlags: 0

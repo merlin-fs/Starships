@@ -10,6 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fda3921befda75f4db9464bb228d635d, type: 3}
-  m_Name: Logic
+  m_Name: LogicBomb
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 0}
+  m_LogicInst:
+    rid: 7383091081461891074
+  m_Parts:
+  - Game.Model.Logics.LogicEmitterMeteorite
+  references:
+    version: 2
+    RefIds:
+    - rid: 7383091081461891074
+      type: {class: LogicBomb, ns: Game.Model.Logics, asm: Assembly-CSharp}

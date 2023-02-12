@@ -4,7 +4,7 @@ using Unity.Entities;
 
 namespace Game.Model.Stats
 {
-    [UpdateInGroup(typeof(GameLogicDoneSystemGroup), OrderFirst = true)]
+    [UpdateInGroup(typeof(GameLogicSystemGroup), OrderFirst = true)]
     public partial struct StatSystem : ISystem
     {
         private EntityQuery m_Query;
@@ -18,7 +18,7 @@ namespace Game.Model.Stats
                 .WithOptions(EntityQueryOptions.FilterWriteGroup)
                 .Build();
 
-            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Stat>());
+            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Modifier>());
             state.RequireForUpdate(m_Query);
         }
 

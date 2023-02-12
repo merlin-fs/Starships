@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Unity.Collections;
+using Unity.Entities;
 
 namespace Game.Model.Logics
 {
@@ -7,15 +9,15 @@ namespace Game.Model.Logics
     {
         public partial struct PlanFinder
         {
-            public static NativeArray<LogicHandle> Execute(int threadIdx, LogicDef logic, States goal, States worldStates, 
+            public static NativeArray<LogicHandle> Execute(int threadIdx, LogicAspect logic, States goal, 
                 AllocatorManager.AllocatorHandle allocator)
             {
-                var path = Search(threadIdx, logic, goal.GetReadOnly(), worldStates, allocator);
+                var path = Search(threadIdx, logic, goal.GetReadOnly(), allocator);
                 return path;
             }
 
-            private unsafe static NativeArray<LogicHandle> Search(int threadIdx, LogicDef logic,
-                NativeHashMap<LogicHandle, bool>.ReadOnly goal, States worldStates, AllocatorManager.AllocatorHandle allocator)
+            private unsafe static NativeArray<LogicHandle> Search(int threadIdx, LogicAspect logic,
+                NativeHashMap<LogicHandle, bool>.ReadOnly goal, AllocatorManager.AllocatorHandle allocator)
             {
                 InitFinder(threadIdx);
                 try
@@ -24,8 +26,9 @@ namespace Game.Model.Logics
                     {
                         HeuristicCost = 0.0f
                     };
+
                     foreach (var nextGoal in goal)
-                        if (!worldStates.Has(nextGoal.Key, nextGoal.Value))
+                        if (!logic.HasWorldState(nextGoal.Key, nextGoal.Value))
                             root.Goals.Add(nextGoal.Key, nextGoal.Value);
 
                     var costs = GetCosts(threadIdx);
@@ -37,7 +40,7 @@ namespace Game.Model.Logics
                     {
                         if (node.Goals.Count == 0)
                             return ShortestPath(threadIdx, node.Handle, allocator);
-                        IdentifySuccessors(threadIdx, node, logic, worldStates);
+                        IdentifySuccessors(threadIdx, node, logic);
                     }
 
                     return new NativeList<LogicHandle>(1, allocator).AsArray();
@@ -48,7 +51,7 @@ namespace Game.Model.Logics
                 }
             }
 
-            private static void IdentifySuccessors(int threadIdx, Node node, LogicDef logic, States worldStates)
+            private static void IdentifySuccessors(int threadIdx, Node node, LogicAspect logic)
             {
                 var costs = GetCosts(threadIdx);
                 var queue = GetQueue(threadIdx);
@@ -56,9 +59,9 @@ namespace Game.Model.Logics
 
                 foreach (var iter in node.Goals)
                 {
-                    foreach (var pt in logic.GetActionsFromGoal(GoalHandle.FromHandle(iter.Key, iter.Value)))
+                    foreach (var pt in logic.Def.GetActionsFromGoal(GoalHandle.FromHandle(iter.Key, iter.Value)))
                     {
-                        var action = logic.GetAction(pt);
+                        var action = logic.Def.GetAction(pt);
                         if (!costs.TryGetValue(action.Handle, out Node next))
                         {
                             next = new Node(action.Handle, action.Cost);
@@ -67,14 +70,14 @@ namespace Game.Model.Logics
                         next.Goals.Clear();
 
                         foreach (var nextGoal in action.GetPreconditions().GetReadOnly())
-                            if (!worldStates.Has(nextGoal.Key, nextGoal.Value))
+                            if (!logic.HasWorldState(nextGoal.Key, nextGoal.Value))
                                 next.Goals.Add(nextGoal.Key, nextGoal.Value);
 
                         foreach (var nextGoal in node.Goals)
                         {
                             if (iter.Key == nextGoal.Key && iter.Value == nextGoal.Value)
                                 continue;
-                            if (!worldStates.Has(nextGoal.Key, nextGoal.Value))
+                            if (!logic.HasWorldState(nextGoal.Key, nextGoal.Value))
                                 if (!next.Goals.ContainsKey(nextGoal.Key))
                                     next.Goals.Add(nextGoal.Key, nextGoal.Value);
                         }
@@ -111,6 +114,7 @@ namespace Game.Model.Logics
                     }
 
                 };
+                path.Reverse();
                 return path.AsArray();
             }
 

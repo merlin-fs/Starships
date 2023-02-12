@@ -1,5 +1,4 @@
 using System;
-using Unity.Entities;
 using Common.Defs;
 using System.Collections.Generic;
 using Unity.Collections;
@@ -7,25 +6,27 @@ using System.Linq;
 
 namespace Game.Model.Logics
 {
-    public partial struct Logic : IComponentData, IDefineable
+    public partial struct Logic
     {
         [Serializable]
         public partial class LogicDef : IDef<Logic>
         {
             private Dictionary<LogicHandle, ConfigAction> m_Actions = new Dictionary<LogicHandle, ConfigAction>();
-            private Map<GoalHandle, LogicHandle> m_Effects = new Map<GoalHandle, LogicHandle>(true);
-
-            private LogicHandle m_Goal;
-            private bool m_GoalValue;
-
-            public (LogicHandle goal, bool value) GetGoal()
-            {
-                return (m_Goal, m_GoalValue);
-            }
+            private Map<GoalHandle, LogicHandle> m_Effects = new Map<GoalHandle, LogicHandle>(10, Allocator.Persistent, true);
+            private Dictionary<LogicHandle, WorldActionData> m_StateMapping = new Dictionary<LogicHandle, WorldActionData>(10);
+            private States m_Goal = new States(Allocator.Persistent);
 
             ~LogicDef()
             {
                 m_Effects.Dispose();
+                m_Goal.Dispose();
+            }
+
+            public Dictionary<LogicHandle, WorldActionData> StateMapping => m_StateMapping;
+
+            public States GetGoal()
+            {
+                return m_Goal;
             }
 
             public ConfigAction AddAction(Enum value)
@@ -43,8 +44,7 @@ namespace Game.Model.Logics
 
             public void AddGoal(Enum goal, bool value)
             {
-                m_Goal = LogicHandle.FromEnum(goal);
-                m_GoalValue = value;
+                m_Goal.SetState(goal, value);
             }
 
             public GoapAction GetAction(LogicHandle handle)
@@ -52,9 +52,23 @@ namespace Game.Model.Logics
                 return m_Actions[handle].Action;
             }
 
+            public void SetInitializeState(Enum state, bool value)
+            {
+                var handle = LogicHandle.FromEnum(state);
+                var data = m_StateMapping[handle];
+                data.Initialize = value;
+                m_StateMapping[handle] = data;
+            }
+
             public NativeArray<GoapAction> GetActions(Allocator allocator)
             {
                 return new NativeArray<GoapAction>(m_Actions.Values.Select(c => c.Action).ToArray(), allocator);
+            }
+
+            public struct WorldActionData
+            {
+                public bool Initialize;
+                public int Index;
             }
 
             public class ConfigAction

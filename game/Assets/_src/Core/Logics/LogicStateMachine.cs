@@ -1,15 +1,56 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using JetBrains.Annotations;
+using Unity.Assertions;
+using Unity.Collections;
 
 namespace Game.Model.Logics
 {
+
     public partial struct Logic
     {
         public partial class LogicDef
         {
-            public bool IsValid => true;
-            public int LogicID => 0;
-            public void Init() { }
-            public LogicHandle GetNextAction(ref Logic logic) => LogicHandle.Null;
+            private readonly HashSet<Type> m_SupportSystems = new HashSet<Type>();
+            public bool IsValid => m_Actions.Count > 0;
+
+            public bool IsSupportSystem(Type typeSystem)
+            {
+                return m_SupportSystems.Contains(typeSystem);
+            }
+
+            public void AddSupportSystem([NotNull]Type typeSystem)
+            {
+                Assert.IsNotNull(typeSystem);
+                m_SupportSystems.Add(typeSystem);
+            }
+
+            public void Init()
+            {
+                m_StateMapping.Clear();
+                m_Actions.Clear();
+
+                m_Effects.Dispose();
+                m_Effects = new Map<GoalHandle, LogicHandle>(10, Allocator.Persistent, true);
+                
+                m_Goal.Dispose();
+                m_Goal = new States(Allocator.Persistent);
+
+                var types = typeof(IStateData).GetDerivedTypes(true)
+                    .SelectMany(t => t.GetNestedTypes())
+                    .Where(t => t.IsEnum && t.Name == "State");
+
+                foreach (var iter in types)
+                {
+                    foreach (var e in iter.GetEnumValues())
+                    {
+                        var value = LogicHandle.FromEnum((Enum)e);
+                        m_StateMapping.Add(value, new WorldActionData { Index = m_StateMapping.Count });
+                    }
+                }
+            }
         }
 
         /*

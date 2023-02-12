@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -7,6 +6,15 @@ namespace Game.Model.Logics
 {
     public partial struct Logic
     {
+        public interface IPartLogic : ISystem
+        {
+        }
+
+        public interface ILogic
+        {
+            void Init(LogicDef def);
+        }
+
         public struct States: IDisposable
         {
             private NativeHashMap<LogicHandle, bool> m_States;
@@ -92,17 +100,6 @@ namespace Game.Model.Logics
             {
                 m_States.Dispose();
             }
-        }
-
-        public struct Action : IBufferElementData
-        {
-            public LogicHandle Value;
-        }
-
-        public struct WorldState : IBufferElementData
-        {
-            public LogicHandle ID;
-            public bool Value;
         }
     }
 }

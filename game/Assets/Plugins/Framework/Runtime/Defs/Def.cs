@@ -158,6 +158,11 @@ namespace Common.Defs
                 FixedStringMethods.CopyFromTruncated(ref fs, name);
                 m_Manager.SetName(entity, fs);
             }
+
+            public Entity CreateEntity()
+            {
+                return m_Manager.CreateEntity();
+            }
         }
 
         public class CommandBufferContext : IDefineableContext
@@ -237,6 +242,11 @@ namespace Common.Defs
                 FixedString64Bytes fs = default;
                 FixedStringMethods.CopyFromTruncated(ref fs, name);
                 m_Manager.SetName(entity, fs);
+            }
+
+            public Entity CreateEntity()
+            {
+                return m_Manager.CreateEntity();
             }
         }
 
@@ -320,6 +330,11 @@ namespace Common.Defs
                 FixedString64Bytes fs = default;
                 FixedStringMethods.CopyFromTruncated(ref fs, name);
                 m_Manager.SetName(m_SortKey, entity, fs);
+            }
+
+            public Entity CreateEntity()
+            {
+                return m_Manager.CreateEntity(m_SortKey);
             }
         }
         #endregion

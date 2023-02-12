@@ -4,21 +4,29 @@ using Unity.Mathematics;
 
 namespace Game.Model
 {
-    [Serializable]
+    using static Game.Model.Logics.Logic;
 
-    public struct Move : IComponentData
+    public interface IMoveArguments
+    {
+        float3 Position { get; }
+        quaternion Rotation { get; }
+        float Speed { get; }
+    }
+
+    [Serializable]
+    public partial struct Move : IComponentData, IStateData
     {
         public float3 Position;
         public quaternion Rotation;
         public float Speed;
 
-        public enum State
+        public enum Action
         {
             Init,
             MoveTo,
         }
 
-        public enum Condition
+        public enum State
         {
             Init,
             MoveDone,
