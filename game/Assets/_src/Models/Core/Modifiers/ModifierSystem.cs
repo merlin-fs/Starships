@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Unity.Entities;
+using Unity.Jobs;
 
 namespace Game.Model.Stats
 {
@@ -86,7 +87,8 @@ namespace Game.Model.Stats
                 try
                 {
                     var modifiers = m_LookupModifiers[iter.Entity];
-                    var stats = EntityManager.GetAspect<StatAspect>(iter.Entity);
+                    //SystemAPI.GetAspectRW<StatAspect>(iter.Entity);
+                    //var stats = EntityManager.GetAspect<StatAspect>(iter.Entity);
                     if (iter.UID == 0)
                     {
                         Modifier.AddModifier(iter.Modifier, ref modifiers);

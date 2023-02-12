@@ -17,7 +17,7 @@ namespace Game.Model.Units
     public class UnitConfig: GameObjectConfig, IConfigContainer, IConfigStats
     {
         public Unit.UnitDef Value = new Unit.UnitDef();
-        public Logic.LogicDef Logic = new Logic.LogicDef();
+        public LogicConfig Logic;
         public Team.Def Team = new Team.Def();
 
         protected override void Configurate(Entity prefab, IDefineableContext context)
@@ -25,8 +25,8 @@ namespace Game.Model.Units
             base.Configurate(prefab, context);
             Value.AddComponentData(prefab, context);
             Team.AddComponentData(prefab, context);
-            if (Logic.IsValid)
-                Logic.AddComponentData(prefab, context);
+            if (Logic is IConfig config)
+                config.Configurate(prefab, context);
         }
 
         IEnumerable<ChildConfig> IConfigContainer.Childs => Value.Parts;
@@ -35,11 +35,6 @@ namespace Game.Model.Units
         {
             stats.AddStat(GlobalStat.Health, Value.Health.Value);
             stats.AddStat(Unit.Stats.Speed, Value.Speed.Value);
-        }
-
-        public override void OnAfterDeserialize()
-        {
-            Logic.Init();
         }
     }
 }

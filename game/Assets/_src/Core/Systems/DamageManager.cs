@@ -26,22 +26,21 @@ namespace Game.Model.Weapons
         EntityQuery m_Query;
         ComponentLookup<WorldTransform> m_LookupTransforms;
         BufferLookup<Stat> m_LookupStats;
-        ComponentLookup<Bullet> m_LookupBullets;
         EntityQuery m_QueryTargets;
 
-        public struct NewDamages : IBufferElementData
+        public struct DamageData : IComponentData
         {
             public Entity Sender;
+            public Target Target;
+            public Bullet Bullet;
             public float Value;
         }
 
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<NewDamages>()
-                .WithNone<DeadTag>()
+                .WithAll<DamageData>()
                 .Build();
-            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<NewDamages>());
             state.RequireForUpdate(m_Query);
 
             m_QueryTargets = SystemAPI.QueryBuilder()
@@ -49,29 +48,30 @@ namespace Game.Model.Weapons
                 .WithNone<DeadTag>()
                 .Build();
             
-
             m_LookupTransforms = state.GetComponentLookup<WorldTransform>(true);
             m_LookupStats = state.GetBufferLookup<Stat>(false);
-            m_LookupBullets = state.GetComponentLookup<Bullet>(true);
         }
 
         public void OnDestroy(ref SystemState state) { }
 
-        public static void Damage(Entity entity, Entity target, float value, IDefineableContext context)
+        public static void Damage(Entity entity, Target target, Bullet bullet, float value, IDefineableContext context)
         {
-            var damage = new NewDamages
+            var damageEntity = context.CreateEntity();
+
+            var damage = new DamageData
             {
                 Sender = entity,
                 Value = value,
+                Target = target,
+                Bullet = bullet,
             };
-            context.AppendToBuffer(target, damage);
+            context.AddComponentData(damageEntity, damage);
         }
 
         public unsafe void OnUpdate(ref SystemState state)
         {
             m_LookupTransforms.Update(ref state);
             m_LookupStats.Update(ref state);
-            m_LookupBullets.Update(ref state);
 
             var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle jobHandle);
             var system = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>();
@@ -82,10 +82,11 @@ namespace Game.Model.Weapons
                 Entities = entities,
                 LookupStats = m_LookupStats,
                 LookupTransforms = m_LookupTransforms,
-                LookupBullets = m_LookupBullets,
                 Writer = ecb.AsParallelWriter(),
             };
             state.Dependency = job.ScheduleParallel(m_Query, jobHandle);
+            state.Dependency.Complete();
+            //ecb.DestroyEntity(m_Query);
             entities.Dispose(state.Dependency);
         }
 
@@ -99,51 +100,41 @@ namespace Game.Model.Weapons
 
             [ReadOnly] public ComponentLookup<WorldTransform> LookupTransforms;
             [ReadOnly] public NativeList<Entity> Entities;
-            [ReadOnly] public ComponentLookup<Bullet> LookupBullets;
 
-            void Execute([EntityIndexInQuery] int idx, in Entity entity, ref DynamicBuffer<NewDamages> damages,
-                ref DynamicBuffer<LastDamages> oldDamages)
+            void Execute([EntityIndexInQuery] int idx, in Entity entity, in DamageData damage)
             {
-                oldDamages.Clear();
                 var context = new DefExt.WriterContext(Writer, idx);
-                foreach (var damage in damages)
+                var damageConfig = damage.Bullet.Def.DamageType;
+                foreach(var iter in damageConfig.Damages)
                 {
-                    if (!LookupBullets.HasComponent(damage.Sender)) continue;
-                    var bullet = LookupBullets[damage.Sender];
-                    var damageConfig = bullet.Def.DamageType;
-
-                    foreach(var iter in damageConfig.Damages)
+                    if (damageConfig.Targets == DamageTargets.AoE)
                     {
-                        if (damageConfig.Targets == DamageTargets.AoE)
-                        {
-                            AoE(idx, damageConfig.ID, damage.Sender, entity, iter, bullet.Range, damage.Value, ref oldDamages, context);
-                        }
-                        else
-                        {
-                            Damage(idx, damageConfig.ID, damage.Sender, entity, iter, damage.Value, ref oldDamages, context);
-                        }
+                        AoE(idx, damageConfig.ID, damage.Target.WorldTransform.Position, iter, damage.Bullet.Range, damage.Value, context);
+                    }
+                    else
+                    {
+                        Damage(idx, damageConfig.ID, entity, iter, damage.Value, context);
                     }
                 }
-                damages.Clear();
             }
 
-            void Damage(int idx, ObjectID cfgID, Entity sender, Entity target, IDamage damage, float value, ref DynamicBuffer<LastDamages> damages, IDefineableContext context)
+            void Damage(int idx, ObjectID cfgID, Entity target, IDamage damage, float value, IDefineableContext context)
             {
                 if (!LookupStats.HasBuffer(target)) return;
                 var stats = LookupStats[target];
+
                 damage.Apply(ref stats, value, context);
                 Writer.AppendToBuffer(idx, target, new LastDamages() { DamageConfigID = cfgID, Value = value });
             }
 
-            void AoE(int idx, ObjectID cfgID, Entity sender, Entity center, IDamage damage, float range, float value, ref DynamicBuffer<LastDamages> damages, IDefineableContext context)
+            void AoE(int idx, ObjectID cfgID, float3 center, IDamage damage, float range, float value, IDefineableContext context)
             {
                 using var targets = new NativeList<Entity>(Allocator.TempJob);
                 FindEnemy(center, range, LookupTransforms, targets);
 
                 foreach(var target in targets)
                 {
-                    if (target != center) 
-                        Damage(idx, cfgID, sender, target, damage, value, ref damages, context);
+                    Damage(idx, cfgID, target, damage, value, context);
                 }
             }
 
@@ -154,13 +145,9 @@ namespace Game.Model.Weapons
                 public WorldTransform Transform;
             }
 
-            public void FindEnemy(Entity center, float radius, ComponentLookup<WorldTransform> transforms, NativeList<Entity> targets)
+            public void FindEnemy(float3 center, float radius, ComponentLookup<WorldTransform> transforms, NativeList<Entity> targets)
             {
                 targets.Capacity = Entities.Length;
-                if (!transforms.HasComponent(center))
-                    return;
-
-                var selfPosition = transforms[center].Position;
                 var entities = Entities;
                 var writer = targets.AsParallelWriter();
 
@@ -168,9 +155,9 @@ namespace Game.Model.Weapons
                 {
                     var target = entities[i];
                     var targetPos = transforms[target].Position;
-                    var magnitude = (selfPosition - targetPos).magnitude();
+                    var magnitude = (center - targetPos).magnitude();
 
-                    if (utils.SpheresIntersect(selfPosition, radius, targetPos, 0f, out float3 vector))
+                    if (utils.SpheresIntersect(center, radius, targetPos, 0f, out float3 vector))
                     {
                         writer.AddNoResize(target);
                     }

@@ -7,6 +7,12 @@ onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
+	"last_search.110DEAF1" = "LogicConfig"
+	"OpenInspectorPreview.110DEAF1" = "0"
+	"currentGroup.110DEAF1" = "asset"
+	"last_search.E8DA15E5" = "t:LogicConfig"
+	"OpenInspectorPreview.E8DA15E5" = "0"
+	"currentGroup.E8DA15E5" = "all"
 }
 providers = {
 	adb = {
@@ -53,14 +59,23 @@ providers = {
 objectSelectors = {
 }
 recentSearches = [
+	"t:LogicConfig"
+	"t:StateMachine"
+	"t:MonoScript"
+	"LogicConfig"
+	"t:Config t:"
+	"t:Config t:script"
+	""
+	"t:Config"
+	"t:Logic"
 ]
 searchItemFavorites = [
 ]
 savedSearchesSortOrder = 0
-showSavedSearchPanel = false
-expandedQueries = [
-]
-queryBuilder = false
+showSavedSearchPanel = true
+hideTabs = false
+expandedQueries = [961552606]
+queryBuilder = true
 ignoredProperties = "id;name;classname;imagecontentshash"
 helperWidgetCurrentArea = "all"
 disabledIndexers = ""

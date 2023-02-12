@@ -18,7 +18,7 @@ namespace Game.Model.Weapons
         readonly RefRW<Target> m_Target;
 
         [Optional] readonly RefRO<Bullet> m_Bullet;
-        [Optional] readonly RefRO<Part> m_Part;
+        readonly RefRO<Root> m_Owner;
         [ReadOnly] readonly DynamicBuffer<Stat> m_Stats;
 
         #region DesignTime
@@ -34,7 +34,7 @@ namespace Game.Model.Weapons
         public int Count => m_Weapon.ValueRO.Count;
 
         [CreateProperty]
-        public Entity Unit => m_Part.IsValid ? m_Part.ValueRO.Unit : default;
+        public Entity Unit => m_Owner.ValueRO.Value;
 
         [CreateProperty]
         public Target Target { get => m_Target.ValueRO; set => m_Target.ValueRW = value; }
@@ -56,8 +56,7 @@ namespace Game.Model.Weapons
             m_Weapon.ValueRW.Count -= Config.BarrelCount;
             if (m_Weapon.ValueRW.Count < 0)
                 m_Weapon.ValueRW.Count = 0;
-
-            DamageManager.Damage(Self, Target.Value, Stat(Weapon.Stats.Damage).Value, context);
+            DamageManager.Damage(Self, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value, context);
         }
 
         public bool Reload(IDefineableContext context, int count)
@@ -73,7 +72,7 @@ namespace Game.Model.Weapons
 
             bulletConfig.Configurate(m_Self, context);
             m_Weapon.ValueRW.Count = count;
-            return true;
+            return count > 0;
         }
 
         public void SetSoughtTeams(uint value) => m_Target.ValueRW.SoughtTeams = value;

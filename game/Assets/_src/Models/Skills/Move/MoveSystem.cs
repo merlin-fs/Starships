@@ -1,66 +1,70 @@
 using System;
 using Unity.Entities;
-using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Transforms;
+using Unity.Collections;
 
 namespace Game.Model
 {
-    using Game.Model.Stats;
-
     using Logics;
+    using static Logics.Logic;
 
-    [UpdateInGroup(typeof(GameLogicSystemGroup))]
-    public partial struct MoveSystem : ISystem
+    public partial struct Move
     {
-        EntityQuery m_Query;
-               
-        public void OnCreate(ref SystemState state)
+        [UpdateInGroup(typeof(GameLogicSystemGroup))]
+        public partial struct MoveSystem : ISystem
         {
-            m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Move>()
-                .WithAll<Logic>()
-                .WithNone<DeadTag>()
-                .Build();
+            EntityQuery m_Query;
 
-            m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Move>());
-            state.RequireForUpdate(m_Query);
-        }
-
-        public void OnDestroy(ref SystemState state) { }
-
-        public void OnUpdate(ref SystemState state)
-        {
-            var job = new MoveJob()
+            public void OnCreate(ref SystemState state)
             {
-                Delta = SystemAPI.Time.DeltaTime,
-            };
-            state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
-        }
+                m_Query = SystemAPI.QueryBuilder()
+                    .WithAll<Move>()
+                    .WithAll<Logic>()
+                    .Build();
 
-        partial struct MoveJob : IJobEntity
-        {
-            public float Delta;
+                state.RequireForUpdate(m_Query);
+            }
 
-            void Execute(in Move data, ref TransformAspect transform, ref LogicAspect logic)
+            public void OnDestroy(ref SystemState state) { }
+
+            public void OnUpdate(ref SystemState state)
             {
-                switch (logic.State)
+                var job = new MoveJob()
                 {
-                    case Move.State.Init:
-                        transform.WorldPosition = data.Position;
-                        transform.RotateLocal(data.Rotation);
-                        logic.TrySetResult(Move.Result.Done);
-                        break;
+                    Delta = SystemAPI.Time.DeltaTime,
+                };
+                state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
+            }
 
-                    case Move.State.MoveTo:
+            partial struct MoveJob : IJobEntity
+            {
+                public float Delta;
+
+                void Execute(ref Move data, ref TransformAspect transform, ref LogicAspect logic)
+                {
+                    if (logic.IsCurrentAction(Action.Init))
+                    {
+                        //UnityEngine.Debug.Log($"[{logic.Self}] init {data.Position}, speed {data.Speed}");
+                        transform.WorldPosition = data.Position;
+                        logic.SetWorldState(State.Init, true);
+                    }
+
+                    if (logic.IsCurrentAction(Action.MoveTo))
+                    {
+                        //UnityEngine.Debug.Log($"[{logic.Self}] move to target {data.Position}, speed {data.Speed}, pos {transform.WorldPosition}");
                         float3 direction = data.Position - transform.WorldPosition;
                         var dt = math.distancesq(transform.WorldPosition, data.Position);
                         if (dt < 0.1f)
-                            logic.TrySetResult(Move.Result.Done);
-
-                        var lookRotation = quaternion.LookRotation(direction, transform.Up);
+                        {
+                            //UnityEngine.Debug.Log($"[{logic.Self}] move done {transform.WorldPosition}, target{data.Position}, dot {dt}");
+                            logic.SetWorldState(State.MoveDone, true);
+                        }
+                        var lookRotation = quaternion.LookRotationSafe(direction, transform.Up);
                         transform.WorldRotation = lookRotation;
                         transform.WorldPosition += math.normalize(direction) * Delta * data.Speed;
-                        break;
+                        return;
+                    }
                 }
             }
         }

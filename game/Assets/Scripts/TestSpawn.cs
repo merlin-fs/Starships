@@ -31,6 +31,7 @@ public class TestSpawn : MonoBehaviour
 
     private async void StartBatle()
     {
+        return;
         var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
         await prefab.IsDone();
 
@@ -104,8 +105,7 @@ public class TestSpawn : MonoBehaviour
         var sceneEntity = SceneSystem.LoadSceneAsync(m_EntityManager.WorldUnmanaged, guid);
         //SceneSystem.LoadPrefabAsync(m_EntityManager.WorldUnmanaged, guid);
         */
-        await Repositories.Instance.ConfigsAsync();
-
+        var repo = await Repositories.Instance.ConfigsAsync();
         StartBatle();
     }
 

@@ -3,9 +3,10 @@ using Unity.Entities;
 
 namespace Game.Systems
 {
-    using Game.Model.Stats;
+    using Model.Stats;
 
-    [UpdateInGroup(typeof(GameEndSystemGroup), OrderLast = true)]
+    //[UpdateInGroup(typeof(GameEndSystemGroup), OrderLast = true)]
+    [UpdateInGroup(typeof(InitializationSystemGroup), OrderLast = true)]
     public partial struct CleanupSystem : ISystem
     {
         EntityQuery m_Query;
@@ -24,9 +25,9 @@ namespace Game.Systems
         partial struct DeadJob : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter Writer;
-
             void Execute([EntityIndexInQuery] int idx, in Entity entity)
             {
+                UnityEngine.Debug.Log($"[{entity}] Destroy");
                 Writer.DestroyEntity(idx, entity);
             }
         }

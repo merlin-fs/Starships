@@ -1,21 +1,13 @@
 using System;
 using Unity.Entities;
-using Unity.Transforms;
 
 namespace Game.Views
 {
+    using Model.Logics;
+
     public struct Particle : IBufferElementData
     {
-        public Entity Target;
-        public int StateID;
+        public LogicHandle Action;
+        public Hash128 VfxID;
     }
-
-    public static class ParticleManager
-    {
-        public static void Play(Entity entity, int stateID, WorldTransform transform)
-        {
-
-        }
-    }
-
 }

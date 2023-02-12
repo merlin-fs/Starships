@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Reflection.Ext;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace UnityEditor.Inspector
 {
@@ -15,19 +15,7 @@ namespace UnityEditor.Inspector
         private static Texture2D m_CaretTexture = null;
         GUIStyle m_Normal;
         protected bool m_CanPing = true;
-        public BaseReferenceDrawer()
-        {
-            m_Normal = new GUIStyle(EditorStyles.objectField);
-            var color = GetColor();
-            m_Normal.hover.textColor = color;
-            m_Normal.focused.textColor = color;
 
-            Color.RGBToHSV(color, out float h, out float s, out float v);
-            v -= 0.2f;
-            color = Color.HSVToRGB(h, s, v);
-            m_Normal.normal.textColor = color;
-        }
-        
         protected virtual Color GetColor()
         {
             return Color.green;
@@ -53,6 +41,16 @@ namespace UnityEditor.Inspector
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            m_Normal = new GUIStyle(EditorStyles.objectField);
+            var color = GetColor();
+            m_Normal.hover.textColor = color;
+            m_Normal.focused.textColor = color;
+
+            Color.RGBToHSV(color, out float h, out float s, out float v);
+            v -= 0.2f;
+            color = Color.HSVToRGB(h, s, v);
+            m_Normal.normal.textColor = color;
+
             var assetDropDownRect = GetRect(position, property, label);
             bool isDragging = Event.current.type == EventType.DragUpdated && assetDropDownRect.Contains(Event.current.mousePosition);
             bool isDropping = Event.current.type == EventType.DragPerform && assetDropDownRect.Contains(Event.current.mousePosition);

@@ -26,7 +26,7 @@ namespace System.Reflection
 
 		public static IEnumerable<Type> GetDerivedTypes<BaseType>(bool includeAbstract)
 		{
-			return typeof(BaseType).GetDerivedTypes(includeAbstract);
+			return typeof(BaseType).EditorGetDerivedTypes(includeAbstract);
 		}
 
 		public static IEnumerable<Type> GetTypesWithAttribute<AttributeType>() where AttributeType : Attribute

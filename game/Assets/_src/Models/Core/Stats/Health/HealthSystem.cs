@@ -37,12 +37,14 @@ namespace Game.Model.Stats
         {
             void Execute(in DynamicBuffer<Stat> stats, ref LogicAspect logic)
             {
+                /*!!!
                 if (stats.TryGetStat(GlobalStat.Health, out Stat health) &&
                     health.Value <= 0 
-                    && logic.HasState(GlobalState.Destroy) && !logic.State.Equals(GlobalState.Destroy))
+                    && logic.HasState(GlobalState.Destroy) && !logic.StateEnum.Equals(GlobalState.Destroy))
                 {
                     logic.TrySetState(GlobalState.Destroy);
                 }
+                */
             }
         }
     }

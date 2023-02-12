@@ -1,31 +1,29 @@
 using System;
-
-using Game.Model.Stats;
+using Game.Model.Logics;
 using Game.Model.Weapons;
-
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace Game.Views
 {
+#if UNITY_EDITOR
     public class ParticleAuthoring : MonoBehaviour
     {
-#if UNITY_EDITOR
-        [SelectChildPrefab]
-        public GameObject Target;
-#endif
-        /*
+        public AssetReferenceT<GameObject> Vfx;
+
         class _baker : Baker<ParticleAuthoring>
         {
             public unsafe override void Bake(ParticleAuthoring authoring)
             {
-                AppendToBuffer(new Particle
+                var buffer = AddBuffer<Particle>();
+                buffer.Add(new Particle
                 {
-                    StateID = Stat.GetID(Weapon.State.Shoot),
-                    Target = GetEntity(authoring.Target),
+                    Action = LogicHandle.FromEnum(Weapon.Action.Shoot),
+                    VfxID = new Unity.Entities.Hash128(authoring.Vfx.AssetGUID),
                 });
             }
         }
-        */
     }
+#endif
 }
