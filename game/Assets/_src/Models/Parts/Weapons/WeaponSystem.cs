@@ -51,7 +51,7 @@ namespace Game.Model.Weapons
                 public EntityCommandBuffer.ParallelWriter Writer;
 
                 void Execute([EntityIndexInQuery] int idx, ref WeaponAspect weapon, 
-                    ref LogicAspect logic, ref TransformAspect transform)
+                    ref LogicAspect logic)
                 {
                     if (logic.IsCurrentAction(Action.Reload))
                     {

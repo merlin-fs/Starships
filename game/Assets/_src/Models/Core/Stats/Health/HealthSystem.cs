@@ -27,24 +27,25 @@ namespace Game.Model.Stats
 
         public void OnUpdate(ref SystemState state)
         {
+            var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer(); 
             var job = new HealthJob()
             {
+                Writer = ecb.AsParallelWriter(),
             };
             state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
+            state.Dependency.Complete();
         }
 
         partial struct HealthJob : IJobEntity
         {
-            void Execute(in DynamicBuffer<Stat> stats, ref LogicAspect logic)
+            public EntityCommandBuffer.ParallelWriter Writer;
+
+            void Execute([EntityIndexInQuery] int idx, in Entity entity, in DynamicBuffer<Stat> stats)
             {
-                /*!!!
-                if (stats.TryGetStat(GlobalStat.Health, out Stat health) &&
-                    health.Value <= 0 
-                    && logic.HasState(GlobalState.Destroy) && !logic.StateEnum.Equals(GlobalState.Destroy))
+                if (stats.TryGetStat(GlobalStat.Health, out Stat health) && health.Value <= 0)
                 {
-                    logic.TrySetState(GlobalState.Destroy);
+                    Writer.AddComponent<DeadTag>(idx, entity);
                 }
-                */
             }
         }
     }

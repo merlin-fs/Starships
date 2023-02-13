@@ -45,12 +45,14 @@ namespace Game.Model
                 {
                     if (logic.IsCurrentAction(Action.Init))
                     {
-                        //UnityEngine.Debug.Log($"[{logic.Self}] init {data.Position}, speed {data.Speed}");
+                        UnityEngine.Debug.Log($"[{logic.Self}] init {data.Position}, speed {data.Speed}");
                         transform.WorldPosition = data.Position;
+                        transform.RotateLocal(data.Rotation);
                         logic.SetWorldState(State.Init, true);
                     }
 
-                    if (logic.IsCurrentAction(Action.MoveTo))
+                    if (logic.IsCurrentAction(Action.MoveToTarget) ||
+                        logic.IsCurrentAction(Action.MoveToPosition))
                     {
                         //UnityEngine.Debug.Log($"[{logic.Self}] move to target {data.Position}, speed {data.Speed}, pos {transform.WorldPosition}");
                         float3 direction = data.Position - transform.WorldPosition;

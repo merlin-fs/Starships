@@ -31,7 +31,6 @@ public class TestSpawn : MonoBehaviour
 
     private async void StartBatle()
     {
-        return;
         var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
         await prefab.IsDone();
 
@@ -99,6 +98,9 @@ public class TestSpawn : MonoBehaviour
     private async void Start()
     {
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        Application.targetFrameRate = 30;
+        QualitySettings.vSyncCount = 4;
+
         /*
         var guid = SceneSystem.GetSceneGUID(ref m_EntityManager.WorldUnmanaged.GetExistingSystemState<SceneSystem>(), "Assets/Scenes/SampleScene/New Sub Scene.unity");
         //var loadParameters = new SceneSystem.LoadParameters { Flags = SceneLoadFlags.LoadAdditive | SceneLoadFlags.NewInstance };

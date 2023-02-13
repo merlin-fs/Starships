@@ -9,6 +9,7 @@ namespace Game.Model.Logics
     using System.Threading;
 
     using Stats;
+    using static Game.Model.Logics.Logic;
 
     [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderLast = true)]
     public class GamePartLogicSystemGroup : ComponentSystemGroup { }
@@ -47,34 +48,40 @@ namespace Game.Model.Logics
                 {
                     if (!logic.IsValid) return;
 
-                    if (!logic.IsWork)
+                    if (logic.IsWork || logic.IsWaitNewGoal || logic.IsWaitChangeWorld)
+                        return;
+
+                    if (!logic.HasPlan)
                     {
-                        //UnityEngine.Debug.Log($"{logic.Self} [Logic] work - {logic.IsWork}, {logic.CurrentAction}");
-                        if (!logic.HasPlan)
+                        if (logic.GetNextGoal(out Goal goal))
                         {
-                            var goal = logic.Def.GetGoal();
                             var plan = PlanFinder.Execute(m_ThreadIndex, logic, goal, Allocator.TempJob);
                             if (plan.IsCreated && plan.Length > 0)
                             {
-                                UnityEngine.Debug.Log($"{logic.Self} [Logic] new plan - {string.Join(", ", plan.ToArray().Select(i => $"{i}"))}");
                                 logic.SetPlan(plan);
                                 plan.Dispose();
                             }
                             else
                             {
-                                logic.SetFailed();
+                                logic.SetWaitChangeWorld();
                                 return;
                             }
                         }
-
-                        if (!logic.IsAction() || (logic.IsAction() && logic.IsActionSuccess()))
-                        {
-                            var next = logic.GetNextState();
-                            UnityEngine.Debug.Log($"{logic.Self} [Logic] new action - {next}");
-                            logic.SetAction(next);
-                        }
                         else
-                            logic.SetFailed();
+                        {
+                            logic.SetWaitNewGoal();
+                            return;
+                        }
+                    }
+
+                    if (!logic.IsAction() || (logic.IsAction() && logic.IsActionSuccess()))
+                    {
+                        var next = logic.GetNextState();
+                        logic.SetAction(next);
+                    }
+                    else
+                    {
+                        logic.SetFailed();
                     }
                 }
             }

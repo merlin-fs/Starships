@@ -14,7 +14,6 @@ namespace Game.Systems
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<DeadTag>()
-                .WithNone<WaitTag>()
                 .Build();
 
             state.RequireForUpdate(m_Query);
@@ -34,7 +33,8 @@ namespace Game.Systems
 
         public void OnUpdate(ref SystemState state)
         {
-            var system = state.World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+            //var system = state.World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+            var system = state.World.GetOrCreateSystemManaged<EndInitializationEntityCommandBufferSystem>();
             var ecb = system.CreateCommandBuffer();
             state.Dependency = new DeadJob()
             {
@@ -42,6 +42,7 @@ namespace Game.Systems
             }.ScheduleParallel(m_Query, state.Dependency);
             //state.Dependency.Complete();
             system.AddJobHandleForProducer(state.Dependency);
+            //ecb.Playback(state.EntityManager);
         }
     }
 }

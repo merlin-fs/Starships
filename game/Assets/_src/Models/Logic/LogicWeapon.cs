@@ -40,7 +40,9 @@ namespace Game.Model.Logics
                 .AddEffect(Weapon.State.NoAmmo, false)
                 .Cost(2);
 
-            logic.AddGoal(Target.State.Dead, true);
+            logic.EnqueueGoal(Move.State.Init, true);
+            logic.EnqueueGoal(Weapon.State.NoAmmo, false);
+            logic.EnqueueGoalRepeat(Target.State.Dead, true);
         }
     }
 }

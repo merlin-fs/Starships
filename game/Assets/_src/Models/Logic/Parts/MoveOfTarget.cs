@@ -42,16 +42,18 @@ namespace Game.Model.Logics
                 if (!logic.Def.IsSupportSystem(typeof(MoveOfTarget)))
                     return;
 
-                if (!logic.IsCurrentAction(Move.Action.MoveTo))
+                if (logic.IsCurrentAction(Move.Action.MoveToTarget))
+                {
+                    data.Position = target.WorldTransform.Position;
+                    data.Speed = unit.Stat(Unit.Stats.Speed).Value;
                     return;
+                }
 
-                float3 pos = target.Value != Entity.Null
-                    ? float3.zero
-                    : target.WorldTransform.Position;
-
-                data.Position = pos;
-                data.Speed = unit.Stat(Unit.Stats.Speed).Value;
-                //UnityEngine.Debug.Log($"[{logic.Self}] setup move to target {data.Position}, speed {data.Speed}");
+                if (logic.IsCurrentAction(Move.Action.MoveToPosition))
+                {
+                    data.Position = float3.zero;
+                    data.Speed = unit.Stat(Unit.Stats.Speed).Value;
+                }
             }
         }
     }

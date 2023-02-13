@@ -15,15 +15,12 @@ MonoBehaviour:
   PrefabObject: {fileID: 1979706888108350, guid: bf3b9e24f7f131c479855962a72c5ab1,
     type: 3}
   Value:
-    Parts:
-    - Child: {fileID: 11400000, guid: 4ebc84f02e2b6dc42be590d5613f4838, type: 2}
-      PrefabObject: {fileID: 1157879558086612, guid: bf3b9e24f7f131c479855962a72c5ab1,
-        type: 3}
+    Parts: []
     Speed:
       rid: 129887608927158276
     Health:
       rid: 129887608927158278
-  Logic: {fileID: 0}
+  Logic: {fileID: 11400000, guid: 2ac2c23307fe53948afc1ee504e6e244, type: 2}
   Team:
     m_SelfTeam:
       Value: 1

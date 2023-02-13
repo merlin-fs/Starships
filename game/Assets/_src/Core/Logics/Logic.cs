@@ -12,36 +12,27 @@ namespace Game.Model.Logics
     {
         [DontSerialize]
         private readonly Def<LogicDef> m_Def;
-        private LogicHandle m_Action;
-        private bool m_Work;
         public LogicDef Def => m_Def.Value;
-        [CreateProperty]
-        public LogicHandle CurrentAction => m_Action;
-        [CreateProperty]
-        public bool IsWork => m_Work;
 
+        public LogicHandle Action;
+        public bool Work;
+        public bool WaitNewGoal;
+        public bool WaitChangeWorld;
         public Logic(Def<LogicDef> def)
         {
             m_Def = def;
-            m_Work = false;
-            m_Action = LogicHandle.Null;
-        }
-
-        public void SetAction(LogicHandle value)
-        {
-            m_Action = value;
-            m_Work = true;
-        }
-
-        public void SetDone()
-        {
-            m_Work = false;
+            Work = false;
+            WaitNewGoal = false;
+            WaitChangeWorld = false;
+            Action = LogicHandle.Null;
         }
         #region IDefineableCallback
         void IDefineableCallback.AddComponentData(Entity entity, IDefineableContext context)
         {
             context.AddBuffer<LogicHandle>(entity);
-            context.AddBuffer<WaitState>(entity);
+            var goals = context.AddBuffer<Goal>(entity);
+            foreach (var iter in Def.Goals)
+                goals.Add(iter);
 
             var buff = context.AddBuffer<WorldState>(entity);
             buff.ResizeUninitialized(m_Def.Value.StateMapping.Count);

@@ -94,9 +94,9 @@ namespace Game.Model.Logics
                     m_Data = action.m_Data;
                 }
                 
-                public bool LeadsToGoal(States states)
+                public bool LeadsToGoal(LogicHandle worldState)
                 {
-                    return Action.m_Effects.Any(states);
+                    return Action.m_Effects.GetReadOnly().ContainsKey(worldState);
                 }
 
                 public void ApplyPreconditions(States states)

@@ -14,21 +14,15 @@ namespace Game.Model.Logics
             private Dictionary<LogicHandle, ConfigAction> m_Actions = new Dictionary<LogicHandle, ConfigAction>();
             private Map<GoalHandle, LogicHandle> m_Effects = new Map<GoalHandle, LogicHandle>(10, Allocator.Persistent, true);
             private Dictionary<LogicHandle, WorldActionData> m_StateMapping = new Dictionary<LogicHandle, WorldActionData>(10);
-            private States m_Goal = new States(Allocator.Persistent);
+            private List<Goal> m_Goal = new List<Goal>();
 
             ~LogicDef()
             {
                 m_Effects.Dispose();
-                m_Goal.Dispose();
             }
 
             public Dictionary<LogicHandle, WorldActionData> StateMapping => m_StateMapping;
-
-            public States GetGoal()
-            {
-                return m_Goal;
-            }
-
+            public IEnumerable<Goal> Goals => m_Goal.Reverse<Goal>();
             public ConfigAction AddAction(Enum value)
             {
                 var config = new ConfigAction(value, m_Effects);
@@ -42,14 +36,35 @@ namespace Game.Model.Logics
                 return values;
             } 
 
-            public void AddGoal(Enum goal, bool value)
+            public void EnqueueGoal(Enum goal, bool value)
             {
-                m_Goal.SetState(goal, value);
+                m_Goal.Add(new Goal 
+                { 
+                    State = LogicHandle.FromEnum(goal), 
+                    Value = value, 
+                    Repeat = false, 
+                });
             }
 
-            public GoapAction GetAction(LogicHandle handle)
+            public void EnqueueGoalRepeat(Enum goal, bool value)
             {
-                return m_Actions[handle].Action;
+                m_Goal.Add(new Goal
+                {
+                    State = LogicHandle.FromEnum(goal),
+                    Value = value,
+                    Repeat = true,
+                });
+            }
+
+            public bool TryGetAction(LogicHandle handle, out GoapAction action)
+            {
+                if (m_Actions.TryGetValue(handle, out ConfigAction config))
+                {
+                    action = config.Action;
+                    return true;
+                }
+                action = default;
+                return false;
             }
 
             public void SetInitializeState(Enum state, bool value)

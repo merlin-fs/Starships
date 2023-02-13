@@ -91,8 +91,9 @@ public class TestSpawnMeteorite : MonoBehaviour
         while (m_Current > 0)
         {
             StartSpawn();
-            var time = UnityEngine.Random.Range(0.01f, 1f);
-            yield return new WaitForSeconds(time);
+            //var time = UnityEngine.Random.Range(0.01f, 1f);
+            //yield return new WaitForSeconds(time);
+            yield return null;
             m_Current--;
         }
     }

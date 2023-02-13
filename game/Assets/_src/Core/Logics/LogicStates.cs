@@ -3,18 +3,29 @@ using Unity.Entities;
 
 namespace Game.Model.Logics
 {
+    using static Game.Model.Logics.Logic;
+
     public partial struct Logic
     {
         public interface IStateData { }
 
-        public struct WorldState: IBufferElementData
+        public struct WorldState : IBufferElementData
         {
             public bool Value;
         }
+    }
 
-        public struct WaitState : IBufferElementData
+    public static class LogicWorldStateExt
+    {
+        public static bool GetWorldState(this DynamicBuffer<WorldState> buff, LogicDef def, Enum worldState)
         {
-            public int Value;
+            var index = def.StateMapping[LogicHandle.FromEnumTest(worldState)].Index;
+            return buff[index].Value;
         }
+        public static bool HasWorldState(this DynamicBuffer<WorldState> buff, LogicDef def, Enum worldState, bool value)
+        {
+            return GetWorldState(buff, def, worldState) == value;
+        }
+
     }
 }

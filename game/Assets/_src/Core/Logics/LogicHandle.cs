@@ -15,20 +15,20 @@ namespace Game.Model.Logics
         public static LogicHandle FromEnum(Enum value)
         {
             return new LogicHandle(
-                new Unity.Mathematics.int2(value.GetType().MetadataToken, value.GetHashCode()).GetHashCode(),
+                new Unity.Mathematics.int2(value.GetType().FullName.GetHashCode(), value.GetHashCode()).GetHashCode(),
                 $"{value} ({value.GetType().DeclaringType.Name})");
         }
 
         public static LogicHandle FromEnumTest(Enum value)
         {
             return new LogicHandle(
-                new Unity.Mathematics.int2(value.GetType().MetadataToken, value.GetHashCode()).GetHashCode(), null);
+                new Unity.Mathematics.int2(value.GetType().FullName.GetHashCode(), value.GetHashCode()).GetHashCode(), null);
         }
 
         public static LogicHandle FromType(Type value)
         {
             return new LogicHandle(
-                new Unity.Mathematics.int2(value.MetadataToken, value.GetHashCode()).GetHashCode(),
+                new Unity.Mathematics.int2(value.FullName.GetHashCode(), value.GetHashCode()).GetHashCode(),
                 $"{value} ({value.GetType().DeclaringType.Name})");
         }
 

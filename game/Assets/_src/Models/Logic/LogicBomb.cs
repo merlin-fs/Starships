@@ -20,12 +20,11 @@ namespace Game.Model.Logics
             logic.AddAction(Weapon.Action.Shoot)
                 .AddPreconditions(Move.State.MoveDone, true)
                 .AddPreconditions(Weapon.State.NoAmmo, false)
-
-                .AddEffect(Weapon.State.HasAmo, false)
                 .AddEffect(Target.State.Dead, true)
-                .Cost(1);
+                .Cost(4);
 
-            logic.AddGoal(Target.State.Dead, true);
+            logic.EnqueueGoal(Weapon.State.NoAmmo, false);
+            logic.EnqueueGoalRepeat(Target.State.Dead, true);
         }
     }
 }

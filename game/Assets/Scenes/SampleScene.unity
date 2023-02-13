@@ -1455,6 +1455,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c7d494f3d5b40b488b5a572a6ac3802, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_DefaultCapacity: 10
+  m_MaxPoolSize: 15
 --- !u!1 &1950064685
 GameObject:
   m_ObjectHideFlags: 0

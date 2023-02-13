@@ -4,6 +4,7 @@ namespace Game.Model.Logics
 {
     using Weapons;
     using static Game.Model.Logics.Logic;
+
     public class LogicMeteorite: ILogic
     {
         public void Init(LogicDef logic)
@@ -14,21 +15,25 @@ namespace Game.Model.Logics
             logic.AddAction(Move.Action.Init)
                 .AddPreconditions(Move.State.Init, false)
                 .AddEffect(Move.State.Init, true)
-                .Cost(0);
+                .Cost(1);
 
             logic.AddAction(Target.Action.Find)
                 .AddPreconditions(Target.State.Found, false)
                 .AddEffect(Target.State.Found, true)
                 .Cost(2);
 
-            logic.AddAction(Move.Action.MoveTo)
-                .AddEffect(Move.State.MoveDone, false)
-                .AddPreconditions(Move.State.Init, true)
+            logic.AddAction(Move.Action.MoveToTarget)
+                .AddPreconditions(Target.State.Found, true)
                 .AddEffect(Move.State.MoveDone, true)
                 .Cost(1);
 
-            logic.AddGoal(Move.State.MoveDone, true);
+            logic.AddAction(Move.Action.MoveToPosition)
+                .AddPreconditions(Target.State.Found, true)
+                .AddEffect(Move.State.MoveDone, true)
+                .Cost(10);
 
+            logic.EnqueueGoal(Move.State.Init, true);
+            logic.EnqueueGoal(Move.State.MoveDone, true);
         }
     }
 }

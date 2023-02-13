@@ -1,57 +1,59 @@
 ﻿using System;
+using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Properties;
 
-using static Game.Model.Logics.Logic;
-
 namespace Game.Model.Logics
 {
+    using static Game.Model.Logics.Logic;
+
     public readonly partial struct LogicAspect : IAspect
     {
         private readonly Entity m_Self;
         private readonly RefRW<Logic> m_Logic;
         private readonly DynamicBuffer<LogicHandle> m_Plan;
-        private readonly DynamicBuffer<Logic.WorldState> m_WorldStates;
-        private readonly RefRO<Root> m_Root;
-
+        private readonly DynamicBuffer<WorldState> m_WorldStates;
+        private readonly DynamicBuffer<Goal> m_Goals;
         public Entity Self => m_Self;
-        public Logic.LogicDef Def => m_Logic.ValueRO.Def;
+        public LogicDef Def => m_Logic.ValueRO.Def;
         [CreateProperty]
-        public string CurrentAction => m_Logic.ValueRO.CurrentAction.ToString();
+        public string CurrentAction => m_Logic.ValueRO.Action.ToString();
         [CreateProperty]
-        public bool IsWork => m_Logic.ValueRO.IsWork;
+        public bool IsWork => m_Logic.ValueRO.Work;
+        public bool IsWaitNewGoal => m_Logic.ValueRO.WaitNewGoal;
+        public bool IsWaitChangeWorld => m_Logic.ValueRO.WaitChangeWorld;
         public bool IsValid => m_Logic.ValueRO.Def.IsValid;
         public bool HasPlan => m_Plan.Length > 0;
 
-        /*
-        public bool HasState(LogicHandle worldState, bool value)
-        {
-            return GetState(worldState) == value;
-        }
-        */
-
         public bool IsAction()
         {
-            return m_Logic.ValueRO.CurrentAction != LogicHandle.Null;
+            return m_Logic.ValueRO.Action != LogicHandle.Null;
         }
 
         public bool IsCurrentAction(Enum action)
         {
-            return m_Logic.ValueRO.CurrentAction == LogicHandle.FromEnumTest(action);
+            return m_Logic.ValueRO.Action == LogicHandle.FromEnumTest(action);
         }
 
         public bool IsCurrentAction(LogicHandle action)
         {
-            return m_Logic.ValueRO.CurrentAction == action;
+            return m_Logic.ValueRO.Action == action;
         }
 
         public void SetWorldState(Enum worldState, bool value)
         {
-            var index = m_Logic.ValueRO.Def.StateMapping[LogicHandle.FromEnumTest(worldState)].Index;
+            var state = LogicHandle.FromEnumTest(worldState);
+            var index = m_Logic.ValueRO.Def.StateMapping[state].Index;
             m_WorldStates.ElementAt(index).Value = value;
-            m_Logic.ValueRW.SetDone();
             UnityEngine.Debug.Log($"{Self} [Logic] change world: {worldState} - {value}");
+
+            if (Def.TryGetAction(m_Logic.ValueRO.Action, out GoapAction action) && action.GetGoalTools().LeadsToGoal(state))
+            {
+                UnityEngine.Debug.Log($"{Self} [Logic] {CurrentAction} - done");
+                m_Logic.ValueRW.Work = false;
+            }
+            m_Logic.ValueRW.WaitChangeWorld = false;
         }
 
         public bool HasWorldState(Enum worldState, bool value)
@@ -66,31 +68,67 @@ namespace Game.Model.Logics
             return m_WorldStates[index].Value == value;
         }
 
+
+        public void SetGoals()
+        {
+
+        }
+
+        public bool GetNextGoal(out Goal goal)
+        {
+            var result = (m_Goals.Length > 0);
+            goal = default;
+            if (result)
+            {
+                goal = m_Goals[^1];
+                if (!goal.Repeat)
+                    m_Goals.RemoveAt(m_Goals.Length - 1);
+            }
+            return result;
+        }
+
         public void SetPlan(NativeArray<LogicHandle> plan)
         {
+            UnityEngine.Debug.Log($"{Self} [Logic] new plan - {string.Join(", ", plan.ToArray().Select(i => $"{i}"))}");
             m_Plan.CopyFrom(plan);
         }
 
         public bool IsActionSuccess()
         {
-            var action = Def.GetAction(m_Logic.ValueRO.CurrentAction);
-            return action.IsSuccess(m_WorldStates, Def);
+            return Def.TryGetAction(m_Logic.ValueRO.Action, out GoapAction action) && action.IsSuccess(m_WorldStates, Def);
         }
 
         public void SetFailed()
         {
-            m_Logic.ValueRW.SetAction(LogicHandle.Null);
-            m_Logic.ValueRW.SetDone();
-            //m_WorldStates.ElementAt(0).Value = m_WorldStates[0].Value;
+            UnityEngine.Debug.Log($"{Self} [Logic] {CurrentAction} - Failed");
+            m_Logic.ValueRW.Action = LogicHandle.Null;
+        }
+
+        public void SetWaitChangeWorld()
+        {
+            UnityEngine.Debug.Log($"{Self} [Logic] no plan. Wait change world");
+            m_Logic.ValueRW.Action = LogicHandle.Null;
+            m_Logic.ValueRW.WaitChangeWorld = true;
+        }
+
+        public void SetWaitNewGoal()
+        {
+            UnityEngine.Debug.Log($"{Self} [Logic] LogicFinish - no goals");
+            m_Logic.ValueRW.Action = LogicHandle.Null;
+            m_Logic.ValueRW.WaitNewGoal = true;
         }
 
         public void SetAction(LogicHandle value)
         {
-            var action = Def.GetAction(value);
-            if (!action.CanTransition(m_WorldStates, Def))
-                SetFailed();
+            UnityEngine.Debug.Log($"{Self} [Logic] new action - {value}");
+            
+            if (Def.TryGetAction(value, out GoapAction action) && action.CanTransition(m_WorldStates, Def))
+            {
+                m_Logic.ValueRW.Action = value;
+                m_Logic.ValueRW.Work = true;
+            }
             else
-                m_Logic.ValueRW.SetAction(value);
+                SetFailed();
         }
 
         public LogicHandle GetNextState()

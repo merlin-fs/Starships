@@ -31,13 +31,10 @@ namespace Game.Model.Logics
             {
                 m_StateMapping.Clear();
                 m_Actions.Clear();
-
+                m_Goal.Clear();
                 m_Effects.Dispose();
                 m_Effects = new Map<GoalHandle, LogicHandle>(10, Allocator.Persistent, true);
                 
-                m_Goal.Dispose();
-                m_Goal = new States(Allocator.Persistent);
-
                 var types = typeof(IStateData).GetDerivedTypes(true)
                     .SelectMany(t => t.GetNestedTypes())
                     .Where(t => t.IsEnum && t.Name == "State");

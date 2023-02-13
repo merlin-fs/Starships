@@ -5,10 +5,9 @@ using Unity.Collections;
 namespace Game.Model.Logics
 {
     using Stats;
-    using Weapons;
 
     [UpdateInGroup(typeof(GamePartLogicSystemGroup))]
-    public partial struct FindOfWeaponTarget: Logic.IPartLogic
+    public partial struct FindUnitTarget : Logic.IPartLogic
     {
         public EntityQuery m_Query;
         public ComponentLookup<Team> m_LookupTeam;
@@ -19,7 +18,7 @@ namespace Game.Model.Logics
             m_LookupTeam = state.GetComponentLookup<Team>(false);
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Logic>()
-                .WithAll<Weapon>()
+                .WithAll<Team>()
                 .WithNone<DeadTag>()
                 .Build();
         }
@@ -41,7 +40,7 @@ namespace Game.Model.Logics
             [ReadOnly]
             public ComponentLookup<Team> Teams;
 
-            void Execute(ref WeaponAspect weapon, [ReadOnly] in LogicAspect logic)
+            void Execute(in LogicAspect logic, in Team team, ref Target target)
             {
                 if (!logic.Def.IsSupportSystem(typeof(FindOfWeaponTarget)))
                     return;
@@ -49,8 +48,7 @@ namespace Game.Model.Logics
                 if (!logic.IsCurrentAction(Target.Action.Find))
                     return;
 
-                if (weapon.Unit != Entity.Null)
-                    weapon.SetSoughtTeams(Teams[weapon.Unit].EnemyTeams);
+                target.SoughtTeams = team.EnemyTeams;
             }
         }
     }

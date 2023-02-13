@@ -9,15 +9,15 @@ namespace Game.Model.Logics
     {
         public partial struct PlanFinder
         {
-            public static NativeArray<LogicHandle> Execute(int threadIdx, LogicAspect logic, States goal, 
+            public static NativeArray<LogicHandle> Execute(int threadIdx, LogicAspect logic, Goal goal, 
                 AllocatorManager.AllocatorHandle allocator)
             {
-                var path = Search(threadIdx, logic, goal.GetReadOnly(), allocator);
+                var path = Search(threadIdx, logic, goal, allocator);
                 return path;
             }
 
             private unsafe static NativeArray<LogicHandle> Search(int threadIdx, LogicAspect logic,
-                NativeHashMap<LogicHandle, bool>.ReadOnly goal, AllocatorManager.AllocatorHandle allocator)
+                Goal goal, AllocatorManager.AllocatorHandle allocator)
             {
                 InitFinder(threadIdx);
                 try
@@ -27,9 +27,8 @@ namespace Game.Model.Logics
                         HeuristicCost = 0.0f
                     };
 
-                    foreach (var nextGoal in goal)
-                        if (!logic.HasWorldState(nextGoal.Key, nextGoal.Value))
-                            root.Goals.Add(nextGoal.Key, nextGoal.Value);
+                    if (!logic.HasWorldState(goal.State, goal.Value))
+                        root.Goals.Add(goal.State, goal.Value);
 
                     var costs = GetCosts(threadIdx);
                     costs.Add(LogicHandle.Null, root);
@@ -61,7 +60,7 @@ namespace Game.Model.Logics
                 {
                     foreach (var pt in logic.Def.GetActionsFromGoal(GoalHandle.FromHandle(iter.Key, iter.Value)))
                     {
-                        var action = logic.Def.GetAction(pt);
+                        logic.Def.TryGetAction(pt, out GoapAction action);
                         if (!costs.TryGetValue(action.Handle, out Node next))
                         {
                             next = new Node(action.Handle, action.Cost);

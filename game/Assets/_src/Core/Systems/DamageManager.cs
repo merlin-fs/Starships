@@ -31,6 +31,7 @@ namespace Game.Model.Weapons
         public struct DamageData : IComponentData
         {
             public Entity Sender;
+            public WorldTransform SenderTransform;
             public Target Target;
             public Bullet Bullet;
             public float Value;
@@ -54,13 +55,14 @@ namespace Game.Model.Weapons
 
         public void OnDestroy(ref SystemState state) { }
 
-        public static void Damage(Entity entity, Target target, Bullet bullet, float value, IDefineableContext context)
+        public static void Damage(Entity entity, WorldTransform SenderTransform, Target target, Bullet bullet, float value, IDefineableContext context)
         {
             var damageEntity = context.CreateEntity();
 
             var damage = new DamageData
             {
                 Sender = entity,
+                SenderTransform = SenderTransform,
                 Value = value,
                 Target = target,
                 Bullet = bullet,
@@ -86,7 +88,7 @@ namespace Game.Model.Weapons
             };
             state.Dependency = job.ScheduleParallel(m_Query, jobHandle);
             state.Dependency.Complete();
-            //ecb.DestroyEntity(m_Query);
+            ecb.DestroyEntity(m_Query);
             entities.Dispose(state.Dependency);
         }
 
@@ -101,7 +103,7 @@ namespace Game.Model.Weapons
             [ReadOnly] public ComponentLookup<WorldTransform> LookupTransforms;
             [ReadOnly] public NativeList<Entity> Entities;
 
-            void Execute([EntityIndexInQuery] int idx, in Entity entity, in DamageData damage)
+            void Execute([EntityIndexInQuery] int idx, in DamageData damage)
             {
                 var context = new DefExt.WriterContext(Writer, idx);
                 var damageConfig = damage.Bullet.Def.DamageType;
@@ -109,11 +111,11 @@ namespace Game.Model.Weapons
                 {
                     if (damageConfig.Targets == DamageTargets.AoE)
                     {
-                        AoE(idx, damageConfig.ID, damage.Target.WorldTransform.Position, iter, damage.Bullet.Range, damage.Value, context);
+                        AoE(idx, damageConfig.ID, damage.SenderTransform.Position, iter, damage.Bullet.Range, damage.Value, context);
                     }
                     else
                     {
-                        Damage(idx, damageConfig.ID, entity, iter, damage.Value, context);
+                        Damage(idx, damageConfig.ID, damage.Target.Value, iter, damage.Value, context);
                     }
                 }
             }

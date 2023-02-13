@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Properties;
 using Unity.Collections;
 using Common.Defs;
+using Unity.Transforms;
 
 namespace Game.Model.Weapons
 {
@@ -20,6 +21,7 @@ namespace Game.Model.Weapons
         [Optional] readonly RefRO<Bullet> m_Bullet;
         readonly RefRO<Root> m_Owner;
         [ReadOnly] readonly DynamicBuffer<Stat> m_Stats;
+        [ReadOnly] readonly TransformAspect m_Transform;
 
         #region DesignTime
 
@@ -56,7 +58,8 @@ namespace Game.Model.Weapons
             m_Weapon.ValueRW.Count -= Config.BarrelCount;
             if (m_Weapon.ValueRW.Count < 0)
                 m_Weapon.ValueRW.Count = 0;
-            DamageManager.Damage(Self, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value, context);
+            
+            DamageManager.Damage(Self, m_Transform.WorldTransform, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value, context);
         }
 
         public bool Reload(IDefineableContext context, int count)
