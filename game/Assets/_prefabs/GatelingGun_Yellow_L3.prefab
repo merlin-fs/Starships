@@ -211,6 +211,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4144936528890730}
   - component: {fileID: -5046511110784665088}
+  - component: {fileID: 8076659835732265027}
   m_Layer: 0
   m_Name: GatelingGun_L3_BaseRotation
   m_TagString: Untagged
@@ -250,6 +251,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Type: 
+--- !u!114 &8076659835732265027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1157879558086612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5eb12eb2036972042ba25cbd672ebb44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 6991731877138196747}
+  Vfx:
+    m_AssetGUID: 0c03986162166ca4a83d01facd9d7a61
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  Position: 1
+  Rotation: 1
+  Scale: 1
 --- !u!1 &1158759922637424
 GameObject:
   m_ObjectHideFlags: 0
@@ -1347,7 +1369,7 @@ Transform:
   - {fileID: 4034454842201128}
   - {fileID: 4343088346953274}
   - {fileID: 4575810401582574}
-  - {fileID: 4351315298056788}
+  - {fileID: 2515366468970417368}
   m_Father: {fileID: 4848764909461546}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1520,82 +1542,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Type: 
---- !u!1001 &2020149155342949183
-PrefabInstance:
+--- !u!1 &6991731877138196747
+GameObject:
   m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 4856386421184550}
-    m_Modifications:
-    - target: {fileID: 2019432924341920107, guid: 0c03986162166ca4a83d01facd9d7a61,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 2019432924341920107, guid: 0c03986162166ca4a83d01facd9d7a61,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2019432924341920107, guid: 0c03986162166ca4a83d01facd9d7a61,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.466
-      objectReference: {fileID: 0}
-    - target: {fileID: 2019432924341920107, guid: 0c03986162166ca4a83d01facd9d7a61,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 1.85
-      objectReference: {fileID: 0}
-    - target: {fileID: 2019432924341920107, guid: 0c03986162166ca4a83d01facd9d7a61,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2019432924341920107, guid: 0c03986162166ca4a83d01facd9d7a61,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2019432924341920107, guid: 0c03986162166ca4a83d01facd9d7a61,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2019432924341920107, guid: 0c03986162166ca4a83d01facd9d7a61,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2019432924341920107, guid: 0c03986162166ca4a83d01facd9d7a61,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2019432924341920107, guid: 0c03986162166ca4a83d01facd9d7a61,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2019432924341920107, guid: 0c03986162166ca4a83d01facd9d7a61,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2021363347585301835, guid: 0c03986162166ca4a83d01facd9d7a61,
-        type: 3}
-      propertyPath: m_Name
-      value: MuzzelFlash_ParticleSystem
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 0c03986162166ca4a83d01facd9d7a61, type: 3}
---- !u!4 &4351315298056788 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2019432924341920107, guid: 0c03986162166ca4a83d01facd9d7a61,
-    type: 3}
-  m_PrefabInstance: {fileID: 2020149155342949183}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2515366468970417368}
+  m_Layer: 0
+  m_Name: vfx
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2515366468970417368
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6991731877138196747}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.466, z: 1.85}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4856386421184550}
+  m_RootOrder: -1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -86,7 +86,14 @@ MonoBehaviour:
   - m_GUID: 2c0f9f416c468de44b7b9787691b4437
     m_Address: Assets/_prefabs/vfx/Explosion.prefab
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - vfx
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0c03986162166ca4a83d01facd9d7a61
+    m_Address: Assets/_prefabs/vfx/MuzzelFlash_ParticleSystem.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - vfx
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ed21bb125e95a2b41a3ef0fc04dd10bd, type: 2}

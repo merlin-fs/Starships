@@ -1,17 +1,20 @@
 using System;
+using System.Threading;
 using Unity.Entities;
 using Unity.Transforms;
-using Game.Model.Logics;
-using System.Threading;
+using Unity.Collections;
 
 namespace Game.Views
 {
+    using Model.Logics;
+
     [UpdateInGroup(typeof(GamePresentationSystemGroup))]
-    public partial class TestParticleSystem : SystemBase
+    public partial struct ParticleSystem : ISystem
     {
         private EntityQuery m_Query;
+        ComponentLookup<WorldTransform> m_LookupTransforms;
 
-        protected override void OnCreate()
+        public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Logic>()
@@ -19,28 +22,35 @@ namespace Game.Views
                 .Build();
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
-            RequireForUpdate(m_Query);
+            state.RequireForUpdate(m_Query);
+            m_LookupTransforms = state.GetComponentLookup<WorldTransform>(true);
         }
-
-        protected override void OnUpdate()
+        
+        public void OnDestroy(ref SystemState state) { }
+        public void OnUpdate(ref SystemState state)
         {
-            new PlayParticleJob
+            m_LookupTransforms.Update(ref state);
+            state.Dependency = new PlayParticleJob
             {
+                LookupTransforms = m_LookupTransforms,
             }
-            .ScheduleParallel(m_Query, Dependency)
-            .Complete();
+            .ScheduleParallel(m_Query, state.Dependency);
         }
 
         partial struct PlayParticleJob : IJobEntity
         {
-            void Execute(in Entity entity, in LogicAspect logic, in DynamicBuffer<Particle> particles, in WorldTransform transform)
+            [ReadOnly] 
+            public ComponentLookup<WorldTransform> LookupTransforms;
+
+            void Execute(in Entity entity, in LogicAspect logic, in DynamicBuffer<Particle> particles)
             {
                 foreach(var iter in particles)
                 {
                     if (logic.IsCurrentAction(iter.Action))
                     {
                         var localEntity = entity;
-                        var localTransform = transform;
+                        var localTransform = LookupTransforms[iter.Target];
+                        UnityEngine.Debug.Log($"{entity} [Particle] action {logic.CurrentAction}");
                         UnityMainThread.Context.Post(obj =>
                         {
                             ParticleManager.Instance.Play(localEntity, iter, localTransform);

@@ -17,15 +17,18 @@ namespace Game
         [UpdateInGroup(typeof(GameSystemGroup), OrderFirst = true)]
         public class GameLogicInitSystemGroup : ComponentSystemGroup { }
 
-            [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderFirst = true)]
-            public class GameLogicCommandBufferSystem : EntityCommandBufferSystem { }
-
-
         [UpdateInGroup(typeof(GameSystemGroup))]
         public class GameLogicSystemGroup : ComponentSystemGroup { }
 
-        [UpdateInGroup(typeof(GameSystemGroup), OrderLast = true)]
+            [UpdateInGroup(typeof(GameLogicSystemGroup), OrderLast = true)]
+            public class GameLogicCommandBufferSystem : EntityCommandBufferSystem { }
+
+
+
+    [UpdateInGroup(typeof(GameSystemGroup), OrderLast = true)]
         public class GameLogicDoneSystemGroup : ComponentSystemGroup { }
+        [UpdateInGroup(typeof(GameLogicDoneSystemGroup), OrderLast = true)]
+        public class GameLogicEndCommandBufferSystem : EntityCommandBufferSystem { }
 
 
 

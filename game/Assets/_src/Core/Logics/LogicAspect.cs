@@ -7,6 +7,7 @@ using Unity.Properties;
 namespace Game.Model.Logics
 {
     using static Game.Model.Logics.Logic;
+    using static UnityEngine.Rendering.DebugUI;
 
     public readonly partial struct LogicAspect : IAspect
     {
@@ -25,10 +26,16 @@ namespace Game.Model.Logics
         public bool IsWaitChangeWorld => m_Logic.ValueRO.WaitChangeWorld;
         public bool IsValid => m_Logic.ValueRO.Def.IsValid;
         public bool HasPlan => m_Plan.Length > 0;
+        public bool IsAction => m_Logic.ValueRO.Action != LogicHandle.Null;
 
-        public bool IsAction()
+
+        public void CheckCurrentAction()
         {
-            return m_Logic.ValueRO.Action != LogicHandle.Null;
+            if (IsWork && IsAction)
+            {
+                if (Def.TryGetAction(m_Logic.ValueRO.Action, out GoapAction action) && !action.CanTransition(m_WorldStates, Def))
+                    SetFailed();
+            }
         }
 
         public bool IsCurrentAction(Enum action)
@@ -46,11 +53,11 @@ namespace Game.Model.Logics
             var state = LogicHandle.FromEnumTest(worldState);
             var index = m_Logic.ValueRO.Def.StateMapping[state].Index;
             m_WorldStates.ElementAt(index).Value = value;
-            UnityEngine.Debug.Log($"{Self} [Logic] change world: {worldState} - {value}");
+            //UnityEngine.Debug.Log($"{Self} [Logic] change world: {worldState} - {value}");
 
             if (Def.TryGetAction(m_Logic.ValueRO.Action, out GoapAction action) && action.GetGoalTools().LeadsToGoal(state))
             {
-                UnityEngine.Debug.Log($"{Self} [Logic] {CurrentAction} - done");
+                //UnityEngine.Debug.Log($"{Self} [Logic] {CurrentAction} - done");
                 m_Logic.ValueRW.Work = false;
             }
             m_Logic.ValueRW.WaitChangeWorld = false;
@@ -67,7 +74,6 @@ namespace Game.Model.Logics
             var index = m_Logic.ValueRO.Def.StateMapping[worldState].Index;
             return m_WorldStates[index].Value == value;
         }
-
 
         public void SetGoals()
         {
@@ -89,7 +95,7 @@ namespace Game.Model.Logics
 
         public void SetPlan(NativeArray<LogicHandle> plan)
         {
-            UnityEngine.Debug.Log($"{Self} [Logic] new plan - {string.Join(", ", plan.ToArray().Select(i => $"{i}"))}");
+            //UnityEngine.Debug.Log($"{Self} [Logic] new plan - {string.Join(", ", plan.ToArray().Select(i => $"{i}"))}");
             m_Plan.CopyFrom(plan);
         }
 
@@ -100,8 +106,9 @@ namespace Game.Model.Logics
 
         public void SetFailed()
         {
-            UnityEngine.Debug.Log($"{Self} [Logic] {CurrentAction} - Failed");
+            //UnityEngine.Debug.Log($"{Self} [Logic] {CurrentAction} - Failed");
             m_Logic.ValueRW.Action = LogicHandle.Null;
+            m_Logic.ValueRW.Work = false;
         }
 
         public void SetWaitChangeWorld()
@@ -120,15 +127,14 @@ namespace Game.Model.Logics
 
         public void SetAction(LogicHandle value)
         {
-            UnityEngine.Debug.Log($"{Self} [Logic] new action - {value}");
-            
-            if (Def.TryGetAction(value, out GoapAction action) && action.CanTransition(m_WorldStates, Def))
+            //UnityEngine.Debug.Log($"{Self} [Logic] new action - {value}");
+            m_Logic.ValueRW.Action = value;
+            m_Logic.ValueRW.Work = true;
+
+            if (Def.TryGetAction(value, out GoapAction action) && !action.CanTransition(m_WorldStates, Def))
             {
-                m_Logic.ValueRW.Action = value;
-                m_Logic.ValueRW.Work = true;
-            }
-            else
                 SetFailed();
+            }
         }
 
         public LogicHandle GetNextState()

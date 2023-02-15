@@ -5,12 +5,9 @@ using Unity.Entities;
 namespace Game.Model.Stats
 {
     using Core.Defs;
-
-    using Game.Core.Repositories;
-
-    using static Common.Core.Loading.LoadingManager;
-
-    [UpdateInGroup(typeof(GameSpawnSystemGroup), OrderFirst = true)]
+    using Core.Repositories;
+    
+    [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderFirst = true)]
     public partial struct StatPrepareSystem : ISystem
     {
         private EntityQuery m_Query;

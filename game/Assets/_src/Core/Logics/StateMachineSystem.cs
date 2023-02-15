@@ -48,6 +48,8 @@ namespace Game.Model.Logics
                 {
                     if (!logic.IsValid) return;
 
+                    logic.CheckCurrentAction();
+
                     if (logic.IsWork || logic.IsWaitNewGoal || logic.IsWaitChangeWorld)
                         return;
 
@@ -74,7 +76,7 @@ namespace Game.Model.Logics
                         }
                     }
 
-                    if (!logic.IsAction() || (logic.IsAction() && logic.IsActionSuccess()))
+                    if (!logic.IsAction || (logic.IsAction && logic.IsActionSuccess()))
                     {
                         var next = logic.GetNextState();
                         logic.SetAction(next);

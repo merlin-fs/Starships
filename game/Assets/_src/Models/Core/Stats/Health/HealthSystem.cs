@@ -5,7 +5,8 @@ namespace Game.Model.Stats
 {
     using Logics;
 
-    [UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
+    //[UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
+    [UpdateInGroup(typeof(GameLogicInitSystemGroup))]
     public partial struct HealthSystem : ISystem
     {
         EntityQuery m_Query;

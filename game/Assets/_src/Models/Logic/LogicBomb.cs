@@ -17,7 +17,7 @@ namespace Game.Model.Logics
                 .AddEffect(Weapon.State.NoAmmo, false)
                 .Cost(1);
 
-            logic.AddAction(Weapon.Action.Shoot)
+            logic.AddAction(Weapon.Action.Shooting)
                 .AddPreconditions(Move.State.MoveDone, true)
                 .AddPreconditions(Weapon.State.NoAmmo, false)
                 .AddEffect(Target.State.Dead, true)

@@ -76,7 +76,7 @@ namespace Game.Model.Weapons
             m_LookupStats.Update(ref state);
 
             var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle jobHandle);
-            var system = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>();
+            var system = state.World.GetExistingSystemManaged<GameLogicEndCommandBufferSystem>();
             var ecb = system.CreateCommandBuffer();
 
             var job = new WeaponJob()
@@ -138,13 +138,6 @@ namespace Game.Model.Weapons
                 {
                     Damage(idx, cfgID, target, damage, value, context);
                 }
-            }
-
-            struct TempFindTarget
-            {
-                public Entity Entity;
-                public float Magnitude;
-                public WorldTransform Transform;
             }
 
             public void FindEnemy(float3 center, float radius, ComponentLookup<WorldTransform> transforms, NativeList<Entity> targets)

@@ -9,5 +9,10 @@ namespace Game.Views
     {
         public LogicHandle Action;
         public Hash128 VfxID;
+        public Entity Target;
+
+        public bool Scale;
+        public bool Position;
+        public bool Rotation;
     }
 }

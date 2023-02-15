@@ -45,7 +45,7 @@ namespace Game.Model
                 {
                     if (logic.IsCurrentAction(Action.Init))
                     {
-                        UnityEngine.Debug.Log($"[{logic.Self}] init {data.Position}, speed {data.Speed}");
+                        UnityEngine.Debug.Log($"{logic.Self} [Move] init {data.Position}, speed {data.Speed}");
                         transform.WorldPosition = data.Position;
                         transform.RotateLocal(data.Rotation);
                         logic.SetWorldState(State.Init, true);

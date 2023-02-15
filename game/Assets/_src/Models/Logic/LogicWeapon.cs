@@ -11,18 +11,13 @@ namespace Game.Model.Logics
             logic.SetInitializeState(Weapon.State.NoAmmo, true);
             logic.SetInitializeState(Weapon.State.HasAmo, true);
 
-            logic.AddAction(Move.Action.Init)
-                .AddPreconditions(Move.State.Init, false)
-                .AddEffect(Move.State.Init, true)
-                .Cost(1);
-
             logic.AddAction(Target.Action.Find)
                 .AddPreconditions(Target.State.Found, false)
                 .AddPreconditions(Weapon.State.NoAmmo, false)
                 .AddEffect(Target.State.Found, true)
                 .Cost(1);
 
-            logic.AddAction(Weapon.Action.Shoot)
+            logic.AddAction(Weapon.Action.Shooting)
                 .AddPreconditions(Target.State.Found, true)
                 .AddPreconditions(Weapon.State.NoAmmo, false)
                 .AddEffect(Target.State.Dead, true)
@@ -40,7 +35,6 @@ namespace Game.Model.Logics
                 .AddEffect(Weapon.State.NoAmmo, false)
                 .Cost(2);
 
-            logic.EnqueueGoal(Move.State.Init, true);
             logic.EnqueueGoal(Weapon.State.NoAmmo, false);
             logic.EnqueueGoalRepeat(Target.State.Dead, true);
         }

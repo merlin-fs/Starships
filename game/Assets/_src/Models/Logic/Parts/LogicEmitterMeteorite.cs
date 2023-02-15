@@ -30,16 +30,14 @@ namespace Game.Model.Logics
         public void OnUpdate(ref SystemState state)
         {
             m_LookupWorldStates.Update(ref state);
-            var ecb = state.World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>().CreateCommandBuffer();
+            var ecb = state.World.GetExistingSystemManaged<GameLogicEndCommandBufferSystem>().CreateCommandBuffer();
             state.Dependency = new EmitterMoveJob()
             {
                 Writer = ecb.AsParallelWriter(),
                 LookupWorldStates = m_LookupWorldStates,
             }
             .ScheduleParallel(m_Query, state.Dependency);
-
-            //state.World.
-            //state.SystemHandle
+            state.Dependency.Complete();
         }
         #endregion
         public partial struct EmitterMoveJob : IJobEntity
@@ -59,7 +57,7 @@ namespace Game.Model.Logics
                     logic.SetWorldState(Move.State.MoveDone, true);
                 }
 
-                if (logic.IsCurrentAction(Weapon.Action.Shoot))
+                if (logic.IsCurrentAction(Weapon.Action.Shooting))
                 {
                     logic.SetWorldState(Weapon.State.HasAmo, false);
                     Writer.AddComponent<DeadTag>(idx, root.Value);

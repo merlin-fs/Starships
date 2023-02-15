@@ -49,7 +49,7 @@ namespace Game.Model
                 var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle handle);
                 var job = new Job()
                 {
-                    Transforms = m_LookupTransforms,
+                    LookupTransforms = m_LookupTransforms,
                     Teams = m_LookupTeams,
                     Entities = entities,
                     Delta = SystemAPI.Time.DeltaTime,
@@ -62,7 +62,7 @@ namespace Game.Model
             partial struct Job : IJobEntity
             {
                 public float Delta;
-                [ReadOnly] public ComponentLookup<WorldTransform> Transforms;
+                [ReadOnly] public ComponentLookup<WorldTransform> LookupTransforms;
                 [ReadOnly] public ComponentLookup<Team> Teams;
                 [ReadOnly] public NativeList<Entity> Entities;
 
@@ -70,7 +70,7 @@ namespace Game.Model
                 {
                     if (!logic.IsCurrentAction(Action.Find)) return;
 
-                    if (FindEnemy(data.SoughtTeams, entity, 25f, Transforms, Teams, out data.Value, out data.WorldTransform))
+                    if (FindEnemy(data.SoughtTeams, entity, 25f, LookupTransforms, Teams, out data.Value, out data.WorldTransform))
                         logic.SetWorldState(State.Found, true);
                     else
                         logic.SetWorldState(State.Found, false);

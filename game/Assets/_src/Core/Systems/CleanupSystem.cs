@@ -5,8 +5,7 @@ namespace Game.Systems
 {
     using Model.Stats;
 
-    //[UpdateInGroup(typeof(GameEndSystemGroup), OrderLast = true)]
-    [UpdateInGroup(typeof(InitializationSystemGroup), OrderLast = true)]
+    [UpdateInGroup(typeof(GameSpawnSystemGroup), OrderLast = true)]
     public partial struct CleanupSystem : ISystem
     {
         EntityQuery m_Query;
@@ -26,15 +25,14 @@ namespace Game.Systems
             public EntityCommandBuffer.ParallelWriter Writer;
             void Execute([EntityIndexInQuery] int idx, in Entity entity)
             {
-                UnityEngine.Debug.Log($"[{entity}] Destroy");
+                UnityEngine.Debug.Log($"{entity} [Cleanup] destroy");
                 Writer.DestroyEntity(idx, entity);
             }
         }
 
         public void OnUpdate(ref SystemState state)
         {
-            //var system = state.World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
-            var system = state.World.GetOrCreateSystemManaged<EndInitializationEntityCommandBufferSystem>();
+            var system = state.World.GetOrCreateSystemManaged<GameLogicEndCommandBufferSystem>();
             var ecb = system.CreateCommandBuffer();
             state.Dependency = new DeadJob()
             {
@@ -42,7 +40,6 @@ namespace Game.Systems
             }.ScheduleParallel(m_Query, state.Dependency);
             //state.Dependency.Complete();
             system.AddJobHandleForProducer(state.Dependency);
-            //ecb.Playback(state.EntityManager);
         }
     }
 }

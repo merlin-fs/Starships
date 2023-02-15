@@ -69,22 +69,30 @@ namespace Game.Model.Weapons
                             }
                         }
                     }
-                
-                    if (logic.IsCurrentAction(Action.Shoot))
+
+                    if (logic.IsCurrentAction(Action.Shooting))
                     {
                         weapon.Time += Delta;
                         if (weapon.Time >= weapon.Stat(Stats.Rate).Value)
                         {
+                            logic.SetAction(LogicHandle.FromEnum(Action.Shoot));
                             weapon.Time = 0;
                             weapon.Shot(new DefExt.WriterContext(Writer, idx));
-
                             if (weapon.Count == 0)
                             {
                                 logic.SetWorldState(State.NoAmmo, true);
-                                return;
+                                logic.SetWorldState(Target.State.Dead, false);
                             }
                         }
+                        return;
                     }
+
+                    if (logic.IsCurrentAction(Action.Shoot))
+                    {
+                        logic.SetAction(LogicHandle.FromEnum(Action.Shooting));
+                        return;
+                    }
+
 
                     /*
                     switch (logic.CurrentAction)

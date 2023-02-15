@@ -10,7 +10,12 @@ namespace Game.Views
 #if UNITY_EDITOR
     public class ParticleAuthoring : MonoBehaviour
     {
+        [SelectChildPrefab]
+        public GameObject Target;
         public AssetReferenceT<GameObject> Vfx;
+        public bool Position = true;
+        public bool Rotation = true;
+        public bool Scale = true;
 
         class _baker : Baker<ParticleAuthoring>
         {
@@ -21,6 +26,10 @@ namespace Game.Views
                 {
                     Action = LogicHandle.FromEnum(Weapon.Action.Shoot),
                     VfxID = new Unity.Entities.Hash128(authoring.Vfx.AssetGUID),
+                    Target = GetEntity(authoring.Target),
+                    Position = authoring.Position, 
+                    Rotation = authoring.Rotation, 
+                    Scale = authoring.Scale,
                 });
             }
         }

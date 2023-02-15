@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 
 namespace UnityEngine.Pool
 {
-    public class PoolObjects<T, P> : IDisposable where T : class
+    public class ObjectsPoolAsync<T> : IDisposable where T : class
     {
         internal readonly List<T> m_List;
 
-        private readonly Func<P, Task<T>> m_CreateFunc;
+        private readonly Func<object, Task<T>> m_CreateFunc;
 
         private readonly Action<T> m_ActionOnGet;
 
@@ -26,7 +26,7 @@ namespace UnityEngine.Pool
 
         public int CountInactive => m_List.Count;
 
-        public PoolObjects(Func<P, Task<T>> createFunc, Action<T> actionOnGet = null, Action<T> actionOnRelease = null, Action<T> actionOnDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000)
+        public ObjectsPoolAsync(Func<object, Task<T>> createFunc, Action<T> actionOnGet = null, Action<T> actionOnRelease = null, Action<T> actionOnDestroy = null, bool collectionCheck = true, int defaultCapacity = 10, int maxSize = 10000)
         {
             if (createFunc == null)
             {
@@ -47,7 +47,7 @@ namespace UnityEngine.Pool
             m_CollectionCheck = collectionCheck;
         }
 
-        public async Task<T> Get(P value)
+        public async Task<T> Get(object value)
         {
             T val;
             if (m_List.Count == 0)
@@ -65,13 +65,6 @@ namespace UnityEngine.Pool
             m_ActionOnGet?.Invoke(val);
             return val;
         }
-
-        /*
-        public async Task<PooledObject> Get(P value, out T v)
-        {
-            return new PooledObject(v = await Get(value), this);
-        }
-        */
 
         public void Release(T element)
         {
@@ -116,13 +109,13 @@ namespace UnityEngine.Pool
             Clear();
         }
 
-        public struct PooledObject : IDisposable
+        readonly struct PooledObject : IDisposable
         {
             private readonly T m_ToReturn;
 
-            private readonly PoolObjects<T, P> m_Pool;
+            private readonly ObjectsPoolAsync<T> m_Pool;
 
-            internal PooledObject(T value, PoolObjects<T, P> pool)
+            internal PooledObject(T value, ObjectsPoolAsync<T> pool)
             {
                 m_ToReturn = value;
                 m_Pool = pool;
