@@ -98,8 +98,8 @@ public class TestSpawn : MonoBehaviour
     private async void Start()
     {
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        Application.targetFrameRate = 30;
-        QualitySettings.vSyncCount = 4;
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount = 3;
 
         /*
         var guid = SceneSystem.GetSceneGUID(ref m_EntityManager.WorldUnmanaged.GetExistingSystemState<SceneSystem>(), "Assets/Scenes/SampleScene/New Sub Scene.unity");

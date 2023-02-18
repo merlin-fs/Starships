@@ -10,14 +10,17 @@ namespace Game.Model.Logics
         {
             logic.SetInitializeState(Weapon.State.NoAmmo, true);
             logic.SetInitializeState(Weapon.State.HasAmo, true);
+            logic.SetInitializeState(Weapon.State.Active, false);
 
             logic.AddAction(Target.Action.Find)
+                .AddPreconditions(Weapon.State.Active, true)
                 .AddPreconditions(Target.State.Found, false)
                 .AddPreconditions(Weapon.State.NoAmmo, false)
                 .AddEffect(Target.State.Found, true)
                 .Cost(1);
 
             logic.AddAction(Weapon.Action.Shooting)
+                .AddPreconditions(Weapon.State.Active, true)
                 .AddPreconditions(Target.State.Found, true)
                 .AddPreconditions(Weapon.State.NoAmmo, false)
                 .AddEffect(Target.State.Dead, true)

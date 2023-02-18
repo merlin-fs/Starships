@@ -16,7 +16,7 @@ MonoBehaviour:
   m_LogicInst:
     rid: 7383091081461891074
   m_Parts:
-  - Game.Model.Logics.LogicEmitterMeteorite
+  - Game.Model.Logics.LogicPartWeaponBomb
   references:
     version: 2
     RefIds:

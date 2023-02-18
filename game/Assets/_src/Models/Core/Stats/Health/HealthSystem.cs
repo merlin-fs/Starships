@@ -28,24 +28,21 @@ namespace Game.Model.Stats
 
         public void OnUpdate(ref SystemState state)
         {
-            var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer(); 
-            var job = new HealthJob()
+            var job = new SystemJob()
             {
-                Writer = ecb.AsParallelWriter(),
             };
             state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
             state.Dependency.Complete();
         }
 
-        partial struct HealthJob : IJobEntity
+        partial struct SystemJob : IJobEntity
         {
-            public EntityCommandBuffer.ParallelWriter Writer;
-
-            void Execute([EntityIndexInQuery] int idx, in Entity entity, in DynamicBuffer<Stat> stats)
+            public void Execute([EntityIndexInQuery] int idx, in Entity entity, in DynamicBuffer<Stat> stats, ref LogicAspect logic)
             {
                 if (stats.TryGetStat(GlobalStat.Health, out Stat health) && health.Value <= 0)
                 {
-                    Writer.AddComponent<DeadTag>(idx, entity);
+                    UnityEngine.Debug.Log($"{logic.Self} [Health system] set Destroy");
+                    logic.SetAction(GlobalAction.Destroy);
                 }
             }
         }

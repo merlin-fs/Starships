@@ -2,6 +2,7 @@ using System;
 
 namespace Game.Model.Logics
 {
+    using Units;
     using Weapons;
     using static Game.Model.Logics.Logic;
 
@@ -9,7 +10,6 @@ namespace Game.Model.Logics
     {
         public void Init(LogicDef logic)
         {
-            logic.SetInitializeState(Weapon.State.NoAmmo, true);
             logic.SetInitializeState(Move.State.Init, false);
 
             logic.AddAction(Move.Action.Init)
@@ -32,8 +32,14 @@ namespace Game.Model.Logics
                 .AddEffect(Move.State.MoveDone, true)
                 .Cost(10);
 
+            logic.AddAction(Unit.Action.ActiveWeapons)
+                .AddPreconditions(Unit.State.WeaponsActive, false)
+                .AddPreconditions(Move.State.MoveDone, true)
+                .AddEffect(Unit.State.WeaponsActive, true)
+                .Cost(1);
+
             logic.EnqueueGoal(Move.State.Init, true);
-            logic.EnqueueGoal(Move.State.MoveDone, true);
+            logic.EnqueueGoal(Unit.State.WeaponsActive, true);
         }
     }
 }

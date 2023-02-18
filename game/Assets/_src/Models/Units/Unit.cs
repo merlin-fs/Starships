@@ -9,12 +9,13 @@ namespace Game.Model.Units
     using Stats;
     using System.Collections.Generic;
     using Game.Core.Defs;
+    using static Game.Model.Logics.Logic;
 
     /// <summary>
     /// Реализация юнита (корабля)
     /// </summary>
     [Serializable]
-    public struct Unit : IUnit, IDefineable, IComponentData, IDefineableCallback
+    public struct Unit : IUnit, IDefineable, IComponentData, IDefineableCallback, IStateData
     {
         public Def<UnitDef> Def { get; }
 
@@ -29,15 +30,15 @@ namespace Game.Model.Units
 
         public void RemoveComponentData(Entity entity, IDefineableContext context) { }
         #endregion
+        public enum Action
+        {
+            ActiveWeapons,
+        }
+
         public enum State
         {
             Stop,
-        }
-
-        public enum Result
-        {
-            Done,
-            Failed,
+            WeaponsActive,
         }
 
         public enum Stats

@@ -5,7 +5,7 @@ namespace Game.Model.Stats
 {
     public struct DeadTag: IComponentData { }
 
-    public enum GlobalState
+    public enum GlobalAction
     {
         Destroy,
     }

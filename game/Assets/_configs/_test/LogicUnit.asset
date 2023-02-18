@@ -15,7 +15,9 @@ MonoBehaviour:
   PrefabObject: {fileID: 0}
   m_LogicInst:
     rid: 7383091129893257217
-  m_Parts: []
+  m_Parts:
+  - Game.Model.Logics.Destroy
+  - Game.Model.Logics.LogicPartUnit
   references:
     version: 2
     RefIds:

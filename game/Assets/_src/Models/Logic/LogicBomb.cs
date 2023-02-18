@@ -11,6 +11,7 @@ namespace Game.Model.Logics
         {
             logic.SetInitializeState(Weapon.State.NoAmmo, true);
             logic.SetInitializeState(Weapon.State.HasAmo, true);
+            logic.SetInitializeState(Weapon.State.Active, false);
 
             logic.AddAction(Weapon.Action.Reload)
                 .AddPreconditions(Weapon.State.HasAmo, true)
@@ -18,7 +19,7 @@ namespace Game.Model.Logics
                 .Cost(1);
 
             logic.AddAction(Weapon.Action.Shooting)
-                .AddPreconditions(Move.State.MoveDone, true)
+                .AddPreconditions(Weapon.State.Active, true)
                 .AddPreconditions(Weapon.State.NoAmmo, false)
                 .AddEffect(Target.State.Dead, true)
                 .Cost(4);

@@ -14,14 +14,14 @@ namespace Game.Model.Weapons
 {
     using Stats;
 
-    public struct LastDamages: IBufferElementData
+    public struct LastDamage: IBufferElementData
     {
         public ObjectID DamageConfigID;
         public float Value;
     }
 
-    [UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
-    public partial struct DamageManager : ISystem
+    [UpdateInGroup(typeof(GameLogicEndSystemGroup))]
+    public partial struct DamageSystem : ISystem
     {
         EntityQuery m_Query;
         ComponentLookup<WorldTransform> m_LookupTransforms;
@@ -126,7 +126,7 @@ namespace Game.Model.Weapons
                 var stats = LookupStats[target];
 
                 damage.Apply(ref stats, value, context);
-                Writer.AppendToBuffer(idx, target, new LastDamages() { DamageConfigID = cfgID, Value = value });
+                Writer.AppendToBuffer(idx, target, new LastDamage() { DamageConfigID = cfgID, Value = value });
             }
 
             void AoE(int idx, ObjectID cfgID, float3 center, IDamage damage, float range, float value, IDefineableContext context)

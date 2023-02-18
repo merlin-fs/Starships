@@ -47,7 +47,7 @@ namespace Game.Model
                 m_LookupTransforms.Update(ref state);
                 m_LookupTeams.Update(ref state);
                 var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle handle);
-                var job = new Job()
+                var job = new SystemJob()
                 {
                     LookupTransforms = m_LookupTransforms,
                     Teams = m_LookupTeams,
@@ -59,21 +59,29 @@ namespace Game.Model
                 entities.Dispose(state.Dependency);
             }
 
-            partial struct Job : IJobEntity
+            partial struct SystemJob : IJobEntity
             {
                 public float Delta;
                 [ReadOnly] public ComponentLookup<WorldTransform> LookupTransforms;
                 [ReadOnly] public ComponentLookup<Team> Teams;
                 [ReadOnly] public NativeList<Entity> Entities;
 
-                void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target data, ref LogicAspect logic)
+                public void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target data, ref LogicAspect logic)
                 {
                     if (!logic.IsCurrentAction(Action.Find)) return;
 
                     if (FindEnemy(data.SoughtTeams, entity, 25f, LookupTransforms, Teams, out data.Value, out data.WorldTransform))
+                    {
+                        var selfPosition = LookupTransforms[logic.Self].Position;
+                        UnityEngine.Debug.Log($"{logic.Self} [Target] found: self - {selfPosition}, team - {data.SoughtTeams}, target - {data.Value}");
                         logic.SetWorldState(State.Found, true);
+                    }
                     else
+                    {
+                        var selfPosition = LookupTransforms[logic.Self].Position;
+                        UnityEngine.Debug.Log($"{logic.Self} [Target] not found: self - {selfPosition}, team - {data.SoughtTeams}");
                         logic.SetWorldState(State.Found, false);
+                    }
                 }
 
                 struct TempFindTarget

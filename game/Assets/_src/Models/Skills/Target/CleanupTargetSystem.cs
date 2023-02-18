@@ -10,7 +10,7 @@ namespace Game.Model
 
     public partial struct Target
     {
-        [UpdateInGroup(typeof(GameEndSystemGroup))]
+        [UpdateInGroup(typeof(GameLogicEndSystemGroup))]
         public partial struct CleanupSystem : ISystem
         {
             EntityQuery m_Query;

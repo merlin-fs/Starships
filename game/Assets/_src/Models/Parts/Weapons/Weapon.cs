@@ -47,15 +47,13 @@ namespace Game.Model.Weapons
             Init,
             Shooting,
             Shoot,
-
-            bomb,
-
             Reload,
             Sleep,
         }
 
         public enum State
-        { 
+        {
+            Active,
             NoAmmo,
             HasAmo,
         }

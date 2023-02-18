@@ -2,14 +2,10 @@ using System;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using System.Linq;
 
 namespace Game.Model.Logics
 {
-    using System.Threading;
-
     using Stats;
-    using static Game.Model.Logics.Logic;
 
     [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderLast = true)]
     public class GamePartLogicSystemGroup : ComponentSystemGroup { }
@@ -44,7 +40,7 @@ namespace Game.Model.Logics
                 [NativeSetThreadIndex]
                 int m_ThreadIndex;
 
-                void Execute(ref LogicAspect logic)
+                public void Execute(ref LogicAspect logic)
                 {
                     if (!logic.IsValid) return;
 
@@ -57,11 +53,10 @@ namespace Game.Model.Logics
                     {
                         if (logic.GetNextGoal(out Goal goal))
                         {
-                            var plan = PlanFinder.Execute(m_ThreadIndex, logic, goal, Allocator.TempJob);
+                            using var plan = PlanFinder.Execute(m_ThreadIndex, logic, goal, Allocator.TempJob);
                             if (plan.IsCreated && plan.Length > 0)
                             {
                                 logic.SetPlan(plan);
-                                plan.Dispose();
                             }
                             else
                             {

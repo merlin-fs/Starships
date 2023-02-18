@@ -29,26 +29,27 @@ namespace Game.Model.Logics
         public void OnUpdate(ref SystemState state)
         {
             m_LookupTeam.Update(ref state);
-            state.Dependency = new LogicFindJob()
+            state.Dependency = new SystemJob()
             {
                 Teams = m_LookupTeam,
             }
             .ScheduleParallel(m_Query, state.Dependency);
         }
         #endregion
-        public partial struct LogicFindJob : IJobEntity
+        public partial struct SystemJob : IJobEntity
         {
             [ReadOnly]
             public ComponentLookup<Team> Teams;
 
-            void Execute(ref WeaponAspect weapon, [ReadOnly] in LogicAspect logic)
+            public void Execute(ref WeaponAspect weapon, [ReadOnly] in LogicAspect logic)
             {
-                if (!logic.Def.IsSupportSystem(typeof(FindOfWeaponTarget)))
+                if (!logic.Def.IsSupportSystem(this))
                     return;
 
                 if (!logic.IsCurrentAction(Target.Action.Find))
                     return;
 
+                UnityEngine.Debug.Log($"{logic.Self} [Logic part] FindOfWeaponTarget set teams {weapon.Unit}");
                 if (weapon.Unit != Entity.Null)
                     weapon.SetSoughtTeams(Teams[weapon.Unit].EnemyTeams);
             }

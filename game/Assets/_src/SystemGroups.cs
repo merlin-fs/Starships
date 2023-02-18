@@ -26,8 +26,8 @@ namespace Game
 
 
     [UpdateInGroup(typeof(GameSystemGroup), OrderLast = true)]
-        public class GameLogicDoneSystemGroup : ComponentSystemGroup { }
-        [UpdateInGroup(typeof(GameLogicDoneSystemGroup), OrderLast = true)]
+        public class GameLogicEndSystemGroup : ComponentSystemGroup { }
+        [UpdateInGroup(typeof(GameLogicEndSystemGroup), OrderLast = true)]
         public class GameLogicEndCommandBufferSystem : EntityCommandBufferSystem { }
 
 

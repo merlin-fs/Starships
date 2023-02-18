@@ -7,7 +7,6 @@ using Unity.Properties;
 namespace Game.Model.Logics
 {
     using static Game.Model.Logics.Logic;
-    using static UnityEngine.Rendering.DebugUI;
 
     public readonly partial struct LogicAspect : IAspect
     {
@@ -31,6 +30,7 @@ namespace Game.Model.Logics
 
         public void CheckCurrentAction()
         {
+            //UnityEngine.Debug.Log($"{Self} [Logic] check: work-{IsWork}, action-{m_Logic.ValueRO.Action}");
             if (IsWork && IsAction)
             {
                 if (Def.TryGetAction(m_Logic.ValueRO.Action, out GoapAction action) && !action.CanTransition(m_WorldStates, Def))
@@ -53,11 +53,11 @@ namespace Game.Model.Logics
             var state = LogicHandle.FromEnumTest(worldState);
             var index = m_Logic.ValueRO.Def.StateMapping[state].Index;
             m_WorldStates.ElementAt(index).Value = value;
-            //UnityEngine.Debug.Log($"{Self} [Logic] change world: {worldState} - {value}");
+            UnityEngine.Debug.Log($"{Self} [Logic] change world: {worldState} - {value}");
 
             if (Def.TryGetAction(m_Logic.ValueRO.Action, out GoapAction action) && action.GetGoalTools().LeadsToGoal(state))
             {
-                //UnityEngine.Debug.Log($"{Self} [Logic] {CurrentAction} - done");
+                UnityEngine.Debug.Log($"{Self} [Logic] {CurrentAction} - done");
                 m_Logic.ValueRW.Work = false;
             }
             m_Logic.ValueRW.WaitChangeWorld = false;
@@ -124,10 +124,14 @@ namespace Game.Model.Logics
             m_Logic.ValueRW.Action = LogicHandle.Null;
             m_Logic.ValueRW.WaitNewGoal = true;
         }
+        public void SetAction(Enum action)
+        {
+            SetAction(LogicHandle.FromEnumTest(action));
+        }
 
         public void SetAction(LogicHandle value)
         {
-            //UnityEngine.Debug.Log($"{Self} [Logic] new action - {value}");
+            UnityEngine.Debug.Log($"{Self} [Logic] new action \"{value}\"");
             m_Logic.ValueRW.Action = value;
             m_Logic.ValueRW.Work = true;
 

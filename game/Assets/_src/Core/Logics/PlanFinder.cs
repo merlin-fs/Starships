@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Collections;
-using Unity.Entities;
 
 namespace Game.Model.Logics
 {
@@ -42,7 +41,7 @@ namespace Game.Model.Logics
                         IdentifySuccessors(threadIdx, node, logic);
                     }
 
-                    return new NativeList<LogicHandle>(1, allocator).AsArray();
+                    return new NativeList<LogicHandle>(1, Allocator.Persistent).AsArray();
                 }
                 finally
                 {
@@ -93,13 +92,13 @@ namespace Game.Model.Logics
             private static NativeArray<LogicHandle> ShortestPath(int threadIdx, LogicHandle v, AllocatorManager.AllocatorHandle allocator)
             {
                 var hierarchy = GetHierarchy(threadIdx);
-                var path = new NativeList<LogicHandle>(hierarchy.Count, allocator);
+                var path = new NativeList<LogicHandle>(hierarchy.Count, Allocator.Persistent);
                 while (!v.Equals(LogicHandle.Null))
                 {
                     if (!hierarchy.TryGetValue(v, out LogicHandle test))
                     {
                         path.Dispose();
-                        return new NativeList<LogicHandle>(1, allocator).AsArray();
+                        return new NativeList<LogicHandle>(1, Allocator.Persistent).AsArray();
                     }
                     else
                     {

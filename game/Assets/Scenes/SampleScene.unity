@@ -279,7 +279,7 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 1
-  m_Count: 100
+  m_Count: 1
   m_BtnReload: {fileID: 35430600}
 --- !u!4 &255184317
 Transform:
