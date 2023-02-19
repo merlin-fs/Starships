@@ -33,7 +33,7 @@ namespace Game.Model.Units
 
         void IConfigStats.Configurate(DynamicBuffer<Stat> stats)
         {
-            stats.AddStat(GlobalStat.Health, Value.Health.Value);
+            stats.AddStat(Global.Stat.Health, Value.Health.Value);
             stats.AddStat(Unit.Stats.Speed, Value.Speed.Value);
         }
     }

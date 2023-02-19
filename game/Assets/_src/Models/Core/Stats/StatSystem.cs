@@ -14,7 +14,6 @@ namespace Game.Model.Stats
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Stat>()
                 .WithAll<Modifier>()
-                .WithNone<DeadTag>()
                 .WithOptions(EntityQueryOptions.FilterWriteGroup)
                 .Build();
 
@@ -25,11 +24,11 @@ namespace Game.Model.Stats
         public void OnDestroy(ref SystemState state) { }
 
         [BurstCompile]
-        partial struct StatJob : IJobEntity
+        partial struct SystemJob : IJobEntity
         {
             public float Delta;
 
-            void Execute([WithChangeFilter(typeof(Modifier))] ref StatAspect stats)
+            public void Execute([WithChangeFilter(typeof(Modifier))] ref StatAspect stats)
             {
                 stats.Estimation(Delta);
             }
@@ -37,7 +36,7 @@ namespace Game.Model.Stats
 
         public void OnUpdate(ref SystemState state)
         {
-            var job = new StatJob()
+            var job = new SystemJob()
             {
                 Delta = SystemAPI.Time.DeltaTime,
             };

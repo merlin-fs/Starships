@@ -5,8 +5,7 @@ namespace Game.Model.Stats
 {
     using Logics;
 
-    //[UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
-    [UpdateInGroup(typeof(GameLogicInitSystemGroup))]
+    [UpdateInGroup(typeof(GameLogicEndSystemGroup))]
     public partial struct HealthSystem : ISystem
     {
         EntityQuery m_Query;
@@ -16,7 +15,6 @@ namespace Game.Model.Stats
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Stat>()
                 .WithAll<Logic>()
-                .WithNone<DeadTag>()
                 .WithOptions(EntityQueryOptions.FilterWriteGroup)
                 .Build();
 
@@ -28,8 +26,11 @@ namespace Game.Model.Stats
 
         public void OnUpdate(ref SystemState state)
         {
+            var system = state.World.GetOrCreateSystemManaged<GameLogicEndCommandBufferSystem>();
+            var ecb = system.CreateCommandBuffer();
             var job = new SystemJob()
             {
+                Writer = ecb.AsParallelWriter(),
             };
             state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
             state.Dependency.Complete();
@@ -37,12 +38,13 @@ namespace Game.Model.Stats
 
         partial struct SystemJob : IJobEntity
         {
-            public void Execute([EntityIndexInQuery] int idx, in Entity entity, in DynamicBuffer<Stat> stats, ref LogicAspect logic)
+            public EntityCommandBuffer.ParallelWriter Writer;
+            public void Execute([EntityIndexInQuery] int idx, in Entity entity, in DynamicBuffer<Stat> stats, ref Logic.Aspect logic)
             {
-                if (stats.TryGetStat(GlobalStat.Health, out Stat health) && health.Value <= 0)
+                if (stats.TryGetStat(Global.Stat.Health, out Stat health) && health.Value <= 0)
                 {
-                    UnityEngine.Debug.Log($"{logic.Self} [Health system] set Destroy");
-                    logic.SetAction(GlobalAction.Destroy);
+                    //UnityEngine.Debug.Log($"{logic.Self} [Health system] set Destroy");
+                    logic.SetEvent(Global.Action.Destroy);
                 }
             }
         }

@@ -1,12 +1,10 @@
 using System;
 using Common.Defs;
 
-using Game.Model.Logics;
-using Game.Model.Stats;
-using Unity.Entities;
-
 namespace Game.Model
 {
+    using Stats;
+
     public enum DamageTargets
     {
         One,
@@ -15,12 +13,12 @@ namespace Game.Model
 
     public interface IDamage
     {
-        void Apply(ref DynamicBuffer<Stat> stats, float value, IDefineableContext context);
+        void Apply(ref StatAspect stat, float value, IDefineableContext context);
     }
 
     [Serializable]
     public abstract class Damage: IDamage
     {
-        public abstract void Apply(ref DynamicBuffer<Stat> stats, float value, IDefineableContext context);
+        public abstract void Apply(ref StatAspect stat, float value, IDefineableContext context);
     }
 }

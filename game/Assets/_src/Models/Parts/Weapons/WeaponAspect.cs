@@ -13,15 +13,14 @@ namespace Game.Model.Weapons
     public readonly partial struct WeaponAspect: IAspect
     {
         private readonly Entity m_Self;
-        public Entity Self => m_Self;
-
+        readonly RefRO<Root> m_Root;
         readonly RefRW<Weapon> m_Weapon;
         readonly RefRW<Target> m_Target;
-
         [Optional] readonly RefRO<Bullet> m_Bullet;
-        readonly RefRO<Root> m_Owner;
         [ReadOnly] readonly DynamicBuffer<Stat> m_Stats;
-        readonly RefRO<WorldTransform> m_Transform;
+        readonly TransformAspect m_Transform;
+        public Entity Self => m_Self;
+        public TransformAspect Transform => m_Transform;
 
         #region DesignTime
 
@@ -36,7 +35,7 @@ namespace Game.Model.Weapons
         public int Count => m_Weapon.ValueRO.Count;
 
         [CreateProperty]
-        public Entity Unit => m_Owner.ValueRO.Value;
+        public Entity Root => m_Root.ValueRO.Value;
 
         [CreateProperty]
         public Target Target { get => m_Target.ValueRO; set => m_Target.ValueRW = value; }
@@ -58,7 +57,8 @@ namespace Game.Model.Weapons
             m_Weapon.ValueRW.Count -= Config.BarrelCount;
             if (m_Weapon.ValueRW.Count < 0)
                 m_Weapon.ValueRW.Count = 0;
-            DamageSystem.Damage(Self, m_Transform.ValueRO, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value, context);
+            //DamageSystem.Damage(Self, m_Transform.ValueRO, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value, context);
+            DamageSystem.Damage(Root, Transform.WorldTransform, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value, context);
         }
 
         public bool Reload(IDefineableContext context, int count)

@@ -41,7 +41,7 @@ namespace Game.Model
             {
                 public float Delta;
 
-                void Execute(ref Move data, ref TransformAspect transform, ref LogicAspect logic)
+                void Execute(ref Move data, ref TransformAspect transform, ref Logic.Aspect logic)
                 {
                     if (logic.IsCurrentAction(Action.Init))
                     {

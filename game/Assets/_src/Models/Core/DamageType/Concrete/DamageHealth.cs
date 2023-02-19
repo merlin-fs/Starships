@@ -8,9 +8,9 @@ namespace Game.Model
 
     public class DamageHealth : Damage
     {
-        public override void Apply(ref DynamicBuffer<Stat> stats, float value, IDefineableContext context)
+        public override void Apply(ref StatAspect stat, float value, IDefineableContext context)
         {
-            stats.GetRW(GlobalStat.Health).Damage(value);
+            stat.GetRW(Global.Stat.Health).Damage(value);
         }
     }
 }   

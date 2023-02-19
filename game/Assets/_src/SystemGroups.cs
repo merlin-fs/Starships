@@ -1,6 +1,5 @@
 using System;
 using Unity.Entities;
-using Unity.Transforms;
 
 namespace Game
 {
@@ -28,7 +27,20 @@ namespace Game
     [UpdateInGroup(typeof(GameSystemGroup), OrderLast = true)]
         public class GameLogicEndSystemGroup : ComponentSystemGroup { }
         [UpdateInGroup(typeof(GameLogicEndSystemGroup), OrderLast = true)]
-        public class GameLogicEndCommandBufferSystem : EntityCommandBufferSystem { }
+        public class GameLogicEndCommandBufferSystem : EntityCommandBufferSystem 
+        {
+            protected override void OnUpdate()
+            {
+                try
+                {
+                    base.OnUpdate();
+                }
+                catch (Exception e)
+                { 
+                    UnityEngine.Debug.LogException(e);
+                }
+            }
+        }
 
 
 

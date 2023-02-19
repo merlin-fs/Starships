@@ -13,6 +13,7 @@ using Common.Core;
 namespace Game.Model.Weapons
 {
     using Stats;
+    using static UnityEngine.EventSystems.EventTrigger;
 
     public struct LastDamage: IBufferElementData
     {
@@ -24,9 +25,10 @@ namespace Game.Model.Weapons
     public partial struct DamageSystem : ISystem
     {
         EntityQuery m_Query;
+        ComponentLookup<DeadTag> m_LookupDead;
         ComponentLookup<WorldTransform> m_LookupTransforms;
-        BufferLookup<Stat> m_LookupStats;
         EntityQuery m_QueryTargets;
+        StatAspect.Lookup m_LookupStatAspect;
 
         public struct DamageData : IComponentData
         {
@@ -45,12 +47,13 @@ namespace Game.Model.Weapons
             state.RequireForUpdate(m_Query);
 
             m_QueryTargets = SystemAPI.QueryBuilder()
-                .WithAll<Team>()
                 .WithNone<DeadTag>()
+                .WithAspectRO<StatAspect>()
                 .Build();
-            
+
+            m_LookupDead = state.GetComponentLookup<DeadTag>(true);
             m_LookupTransforms = state.GetComponentLookup<WorldTransform>(true);
-            m_LookupStats = state.GetBufferLookup<Stat>(false);
+            m_LookupStatAspect = new StatAspect.Lookup(ref state, false);
         }
 
         public void OnDestroy(ref SystemState state) { }
@@ -72,17 +75,19 @@ namespace Game.Model.Weapons
 
         public unsafe void OnUpdate(ref SystemState state)
         {
+            m_LookupDead.Update(ref state);
             m_LookupTransforms.Update(ref state);
-            m_LookupStats.Update(ref state);
+            m_LookupStatAspect.Update(ref state);
 
             var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle jobHandle);
             var system = state.World.GetExistingSystemManaged<GameLogicEndCommandBufferSystem>();
             var ecb = system.CreateCommandBuffer();
 
-            var job = new WeaponJob()
+            var job = new SystemJob()
             {
                 Entities = entities,
-                LookupStats = m_LookupStats,
+                LookupDead = m_LookupDead,
+                LookupStatAspect = m_LookupStatAspect,
                 LookupTransforms = m_LookupTransforms,
                 Writer = ecb.AsParallelWriter(),
             };
@@ -92,18 +97,16 @@ namespace Game.Model.Weapons
             entities.Dispose(state.Dependency);
         }
 
-        partial struct WeaponJob : IJobEntity
+        partial struct SystemJob : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter Writer;
-
             [NativeDisableParallelForRestriction]
-            [NativeDisableContainerSafetyRestriction]
-            public BufferLookup<Stat> LookupStats;
-
+            public StatAspect.Lookup LookupStatAspect;
+            [ReadOnly] public ComponentLookup<DeadTag> LookupDead;
             [ReadOnly] public ComponentLookup<WorldTransform> LookupTransforms;
             [ReadOnly] public NativeList<Entity> Entities;
 
-            void Execute([EntityIndexInQuery] int idx, in DamageData damage)
+            public void Execute([EntityIndexInQuery] int idx, in DamageData damage)
             {
                 var context = new DefExt.WriterContext(Writer, idx);
                 var damageConfig = damage.Bullet.Def.DamageType;
@@ -111,7 +114,7 @@ namespace Game.Model.Weapons
                 {
                     if (damageConfig.Targets == DamageTargets.AoE)
                     {
-                        AoE(idx, damageConfig.ID, damage.SenderTransform.Position, iter, damage.Bullet.Range, damage.Value, context);
+                        AoE(idx, damage.Sender, damageConfig.ID, damage.SenderTransform.Position, iter, damage.Bullet.Range, damage.Value, context);
                     }
                     else
                     {
@@ -122,17 +125,21 @@ namespace Game.Model.Weapons
 
             void Damage(int idx, ObjectID cfgID, Entity target, IDamage damage, float value, IDefineableContext context)
             {
-                if (!LookupStats.HasBuffer(target)) return;
-                var stats = LookupStats[target];
-
-                damage.Apply(ref stats, value, context);
+                var stat = LookupStatAspect[target];
+                
+                if (LookupDead.HasComponent(stat.Self) || LookupDead.HasComponent(stat.Root))
+                {
+                    UnityEngine.Debug.Log($"{target} [Damage] ignore");
+                    return;
+                }
+                damage.Apply(ref stat, value, context);
                 Writer.AppendToBuffer(idx, target, new LastDamage() { DamageConfigID = cfgID, Value = value });
             }
 
-            void AoE(int idx, ObjectID cfgID, float3 center, IDamage damage, float range, float value, IDefineableContext context)
+            void AoE(int idx, Entity self, ObjectID cfgID, float3 center, IDamage damage, float range, float value, IDefineableContext context)
             {
-                using var targets = new NativeList<Entity>(Allocator.TempJob);
-                FindEnemy(center, range, LookupTransforms, targets);
+                using var targets = new NativeList<Entity>(1000, Allocator.TempJob);
+                FindEnemy(self, center, range, LookupTransforms, targets);
 
                 foreach(var target in targets)
                 {
@@ -140,15 +147,19 @@ namespace Game.Model.Weapons
                 }
             }
 
-            public void FindEnemy(float3 center, float radius, ComponentLookup<WorldTransform> transforms, NativeList<Entity> targets)
+            public void FindEnemy(Entity self, float3 center, float radius, ComponentLookup<WorldTransform> transforms, NativeList<Entity> targets)
             {
                 targets.Capacity = Entities.Length;
                 var entities = Entities;
                 var writer = targets.AsParallelWriter();
+                var lookupStatAspect = LookupStatAspect;
 
                 Parallel.For(0, entities.Length, (i) =>
                 {
                     var target = entities[i];
+                    var stat = lookupStatAspect[target];
+                    //if (stat.Self == self || stat.Root.Value == self)
+                    //    return;
                     var targetPos = transforms[target].Position;
                     var magnitude = (center - targetPos).magnitude();
 

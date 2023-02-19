@@ -19,7 +19,6 @@ namespace Game.Model.Logics
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Logic>()
                 .WithAll<Team>()
-                .WithNone<DeadTag>()
                 .Build();
         }
 
@@ -40,7 +39,7 @@ namespace Game.Model.Logics
             [ReadOnly]
             public ComponentLookup<Team> Teams;
 
-            public void Execute(in LogicAspect logic, in Team team, ref Target target)
+            public void Execute(in Logic.Aspect logic, in Team team, ref Target target)
             {
                 if (!logic.Def.IsSupportSystem(this))
                     return;
@@ -105,7 +104,6 @@ namespace Game.Model.Units
                 .WithAll<Unit>()
                 .WithAll<Weapon>()
                 .WithAll<Logic>()
-                .WithNone<DeadTag>()
                 .Build();
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
             RequireForUpdate(m_Query);

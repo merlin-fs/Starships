@@ -20,7 +20,6 @@ namespace Game.Model
             {
                 m_QueryTargets = SystemAPI.QueryBuilder()
                     .WithAll<Target>()
-                    .WithNone<DeadTag>()
                     .Build();
 
                 m_Query = SystemAPI.QueryBuilder()
@@ -48,7 +47,7 @@ namespace Game.Model
             {
                 [ReadOnly] public NativeList<Entity> Entities;
 
-                void Execute(ref Target data, ref LogicAspect logic)
+                void Execute(ref Target data, ref Logic.Aspect logic)
                 {
                     foreach (var iter in Entities)
                     {

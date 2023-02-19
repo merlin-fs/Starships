@@ -20,7 +20,6 @@ namespace Game.Model.Logics
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Logic>()
                 .WithAll<Weapon>()
-                .WithNone<DeadTag>()
                 .Build();
         }
 
@@ -41,7 +40,7 @@ namespace Game.Model.Logics
             [ReadOnly]
             public ComponentLookup<Team> Teams;
 
-            public void Execute(ref WeaponAspect weapon, [ReadOnly] in LogicAspect logic)
+            public void Execute(ref WeaponAspect weapon, [ReadOnly] in Logic.Aspect logic)
             {
                 if (!logic.Def.IsSupportSystem(this))
                     return;
@@ -49,9 +48,9 @@ namespace Game.Model.Logics
                 if (!logic.IsCurrentAction(Target.Action.Find))
                     return;
 
-                UnityEngine.Debug.Log($"{logic.Self} [Logic part] FindOfWeaponTarget set teams {weapon.Unit}");
-                if (weapon.Unit != Entity.Null)
-                    weapon.SetSoughtTeams(Teams[weapon.Unit].EnemyTeams);
+                //UnityEngine.Debug.Log($"{logic.Self} [Logic part] FindOfWeaponTarget set teams {weapon.Unit}");
+                if (weapon.Root != Entity.Null)
+                    weapon.SetSoughtTeams(Teams[weapon.Root].EnemyTeams);
             }
         }
     }
@@ -107,7 +106,6 @@ namespace Game.Model.Units
                 .WithAll<Unit>()
                 .WithAll<Weapon>()
                 .WithAll<Logic>()
-                .WithNone<DeadTag>()
                 .Build();
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
             RequireForUpdate(m_Query);

@@ -2,6 +2,8 @@ using System;
 
 namespace Game.Model.Logics
 {
+    using Game.Model.Stats;
+
     using Weapons;
     using static Game.Model.Logics.Logic;
     
@@ -23,6 +25,11 @@ namespace Game.Model.Logics
                 .AddPreconditions(Weapon.State.NoAmmo, false)
                 .AddEffect(Target.State.Dead, true)
                 .Cost(4);
+
+            logic.AddAction(Global.Action.Destroy)
+                .AddPreconditions(Global.State.Dead, false)
+                .AddEffect(Global.State.Dead, true)
+                .Cost(0);
 
             logic.EnqueueGoal(Weapon.State.NoAmmo, false);
             logic.EnqueueGoalRepeat(Target.State.Dead, true);

@@ -95,6 +95,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - vfx
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fc606ceed2aaa994c8093529cdbf7786
+    m_Address: Assets/_configs/Weapon/Misc/TurretRotateHorizontal.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - defs
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ed21bb125e95a2b41a3ef0fc04dd10bd, type: 2}
   m_SchemaSet:

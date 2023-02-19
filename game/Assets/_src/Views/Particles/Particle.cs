@@ -14,5 +14,6 @@ namespace Game.Views
         public bool Scale;
         public bool Position;
         public bool Rotation;
+        public float ScaleTime;
     }
 }

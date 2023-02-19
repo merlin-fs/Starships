@@ -23,7 +23,7 @@ namespace Game.Core.Prefabs
     {
         public GameObjectConfig Player;
         public GameObjectConfig Enenmy;
-        public GameObjectConfig Weapon;
+        //public GameObjectConfig Weapon;
 
         public class _baker : Baker<PrefabsStoreConfig>
         {
@@ -32,11 +32,11 @@ namespace Game.Core.Prefabs
                 AddComponent<PrefabStore>();
                 PrepareItem(authoring.Player);
                 PrepareItem(authoring.Enenmy);
-                PrepareItem(authoring.Weapon);
+                //PrepareItem(authoring.Weapon);
 
                 BakeItem(authoring.Player);
                 BakeItem(authoring.Enenmy);
-                BakeItem(authoring.Weapon);
+                //BakeItem(authoring.Weapon);
             }
 
             public T GetOrAddComponent<T>(GameObject uo) where T : Component
@@ -55,15 +55,23 @@ namespace Game.Core.Prefabs
             {
                 GetEntity(config.PrefabObject);
                 GetOrAddComponent<PrefabAuthoring>(config.PrefabObject).ConfigIDs.Add(config.ID);
+                HierarchyConfig(config);
+            }
 
+            private void HierarchyConfig(GameObjectConfig config)
+            {
                 if (config is IConfigContainer container)
                 {
                     foreach (var iter in container.Childs)
                     {
+                        if (!iter.Enabled) continue;
+
                         if (iter.PrefabObject)
                         {
                             GetOrAddComponent<PrefabAuthoring>(iter.PrefabObject).ConfigIDs.Add(iter.Child.ID);
                         }
+                        if (iter.Child is GameObjectConfig objectConfig)
+                            HierarchyConfig(objectConfig);
                     }
                 }
             }

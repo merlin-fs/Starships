@@ -279,7 +279,7 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 1
-  m_Count: 1
+  m_Count: 10
   m_BtnReload: {fileID: 35430600}
 --- !u!4 &255184317
 Transform:
@@ -1455,8 +1455,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c7d494f3d5b40b488b5a572a6ac3802, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_DefaultCapacity: 10
-  m_MaxPoolSize: 15
+  m_DefaultCapacity: 30
+  m_MaxPoolSize: 1000
 --- !u!1 &1950064685
 GameObject:
   m_ObjectHideFlags: 0

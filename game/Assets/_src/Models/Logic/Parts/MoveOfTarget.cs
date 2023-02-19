@@ -21,7 +21,6 @@ namespace Game.Model.Logics
                 .WithAll<Target>()
                 .WithAll<Logic>()
                 .WithAll<Unit>()
-                .WithNone<DeadTag>()
                 .Build();
         }
 
@@ -37,7 +36,7 @@ namespace Game.Model.Logics
         #endregion
         public partial struct SystemJob : IJobEntity
         {
-            public void Execute(ref Move data, in LogicAspect logic, in Target target, in UnitAspect unit)
+            public void Execute(ref Move data, in Logic.Aspect logic, in Target target, in UnitAspect unit)
             {
                 if (!logic.Def.IsSupportSystem(this))
                     return;

@@ -16,7 +16,7 @@ namespace Game.Model.Logics
         {
             return new LogicHandle(
                 new Unity.Mathematics.int2(value.GetType().FullName.GetHashCode(), value.GetHashCode()).GetHashCode(),
-                $"{value} ({value.GetType().DeclaringType.Name})");
+                $"{value} ({value.GetType().DeclaringType?.Name})");
         }
 
         public static LogicHandle FromEnumTest(Enum value)

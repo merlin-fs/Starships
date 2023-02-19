@@ -16,6 +16,7 @@ namespace Game.Views
         public bool Position = true;
         public bool Rotation = true;
         public bool Scale = true;
+        public float ScaleTime = 1;
 
         class _baker : Baker<ParticleAuthoring>
         {
@@ -30,6 +31,7 @@ namespace Game.Views
                     Position = authoring.Position, 
                     Rotation = authoring.Rotation, 
                     Scale = authoring.Scale,
+                    ScaleTime = authoring.ScaleTime,
                 });
             }
         }

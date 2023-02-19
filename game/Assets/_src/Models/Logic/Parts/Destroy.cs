@@ -15,7 +15,6 @@ namespace Game.Model.Logics
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Logic>()
-                .WithNone<DeadTag>()
                 .Build();
         }
 
@@ -23,7 +22,7 @@ namespace Game.Model.Logics
         
         public void OnUpdate(ref SystemState state)
         {
-            var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
+            var ecb = state.World.GetExistingSystemManaged<GameLogicEndCommandBufferSystem>().CreateCommandBuffer();
             state.Dependency = new SystemJob()
             {
                 Writer = ecb.AsParallelWriter(),
@@ -36,9 +35,9 @@ namespace Game.Model.Logics
         {
             public EntityCommandBuffer.ParallelWriter Writer;
 
-            public void Execute([EntityIndexInQuery] int idx, in LogicAspect logic)
+            public void Execute([EntityIndexInQuery] int idx, in Logic.Aspect logic)
             {
-                if (logic.IsCurrentAction(GlobalAction.Destroy))
+                if (logic.IsCurrentAction(Global.Action.Destroy) && logic.HasWorldState(Global.State.Dead, true))
                 {
                     Writer.AddComponent<DeadTag>(idx, logic.Self);
                     return;

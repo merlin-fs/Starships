@@ -42,7 +42,7 @@ namespace Game.Views
             [ReadOnly] 
             public ComponentLookup<WorldTransform> LookupTransforms;
 
-            void Execute(in Entity entity, in LogicAspect logic, in DynamicBuffer<Particle> particles)
+            void Execute(in Entity entity, in Logic.Aspect logic, in DynamicBuffer<Particle> particles)
             {
                 foreach(var iter in particles)
                 {
@@ -50,7 +50,7 @@ namespace Game.Views
                     {
                         var localEntity = entity;
                         var localTransform = LookupTransforms[iter.Target];
-                        UnityEngine.Debug.Log($"{entity} [Particle] action {logic.CurrentAction}");
+                        //UnityEngine.Debug.Log($"{entity} [Particle] action {logic.CurrentAction}");
                         UnityMainThread.Context.Post(obj =>
                         {
                             ParticleManager.Instance.Play(localEntity, iter, localTransform);
