@@ -52,17 +52,18 @@ namespace Game.Model.Weapons
             set => m_Weapon.ValueRW.Time = value;
         }
 
-        public void Shot(IDefineableContext context)
+        public void Shot()
         {
             m_Weapon.ValueRW.Count -= Config.BarrelCount;
             if (m_Weapon.ValueRW.Count < 0)
                 m_Weapon.ValueRW.Count = 0;
             //DamageSystem.Damage(Self, m_Transform.ValueRO, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value, context);
-            DamageSystem.Damage(Root, Transform.WorldTransform, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value, context);
+            Damage.Apply(Root, Transform.WorldTransform, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value);
         }
 
         public bool Reload(IDefineableContext context, int count)
         {
+            UnityEngine.Debug.Log($"{Self} [Weapon] reload");
             if (m_Bullet.IsValid)
                 m_Bullet.ValueRO.Def.RemoveComponentData(m_Self, context, m_Bullet.ValueRO);
 

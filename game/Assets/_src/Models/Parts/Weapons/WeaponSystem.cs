@@ -76,7 +76,7 @@ namespace Game.Model.Weapons
                             //TODO: Доделать на стороне StateMachine
                             logic.SetAction(LogicHandle.FromEnum(Action.Shoot));
                             weapon.Time = 0;
-                            weapon.Shot(new DefExt.WriterContext(Writer, idx));
+                            weapon.Shot();
                             if (weapon.Count == 0)
                             {
                                 logic.SetWorldState(State.NoAmmo, true);

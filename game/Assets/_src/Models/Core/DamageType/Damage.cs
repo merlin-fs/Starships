@@ -1,5 +1,4 @@
 using System;
-using Common.Defs;
 
 namespace Game.Model
 {
@@ -13,12 +12,12 @@ namespace Game.Model
 
     public interface IDamage
     {
-        void Apply(ref StatAspect stat, float value, IDefineableContext context);
+        void Apply(ref StatAspect stat, float value);
     }
 
     [Serializable]
     public abstract class Damage: IDamage
     {
-        public abstract void Apply(ref StatAspect stat, float value, IDefineableContext context);
+        public abstract void Apply(ref StatAspect stat, float value);
     }
 }

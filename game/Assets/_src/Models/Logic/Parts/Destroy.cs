@@ -4,6 +4,7 @@ using Unity.Entities;
 namespace Game.Model.Logics
 {
     using Stats;
+    using static UnityEngine.EventSystems.EventTrigger;
 
     [UpdateInGroup(typeof(GamePartLogicSystemGroup))]
     public partial struct Destroy: Logic.IPartLogic
@@ -39,6 +40,7 @@ namespace Game.Model.Logics
             {
                 if (logic.IsCurrentAction(Global.Action.Destroy) && logic.HasWorldState(Global.State.Dead, true))
                 {
+                    UnityEngine.Debug.Log($"{logic.Self} [Cleanup] set DeadTag");
                     Writer.AddComponent<DeadTag>(idx, logic.Self);
                     return;
                 }

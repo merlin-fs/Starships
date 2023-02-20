@@ -23,7 +23,6 @@ namespace Game.Model.Stats
 
         public void OnDestroy(ref SystemState state) { }
 
-        [BurstCompile]
         partial struct SystemJob : IJobEntity
         {
             public float Delta;

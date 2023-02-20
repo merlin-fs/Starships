@@ -42,7 +42,6 @@ namespace Game.Model.Logics
 
             logic.AddAction(Global.Action.Destroy)
                 .AddPreconditions(Global.State.Dead, false)
-                .AddEffect(Global.State.Dead, true)
                 .Cost(0);
 
             logic.EnqueueGoal(Move.State.Init, true);

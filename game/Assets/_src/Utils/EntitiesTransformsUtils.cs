@@ -15,6 +15,14 @@ namespace Unity.Transforms
                         ChildrenForEach(ref children, child.Value, action);
                 }
         }
+
+        public static void LinkedForEach(ref this DynamicBuffer<LinkedEntityGroup> group, Entity root, Action<Entity> action)
+        {
+            foreach (var child in group)
+            {
+                action.Invoke(child.Value);
+            }
+        }
     }
 }
 

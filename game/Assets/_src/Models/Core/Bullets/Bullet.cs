@@ -34,11 +34,13 @@ namespace Game.Model.Weapons
 
         public void Attach(Entity entity)
         {
+            UnityEngine.Debug.Log($"{entity} [Bullet] AddModifier");
             m_ModUID = Modifier.AddModifierAsync(entity, ref this, Weapon.Stats.Damage);
         }
 
         public void Dettach(Entity entity)
         {
+            UnityEngine.Debug.Log($"{entity} [Bullet] DelModifierAsync");
             Modifier.DelModifierAsync(entity, m_ModUID);
         }
         #endregion

@@ -41,10 +41,12 @@ namespace Game.Model.Logics
                 public void Execute(ref Logic.Aspect logic)
                 {
                     if (!logic.IsValid) return;
+                    if (logic.IsWaitNewGoal || logic.IsWaitChangeWorld)
+                        return;
 
                     logic.CheckCurrentAction();
 
-                    if (logic.IsWork || logic.IsWaitNewGoal || logic.IsWaitChangeWorld)
+                    if (logic.IsWork)
                         return;
 
                     if (!logic.HasPlan)
@@ -59,6 +61,7 @@ namespace Game.Model.Logics
                             }
                             else
                             {
+                                logic.SetAction(LogicHandle.Null);
                                 logic.SetWaitChangeWorld();
                                 return;
                             }

@@ -2,6 +2,9 @@
 using Unity.Burst;
 using Unity.Entities;
 
+using static Game.Model.Stats.Global;
+using static UnityEngine.EventSystems.EventTrigger;
+
 namespace Game.Model.Stats
 {
     public struct StatInit : IComponentData { }
@@ -24,7 +27,6 @@ namespace Game.Model.Stats
 
         public void OnDestroy(ref SystemState state) { }
 
-        [BurstCompile]
         partial struct SystemJob : IJobEntity
         {
             public float Delta;

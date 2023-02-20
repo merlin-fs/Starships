@@ -1,6 +1,4 @@
 using System;
-using Common.Defs;
-using Unity.Entities;
 
 namespace Game.Model
 {
@@ -8,7 +6,7 @@ namespace Game.Model
 
     public class DamageHealth : Damage
     {
-        public override void Apply(ref StatAspect stat, float value, IDefineableContext context)
+        public override void Apply(ref StatAspect stat, float value)
         {
             stat.GetRW(Global.Stat.Health).Damage(value);
         }

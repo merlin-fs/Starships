@@ -4,8 +4,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Properties;
 
-using static UnityEngine.Rendering.DebugUI;
-
 namespace Game.Model.Logics
 {
     public partial struct Logic
@@ -19,6 +17,7 @@ namespace Game.Model.Logics
             private readonly DynamicBuffer<WorldState> m_WorldStates;
             private readonly DynamicBuffer<Goal> m_Goals;
             public Entity Self => m_Self;
+            public string SelfName => World.DefaultGameObjectInjectionWorld.EntityManager.GetName(m_Self);
             public Entity Root => m_Root.ValueRO.Value;
             public LogicDef Def => m_Logic.ValueRO.Def;
             [CreateProperty]
@@ -56,8 +55,11 @@ namespace Game.Model.Logics
             {
                 var state = LogicHandle.FromEnum(worldState);
                 var index = m_Logic.ValueRO.Def.StateMapping[state].Index;
-                m_WorldStates.ElementAt(index).Value = value;
-                //UnityEngine.Debug.Log($"{Self} [Logic] change world: {state} - {value}");
+                if (m_WorldStates.ElementAt(index).Value != value)
+                {
+                    m_WorldStates.ElementAt(index).Value = value;
+                    //UnityEngine.Debug.Log($"{Self},{SelfName} [Logic] change world: {state} - {value}");
+                }
                 if (Def.TryGetAction(m_Logic.ValueRO.Action, out GoapAction action) && action.GetGoalTools().LeadsToGoal(state))
                 {
                     //UnityEngine.Debug.Log($"{Self} [Logic] {CurrentAction} - done");
@@ -109,32 +111,25 @@ namespace Game.Model.Logics
 
             public void SetFailed()
             {
-                //UnityEngine.Debug.Log($"{Self} [Logic] {CurrentAction} - Failed");
+                //UnityEngine.Debug.Log($"{Self},{SelfName} [Logic] {CurrentAction} - Failed");
                 m_Logic.ValueRW.Action = LogicHandle.Null;
                 m_Logic.ValueRW.Work = false;
             }
 
             public void SetWaitChangeWorld()
             {
-                UnityEngine.Debug.Log($"{Self} [Logic] no plan. Wait change world");
-                m_Logic.ValueRW.Action = LogicHandle.Null;
+                //UnityEngine.Debug.Log($"{Self},{SelfName} [Logic] no plan. Wait change world");
                 m_Logic.ValueRW.WaitChangeWorld = true;
             }
 
             public void SetWaitNewGoal()
             {
-                UnityEngine.Debug.Log($"{Self} [Logic] LogicFinish - no goals");
+                //UnityEngine.Debug.Log($"{Self},{SelfName} [Logic] LogicFinish - no goals");
                 m_Logic.ValueRW.Action = LogicHandle.Null;
                 m_Logic.ValueRW.WaitNewGoal = true;
             }
 
-            public void Interrupt()
-            {
-                m_Logic.ValueRW.Action = LogicHandle.Null;
-                m_Logic.ValueRW.Work = false;
-                //UnityEngine.Debug.Log($"{Self} [Logic] Interrupt");
-            }
-
+            //TODO: Доделать на стороне StateMachine
             public void SetEvent(Enum value)
             {
                 SetEvent(LogicHandle.FromEnum(value));
@@ -145,8 +140,8 @@ namespace Game.Model.Logics
                 if (Def.TryGetAction(value, out GoapAction action) && action.CanTransition(m_WorldStates, Def))
                 {
                     m_Logic.ValueRW.Action = value;
-                    m_Logic.ValueRW.Work = false;
-                    UnityEngine.Debug.Log($"{Self} [Logic] new event \"{m_Logic.ValueRO.Action}\"");
+                    m_Logic.ValueRW.Work = true;
+                    //UnityEngine.Debug.Log($"{Self},{SelfName} [Logic] new event \"{m_Logic.ValueRO.Action}\"");
                 }
             }
 
@@ -158,7 +153,7 @@ namespace Game.Model.Logics
                 {
                     SetFailed();
                 }
-                //UnityEngine.Debug.Log($"{Self} [Logic] new action \"{m_Logic.ValueRO.Action}\"");
+                //UnityEngine.Debug.Log($"{Self},{SelfName} [Logic] new action \"{m_Logic.ValueRO.Action}\"");
             }
 
             public LogicHandle GetNextState()

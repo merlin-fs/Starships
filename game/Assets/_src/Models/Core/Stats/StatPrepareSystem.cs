@@ -49,7 +49,6 @@ namespace Game.Model.Stats
             {
                 //Writer = ecb.AsParallelWriter(),
             }.ScheduleParallel(m_Query, state.Dependency);
-
             ecb.RemoveComponent<PrepareStat>(m_Query);
             //system.AddJobHandleForProducer(state.Dependency);
         }
