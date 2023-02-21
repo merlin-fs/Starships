@@ -59,6 +59,7 @@ namespace Game.Model.Weapons
 
                 var job = new SystemJob()
                 {
+                    LookupEntity = state.GetEntityStorageInfoLookup(),
                     Entities = entities,
                     LookupDead = m_LookupDead,
                     LookupStatAspect = m_LookupStatAspect,
@@ -73,6 +74,7 @@ namespace Game.Model.Weapons
 
             partial struct SystemJob : IJobEntity
             {
+                public EntityStorageInfoLookup LookupEntity;
                 public EntityCommandBuffer.ParallelWriter Writer;
                 [NativeDisableParallelForRestriction]
                 public StatAspect.Lookup LookupStatAspect;
@@ -85,9 +87,16 @@ namespace Game.Model.Weapons
                     var damageConfig = damage.Bullet.Def.DamageType;
                     foreach (var iter in damageConfig.Damages)
                     {
+                        if (damage.Target.Value != Entity.Null && !LookupEntity.Exists(damage.Target.Value))
+                            return;
+
+                        var pos = damage.Target.Value != Entity.Null
+                            ? LookupTransforms[damage.Target.Value]
+                            : damage.SenderTransform;
+
                         if (damageConfig.Targets == DamageTargets.AoE)
                         {
-                            AoE(idx, damage.Sender, damageConfig.ID, damage.SenderTransform.Position, iter, damage.Bullet.Range, damage.Value);
+                            AoE(idx, damage.Sender, damageConfig.ID, pos.Position, iter, damage.Bullet.Range, damage.Value);
                         }
                         else
                         {
@@ -98,6 +107,12 @@ namespace Game.Model.Weapons
 
                 void Damage(int idx, ObjectID cfgID, Entity target, IDamage damage, float value)
                 {
+                    if (!LookupEntity.Exists(target))
+                    {
+                        UnityEngine.Debug.LogError($"{target} [Damage] not exists");
+                        return;
+                    }
+
                     if (LookupDead.HasComponent(target))
                         return;
                     UnityEngine.Debug.Log($"{target} [Damage] try lookup");

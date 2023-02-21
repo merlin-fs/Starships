@@ -79,13 +79,18 @@ namespace Game.Model.Weapons
             /// Время перезарядки
             /// </summary>
             ReloadTime,
+            /// <summary>
+            /// Дальность
+            /// </summary>
+            Range,
         }
 
         [Serializable]
         public class WeaponDef : IDef<Weapon>
         {
             public BulletConfig Bullet;
-            public int Health = 5;
+            public float Health = 5;
+            public float Range = 25;
             public float DamageValue = 1;
             public int BarrelCount;
             public int ClipSize;

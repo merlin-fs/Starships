@@ -5,8 +5,7 @@ using Common.Defs;
 
 namespace Game.Model.Weapons
 {
-    using Game.Model.Stats;
-
+    using Stats;
     using Logics;
 
     public partial struct Weapon
@@ -33,7 +32,7 @@ namespace Game.Model.Weapons
             {
                 m_LookupTeams.Update(ref state);
                 var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
-                var job = new WeaponJob()
+                var job = new SystemJob()
                 {
                     Teams = m_LookupTeams,
                     Writer = ecb.AsParallelWriter(),
@@ -43,14 +42,15 @@ namespace Game.Model.Weapons
                 state.Dependency.Complete();
             }
 
-            partial struct WeaponJob : IJobEntity
+            partial struct SystemJob : IJobEntity
             {
                 public float Delta;
                 [ReadOnly] public ComponentLookup<Team> Teams;
                 public EntityCommandBuffer.ParallelWriter Writer;
 
-                void Execute([EntityIndexInQuery] int idx, ref WeaponAspect weapon, ref Logic.Aspect logic)
+                public void Execute([EntityIndexInQuery] int idx, ref WeaponAspect weapon, ref Logic.Aspect logic)
                 {
+
                     if (logic.IsCurrentAction(Action.Reload))
                     {
                         weapon.Time += Delta;

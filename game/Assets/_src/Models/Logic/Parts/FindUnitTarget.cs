@@ -49,6 +49,7 @@ namespace Game.Model.Logics
                 
                 //UnityEngine.Debug.Log($"{logic.Self} [Logic part] FindUnitTarget set teams");
                 target.SoughtTeams = team.EnemyTeams;
+                target.Radius = float.MaxValue;
             }
         }
     }

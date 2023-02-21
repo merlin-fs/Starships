@@ -15,8 +15,7 @@ MonoBehaviour:
   PrefabObject: {fileID: 0}
   m_LogicInst:
     rid: 7383091081461891072
-  m_Parts:
-  - Game.Model.Logics.FindOfWeaponTarget
+  m_Parts: []
   references:
     version: 2
     RefIds:

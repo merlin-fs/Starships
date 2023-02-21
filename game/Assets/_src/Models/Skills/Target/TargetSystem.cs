@@ -69,7 +69,7 @@ namespace Game.Model
                 {
                     if (!logic.IsCurrentAction(Action.Find)) return;
 
-                    if (FindEnemy(data.SoughtTeams, entity, 25f, LookupTransforms, Teams, out data.Value, out data.WorldTransform))
+                    if (FindEnemy(data.SoughtTeams, entity, data.Radius, LookupTransforms, Teams, out data.Value, out data.WorldTransform))
                     {
                         //var selfPosition = LookupTransforms[logic.Self].Position;
                         //UnityEngine.Debug.Log($"{logic.Self} [Target] found: self - {selfPosition}, team - {data.SoughtTeams}, target - {data.Value}");

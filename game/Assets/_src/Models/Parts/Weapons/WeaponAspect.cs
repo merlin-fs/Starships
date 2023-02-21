@@ -77,7 +77,5 @@ namespace Game.Model.Weapons
             m_Weapon.ValueRW.Count = count;
             return count > 0;
         }
-
-        public void SetSoughtTeams(uint value) => m_Target.ValueRW.SoughtTeams = value;
     }
 }
