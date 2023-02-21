@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Pool;
 using Common.Singletons;
+using static UnityEngine.ParticleSystem;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace Game.Views
 {
@@ -43,7 +45,13 @@ namespace Game.Views
             {
                 Release(obj);
             };
-            obj.Paricle.GetComponent<UnityEngine.ParticleSystem>().Play(true);
+            
+            foreach (var iter in system.GetComponentsInChildren<UnityEngine.ParticleSystem>(true))
+            {
+                var main = iter.main;
+                main.simulationSpeed = particle.ScaleTime;
+            }
+            system.Play(true);
         }
 
         protected override void Awake()

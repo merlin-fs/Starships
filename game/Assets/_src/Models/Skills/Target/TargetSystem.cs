@@ -31,7 +31,6 @@ namespace Game.Model
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAll<Target>()
                     .WithAll<Logic>()
-                    .WithNone<DeadTag>()
                     .Build();
 
                 m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Target>());
@@ -66,20 +65,20 @@ namespace Game.Model
                 [ReadOnly] public ComponentLookup<Team> Teams;
                 [ReadOnly] public NativeList<Entity> Entities;
 
-                public void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target data, ref LogicAspect logic)
+                public void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target data, ref Logic.Aspect logic)
                 {
                     if (!logic.IsCurrentAction(Action.Find)) return;
 
-                    if (FindEnemy(data.SoughtTeams, entity, 25f, LookupTransforms, Teams, out data.Value, out data.WorldTransform))
+                    if (FindEnemy(data.SoughtTeams, entity, data.Radius, LookupTransforms, Teams, out data.Value, out data.WorldTransform))
                     {
-                        var selfPosition = LookupTransforms[logic.Self].Position;
-                        UnityEngine.Debug.Log($"{logic.Self} [Target] found: self - {selfPosition}, team - {data.SoughtTeams}, target - {data.Value}");
+                        //var selfPosition = LookupTransforms[logic.Self].Position;
+                        //UnityEngine.Debug.Log($"{logic.Self} [Target] found: self - {selfPosition}, team - {data.SoughtTeams}, target - {data.Value}");
                         logic.SetWorldState(State.Found, true);
                     }
                     else
                     {
-                        var selfPosition = LookupTransforms[logic.Self].Position;
-                        UnityEngine.Debug.Log($"{logic.Self} [Target] not found: self - {selfPosition}, team - {data.SoughtTeams}");
+                        //var selfPosition = LookupTransforms[logic.Self].Position;
+                        //UnityEngine.Debug.Log($"{logic.Self} [Target] not found: self - {selfPosition}, team - {data.SoughtTeams}");
                         logic.SetWorldState(State.Found, false);
                     }
                 }

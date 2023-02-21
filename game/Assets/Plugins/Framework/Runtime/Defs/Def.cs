@@ -571,24 +571,6 @@ namespace Common.Defs
             value.CmbBuffAdd.Invoke(manager, new object[] { entity, componentData });
         }
 
-        public static void AddComponentIData(this IBaker manager, Entity entity, ref object componentData)
-        {
-            Type DefType = componentData.GetType();
-
-            if (!m_Infos.TryGetValue(DefType, out DefineableInfo value) || value.BakerAdd == null)
-            {
-                var type = manager.GetType();
-                if (value == null)
-                    value = new DefineableInfo();
-                value.BakerAdd = type.GetMethods()
-                    .First(m => m.Name == "AddComponent" && m.GetParameters().Length == 2 && m.GetParameters()[0].ParameterType == typeof(Entity));
-
-                value.BakerAdd = value.BakerAdd.MakeGenericMethod(DefType);
-                m_Infos[DefType] = value;
-            }
-            value.BakerAdd.Invoke(manager, new object[] { entity, componentData });
-        }
-
         public static void RemoveComponentIData(this EntityCommandBuffer.ParallelWriter manager, Entity entity, Type typeComponent, int sortKey)
         {
             Type DefType = typeComponent;

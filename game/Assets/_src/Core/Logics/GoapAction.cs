@@ -3,6 +3,8 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 
+using static Game.Model.Logics.Logic;
+
 namespace Game.Model.Logics
 {
     public partial struct Logic
@@ -50,7 +52,11 @@ namespace Game.Model.Logics
                 {
                     var index = def.StateMapping[iter.Key].Index;
                     if (states[index].Value != iter.Value)
+                    {
+                        //UnityEngine.Debug.Log($"[Logic] CanTransition failed - {iter.Key} - \"{!iter.Value}\"");
                         return false;
+                    }
+                        
                 }
                 return true;
             }

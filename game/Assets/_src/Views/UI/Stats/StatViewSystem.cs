@@ -21,7 +21,6 @@ namespace Game.Views.Stats
                 .WithAll<StatView>()
                 .WithAll<Stat>()
                 .WithAll<WorldTransform>()
-                .WithNone<DeadTag>()
                 .Build();
             state.RequireForUpdate(m_Query);
         }

@@ -8,7 +8,7 @@ namespace Game.Views
 {
     using Model.Logics;
 
-    [UpdateInGroup(typeof(GamePresentationSystemGroup))]
+    [UpdateInGroup(typeof(GameLogicEndSystemGroup))]
     public partial struct ParticleSystem : ISystem
     {
         private EntityQuery m_Query;
@@ -30,19 +30,19 @@ namespace Game.Views
         public void OnUpdate(ref SystemState state)
         {
             m_LookupTransforms.Update(ref state);
-            state.Dependency = new PlayParticleJob
+            state.Dependency = new SystemJob
             {
                 LookupTransforms = m_LookupTransforms,
             }
             .ScheduleParallel(m_Query, state.Dependency);
         }
 
-        partial struct PlayParticleJob : IJobEntity
+        partial struct SystemJob : IJobEntity
         {
             [ReadOnly] 
             public ComponentLookup<WorldTransform> LookupTransforms;
 
-            void Execute(in Entity entity, in LogicAspect logic, in DynamicBuffer<Particle> particles)
+            public void Execute(in Entity entity, in Logic.Aspect logic, in DynamicBuffer<Particle> particles)
             {
                 foreach(var iter in particles)
                 {

@@ -5,16 +5,15 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace Game.Model.Logics
 {
-    using Stats;
-
     [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderLast = true)]
+    [UpdateAfter(typeof(Logic.System))]
     public class GamePartLogicSystemGroup : ComponentSystemGroup { }
+
 
     public partial struct Logic
     {
-        //[UpdateInGroup(typeof(GameLogicSystemGroup), OrderFirst = true)]
         [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderFirst = true)]
-        public partial class StateMachineSystem : SystemBase
+        public partial class System : SystemBase
         {
             EntityQuery m_Query;
             protected override void OnCreate()
@@ -23,7 +22,6 @@ namespace Game.Model.Logics
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAll<Logic>()
                     .WithAll<WorldState>()
-                    .WithNone<DeadTag>()
                     .Build();
                 
                 m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<WorldState>());
@@ -40,26 +38,30 @@ namespace Game.Model.Logics
                 [NativeSetThreadIndex]
                 int m_ThreadIndex;
 
-                public void Execute(ref LogicAspect logic)
+                public void Execute(ref Logic.Aspect logic)
                 {
                     if (!logic.IsValid) return;
+                    if (logic.IsWaitNewGoal || logic.IsWaitChangeWorld)
+                        return;
 
                     logic.CheckCurrentAction();
 
-                    if (logic.IsWork || logic.IsWaitNewGoal || logic.IsWaitChangeWorld)
+                    if (logic.IsWork)
                         return;
 
                     if (!logic.HasPlan)
                     {
                         if (logic.GetNextGoal(out Goal goal))
                         {
-                            using var plan = PlanFinder.Execute(m_ThreadIndex, logic, goal, Allocator.TempJob);
+                            var plan = PlanFinder.Execute(m_ThreadIndex, logic, goal, Allocator.TempJob);
                             if (plan.IsCreated && plan.Length > 0)
                             {
                                 logic.SetPlan(plan);
+                                plan.Dispose();
                             }
                             else
                             {
+                                logic.SetAction(LogicHandle.Null);
                                 logic.SetWaitChangeWorld();
                                 return;
                             }

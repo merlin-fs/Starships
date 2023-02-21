@@ -17,7 +17,6 @@ namespace Game.Model.Stats
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<PrepareStat>()
                 .WithAll<Stat>()
-                .WithNone<DeadTag>()
                 .Build();
             state.RequireForUpdate(m_Query);
         }
@@ -50,7 +49,6 @@ namespace Game.Model.Stats
             {
                 //Writer = ecb.AsParallelWriter(),
             }.ScheduleParallel(m_Query, state.Dependency);
-
             ecb.RemoveComponent<PrepareStat>(m_Query);
             //system.AddJobHandleForProducer(state.Dependency);
         }

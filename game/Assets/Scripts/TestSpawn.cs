@@ -63,7 +63,7 @@ public class TestSpawn : MonoBehaviour
         var view = GetComponent<TestHealthView>();
         var viewObject = GameObject.Instantiate(view.View, view.Canvas.transform);
         var buff = ecb.AddBuffer<StatView>(entity);
-        buff.Add(new StatView(viewObject, Stat.GetID(GlobalStat.Health)));
+        buff.Add(new StatView(viewObject, Stat.GetID(Global.Stat.Health)));
 
 
         /*

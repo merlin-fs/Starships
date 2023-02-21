@@ -2,6 +2,8 @@ using System;
 
 namespace Game.Model.Logics
 {
+    using Game.Model.Stats;
+
     using Units;
     using Weapons;
     using static Game.Model.Logics.Logic;
@@ -37,6 +39,10 @@ namespace Game.Model.Logics
                 .AddPreconditions(Move.State.MoveDone, true)
                 .AddEffect(Unit.State.WeaponsActive, true)
                 .Cost(1);
+
+            logic.AddAction(Global.Action.Destroy)
+                .AddPreconditions(Global.State.Dead, false)
+                .Cost(0);
 
             logic.EnqueueGoal(Move.State.Init, true);
             logic.EnqueueGoal(Unit.State.WeaponsActive, true);

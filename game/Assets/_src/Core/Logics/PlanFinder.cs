@@ -8,14 +8,14 @@ namespace Game.Model.Logics
     {
         public partial struct PlanFinder
         {
-            public static NativeArray<LogicHandle> Execute(int threadIdx, LogicAspect logic, Goal goal, 
+            public static NativeArray<LogicHandle> Execute(int threadIdx, Logic.Aspect logic, Goal goal, 
                 AllocatorManager.AllocatorHandle allocator)
             {
                 var path = Search(threadIdx, logic, goal, allocator);
                 return path;
             }
 
-            private unsafe static NativeArray<LogicHandle> Search(int threadIdx, LogicAspect logic,
+            private unsafe static NativeArray<LogicHandle> Search(int threadIdx, Logic.Aspect logic,
                 Goal goal, AllocatorManager.AllocatorHandle allocator)
             {
                 InitFinder(threadIdx);
@@ -49,7 +49,7 @@ namespace Game.Model.Logics
                 }
             }
 
-            private static void IdentifySuccessors(int threadIdx, Node node, LogicAspect logic)
+            private static void IdentifySuccessors(int threadIdx, Node node, Logic.Aspect logic)
             {
                 var costs = GetCosts(threadIdx);
                 var queue = GetQueue(threadIdx);

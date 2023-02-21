@@ -3,35 +3,39 @@ using Unity.Entities;
 
 namespace Game.Model.Weapons
 {
-    [UpdateInGroup(typeof(GameLogicEndSystemGroup), OrderFirst = true)]
-    public partial struct DamageCleanupSystem : ISystem
+    public partial struct Damage
     {
-        EntityQuery m_Query;
-
-        public void OnCreate(ref SystemState state)
+        [UpdateInGroup(typeof(GameLogicEndSystemGroup))]
+        [UpdateAfter(typeof(DamageProcessSystem))]
+        partial struct DamageCleanupSystem : ISystem
         {
-            m_Query = SystemAPI.QueryBuilder()
-                .WithAll<LastDamage>()
-                .Build();
-            state.RequireForUpdate(m_Query);
-        }
+            EntityQuery m_Query;
 
-        public void OnDestroy(ref SystemState state) { }
-
-        public unsafe void OnUpdate(ref SystemState state)
-        {
-            var job = new CleanupJob()
+            public void OnCreate(ref SystemState state)
             {
-            };
-            state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
-            state.Dependency.Complete();
-        }
+                m_Query = SystemAPI.QueryBuilder()
+                    .WithAll<LastDamage>()
+                    .Build();
+                state.RequireForUpdate(m_Query);
+            }
 
-        partial struct CleanupJob : IJobEntity
-        {
-            void Execute(ref DynamicBuffer<LastDamage> damages)
+            public void OnDestroy(ref SystemState state) { }
+
+            public unsafe void OnUpdate(ref SystemState state)
             {
-                damages.Clear();
+                var job = new SystemJob()
+                {
+                };
+                state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
+                //state.Dependency.Complete();
+            }
+
+            partial struct SystemJob : IJobEntity
+            {
+                public void Execute(ref DynamicBuffer<LastDamage> damages)
+                {
+                    damages.Clear();
+                }
             }
         }
     }

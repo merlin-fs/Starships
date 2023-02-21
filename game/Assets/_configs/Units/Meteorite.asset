@@ -19,6 +19,7 @@ MonoBehaviour:
     - Child: {fileID: 11400000, guid: d1923d49bbd41c64abecd1d6199aaf7d, type: 2}
       PrefabObject: {fileID: 3758233817938580044, guid: 1688c5823dca4a64a9c7e123bb1dee5b,
         type: 3}
+      Enabled: 1
     Speed:
       rid: 129887608927158280
     Health:
@@ -35,10 +36,10 @@ MonoBehaviour:
     - rid: 129887608927158279
       type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
-        Min: 10
-        Max: 20
+        Min: 1
+        Max: 6
     - rid: 129887608927158280
       type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
-        Min: 1
-        Max: 8
+        Min: 2
+        Max: 2

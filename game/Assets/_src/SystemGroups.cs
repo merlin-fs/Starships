@@ -1,16 +1,28 @@
 using System;
 using Unity.Entities;
-using Unity.Transforms;
 
 namespace Game
 {
     [UpdateInGroup(typeof(InitializationSystemGroup), OrderFirst = true)]
-    public class GameSpawnSystemCommandBufferSystem : BeginInitializationEntityCommandBufferSystem { }
+    public class GameSpawnSystemCommandBufferSystem : BeginInitializationEntityCommandBufferSystem
+    {
+        protected override void OnUpdate()
+        {
+            try
+            {
+                base.OnUpdate();
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
+        }
+    }
+
 
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class GameSpawnSystemGroup : ComponentSystemGroup { }
     
-
 
     public class GameSystemGroup: ComponentSystemGroup { }
 
@@ -18,17 +30,47 @@ namespace Game
         public class GameLogicInitSystemGroup : ComponentSystemGroup { }
 
         [UpdateInGroup(typeof(GameSystemGroup))]
+        [UpdateAfter(typeof(GameLogicInitSystemGroup))]
         public class GameLogicSystemGroup : ComponentSystemGroup { }
 
             [UpdateInGroup(typeof(GameLogicSystemGroup), OrderLast = true)]
-            public class GameLogicCommandBufferSystem : EntityCommandBufferSystem { }
+            public class GameLogicCommandBufferSystem : EntityCommandBufferSystem
+            {
+                protected override void OnUpdate()
+                {
+                    try
+                    {
+                        base.OnUpdate();
+                    }
+                    catch (Exception e)
+                    {
+                        UnityEngine.Debug.LogException(e);
+                    }
+                }
+            }
+
 
 
 
     [UpdateInGroup(typeof(GameSystemGroup), OrderLast = true)]
+        [UpdateAfter(typeof(GameLogicSystemGroup))]
         public class GameLogicEndSystemGroup : ComponentSystemGroup { }
+
         [UpdateInGroup(typeof(GameLogicEndSystemGroup), OrderLast = true)]
-        public class GameLogicEndCommandBufferSystem : EntityCommandBufferSystem { }
+        public class GameLogicEndCommandBufferSystem : EntityCommandBufferSystem 
+        {
+            protected override void OnUpdate()
+            {
+                try
+                {
+                    base.OnUpdate();
+                }
+                catch (Exception e)
+                { 
+                    UnityEngine.Debug.LogException(e);
+                }
+            }
+        }
 
 
 

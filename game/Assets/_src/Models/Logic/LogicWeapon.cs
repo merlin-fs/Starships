@@ -2,6 +2,8 @@ using System;
 
 namespace Game.Model.Logics
 {
+    using Game.Model.Stats;
+
     using Weapons;
     using static Game.Model.Logics.Logic;
     public class LogicWeapon: ILogic
@@ -37,6 +39,10 @@ namespace Game.Model.Logics
                 //.AddPreconditions(Weapon.State.HasAmo, true)
                 .AddEffect(Weapon.State.NoAmmo, false)
                 .Cost(2);
+
+            logic.AddAction(Global.Action.Destroy)
+                .AddPreconditions(Global.State.Dead, false)
+                .Cost(0);
 
             logic.EnqueueGoal(Weapon.State.NoAmmo, false);
             logic.EnqueueGoalRepeat(Target.State.Dead, true);

@@ -2,6 +2,9 @@
 using Unity.Burst;
 using Unity.Entities;
 
+using static Game.Model.Stats.Global;
+using static UnityEngine.EventSystems.EventTrigger;
+
 namespace Game.Model.Stats
 {
     public struct StatInit : IComponentData { }
@@ -18,19 +21,17 @@ namespace Game.Model.Stats
                 .WithAll<Stat>()
                 .WithAll<Spawn>()
                 .WithAll<StatInit>()
-                .WithNone<DeadTag>()
                 .Build();
             state.RequireForUpdate(m_Query);
         }
 
         public void OnDestroy(ref SystemState state) { }
 
-        [BurstCompile]
-        partial struct StatJob : IJobEntity
+        partial struct SystemJob : IJobEntity
         {
             public float Delta;
 
-            void Execute([WithChangeFilter(typeof(Modifier))] ref StatAspect stats)
+            public void Execute([WithChangeFilter(typeof(Modifier))] ref StatAspect stats)
             {
                 stats.Estimation(Delta);
             }
@@ -38,7 +39,7 @@ namespace Game.Model.Stats
 
         public void OnUpdate(ref SystemState state)
         {
-            var job = new StatJob()
+            var job = new SystemJob()
             {
                 Delta = SystemAPI.Time.DeltaTime,
             };

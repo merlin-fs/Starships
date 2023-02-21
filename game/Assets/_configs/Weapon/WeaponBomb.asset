@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: WeaponBomb
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 0}
+  Parts: []
   Value:
     Bullet: {fileID: 11400000, guid: 66f7d6355df69d84b9218c301788a517, type: 2}
     Health: 5
+    Range: 25
     DamageValue: 1
     BarrelCount: 1
     ClipSize: 1

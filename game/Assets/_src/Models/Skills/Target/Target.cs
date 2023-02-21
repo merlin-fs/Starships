@@ -11,6 +11,7 @@ namespace Game.Model
     {
         public Entity Value;
         public WorldTransform WorldTransform;
+        public float Radius;
         public uint SoughtTeams;
 
         public enum Action

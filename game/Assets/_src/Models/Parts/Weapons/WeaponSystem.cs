@@ -1,13 +1,12 @@
 ﻿using System;
 using Unity.Entities;
 using Unity.Collections;
-using Unity.Transforms;
 using Common.Defs;
 
 namespace Game.Model.Weapons
 {
-    using Logics;
     using Stats;
+    using Logics;
 
     public partial struct Weapon
     {
@@ -22,7 +21,6 @@ namespace Game.Model.Weapons
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAll<Weapon>()
                     .WithAll<Logic>()
-                    .WithNone<DeadTag>()
                     .Build();
                 state.RequireForUpdate(m_Query);
                 m_LookupTeams = state.GetComponentLookup<Team>(false);
@@ -34,7 +32,7 @@ namespace Game.Model.Weapons
             {
                 m_LookupTeams.Update(ref state);
                 var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
-                var job = new WeaponJob()
+                var job = new SystemJob()
                 {
                     Teams = m_LookupTeams,
                     Writer = ecb.AsParallelWriter(),
@@ -44,15 +42,15 @@ namespace Game.Model.Weapons
                 state.Dependency.Complete();
             }
 
-            partial struct WeaponJob : IJobEntity
+            partial struct SystemJob : IJobEntity
             {
                 public float Delta;
                 [ReadOnly] public ComponentLookup<Team> Teams;
                 public EntityCommandBuffer.ParallelWriter Writer;
 
-                void Execute([EntityIndexInQuery] int idx, ref WeaponAspect weapon, 
-                    ref LogicAspect logic)
+                public void Execute([EntityIndexInQuery] int idx, ref WeaponAspect weapon, ref Logic.Aspect logic)
                 {
+
                     if (logic.IsCurrentAction(Action.Reload))
                     {
                         weapon.Time += Delta;
@@ -75,9 +73,10 @@ namespace Game.Model.Weapons
                         weapon.Time += Delta;
                         if (weapon.Time >= weapon.Stat(Stats.Rate).Value)
                         {
+                            //TODO: Доделать на стороне StateMachine
                             logic.SetAction(LogicHandle.FromEnum(Action.Shoot));
                             weapon.Time = 0;
-                            weapon.Shot(new DefExt.WriterContext(Writer, idx));
+                            weapon.Shot();
                             if (weapon.Count == 0)
                             {
                                 logic.SetWorldState(State.NoAmmo, true);
@@ -89,48 +88,15 @@ namespace Game.Model.Weapons
 
                     if (logic.IsCurrentAction(Action.Shoot))
                     {
+                        //TODO: Доделать на стороне StateMachine
                         logic.SetAction(LogicHandle.FromEnum(Action.Shooting));
                         return;
                     }
 
-
-                    /*
-                    switch (logic.CurrentAction)
+                    if (logic.IsCurrentAction(Global.Action.Destroy))
                     {
-                        case Weapon.State.Shooting:
-                            //TODO: Перенести в отдельный system "Turret"
-                            var direction = weapon.Target.WorldTransform.Position;
-                            direction = transform.TransformPointWorldToParent(direction) - transform.LocalPosition;
-                            transform.LocalRotation = math.nlerp(
-                                transform.LocalRotation,
-                                quaternion.LookRotationSafe(direction, math.up()),
-                                weapon.Time + Delta * 10f);
-
-                            if (weapon.Count == 0)
-                            {
-                                logic.TrySetResult(Weapon.Condition.NoAmmo);
-                                return;
-                            }
-
-                            weapon.Time += Delta;
-                            if (weapon.Time >= weapon.Stat(Weapon.Stats.Rate).Value)
-                            {
-                                weapon.Time = 0;
-                                //!!!
-                                logic.TrySetResult(Weapon.Condition.NoAmmo);
-                            }
-                            break;
-
-                        case Weapon.State.Sleep:
-                            weapon.Time += Delta;
-                            if (weapon.Time >= weapon.Stat(Weapon.Stats.ReloadTime).Value)
-                            {
-                                weapon.Time = 0;
-                                logic.TrySetResult(logic.Result);
-                            }
-                            break;
+                        logic.SetWorldState(Global.State.Dead, true);
                     }
-                    */
                 }
             }
         }
