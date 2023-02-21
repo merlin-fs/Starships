@@ -26,6 +26,6 @@ MonoBehaviour:
     DamageValue: 5
     BarrelCount: 1
     ClipSize: 300
-    Rate: 0.02
+    Rate: 0.1
     ReloadTime: 2
   Logic: {fileID: 11400000, guid: e50676406152ff04da03a5cf707b2cd9, type: 2}
