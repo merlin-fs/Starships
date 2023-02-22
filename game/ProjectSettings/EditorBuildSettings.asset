@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SampleScene/Prefabs.unity
     guid: b60d8d538036f16469d057d895dd0303
+  - enabled: 0
+    path: Assets/RuntimeEditor/Edit/EditScene.unity
+    guid: 6b44baa536d5edd4bb4070d87ce0e9c8
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 3b4f5ed1cbe55454ea7ec6552e6fc503,
       type: 2}
