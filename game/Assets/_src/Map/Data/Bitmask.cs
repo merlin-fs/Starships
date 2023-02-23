@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Game.Model.World
+namespace Game.Model.Worlds
 {
-    public partial class Map
+    public partial struct Map
     {
         public struct Bitmask
         {

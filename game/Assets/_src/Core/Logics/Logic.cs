@@ -8,7 +8,7 @@ namespace Game.Model.Logics
 {
     [Serializable]
     [WriteGroup(typeof(WorldState))] 
-    public partial struct Logic : IComponentData, IDefineable, IDefineableCallback
+    public partial struct Logic : IComponentData, IDefinable, IDefineableCallback
     {
         [DontSerialize]
         private readonly Def<LogicDef> m_Def;

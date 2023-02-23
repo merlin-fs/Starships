@@ -7,11 +7,15 @@ using Common.Defs;
 namespace Game.Core.Prefabs
 {
     using Defs;
-    using Unity.Entities.Hybrid.Baking;
 
     public struct BakedPrefabData : IBufferElementData, IEnableableComponent
     {
         public Entity Prefab;
+        public ObjectID ConfigID;
+    }
+
+    public struct BakedPrefabEnvironmentData : IComponentData
+    {
         public ObjectID ConfigID;
     }
 

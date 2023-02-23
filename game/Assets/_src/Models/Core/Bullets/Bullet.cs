@@ -9,7 +9,7 @@ namespace Game.Model.Weapons
     using Stats;
 
     [Serializable]
-    public struct Bullet: IModifier, IDefineable, IComponentData, IDefineableCallback
+    public struct Bullet: IModifier, IDefinable, IComponentData, IDefineableCallback
     {
         [DontSerialize]
         private readonly Def<BulletDef> m_Config;

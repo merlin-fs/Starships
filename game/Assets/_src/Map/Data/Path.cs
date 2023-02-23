@@ -6,9 +6,9 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 
-namespace Game.Model.World
+namespace Game.Model.Worlds
 {
-    public partial class Map
+    public partial struct Map
     {
         public partial struct Path
         {

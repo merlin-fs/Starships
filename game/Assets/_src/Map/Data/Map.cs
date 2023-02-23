@@ -1,54 +1,50 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using UnityEngine;
 using Unity.Entities;
-using Unity.Collections;
 using Unity.Mathematics;
-using Common.Core;
+using Common.Defs;
 
-namespace Game.Model.World
+namespace Game.Model.Worlds
 {
-    public partial class Map
+    public partial struct Map
     {
-        public struct ViewDataStruct
+        public partial struct Data : IComponentData, IDefinable, IDefineableCallback
         {
-            public float4x4 WorldToLocalMatrix;
-            public float4x4 LocalToWorldMatrix;
-            public Bounds Bounds;
-            public int HeightMax;
-        }
+            private readonly Def<Def> m_Def;
+            public Def Define => m_Def.Value;
 
-        public partial struct Data: IComponentData, IDisposable
-        {
             public int2 Size;
             public ViewDataStruct ViewData;
-            public ReferenceObject<TilesData> m_TilesData;
-            public TilesData Tiles => m_TilesData.Link;
 
-            public bool IsInit()
+            public Data(Def<Def> def)
             {
-                return math.all(Size != 0);
+                m_Def = def;
+                Size = default;
+                ViewData = default;
+                ViewData.WorldToLocalMatrix = float4x4.identity;
+                ViewData.LocalToWorldMatrix = float4x4.identity * 3;
             }
 
-            public void InitView(float4x4 worldToLocalMatrix, float4x4 localToWorldMatrix, Bounds bounds)
+            #region IDefineableCallback
+            public void AddComponentData(Entity entity, IDefineableContext context)
             {
-                ViewData.WorldToLocalMatrix = worldToLocalMatrix;
-                ViewData.LocalToWorldMatrix = localToWorldMatrix;
-                ViewData.Bounds = bounds;
-            }
-            public Data(int2 size, int heightMax, Initialization initialization)
-            {
-                Size = size;
-                ViewData = new ViewDataStruct() { HeightMax = heightMax, };
-                m_TilesData = new ReferenceObject<TilesData>(new TilesData());
-                Tiles.Init(size.x * size.y);
-
-                initialization?.Invoke(Tiles, size);
+                context.AddBuffer<Layers.Floor>(entity);
             }
 
-            public void Dispose()
+            public void RemoveComponentData(Entity entity, IDefineableContext context) { }
+            #endregion
+
+            [Serializable]
+            public class Def : IDef<Data>
             {
-                m_TilesData.Dispose();
+                public int2 Size;
+            }
+
+            public struct ViewDataStruct
+            {
+                public float4x4 WorldToLocalMatrix;
+                public float4x4 LocalToWorldMatrix;
+                public Bounds Bounds;
             }
         }
     }

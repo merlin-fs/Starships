@@ -11,7 +11,7 @@ namespace Game.Model.Weapons
     /// Реализация оружия
     /// </summary>
     [Serializable]
-    public partial struct Weapon: IPart, IDefineable, IComponentData, IDefineableCallback, IStateData
+    public partial struct Weapon: IPart, IDefinable, IComponentData, IDefineableCallback, IStateData
     {
         private readonly Def<WeaponDef> m_Def;
         public WeaponDef Def => m_Def.Value;

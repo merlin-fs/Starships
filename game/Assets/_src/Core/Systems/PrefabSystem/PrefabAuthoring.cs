@@ -4,18 +4,15 @@ using Unity.Entities;
 using UnityEngine;
 using Common.Core;
 using Common.Defs;
-using Unity.Transforms;
-using Game.Model;
-using Game.Views;
-using Game.Model.Stats;
-using Game.Model.Weapons;
 
 namespace Game.Core.Prefabs
 {
 #if UNITY_EDITOR
+    using Model;
+
     public class PrefabAuthoring : MonoBehaviour
     {
-        [SerializeField, SelectType(typeof(IDefineable))]
+        [SerializeField, SelectType(typeof(IDefinable))]
         string m_Type;
 
         [NonSerialized]

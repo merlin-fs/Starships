@@ -15,7 +15,7 @@ namespace Game.Model.Units
     /// Реализация юнита (корабля)
     /// </summary>
     [Serializable]
-    public struct Unit : IUnit, IDefineable, IComponentData, IDefineableCallback, IStateData
+    public struct Unit : IUnit, IDefinable, IComponentData, IDefineableCallback, IStateData
     {
         public Def<UnitDef> Def { get; }
 

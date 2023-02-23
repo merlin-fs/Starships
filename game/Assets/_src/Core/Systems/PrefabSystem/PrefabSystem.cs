@@ -36,10 +36,12 @@ namespace Game.Core.Prefabs
         {
             Instance = this;
             base.OnCreate();
+
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<BakedPrefabData>()
                 .WithOptions(EntityQueryOptions.IncludePrefab)
                 .Build();
+
             RequireForUpdate(m_Query);
         }
 
