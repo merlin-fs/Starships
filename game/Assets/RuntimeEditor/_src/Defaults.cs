@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Editor
+namespace Game.Editor
 {
 	static class Defaults
 	{

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Editor
+namespace Game.Editor
 {
 	[System.Flags]
 	enum Axis

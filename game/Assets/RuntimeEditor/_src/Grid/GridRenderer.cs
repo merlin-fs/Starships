@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Object = UnityEngine.Object;
 
-namespace Editor.Grids
+namespace Game.Editor.Grids
 {
 	static class GridRenderer
 	{

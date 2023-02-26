@@ -22,7 +22,7 @@ namespace Game.Model.Worlds
                 Size = default;
                 ViewData = default;
                 ViewData.WorldToLocalMatrix = float4x4.identity;
-                ViewData.LocalToWorldMatrix = float4x4.identity * 3;
+                ViewData.LocalToWorldMatrix = float4x4.identity * 1.5f;
             }
 
             #region IDefineableCallback

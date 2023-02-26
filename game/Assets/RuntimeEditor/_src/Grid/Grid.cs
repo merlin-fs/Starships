@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Editor.Grids
+namespace Game.Editor.Grids
 {
     public class Grid : MonoBehaviour
     {

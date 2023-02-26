@@ -1,19 +1,35 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace RTS_Cam
 {
-    [RequireComponent(typeof(Camera))]
-    [AddComponentMenu("RTS Camera")]
     public class RTS_Camera : MonoBehaviour
     {
-        private Transform m_Transform;      //camera tranform
+        [SerializeField]
+        private Transform m_RigTransform;
+        [SerializeField]
+        private Transform m_CameraTransform;
+
+
+        [SerializeField]
+        private InputActionReference m_MoveAction;
+
+        [SerializeField]
+        private InputActionReference m_LookEnableAction;
+        [SerializeField]
+        private InputActionReference m_LookAction;
+
+
         public bool useFixedUpdate = false; //use FixedUpdate() or Update()
+
         #region Movement
         [Header("Movement")]
         /// <summary>
         /// Speed with keyboard movement
         /// </summary>
         public float keyboardMovementSpeed = 5f;    //speed with keyboard movement
+        public float keyboardMovementVelocity = 0.2f; //speed with keyboard movement
+        public float keyboardMovementZoom = 5f;
         /// <summary>
         /// speed with screen edge movement
         /// </summary>
@@ -102,24 +118,21 @@ namespace RTS_Cam
         public bool useMouseRotation = true;
         public KeyCode mouseRotationKey = KeyCode.Mouse1;
 
-        private Vector2 KeyboardInput
-        {
-            get { return useKeyboardInput ? new Vector2(Input.GetAxis(horizontalAxis), Input.GetAxis(verticalAxis)) : Vector2.zero; }
-        }
 
-        private Vector2 MouseInput
-        {
-            get { return Input.mousePosition; }
-        }
+        Vector3 m_Move = Vector3.zero;
+        Vector3 m_CurrentMove = Vector3.zero;
+        Vector3 m_VelocityMove = Vector3.zero;
+
+        Vector3 m_Rotate = Vector3.zero;
+        Vector3 m_CurrentRotate = Vector3.zero;
+        Vector3 m_VelocityRotate = Vector3.zero;
 
         private float ScrollWheel
         {
-            get { return Input.GetAxis(zoomingAxis); }
-        }
-
-        private Vector2 MouseAxis
-        {
-            get { return new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y")); }
+            get 
+            {
+                return Input.GetAxis(zoomingAxis); 
+            }
         }
 
         private int ZoomDirection
@@ -156,13 +169,44 @@ namespace RTS_Cam
 
         #endregion
         #region Unity_Methods
-
         private void Awake()
         {
+            var action = m_MoveAction.action;
+            action.performed += OnMoveChange;
+            action.started += OnMoveChange;
+            action.canceled += OnMoveChange;
+
+            action = m_LookAction.action;
+            action.performed += OnRotateChange;
+            action.started += OnRotateChange;
+            action.canceled += OnRotateChange;
+            m_LookAction.action.Disable();
+
+            action = m_LookEnableAction.action;
+            action.started += OnRotateChange;
+            action.canceled += OnRotateChange;
+
+            m_LookAction.action.ApplyBindingOverride(new InputBinding { overrideProcessors = $"invertVector2(invertX={invertRotationX},invertY={invertRotationY})" });
         }
-        private void Start()
+
+        private void OnMoveChange(InputAction.CallbackContext context)
         {
-            m_Transform = transform;
+            var input = context.ReadValue<Vector2>();
+            m_Move = new Vector3(input.x, 0, input.y); 
+        }
+
+        private void OnRotateChange(InputAction.CallbackContext context)
+        {
+            if (context.action.name == "LookActive")
+            {
+                if (context.started)
+                    m_LookAction.action.Enable();
+                else if (context.canceled)
+                    m_LookAction.action.Disable();
+                return;
+            }
+            var input = context.ReadValue<Vector2>();
+            m_Rotate = new Vector3(input.y, input.x, 0);
         }
 
         private void Update()
@@ -196,18 +240,35 @@ namespace RTS_Cam
         /// </summary>
         private void Move()
         {
-            if (useKeyboardInput)
+
+            m_CurrentMove = Vector3.SmoothDamp(m_CurrentMove, m_Move, ref m_VelocityMove, keyboardMovementVelocity);
+
+            Vector3 desiredMove = m_CurrentMove;
+            desiredMove *= keyboardMovementSpeed;
+            desiredMove *= Time.deltaTime;
+            desiredMove *= Mathf.Lerp(.5f, keyboardMovementZoom, zoomPos);
+            desiredMove = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f)) * desiredMove;
+            desiredMove = m_RigTransform.InverseTransformDirection(desiredMove);
+            if (desiredMove != Vector3.zero)
+                ResetTarget();
+            m_RigTransform.Translate(desiredMove, Space.Self);
+
+            /*
+            if (usePanning && Input.GetKey(panningKey) && MouseAxis != Vector2.zero)
             {
-                Vector3 desiredMove = new Vector3(KeyboardInput.x, 0, KeyboardInput.y);
-                desiredMove *= keyboardMovementSpeed;
+                Vector3 desiredMove = new Vector3(-MouseAxis.x, 0, -MouseAxis.y);
+                desiredMove *= panningSpeed;
                 desiredMove *= Time.deltaTime;
                 desiredMove = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f)) * desiredMove;
-                desiredMove = m_Transform.InverseTransformDirection(desiredMove);
+                desiredMove = m_RigTransform.InverseTransformDirection(desiredMove);
                 if (desiredMove != Vector3.zero)
                     ResetTarget();
-                m_Transform.Translate(desiredMove, Space.Self);
+                m_RigTransform.Translate(desiredMove, Space.Self);
             }
+            */
 
+
+            /*
             if (useScreenEdgeInput)
             {
                 Vector3 desiredMove = new Vector3();
@@ -223,24 +284,15 @@ namespace RTS_Cam
                 desiredMove *= screenEdgeMovementSpeed;
                 desiredMove *= Time.deltaTime;
                 desiredMove = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f)) * desiredMove;
-                desiredMove = m_Transform.InverseTransformDirection(desiredMove);
+                desiredMove = m_RigTransform.InverseTransformDirection(desiredMove);
                 //if (desiredMove != Vector3.zero)
                 //    ResetTarget();
-                m_Transform.Translate(desiredMove, Space.Self);
+                m_RigTransform.Translate(desiredMove, Space.Self);
             }
+            */
 
-            if (usePanning && Input.GetKey(panningKey) && MouseAxis != Vector2.zero)
-            {
-                Vector3 desiredMove = new Vector3(-MouseAxis.x, 0, -MouseAxis.y);
-
-                desiredMove *= panningSpeed;
-                desiredMove *= Time.deltaTime;
-                desiredMove = Quaternion.Euler(new Vector3(0f, transform.eulerAngles.y, 0f)) * desiredMove;
-                desiredMove = m_Transform.InverseTransformDirection(desiredMove);
-                if (desiredMove != Vector3.zero)
-                    ResetTarget();
-                m_Transform.Translate(desiredMove, Space.Self);
-            }
+            /*
+            */
         }
 
         /// <summary>
@@ -267,8 +319,14 @@ namespace RTS_Cam
             if (distanceToGround != targetHeight)// && distanceToGround > 0
                 difference = targetHeight - distanceToGround;
 
-            m_Transform.position = Vector3.Lerp(m_Transform.position,
-                new Vector3(m_Transform.position.x, targetHeight + difference, m_Transform.position.z), Time.deltaTime * heightDampening);
+            m_CameraTransform.localPosition = Vector3.Lerp(m_CameraTransform.localPosition,
+                new Vector3(m_CameraTransform.localPosition.x, m_CameraTransform.localPosition.y, -(targetHeight + difference)),
+                Time.deltaTime * heightDampening);
+            /*
+            m_CameraTransform.localPosition = Vector3.Lerp(m_CameraTransform.localPosition,
+                new Vector3(m_CameraTransform.localPosition.x, targetHeight + difference, m_CameraTransform.localPosition.z), 
+                Time.deltaTime * heightDampening);
+            */
         }
         public static float ClampAngle(float angle, float min, float max)
         {
@@ -285,10 +343,15 @@ namespace RTS_Cam
         {
             float angleX = 0f;
             float angleY = 0f;
+
+            /*
             if (useKeyboardRotation)
             {
                 angleY = RotationDirection * Time.deltaTime * rotationSped;
             }
+            */
+
+            /*
             if (useMouseRotation && Input.GetKey(mouseRotationKey))
             {
                 var x = (invertRotationX)
@@ -300,12 +363,16 @@ namespace RTS_Cam
                 angleY = x * Time.deltaTime * mouseRotationSpeed;
                 angleX = y * Time.deltaTime * mouseRotationSpeed;
             }
+            */
+            m_Rotate *= Time.deltaTime * mouseRotationSpeed;
 
             var rotation = transform.eulerAngles;
             //if (angleX != 0 || angleY != 0)
             //    ResetTarget();
             rotation.x += angleX;
             rotation.y += angleY;
+            rotation += m_Rotate;
+
             if (limitRotationX)
                 rotation.x = ClampAngle(rotation.x, minRotationX, maxRotationX);
             if (limitRotationY)
@@ -318,8 +385,8 @@ namespace RTS_Cam
         /// </summary>
         private void FollowTarget()
         {
-            Vector3 targetPos = new Vector3(targetFollow.position.x, m_Transform.position.y, targetFollow.position.z) + targetOffset;
-            m_Transform.position = Vector3.MoveTowards(m_Transform.position, targetPos, Time.deltaTime * followingSpeed);
+            Vector3 targetPos = new Vector3(targetFollow.position.x, m_RigTransform.position.y, targetFollow.position.z) + targetOffset;
+            m_RigTransform.position = Vector3.MoveTowards(m_RigTransform.position, targetPos, Time.deltaTime * followingSpeed);
         }
 
         /// <summary>
@@ -330,9 +397,9 @@ namespace RTS_Cam
             if (!limitMap)
                 return;
 
-            m_Transform.position = new Vector3(Mathf.Clamp(m_Transform.position.x, -limitX, limitX),
-                m_Transform.position.y,
-                Mathf.Clamp(m_Transform.position.z, -limitY, limitY));
+            m_RigTransform.position = new Vector3(Mathf.Clamp(m_RigTransform.position.x, -limitX, limitX),
+                m_RigTransform.position.y,
+                Mathf.Clamp(m_RigTransform.position.z, -limitY, limitY));
         }
 
         /// <summary>
@@ -358,13 +425,18 @@ namespace RTS_Cam
         /// <returns></returns>
         private float DistanceToGround(float height)
         {
-            var position = m_Transform.position;
-            position.y = height;
+            //TODO: сделать переключаьель
+            if (false)
+            {
+                var position = m_RigTransform.position;
+                position.y = height;
 
-            Ray ray = new Ray(position, Vector3.down);
-            return Physics.Raycast(ray, out RaycastHit hit, 9999f, groundMask.value)
-                ? (hit.point - m_Transform.position).magnitude
-                : 0f;
+                Ray ray = new Ray(position, Vector3.down);
+                return Physics.Raycast(ray, out RaycastHit hit, 9999f, groundMask.value)
+                    ? (hit.point - m_RigTransform.position).magnitude
+                    : 0f;
+            }
+            return 0f;
         }
 
         #endregion

@@ -69,7 +69,10 @@ namespace Game.Systems
             {
                 var inst = Writer.Instantiate(idx, spawn.Prefab);
                 Writer.AddComponent<Spawn>(idx, inst);
-                Writer.AddComponent(idx, inst, LocalTransform.FromPosition(Map.Value.MapToWord(spawn.Position)));
+                var pos = LocalTransform.FromPosition(Map.Value.MapToWord(spawn.Position));
+                pos.Scale = 0.5f;
+                Writer.AddComponent(idx, inst, pos);
+
                 Map.SetObject(spawn.Position, inst);
             }
         }
