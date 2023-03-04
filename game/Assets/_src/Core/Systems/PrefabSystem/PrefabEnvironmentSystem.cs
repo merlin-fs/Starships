@@ -43,7 +43,7 @@ namespace Game.Core.Prefabs
 
 
         [BurstDiscard]
-        protected async override void OnUpdate()
+        protected override void OnUpdate()
         {
             m_Done = false;
             var system = World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>();

@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace Game.Model.Worlds
 {
@@ -18,6 +19,14 @@ namespace Game.Model.Worlds
                 float3 pos = new float3(value.x, 0, value.y);
                 float3 offset = -math.transform(ViewData.LocalToWorldMatrix, new float3(Size.x / 2, 0, Size.x / 2));
                 pos = math.transform(ViewData.LocalToWorldMatrix, pos) + offset;
+                return pos;
+            }
+
+            public int2 WordToMap(float3 value)
+            {
+                float3 offset = math.transform(ViewData.WorldToLocalMatrix, value);
+                int2 pos = new int2(Mathf.RoundToInt(offset.x), Mathf.RoundToInt(offset.z));
+                //pos = math.transform(ViewData.LocalToWorldMatrix, pos) + offset;
                 return pos;
             }
         }

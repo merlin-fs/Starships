@@ -21,7 +21,7 @@ namespace Game.Model.Worlds
                 m_Def = def;
                 Size = default;
                 ViewData = default;
-                ViewData.WorldToLocalMatrix = float4x4.identity;
+                ViewData.WorldToLocalMatrix = float4x4.identity / 1.5f;
                 ViewData.LocalToWorldMatrix = float4x4.identity * 1.5f;
             }
 

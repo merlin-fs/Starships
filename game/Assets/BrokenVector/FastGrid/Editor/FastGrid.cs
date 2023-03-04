@@ -18,7 +18,7 @@ namespace BrokenVector.FastGrid
         private static Vector3 posBefore = Vector3.zero;
         private static Vector3 scaleBefore = Vector3.zero;
         private static Quaternion rotBefore;
-        private Transform[] selectionBefore = Selection.transforms;
+        private Transform[] selectionBefore = new Transform[] { };// Selection.transforms;
 
         private static bool drawPosX, drawPosY, drawPosZ;
         private static bool drawScaleX, drawScaleY, drawScaleZ;

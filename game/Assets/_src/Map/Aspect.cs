@@ -14,10 +14,18 @@ namespace Game.Model.Worlds
             public Entity Self => m_Self;
             public Data Value => m_Data.ValueRO;
 
+            public DynamicBuffer<Layers.Floor> Floor => m_Floor;
+
             public void SetObject(int2 pos, Entity entity)
             {
                 m_Floor.ElementAt(Value.At(pos)).Entity = entity;
             }
+
+            public Entity GetObject(int2 pos)
+            {
+                return m_Floor[Value.At(pos)].Entity;
+            }
+
             public void Init()
             {
                 m_Data.ValueRW.Size = m_Data.ValueRO.Define.Size;

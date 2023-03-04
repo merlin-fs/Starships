@@ -15,10 +15,35 @@ using System;
 using Common.Core;
 using Common.Defs;
 using Game.Model.Worlds;
+using Game.Model.Worlds.Bulds;
 
 public class TestSpawnFloor : MonoBehaviour
 {
+    [SerializeField]
+    Button m_Button;
+    
     private EntityManager m_EntityManager;
+
+    private void Start()
+    {
+        m_Button.onClick.AddListener(AddNewFloor);
+        m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        StartBatle();
+    }
+
+    private async void AddNewFloor()
+    {
+        var prefabs = m_EntityManager.World.GetOrCreateSystemManaged<PrefabEnvironmentSystem>();
+        await prefabs.IsDone();
+
+        var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
+            .CreateCommandBuffer();
+
+        var repo = Repositories.Instance.GetRepo("floor");
+        var prefab = repo.FindByID(ObjectID.Create("Deck_Floor_01_snaps002"));
+        var item = ecb.Instantiate(prefab.Prefab);
+        ecb.AddComponent<SelectBuildingTag>(item);
+    }
 
     private async void StartBatle()
     {
@@ -44,6 +69,7 @@ public class TestSpawnFloor : MonoBehaviour
         var arch = m_EntityManager.CreateArchetype(ComponentType.ReadWrite<SpawnMapTag>());
         int length = def.Size.x * def.Size.y;
 
+        /*
         var entities = new NativeArray<Entity>(length, Allocator.Temp);
         m_EntityManager.CreateEntity(arch, entities);
 
@@ -59,14 +85,8 @@ public class TestSpawnFloor : MonoBehaviour
                 Position = pos,
             });
         }
-        
         //ecb.Instantiate(prefab.Prefab);
+        */
     }
 
-
-    private void Start()
-    {
-        m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        StartBatle();
-    }
 }
