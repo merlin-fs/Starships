@@ -8,6 +8,8 @@ namespace Game.Core.Prefabs
 {
     using Defs;
 
+    using Unity.Collections;
+
     public struct BakedPrefabData : IBufferElementData, IEnableableComponent
     {
         public Entity Prefab;
@@ -16,6 +18,7 @@ namespace Game.Core.Prefabs
 
     public struct BakedPrefabEnvironmentData : IComponentData
     {
+        public FixedString64Bytes Repository;
         public ObjectID ConfigID;
     }
 

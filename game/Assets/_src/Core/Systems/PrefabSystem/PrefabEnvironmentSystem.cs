@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 namespace Game.Core.Prefabs
 {
     using Repositories;
+    using static UnityEngine.Rendering.DebugUI;
+    using Unity.Collections;
 
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
     partial class PrefabEnvironmentSystem : SystemBase
@@ -59,9 +61,9 @@ namespace Game.Core.Prefabs
         {
             public EntityCommandBuffer.ParallelWriter Writer;
 
-            void Execute(in Entity entity, in BakedPrefabEnvironmentData baked)
+            public void Execute(in Entity entity, in BakedPrefabEnvironmentData baked)
             {
-                Repositories.Instance.GetRepo("floor").Insert(new Config(baked.ConfigID, entity));
+                Repositories.Instance.GetRepo(baked.Repository.ToString()).Insert(new Config(baked.ConfigID, entity));
             }
         }
     }

@@ -819,6 +819,15 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "PlaceMove",
+                    "type": "Value",
+                    "id": "7d6bfe89-ea83-4612-b6dd-6279c04a75da",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "Move",
                     "type": "Value",
                     "id": "5dd7ea1f-664c-4e78-b2c1-3ee628014a42",
@@ -1126,6 +1135,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Place",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5236938b-6aad-4bbd-9b39-9ec7da38b6ee",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "PlaceMove",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

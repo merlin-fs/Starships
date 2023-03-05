@@ -135,29 +135,6 @@ namespace RTS_Cam
         public bool useMouseRotation = true;
         public KeyCode mouseRotationKey = KeyCode.Mouse1;
 
-        private float ScrollWheel
-        {
-            get 
-            {
-                return Input.GetAxis(zoomingAxis); 
-            }
-        }
-
-        private int ZoomDirection
-        {
-            get {
-                bool zoomIn = Input.GetKey(zoomInKey);
-                bool zoomOut = Input.GetKey(zoomOutKey);
-                if (zoomIn && zoomOut)
-                    return 0;
-                else if (!zoomIn && zoomOut)
-                    return 1;
-                else if (zoomIn && !zoomOut)
-                    return -1;
-                else
-                    return 0;
-            }
-        }
         #endregion
         #region Unity_Methods
         private void Awake()

@@ -35,8 +35,8 @@ public class TestSpawnFloor : MonoBehaviour
         var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
             .CreateCommandBuffer();
 
-        var repo = Repositories.Instance.GetRepo("floor");
-        var prefab = repo.FindByID(ObjectID.Create("Deck_Floor_01_snaps002"));
+        var repo = Repositories.Instance.GetRepo("Walls");
+        var prefab = repo.FindByID(ObjectID.Create("Deck_Wall_snaps002"));
         var item = ecb.Instantiate(prefab.Prefab);
         ecb.AddComponent<SelectBuildingTag>(item);
     }
@@ -49,7 +49,7 @@ public class TestSpawnFloor : MonoBehaviour
         var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
             .CreateCommandBuffer();
 
-        var repo = Repositories.Instance.GetRepo("floor");
+        var repo = Repositories.Instance.GetRepo("Floor");
         var prefab = repo.FindByID(ObjectID.Create("Deck_Floor_01_snaps002"));
 
         var def = new Map.Data.Def

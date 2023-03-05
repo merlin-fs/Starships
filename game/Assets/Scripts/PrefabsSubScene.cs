@@ -5,11 +5,12 @@ using UnityEditor.AddressableAssets.Settings;
 using Unity.Entities;
 using Game.Core.Prefabs;
 using Common.Core;
+using System.Linq;
 
 public class PrefabsSubScene : MonoBehaviour
 {
     [SerializeField]
-    AddressableAssetGroup m_Prefabs;
+    AddressableAssetGroup[] m_PrefabsGroup;
 
     public class _baker : Baker<PrefabsSubScene>
     {
@@ -20,11 +21,13 @@ public class PrefabsSubScene : MonoBehaviour
 
         public unsafe override void Bake(PrefabsSubScene authoring)
         {
-            foreach(var iter in authoring.m_Prefabs.entries)
+            foreach (var iter in authoring.m_PrefabsGroup.SelectMany(p => p.entries))
             {
                 var prefab = (GameObject)iter.MainAsset;
                 GetEntity(prefab);
-                GetOrAddComponent<PrefabEnvironmentAuthoring>(prefab).ConfigID = ObjectID.Create(prefab.name);
+                var component = GetOrAddComponent<PrefabEnvironmentAuthoring>(prefab);
+                component.ConfigID = ObjectID.Create(prefab.name);
+                component.Repository = iter.parentGroup.Name;
             }
         }
     }

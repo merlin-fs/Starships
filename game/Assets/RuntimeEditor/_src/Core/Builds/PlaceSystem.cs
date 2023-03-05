@@ -27,11 +27,14 @@ namespace Buildings.Environments
         EntityQuery m_QueryMap;
         Plane m_Ground;
 
+        BuildingContext.Var<Config> m_Config;
+
         public void OnCreate(ref SystemState state)
         {
             m_QueryMap = SystemAPI.QueryBuilder()
                 .WithAspect<Map.Aspect>()
                 .Build();
+
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<SelectBuildingTag>()
                 .WithAll<BuildingSize>()
@@ -49,14 +52,16 @@ namespace Buildings.Environments
         {
             if (!Camera.main)
                 return;
-
+            var input = m_Config.Value.MoveAction.ReadValue<Vector2>();
             var map = SystemAPI.GetAspectRW<Map.Aspect>(m_QueryMap.GetSingletonEntity());
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray = Camera.main.ScreenPointToRay(input);
+
             var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
             var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
 
             state.Dependency = new SystemJob()
             {
+                Config = m_Config,
                 Writer = ecb.AsParallelWriter(),
                 Map = map,
                 Ground = m_Ground,
@@ -75,6 +80,8 @@ namespace Buildings.Environments
             public Plane Ground;
             public Ray Ray;
 
+            public BuildingContext.Var<Config> Config;
+
             public void Execute([EntityIndexInQuery] int idx, in Entity entity, in BuildingSize bilding, ref TransformAspect transform)
             {
                 if (Ground.Raycast(Ray, out float position))
@@ -84,10 +91,13 @@ namespace Buildings.Environments
                     bool passable = Map.Value.Passable(pos);
                     var newPos = Map.Value.MapToWord(pos);
                     if (!passable) return;
+                    
                     transform.WorldPosition = newPos;
-                    passable &= IsPlaceTaken(Map, pos, bilding.Size);
+                    passable &= !IsPlaceTaken(Map, pos, bilding.Size);
                     //flyingBuilding.SetTransparent(passable);
-                    if (passable && Input.GetMouseButtonDown(0))
+                    bool place = Config.Value.PlaceAction.IsPressed();
+
+                    if (passable && place)
                     {
                         Map.SetObject(pos, entity);
                         Writer.RemoveComponent<SelectBuildingTag>(idx, entity);

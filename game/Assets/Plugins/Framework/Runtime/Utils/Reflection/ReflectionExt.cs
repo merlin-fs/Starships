@@ -122,7 +122,6 @@ namespace System.Reflection
                 .Where(p => baseType.IsAssignableFrom(p));
             return includeAbstract ? types : types.Where(type => !type.IsAbstract);
         }
-        
 
         public static bool IsSubclassOf(Type rType, Type rBaseType)
         {
