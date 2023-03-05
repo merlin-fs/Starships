@@ -806,7 +806,7 @@
             ]
         },
         {
-            "name": "Camera",
+            "name": "Editor",
             "id": "52e10a68-adcf-4bba-bbe4-a188b901bbef",
             "actions": [
                 {
@@ -853,6 +853,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "Place",
+                    "type": "Button",
+                    "id": "6b06466a-d329-4059-a33f-f0993e441815",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1108,6 +1117,17 @@
                     "action": "Zoom",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "79c65f5b-6a2f-46a4-9270-92b3433cf374",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Place",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

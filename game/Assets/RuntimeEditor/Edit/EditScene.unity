@@ -1400,9 +1400,17 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: d152e4a2-4e72-405c-bcc4-61ee248efa67
     m_ActionName: Camera/LookActive[/Mouse/rightButton]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: de802f7a-0453-4216-9669-2d783b4a2caa
+    m_ActionName: Editor/Zoom[/Mouse/scroll,/Keyboard/z,/Keyboard/x]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6b06466a-d329-4059-a33f-f0993e441815
+    m_ActionName: Editor/Place[/Mouse/leftButton]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
-  m_DefaultActionMap: Camera
+  m_DefaultActionMap: Editor
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 961739752}
 --- !u!114 &1038308481

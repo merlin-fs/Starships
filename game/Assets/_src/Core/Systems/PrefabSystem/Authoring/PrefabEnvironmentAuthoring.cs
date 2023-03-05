@@ -1,14 +1,14 @@
+#if UNITY_EDITOR
 using System;
 using Unity.Entities;
 using UnityEngine;
 using Common.Core;
 using Unity.Mathematics;
 
+using Buildings.Environments;
+
 namespace Game.Core.Prefabs
 {
-    using Model.Worlds.Bulds;
-
-#if UNITY_EDITOR
 
     public class PrefabEnvironmentAuthoring : MonoBehaviour
     {
@@ -51,5 +51,5 @@ namespace Game.Core.Prefabs
             }
         }
     }
-#endif
 }
+#endif

@@ -1,38 +1,41 @@
 ﻿using UnityEngine;
 
-public class Building : MonoBehaviour
+namespace Buildings
 {
-    public Renderer MainRenderer;
-    public Vector2Int Size = Vector2Int.one;
-
-    public void SetTransparent(bool available)
+    public class Building : MonoBehaviour
     {
-        if (available)
-        {
-            MainRenderer.material.color = Color.green;
-        }
-        else
-        {
-            MainRenderer.material.color = Color.red;
-        }
-    }
+        public Renderer MainRenderer;
+        public Vector2Int Size = Vector2Int.one;
 
-    public void SetNormal()
-    {
-        MainRenderer.material.color = Color.white;
-    }
-
-    private void OnDrawGizmos()
-    {
-        for (int x = 0; x < Size.x; x++)
+        public void SetTransparent(bool available)
         {
-            for (int y = 0; y < Size.y; y++)
+            if (available)
             {
-                Gizmos.color = (x + y) % 2 == 0 
-                    ? new Color(0f, 0f, 0f, 0.5f) 
-                    : new Color(1f, 1f, 1f, 0.5f);
+                MainRenderer.material.color = Color.green;
+            }
+            else
+            {
+                MainRenderer.material.color = Color.red;
+            }
+        }
 
-                Gizmos.DrawCube(transform.position + new Vector3(x, 0, y), new Vector3(1, 0f, 1));
+        public void SetNormal()
+        {
+            MainRenderer.material.color = Color.white;
+        }
+
+        private void OnDrawGizmos()
+        {
+            for (int x = 0; x < Size.x; x++)
+            {
+                for (int y = 0; y < Size.y; y++)
+                {
+                    Gizmos.color = (x + y) % 2 == 0
+                        ? new Color(0f, 0f, 0f, 0.5f)
+                        : new Color(1f, 1f, 1f, 0.5f);
+
+                    Gizmos.DrawCube(transform.position + new Vector3(x, 0, y), new Vector3(1, 0f, 1));
+                }
             }
         }
     }

@@ -2,14 +2,15 @@ using System;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
-using Common.Defs;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Collections;
 using Unity.Transforms;
 using Unity.Burst;
-using System.Security.Principal;
 
-namespace Game.Model.Worlds.Bulds
+using Game;
+using Game.Model.Worlds;
+
+namespace Buildings.Environments
 {
     public readonly struct SelectBuildingTag: IComponentData { }
 
@@ -51,7 +52,6 @@ namespace Game.Model.Worlds.Bulds
 
             var map = SystemAPI.GetAspectRW<Map.Aspect>(m_QueryMap.GetSingletonEntity());
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
             var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
             var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
 

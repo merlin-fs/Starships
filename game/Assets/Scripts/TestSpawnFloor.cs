@@ -1,21 +1,17 @@
+using System;
 using UnityEngine.UI;
-using TMPro;
-using Unity.Scenes;
 using Unity.Entities;
 using UnityEngine;
-using Game.Core.Prefabs;
-using Game;
-using Game.Core.Repositories;
-using System.Linq;
-using Game.Model;
-using Unity.Collections;
-using System.Drawing;
 using Unity.Mathematics;
-using System;
+
 using Common.Core;
 using Common.Defs;
+using Game;
+using Game.Core.Prefabs;
+using Game.Core.Repositories;
+using Game.Model;
 using Game.Model.Worlds;
-using Game.Model.Worlds.Bulds;
+using Buildings.Environments;
 
 public class TestSpawnFloor : MonoBehaviour
 {
