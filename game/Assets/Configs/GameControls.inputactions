@@ -846,7 +846,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "LookActive",
+                    "name": "ActivateLook",
                     "type": "Button",
                     "id": "d152e4a2-4e72-405c-bcc4-61ee248efa67",
                     "expectedControlType": "Button",
@@ -867,6 +867,15 @@
                     "name": "Place",
                     "type": "Button",
                     "id": "6b06466a-d329-4059-a33f-f0993e441815",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ActivateMove",
+                    "type": "Button",
+                    "id": "c915fa7f-96c7-46fc-aef9-dca035dc39aa",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -1075,11 +1084,11 @@
                 {
                     "name": "",
                     "id": "6a5ba651-0670-423d-8433-40236ec26b80",
-                    "path": "<Mouse>/rightButton",
+                    "path": "<Mouse>/middleButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "LookActive",
+                    "action": "ActivateLook",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1146,6 +1155,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "PlaceMove",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "640d5b2b-1e94-42ea-8592-55f2aa5e3de2",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ActivateMove",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

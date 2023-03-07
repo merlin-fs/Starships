@@ -228,15 +228,15 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 140084909}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
+  m_LocalPosition: {x: 12.87, y: 2, z: -8.88}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 961739753}
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
 --- !u!114 &140084911
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,6 +260,8 @@ MonoBehaviour:
   m_ZoomAction: {fileID: -7539182715790506972, guid: 2805479214d2ebd499a1f04d37ccca9c,
     type: 3}
   m_LookEnableAction: {fileID: -4193681273555779608, guid: 2805479214d2ebd499a1f04d37ccca9c,
+    type: 3}
+  m_MoveEnableAction: {fileID: 629857840282705865, guid: 2805479214d2ebd499a1f04d37ccca9c,
     type: 3}
   MovementSpeed: 1
   MovementVelocity: 0.2
@@ -362,24 +364,9 @@ MonoBehaviour:
   targetOffset: {x: 0, y: 0, z: 0}
   useScreenEdgeInput: 0
   screenEdgeBorder: 25
-  useKeyboardInput: 1
-  horizontalAxis: Horizontal
-  verticalAxis: Vertical
   invertRotationX: 0
   invertRotationY: 1
   invertZooming: 1
-  usePanning: 1
-  panningKey: 325
-  useKeyboardZooming: 1
-  zoomInKey: 122
-  zoomOutKey: 120
-  useScrollwheelZooming: 1
-  zoomingAxis: Mouse ScrollWheel
-  useKeyboardRotation: 1
-  rotateRightKey: 101
-  rotateLeftKey: 113
-  useMouseRotation: 1
-  mouseRotationKey: 324
 --- !u!1 &203844586
 GameObject:
   m_ObjectHideFlags: 0
@@ -1128,7 +1115,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 961739749}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1408,6 +1395,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 6b06466a-d329-4059-a33f-f0993e441815
     m_ActionName: Editor/Place[/Mouse/leftButton]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 7d6bfe89-ea83-4612-b6dd-6279c04a75da
+    m_ActionName: Editor/PlaceMove[/Mouse/position]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Editor
