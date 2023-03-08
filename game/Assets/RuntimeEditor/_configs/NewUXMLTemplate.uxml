@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="align-self: flex-end; flex-shrink: 1; width: 20%; flex-grow: 1;">
+        <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); align-items: flex-end; background-image: url(&apos;project://database/Assets/_art/UI/Bar%20Off%201.png?fileID=21300000&amp;guid=c9bc65a77a3318e48976b4e9c6b753e8&amp;type=3#Bar Off 1&apos;);">
+            <ui:Label tabindex="-1" text="Label" display-tooltip-when-elided="true" />
+        </ui:VisualElement>
+        <ui:ListView focusable="true" show-foldout-header="true" show-border="true" usage-hints="DynamicColor" tooltip="fgfgdfgdfgd" style="flex-grow: 1; background-image: resource(&apos;personal/actionTreeBackgroundWithoutBorder&apos;);" />
+        <ui:Foldout text="Foldout" />
+    </ui:VisualElement>
+</ui:UXML>
