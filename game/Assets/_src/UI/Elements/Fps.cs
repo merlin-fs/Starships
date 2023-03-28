@@ -1,5 +1,4 @@
 using System;
-using Unity.Collections;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -10,9 +9,8 @@ namespace Game.UI.Elements
         public new class UxmlFactory : UxmlFactory<FpsLabel, UxmlTraits> { }
 
         const string display = "{0} FPS";
-        const int m_FpsRange = 30;
-
-        int[] m_FpsBuffer = new int[m_FpsRange];
+        const int m_FpsRange = 50;
+        readonly int[] m_FpsBuffer = new int[m_FpsRange];
         int m_FpsBufferIndex;
         float m_AverageFPS;
 
@@ -21,10 +19,14 @@ namespace Game.UI.Elements
             public override void Init(VisualElement ve, IUxmlAttributes bag, CreationContext cc)
             {
                 base.Init(ve, bag, cc);
+                if (!Application.isPlaying)
+                    return;
+
                 var label = (FpsLabel)ve;
                 (ve as FpsLabel).schedule.Execute(state =>
                 {
                     label.m_FpsBuffer[label.m_FpsBufferIndex++] = (int)(1f / Time.unscaledDeltaTime);
+
                     if (label.m_FpsBufferIndex >= m_FpsRange)
                         label.m_FpsBufferIndex = 0;
                     CalculateFPS(label);

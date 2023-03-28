@@ -7,7 +7,7 @@ namespace Game.Model.Logics
 {
     [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderLast = true)]
     [UpdateAfter(typeof(Logic.System))]
-    public class GamePartLogicSystemGroup : ComponentSystemGroup { }
+    public partial class GamePartLogicSystemGroup : ComponentSystemGroup { }
 
 
     public partial struct Logic

@@ -26,10 +26,15 @@ namespace Game.Model.Worlds
                 return m_Floor[Value.At(pos)].Entity;
             }
 
+            public Entity GetObject(int x, int y)
+            {
+                return m_Floor[Value.At(new int2(x, y))].Entity;
+            }
+
             public void Init()
             {
                 m_Data.ValueRW.Size = m_Data.ValueRO.Define.Size;
-                m_Floor.ResizeUninitialized(m_Data.ValueRO.Length);
+                m_Floor.Resize(m_Data.ValueRO.Length, Unity.Collections.NativeArrayOptions.ClearMemory);
             }
         }
     }

@@ -17,8 +17,6 @@ namespace Game.Model.Logics
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Root>()
-                .WithAll<Logic>()
                 .WithAny<Damage.LastDamage>()
                 .Build();
             m_LookupLogicAspect = new Logic.Aspect.Lookup(ref state, false);
@@ -29,8 +27,6 @@ namespace Game.Model.Logics
         public void OnUpdate(ref SystemState state)
         {
             m_LookupLogicAspect.Update(ref state);
-            var system = state.World.GetOrCreateSystemManaged<GameLogicEndCommandBufferSystem>();
-            var ecb = system.CreateCommandBuffer();
             state.Dependency = new EmitterMoveJob()
             {
                 LookupLogicAspect = m_LookupLogicAspect,
@@ -43,7 +39,7 @@ namespace Game.Model.Logics
             [NativeDisableParallelForRestriction]
             public Logic.Aspect.Lookup LookupLogicAspect;
 
-            public void Execute(in Entity self, in DynamicBuffer<Damage.LastDamage> damages)
+            public void Execute(in Entity self)//, in DynamicBuffer<Damage.LastDamage> damages
             {
                 var logic = LookupLogicAspect[self];
 

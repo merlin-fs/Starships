@@ -4,7 +4,7 @@ using Unity.Entities;
 namespace Game
 {
     [UpdateInGroup(typeof(InitializationSystemGroup), OrderFirst = true)]
-    public class GameSpawnSystemCommandBufferSystem : BeginInitializationEntityCommandBufferSystem
+    public partial class GameSpawnSystemCommandBufferSystem : BeginInitializationEntityCommandBufferSystem
     {
         protected override void OnUpdate()
         {
@@ -21,20 +21,20 @@ namespace Game
 
 
     [UpdateInGroup(typeof(InitializationSystemGroup))]
-    public class GameSpawnSystemGroup : ComponentSystemGroup { }
+    public partial class GameSpawnSystemGroup : ComponentSystemGroup { }
     
 
-    public class GameSystemGroup: ComponentSystemGroup { }
+    public partial class GameSystemGroup : ComponentSystemGroup { }
 
         [UpdateInGroup(typeof(GameSystemGroup), OrderFirst = true)]
-        public class GameLogicInitSystemGroup : ComponentSystemGroup { }
+        public partial class GameLogicInitSystemGroup : ComponentSystemGroup { }
 
         [UpdateInGroup(typeof(GameSystemGroup))]
         [UpdateAfter(typeof(GameLogicInitSystemGroup))]
-        public class GameLogicSystemGroup : ComponentSystemGroup { }
+        public partial class GameLogicSystemGroup : ComponentSystemGroup { }
 
             [UpdateInGroup(typeof(GameLogicSystemGroup), OrderLast = true)]
-            public class GameLogicCommandBufferSystem : EntityCommandBufferSystem
+            public partial class GameLogicCommandBufferSystem : EntityCommandBufferSystem
             {
                 protected override void OnUpdate()
                 {
@@ -54,10 +54,10 @@ namespace Game
 
     [UpdateInGroup(typeof(GameSystemGroup), OrderLast = true)]
         [UpdateAfter(typeof(GameLogicSystemGroup))]
-        public class GameLogicEndSystemGroup : ComponentSystemGroup { }
+        public partial class GameLogicEndSystemGroup : ComponentSystemGroup { }
 
         [UpdateInGroup(typeof(GameLogicEndSystemGroup), OrderLast = true)]
-        public class GameLogicEndCommandBufferSystem : EntityCommandBufferSystem 
+        public partial class GameLogicEndCommandBufferSystem : EntityCommandBufferSystem 
         {
             protected override void OnUpdate()
             {
@@ -75,7 +75,7 @@ namespace Game
 
 
     [UpdateInGroup(typeof(LateSimulationSystemGroup))]
-    public class GameEndSystemGroup : ComponentSystemGroup { }
+    public partial class GameEndSystemGroup : ComponentSystemGroup { }
 
 
     ///[UpdateInGroup(typeof(SimulationSystemGroup), OrderLast = true)]
@@ -83,5 +83,5 @@ namespace Game
 
 
     [UpdateInGroup(typeof(PresentationSystemGroup))]
-    public class GamePresentationSystemGroup : ComponentSystemGroup { }
+    public partial class GamePresentationSystemGroup : ComponentSystemGroup { }
 }

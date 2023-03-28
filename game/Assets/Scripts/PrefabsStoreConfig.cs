@@ -36,7 +36,8 @@ namespace Game.Core.Prefabs
         {
             public unsafe override void Bake(PrefabsStoreConfig authoring)
             {
-                AddComponent<PrefabStore>();
+                var entity = GetEntity(TransformUsageFlags.Dynamic);
+                AddComponent<PrefabStore>(entity);
                 PrepareItem(authoring.Player);
                 PrepareItem(authoring.Enenmy);
                 //PrepareItem(authoring.Weapon);
@@ -60,7 +61,7 @@ namespace Game.Core.Prefabs
 
             private void BakeItem(GameObjectConfig config)
             {
-                GetEntity(config.PrefabObject);
+                GetEntity(config.PrefabObject, TransformUsageFlags.Dynamic);
                 GetOrAddComponent<PrefabAuthoring>(config.PrefabObject).ConfigIDs.Add(config.ID);
                 HierarchyConfig(config);
             }

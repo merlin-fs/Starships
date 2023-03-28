@@ -17,7 +17,8 @@ namespace Game.Model.Logics
         {
             m_LookupTeam = state.GetComponentLookup<Team>(false);
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Logic>()
+                .WithAspectRO<Logic.Aspect>()
+                .WithAllRW<Target>()
                 .WithAll<Team>()
                 .Build();
         }

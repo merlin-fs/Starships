@@ -47,12 +47,15 @@ namespace Game.Model.Weapons
                 if (logic.IsCurrentAction(Weapon.Action.Shooting) && weapon.Target.Value != Entity.Null)
                 {
                     var transform = weapon.Transform;
-                    var direction = weapon.Target.WorldTransform.Position;
-                    direction = transform.TransformPointWorldToParent(direction) - transform.LocalPosition;
-                    direction.y = transform.LocalPosition.y;
+                    var direction = weapon.Target.Transform.Position;
                     
-                    transform.LocalRotation = math.nlerp(
-                        weapon.Transform.LocalRotation,
+                    //direction = transform.TransformPointWorldToParent(direction) - transform.LocalPosition;
+                    direction = direction - transform.Position;
+
+                    direction.y = transform.Position.y;
+                    
+                    transform.Rotation = math.nlerp(
+                        weapon.Transform.Rotation,
                         quaternion.LookRotationSafe(direction, math.up()),
                         weapon.Time + Delta * 10f);
                 }

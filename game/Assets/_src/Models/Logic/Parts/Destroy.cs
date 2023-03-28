@@ -15,12 +15,10 @@ namespace Game.Model.Logics
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Logic>()
+                .WithAspectRO<Logic.Aspect>()
                 .Build();
         }
 
-        public void OnDestroy(ref SystemState state) { }
-        
         public void OnUpdate(ref SystemState state)
         {
             var ecb = state.World.GetExistingSystemManaged<GameLogicEndCommandBufferSystem>().CreateCommandBuffer();

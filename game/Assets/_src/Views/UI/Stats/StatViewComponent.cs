@@ -61,9 +61,9 @@ namespace Game.Views.Stats
             m_Canvas = GetComponentInParent<Canvas>();
         }
 
-        void IStatViewComponent.Update(Stat stat, ITransformData transform)
+        void IStatViewComponent.Update(Stat stat, LocalTransform transform)
         {
-            m_Position = transform._Position;
+            m_Position = transform.Position;
             m_Initialize = true;
             m_Value = stat.Normalize;
         }

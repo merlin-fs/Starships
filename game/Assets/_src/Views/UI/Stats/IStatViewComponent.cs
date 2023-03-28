@@ -7,7 +7,7 @@ namespace Game.Views.Stats
 
     public interface IStatViewComponent : IDisposable
     {
-        void Update(Stat stat, ITransformData transform);
+        void Update(Stat stat, LocalTransform transform);
         
     }
 }

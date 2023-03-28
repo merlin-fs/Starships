@@ -78,7 +78,7 @@ public class TestSpawnMeteorite : MonoBehaviour
 
         var point = RandomBetweenRadius2D(10, 25 / 2) + new Vector3(0, 8, 0);
         //var point = RandomBetweenRadius2D(0, 1f) + new Vector3(0, 8, 0);
-        var transform = WorldTransform.FromPosition(point);
+        var transform = LocalTransform.FromPosition(point);
         var entity = ecb.CreateEntity();
         ecb.AddComponent(entity, new SpawnTag()
         {

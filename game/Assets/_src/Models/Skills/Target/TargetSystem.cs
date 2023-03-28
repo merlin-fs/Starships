@@ -18,7 +18,7 @@ namespace Game.Model
         {
             EntityQuery m_Query;
             EntityQuery m_QueryTargets;
-            ComponentLookup<WorldTransform> m_LookupTransforms;
+            ComponentLookup<LocalTransform> m_LookupTransforms;
             ComponentLookup<Team> m_LookupTeams;
             
             public void OnCreate(ref SystemState state)
@@ -35,7 +35,7 @@ namespace Game.Model
 
                 m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Target>());
                 state.RequireForUpdate(m_Query);
-                m_LookupTransforms = state.GetComponentLookup<WorldTransform>(true);
+                m_LookupTransforms = state.GetComponentLookup<LocalTransform>(true);
                 m_LookupTeams = state.GetComponentLookup<Team>(true);
             }
 
@@ -61,7 +61,7 @@ namespace Game.Model
             partial struct SystemJob : IJobEntity
             {
                 public float Delta;
-                [ReadOnly] public ComponentLookup<WorldTransform> LookupTransforms;
+                [ReadOnly] public ComponentLookup<LocalTransform> LookupTransforms;
                 [ReadOnly] public ComponentLookup<Team> Teams;
                 [ReadOnly] public NativeList<Entity> Entities;
 
@@ -69,7 +69,7 @@ namespace Game.Model
                 {
                     if (!logic.IsCurrentAction(Action.Find)) return;
 
-                    if (FindEnemy(data.SoughtTeams, entity, data.Radius, LookupTransforms, Teams, out data.Value, out data.WorldTransform))
+                    if (FindEnemy(data.SoughtTeams, entity, data.Radius, LookupTransforms, Teams, out data.Value, out data.Transform))
                     {
                         //var selfPosition = LookupTransforms[logic.Self].Position;
                         //UnityEngine.Debug.Log($"{logic.Self} [Target] found: self - {selfPosition}, team - {data.SoughtTeams}, target - {data.Value}");
@@ -87,12 +87,12 @@ namespace Game.Model
                 {
                     public Entity Entity;
                     public float Magnitude;
-                    public WorldTransform Transform;
+                    public LocalTransform Transform;
                 }
 
                 public bool FindEnemy(uint soughtTeams, Entity self, float selfRadius,
-                    ComponentLookup<WorldTransform> transforms, ComponentLookup<Team> teams,
-                    out Entity target, out WorldTransform transform)
+                    ComponentLookup<LocalTransform> transforms, ComponentLookup<Team> teams,
+                    out Entity target, out LocalTransform transform)
                 {
                     TempFindTarget find = new TempFindTarget { Entity = Entity.Null, Magnitude = float.MaxValue };
                     var CounterLock = new object();

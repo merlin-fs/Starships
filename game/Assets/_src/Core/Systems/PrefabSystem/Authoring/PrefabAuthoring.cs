@@ -9,7 +9,7 @@ namespace Game.Core.Prefabs
 {
 #if UNITY_EDITOR
     using Model;
-
+    
     public class PrefabAuthoring : MonoBehaviour
     {
         [SerializeField, SelectType(typeof(IDefinable))]
@@ -22,8 +22,8 @@ namespace Game.Core.Prefabs
         {
             public unsafe override void Bake(PrefabAuthoring authoring)
             {
-                var buffer = AddBuffer<BakedPrefabData>();
-                var entity = GetEntity();
+                var entity = GetEntity(TransformUsageFlags.Dynamic);
+                var buffer = AddBuffer<BakedPrefabData>(entity);
                 foreach (var iter in authoring.ConfigIDs)
                 {
                     buffer.Add(new BakedPrefabData
@@ -36,7 +36,7 @@ namespace Game.Core.Prefabs
                 var parent = authoring.transform;
                 while (parent.transform.parent != null)
                     parent = parent.transform.parent;
-                AddComponent<Root>(new Root { Value = GetEntity(parent) });
+                AddComponent<Root>(entity, new Root { Value = GetEntity(parent, TransformUsageFlags.Dynamic) });
             }
         }
     }

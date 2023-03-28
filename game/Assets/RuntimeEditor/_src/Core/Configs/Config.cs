@@ -8,11 +8,16 @@ namespace Buildings
     {
         [SerializeField]
         private InputActionReference m_MoveAction;
-
+        
         [SerializeField]
         private InputActionReference m_PlaceAction;
+        
+        [SerializeField]
+        private InputActionReference m_CancelAction;
 
-        public InputAction MoveAction => m_MoveAction.action;
-        public InputAction PlaceAction => m_PlaceAction.action;
+        public InputAction MoveAction => m_MoveAction;
+        public InputAction PlaceAction => m_PlaceAction;
+        public InputAction CancelAction => m_CancelAction;
+
     }
 }

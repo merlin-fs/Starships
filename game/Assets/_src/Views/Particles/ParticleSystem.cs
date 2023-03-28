@@ -12,7 +12,7 @@ namespace Game.Views
     public partial struct ParticleSystem : ISystem
     {
         private EntityQuery m_Query;
-        ComponentLookup<WorldTransform> m_LookupTransforms;
+        private WorldTransform m_LookupTransforms;
 
         public void OnCreate(ref SystemState state)
         {
@@ -23,7 +23,7 @@ namespace Game.Views
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
             state.RequireForUpdate(m_Query);
-            m_LookupTransforms = state.GetComponentLookup<WorldTransform>(true);
+            m_LookupTransforms = state.GetWorldTransformLookup(true);
         }
         
         public void OnDestroy(ref SystemState state) { }
@@ -40,7 +40,7 @@ namespace Game.Views
         partial struct SystemJob : IJobEntity
         {
             [ReadOnly] 
-            public ComponentLookup<WorldTransform> LookupTransforms;
+            public WorldTransform LookupTransforms;
 
             public void Execute(in Entity entity, in Logic.Aspect logic, in DynamicBuffer<Particle> particles)
             {
@@ -49,7 +49,9 @@ namespace Game.Views
                     if (logic.IsCurrentAction(iter.Action))
                     {
                         var localEntity = entity;
-                        var localTransform = LookupTransforms[iter.Target];
+                        var localTransform = LookupTransforms.ToWorld(iter.Target);
+                        
+
                         UnityEngine.Debug.Log($"{entity} [Particle] action {logic.CurrentAction}");
                         UnityMainThread.Context.Post(obj =>
                         {

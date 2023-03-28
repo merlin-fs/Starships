@@ -12,13 +12,13 @@ namespace Game.Model.Weapons
         struct Data : IComponentData
         {
             public Entity Sender;
-            public WorldTransform SenderTransform;
+            public LocalTransform SenderTransform;
             public Target Target;
             public Bullet Bullet;
             public float Value;
         }
 
-        public static void Apply(Entity entity, WorldTransform SenderTransform, Target target, Bullet bullet, float value)
+        public static void Apply(Entity entity, LocalTransform SenderTransform, Target target, Bullet bullet, float value)
         {
             DamageSystem.Damage(entity, SenderTransform, target, bullet, value);
         }
@@ -35,7 +35,7 @@ namespace Game.Model.Weapons
                 m_Queue = new ConcurrentQueue<Data>();
             }
 
-            public static void Damage(Entity entity, WorldTransform SenderTransform, Target target, Bullet bullet, float value)
+            public static void Damage(Entity entity, LocalTransform SenderTransform, Target target, Bullet bullet, float value)
             {
                 m_Queue.Enqueue(new Data
                 {

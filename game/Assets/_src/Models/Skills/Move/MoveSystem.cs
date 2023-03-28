@@ -2,13 +2,11 @@ using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Unity.Collections;
 
 namespace Game.Model
 {
     using Logics;
-    using static Logics.Logic;
-
+    
     public partial struct Move
     {
         [UpdateInGroup(typeof(GameLogicSystemGroup))]
@@ -26,8 +24,6 @@ namespace Game.Model
                 state.RequireForUpdate(m_Query);
             }
 
-            public void OnDestroy(ref SystemState state) { }
-
             public void OnUpdate(ref SystemState state)
             {
                 var job = new MoveJob()
@@ -41,13 +37,13 @@ namespace Game.Model
             {
                 public float Delta;
 
-                void Execute(ref Move data, ref TransformAspect transform, ref Logic.Aspect logic)
+                public void Execute(ref Move data, ref LocalTransform transform, ref Logic.Aspect logic)
                 {
                     if (logic.IsCurrentAction(Action.Init))
                     {
                         UnityEngine.Debug.Log($"{logic.Self} [Move] init {data.Position}, speed {data.Speed}");
-                        transform.WorldPosition = data.Position;
-                        transform.RotateLocal(data.Rotation);
+                        transform.Position = data.Position;
+                        transform.Rotate(data.Rotation);
                         logic.SetWorldState(State.Init, true);
                     }
 
@@ -55,16 +51,17 @@ namespace Game.Model
                         logic.IsCurrentAction(Action.MoveToPosition))
                     {
                         //UnityEngine.Debug.Log($"[{logic.Self}] move to target {data.Position}, speed {data.Speed}, pos {transform.WorldPosition}");
-                        float3 direction = data.Position - transform.WorldPosition;
-                        var dt = math.distancesq(transform.WorldPosition, data.Position);
+                        float3 direction = data.Position - transform.Position;
+                        var dt = math.distancesq(transform.Position, data.Position);
                         if (dt < 0.1f)
                         {
                             //UnityEngine.Debug.Log($"[{logic.Self}] move done {transform.WorldPosition}, target{data.Position}, dot {dt}");
                             logic.SetWorldState(State.MoveDone, true);
                         }
-                        var lookRotation = quaternion.LookRotationSafe(direction, transform.Up);
-                        transform.WorldRotation = lookRotation;
-                        transform.WorldPosition += math.normalize(direction) * Delta * data.Speed;
+                        
+                        var lookRotation = quaternion.LookRotationSafe(direction, math.up());
+                        transform.Rotation = lookRotation;
+                        transform.Position += math.normalize(direction) * Delta * data.Speed;
                         return;
                     }
                 }

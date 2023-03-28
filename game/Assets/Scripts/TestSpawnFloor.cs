@@ -12,6 +12,7 @@ using Game.Core.Repositories;
 using Game.Model;
 using Game.Model.Worlds;
 using Buildings.Environments;
+using Buildings;
 
 public class TestSpawnFloor : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class TestSpawnFloor : MonoBehaviour
     Button m_Button;
     
     private EntityManager m_EntityManager;
+    BuildingContext.Var<IApiEditor> m_ApiEditor;
 
     private void Start()
     {
@@ -29,14 +31,17 @@ public class TestSpawnFloor : MonoBehaviour
 
     private async void AddNewFloor()
     {
+        //var config = Repositories.Instance.GetRepo("Floor").FindByID(ObjectID.Create("Deck_Ceiling_01_snaps002"));
+        //m_ApiEditor.Value.AddEnvironment(config);
+        //return;
+        
         var prefabs = m_EntityManager.World.GetOrCreateSystemManaged<PrefabEnvironmentSystem>();
         await prefabs.IsDone();
 
-        var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
-            .CreateCommandBuffer();
-
         var repo = Repositories.Instance.GetRepo("Walls");
         var prefab = repo.FindByID(ObjectID.Create("Deck_Wall_snaps002"));
+        var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
+            .CreateCommandBuffer();
         var item = ecb.Instantiate(prefab.Prefab);
         ecb.AddComponent<SelectBuildingTag>(item);
     }

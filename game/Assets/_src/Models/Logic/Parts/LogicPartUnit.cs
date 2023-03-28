@@ -23,7 +23,7 @@ namespace Game.Model.Logics
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Logic>()
+                .WithAspect<Logic.Aspect>()
                 .WithAll<Unit>()
                 .Build();
 

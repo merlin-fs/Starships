@@ -45,7 +45,7 @@ public class TestSpawn : MonoBehaviour
             .CreateCommandBuffer();
 
         var entity = ecb.CreateEntity();
-        var transform = WorldTransform.FromPosition(0f, -3f, -1.54f);
+        var transform = LocalTransform.FromPosition(0f, -3f, -1.54f);
         //transform.Rotation = quaternion.RotateY(-180);
         
         transform.Rotation = quaternion.RotateX(math.radians(-90));

@@ -24,7 +24,7 @@ public class PrefabsSubScene : MonoBehaviour
             foreach (var iter in authoring.m_PrefabsGroup.SelectMany(p => p.entries))
             {
                 var prefab = (GameObject)iter.MainAsset;
-                GetEntity(prefab);
+                GetEntity(prefab, TransformUsageFlags.Dynamic);
                 var component = GetOrAddComponent<PrefabEnvironmentAuthoring>(prefab);
                 component.ConfigID = ObjectID.Create(prefab.name);
                 component.Repository = iter.parentGroup.Name;

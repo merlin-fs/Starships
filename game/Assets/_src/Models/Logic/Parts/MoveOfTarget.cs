@@ -1,6 +1,5 @@
 ﻿using System;
 using Unity.Entities;
-using Unity.Collections;
 using Unity.Mathematics;
 
 namespace Game.Model.Logics
@@ -14,18 +13,17 @@ namespace Game.Model.Logics
         public EntityQuery m_Query;
         #region IPartLogic
         public EntityQuery Query => m_Query;
+
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Move>()
+                .WithAllRW<Move>()
                 .WithAll<Target>()
-                .WithAll<Logic>()
-                .WithAll<Unit>()
+                .WithAspectRO<Logic.Aspect>()
+                .WithAspectRO<UnitAspect>()
                 .Build();
         }
 
-        public void OnDestroy(ref SystemState state) { }
-        
         public void OnUpdate(ref SystemState state)
         {
             state.Dependency = new SystemJob()
@@ -43,7 +41,7 @@ namespace Game.Model.Logics
 
                 if (logic.IsCurrentAction(Move.Action.MoveToTarget))
                 {
-                    data.Position = target.WorldTransform.Position;
+                    data.Position = target.Transform.Position;
                     data.Speed = unit.Stat(Unit.Stats.Speed).Value;
                     //UnityEngine.Debug.Log($"{logic.Self} [Logic part] MoveOfTarget set {data.Position}, {data.Speed}");
                     return;

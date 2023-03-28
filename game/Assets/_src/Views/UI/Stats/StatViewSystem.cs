@@ -20,19 +20,19 @@ namespace Game.Views.Stats
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<StatView>()
                 .WithAll<Stat>()
-                .WithAll<WorldTransform>()
+                .WithAll<LocalTransform>()
                 .Build();
             state.RequireForUpdate(m_Query);
         }
 
         partial struct UpdateViewJob : IJobEntity
         {
-            void Execute(in DynamicBuffer<StatView> views, in StatAspect stats, in TransformAspect transform)
+            void Execute(in DynamicBuffer<StatView> views, in StatAspect stats, in LocalTransform transform)
             {
                 foreach (var iter in views)
                 {
                     var stat = stats.Values.GetRO(iter.StatID);
-                    iter.View.Update(stat, transform.WorldTransform);
+                    iter.View.Update(stat, transform);
                 }
             }
         }

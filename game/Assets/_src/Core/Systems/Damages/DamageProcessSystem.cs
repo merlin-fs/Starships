@@ -26,7 +26,7 @@ namespace Game.Model.Weapons
         {
             EntityQuery m_Query;
             ComponentLookup<DeadTag> m_LookupDead;
-            ComponentLookup<WorldTransform> m_LookupTransforms;
+            ComponentLookup<LocalTransform> m_LookupTransforms;
             EntityQuery m_QueryTargets;
             StatAspect.Lookup m_LookupStatAspect;
 
@@ -43,7 +43,7 @@ namespace Game.Model.Weapons
                     .Build();
 
                 m_LookupDead = state.GetComponentLookup<DeadTag>(true);
-                m_LookupTransforms = state.GetComponentLookup<WorldTransform>(true);
+                m_LookupTransforms = state.GetComponentLookup<LocalTransform>(true);
                 m_LookupStatAspect = new StatAspect.Lookup(ref state, false);
             }
 
@@ -79,7 +79,7 @@ namespace Game.Model.Weapons
                 [NativeDisableParallelForRestriction]
                 public StatAspect.Lookup LookupStatAspect;
                 [ReadOnly] public ComponentLookup<DeadTag> LookupDead;
-                [ReadOnly] public ComponentLookup<WorldTransform> LookupTransforms;
+                [ReadOnly] public ComponentLookup<LocalTransform> LookupTransforms;
                 [ReadOnly] public NativeList<Entity> Entities;
 
                 public void Execute([EntityIndexInQuery] int idx, in Data damage)
@@ -137,7 +137,7 @@ namespace Game.Model.Weapons
                     }
                 }
 
-                public void FindEnemy(Entity self, float3 center, float radius, ComponentLookup<WorldTransform> transforms, NativeList<Entity> targets)
+                public void FindEnemy(Entity self, float3 center, float radius, ComponentLookup<LocalTransform> transforms, NativeList<Entity> targets)
                 {
                     targets.Capacity = Entities.Length;
                     var entities = Entities;

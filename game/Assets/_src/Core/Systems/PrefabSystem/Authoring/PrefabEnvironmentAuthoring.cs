@@ -8,6 +8,7 @@ using Unity.Mathematics;
 using Buildings.Environments;
 using static UnityEngine.Rendering.DebugUI;
 using Unity.Collections;
+using static Unity.Entities.EntitiesJournaling;
 
 namespace Game.Core.Prefabs
 {
@@ -26,15 +27,15 @@ namespace Game.Core.Prefabs
         {
             public unsafe override void Bake(PrefabEnvironmentAuthoring authoring)
             {
-                var entity = GetEntity();
+                var entity = GetEntity(TransformUsageFlags.Dynamic);
                 var data = new BakedPrefabEnvironmentData
                 {
                     ConfigID = authoring.ConfigID,
                 };
                 FixedStringMethods.CopyFromTruncated(ref data.Repository, authoring.Repository);
                 
-                AddComponent(data);
-                AddComponent(new BuildingSize { Size = authoring.m_Size });
+                AddComponent(entity, data);
+                AddComponent(entity, new BuildingSize { Size = authoring.m_Size });
             }
         }
 

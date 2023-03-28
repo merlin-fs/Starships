@@ -16,3 +16,5 @@ MonoBehaviour:
     type: 3}
   m_PlaceAction: {fileID: 716540915751023700, guid: 2805479214d2ebd499a1f04d37ccca9c,
     type: 3}
+  m_CancelAction: {fileID: 8511225957359869417, guid: 2805479214d2ebd499a1f04d37ccca9c,
+    type: 3}

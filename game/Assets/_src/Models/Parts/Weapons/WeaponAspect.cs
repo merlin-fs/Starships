@@ -18,9 +18,9 @@ namespace Game.Model.Weapons
         readonly RefRW<Target> m_Target;
         [Optional] readonly RefRO<Bullet> m_Bullet;
         [ReadOnly] readonly DynamicBuffer<Stat> m_Stats;
-        readonly TransformAspect m_Transform;
+        readonly RefRO<LocalTransform> m_Transform;
         public Entity Self => m_Self;
-        public TransformAspect Transform => m_Transform;
+        public LocalTransform Transform => m_Transform.ValueRO;
 
         #region DesignTime
 
@@ -58,7 +58,7 @@ namespace Game.Model.Weapons
             if (m_Weapon.ValueRW.Count < 0)
                 m_Weapon.ValueRW.Count = 0;
             //DamageSystem.Damage(Self, m_Transform.ValueRO, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value, context);
-            Damage.Apply(Root, Transform.WorldTransform, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value);
+            Damage.Apply(Root, Transform, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value);
         }
 
         public bool Reload(IDefineableContext context, int count)

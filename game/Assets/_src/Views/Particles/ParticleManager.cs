@@ -29,15 +29,15 @@ namespace Game.Views
             public Unity.Entities.Hash128 VfxID;
         }
 
-        public async void Play(Entity entity, Particle particle, WorldTransform worldTransform)
+        public async void Play(Entity entity, Particle particle, LocalToWorld transform)
         {
             PooledObject obj = await Get(particle);
             if (particle.Position)
-                obj.Paricle.transform.position = worldTransform.Position;
+                obj.Paricle.transform.position = transform.Position;
             if (particle.Scale)
-                obj.Paricle.transform.localScale = new Vector3(worldTransform.Scale, worldTransform.Scale, worldTransform.Scale);
+                obj.Paricle.transform.localScale = new Vector3(transform.Scale, transform.Scale, transform.Scale);
             if (particle.Rotation)
-                obj.Paricle.transform.localRotation = worldTransform.Rotation;
+                obj.Paricle.transform.localRotation = transform.Rotation;
             
             obj.Paricle.SetActive(true);
             var system = obj.Paricle.GetComponent<UnityEngine.ParticleSystem>();
