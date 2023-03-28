@@ -8,7 +8,7 @@ namespace Game.Model
     public struct SpawnTag : IComponentData
     {
         public Entity Entity;
-        public WorldTransform WorldTransform;
+        public LocalTransform WorldTransform;
         public ObjectID ConfigID;
     }
 

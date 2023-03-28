@@ -46,6 +46,8 @@ MonoBehaviour:
   m_GroupAssets:
   - {fileID: 11400000, guid: ca7835c4f3708394a94f16741ecd846e, type: 2}
   - {fileID: 11400000, guid: 53dc0d2d7b3763a4c844a2362ab22af1, type: 2}
+  - {fileID: 11400000, guid: 95f65a4409032a84b894cb48f2a436c4, type: 2}
+  - {fileID: 11400000, guid: 65d44c03333e78e428f6ef846fcfae2b, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1
@@ -89,6 +91,8 @@ MonoBehaviour:
     - default
     - defs
     - vfx
+    - Environment
+    - Floor
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 64c4aa5b69bd57f48b2706360114bbc1, type: 2}

@@ -5,7 +5,7 @@ namespace Game.Model.Stats
 {
     using Logics;
 
-    [UpdateInGroup(typeof(GameLogicDoneSystemGroup))]
+    [UpdateInGroup(typeof(GameEndSystemGroup))]
     public partial struct HealthSystem : ISystem
     {
         EntityQuery m_Query;
@@ -14,12 +14,9 @@ namespace Game.Model.Stats
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Stat>()
-                .WithAll<Logic>()
-                .WithNone<DeadTag>()
-                .WithOptions(EntityQueryOptions.FilterWriteGroup)
+                .WithAspect<Logic.Aspect>()
                 .Build();
-
-            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Stat>());
+            //m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Stat>());
             state.RequireForUpdate(m_Query);
         }
 
@@ -27,24 +24,26 @@ namespace Game.Model.Stats
 
         public void OnUpdate(ref SystemState state)
         {
-            var job = new HealthJob()
+            //var system = state.World.GetOrCreateSystemManaged<GameLogicEndCommandBufferSystem>();
+            //var ecb = system.CreateCommandBuffer();
+            var job = new SystemJob()
             {
             };
             state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
+            state.Dependency.Complete();
         }
 
-        partial struct HealthJob : IJobEntity
+        partial struct SystemJob : IJobEntity
         {
-            void Execute(in DynamicBuffer<Stat> stats, ref LogicAspect logic)
+            public void Execute(in DynamicBuffer<Stat> stats, ref Logic.Aspect logic)
             {
-                /*!!!
-                if (stats.TryGetStat(GlobalStat.Health, out Stat health) &&
-                    health.Value <= 0 
-                    && logic.HasState(GlobalState.Destroy) && !logic.StateEnum.Equals(GlobalState.Destroy))
+                if (logic.IsCurrentAction(Global.Action.Destroy))
+                    return;
+                if (stats.TryGetStat(Global.Stat.Health, out Stat health) && health.Value <= 0)
                 {
-                    logic.TrySetState(GlobalState.Destroy);
+                    UnityEngine.Debug.Log($"{logic.Self}, {logic.SelfName} [Health system] set Destroy");
+                    logic.SetEvent(Global.Action.Destroy);
                 }
-                */
             }
         }
     }

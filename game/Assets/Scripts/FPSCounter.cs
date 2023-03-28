@@ -19,7 +19,7 @@ public class FPSCounter : MonoBehaviour
         float timelapse = Time.smoothDeltaTime;
         timer = timer <= 0 ? refresh : timer -= timelapse;
 
-        if (timer <= 0) avgFramerate = (int)(1f / timelapse);
+        if (timer <= 0) avgFramerate = Mathf.Round(1f / timelapse);
         m_Text.text = string.Format(display, avgFramerate.ToString());
     }
 }

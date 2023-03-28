@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 using Common.Defs;
@@ -13,8 +14,9 @@ namespace Game.Model.Weapons
     /// Конфиг оружия
     /// </summary>
     [CreateAssetMenu(fileName = "Weapon", menuName = "Configs/Parts/Weapon")]
-    public class WeaponConfig: GameObjectConfig, IConfigStats
+    public class WeaponConfig: GameObjectConfig, IConfigStats, IConfigContainer
     {
+        public List<ChildConfig> Parts = new List<ChildConfig>();
         public Weapon.WeaponDef Value = new Weapon.WeaponDef();
         public LogicConfig Logic;
 
@@ -26,13 +28,16 @@ namespace Game.Model.Weapons
                 config.Configurate(prefab, context);
         }
 
+        IEnumerable<ChildConfig> IConfigContainer.Childs => Parts;
+
         void IConfigStats.Configurate(DynamicBuffer<Stat> stats)
         {
-            stats.AddStat(GlobalStat.Health, Value.Health);
+            stats.AddStat(Global.Stat.Health, Value.Health);
             stats.AddStat(Weapon.Stats.Rate, Value.Rate);
             stats.AddStat(Weapon.Stats.Damage, Value.DamageValue);
             stats.AddStat(Weapon.Stats.ReloadTime, Value.ReloadTime);
             stats.AddStat(Weapon.Stats.ClipSize, Value.ClipSize);
+            stats.AddStat(Weapon.Stats.Range, Value.Range);
         }
     }
 }

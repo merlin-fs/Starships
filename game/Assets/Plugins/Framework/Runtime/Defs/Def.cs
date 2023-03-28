@@ -147,7 +147,7 @@ namespace Common.Defs
             }
 
             public void RemoveComponentData<T>(IDef<T> def, Entity entity, T data) 
-                where T : IDefineable
+                where T : IDefinable
             {
                 def.RemoveComponentData(entity, m_Manager, data, this);
             }
@@ -232,7 +232,7 @@ namespace Common.Defs
             }
 
             public void RemoveComponentData<T>(IDef<T> def, Entity entity, T data)
-                where T : IDefineable
+                where T : IDefinable
             {
                 def.RemoveComponentData(entity, m_Manager, data, this);
             }
@@ -320,7 +320,7 @@ namespace Common.Defs
             }
 
             public void RemoveComponentData<T>(IDef<T> def, Entity entity, T data)
-                where T : IDefineable
+                where T : IDefinable
             {
                 def.RemoveComponentData(entity, m_Manager, m_SortKey, data, this);
             }
@@ -378,13 +378,13 @@ namespace Common.Defs
         }
 
         public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, IDefineableContext context, T data)
-            where T : IDefineable
+            where T : IDefinable
         {
             context.RemoveComponentData(self, entity, data);
         }
 
         public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityCommandBuffer.ParallelWriter writer, int sortKey, T data, IDefineableContext context)
-            where T : IDefineable
+            where T : IDefinable
         {
             if (data is IDefineableCallback callback)
             {
@@ -396,7 +396,7 @@ namespace Common.Defs
         }
 
         public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityCommandBuffer writer, T data, IDefineableContext context)
-            where T : IDefineable
+            where T : IDefinable
         {
             if (data is IDefineableCallback callback)
             {
@@ -408,7 +408,7 @@ namespace Common.Defs
         }
 
         public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, EntityManager manager, T data, IDefineableContext context) 
-            where T : IDefineable  
+            where T : IDefinable  
         {
             if (data is IDefineableCallback callback)
             {
@@ -569,24 +569,6 @@ namespace Common.Defs
                 m_Infos[DefType] = value;
             }
             value.CmbBuffAdd.Invoke(manager, new object[] { entity, componentData });
-        }
-
-        public static void AddComponentIData(this IBaker manager, Entity entity, ref object componentData)
-        {
-            Type DefType = componentData.GetType();
-
-            if (!m_Infos.TryGetValue(DefType, out DefineableInfo value) || value.BakerAdd == null)
-            {
-                var type = manager.GetType();
-                if (value == null)
-                    value = new DefineableInfo();
-                value.BakerAdd = type.GetMethods()
-                    .First(m => m.Name == "AddComponent" && m.GetParameters().Length == 2 && m.GetParameters()[0].ParameterType == typeof(Entity));
-
-                value.BakerAdd = value.BakerAdd.MakeGenericMethod(DefType);
-                m_Infos[DefType] = value;
-            }
-            value.BakerAdd.Invoke(manager, new object[] { entity, componentData });
         }
 
         public static void RemoveComponentIData(this EntityCommandBuffer.ParallelWriter manager, Entity entity, Type typeComponent, int sortKey)

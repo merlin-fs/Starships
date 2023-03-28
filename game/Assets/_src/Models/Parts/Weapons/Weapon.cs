@@ -11,7 +11,7 @@ namespace Game.Model.Weapons
     /// Реализация оружия
     /// </summary>
     [Serializable]
-    public partial struct Weapon: IPart, IDefineable, IComponentData, IDefineableCallback, IStateData
+    public partial struct Weapon: IPart, IDefinable, IComponentData, IDefineableCallback, IStateData
     {
         private readonly Def<WeaponDef> m_Def;
         public WeaponDef Def => m_Def.Value;
@@ -47,15 +47,13 @@ namespace Game.Model.Weapons
             Init,
             Shooting,
             Shoot,
-
-            bomb,
-
             Reload,
             Sleep,
         }
 
         public enum State
-        { 
+        {
+            Active,
             NoAmmo,
             HasAmo,
         }
@@ -81,13 +79,18 @@ namespace Game.Model.Weapons
             /// Время перезарядки
             /// </summary>
             ReloadTime,
+            /// <summary>
+            /// Дальность
+            /// </summary>
+            Range,
         }
 
         [Serializable]
         public class WeaponDef : IDef<Weapon>
         {
             public BulletConfig Bullet;
-            public int Health = 5;
+            public float Health = 5;
+            public float Range = 25;
             public float DamageValue = 1;
             public int BarrelCount;
             public int ClipSize;

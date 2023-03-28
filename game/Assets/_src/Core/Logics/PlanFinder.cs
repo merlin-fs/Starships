@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Unity.Collections;
-using Unity.Entities;
 
 namespace Game.Model.Logics
 {
@@ -9,15 +8,15 @@ namespace Game.Model.Logics
     {
         public partial struct PlanFinder
         {
-            public static NativeArray<LogicHandle> Execute(int threadIdx, LogicAspect logic, States goal, 
+            public static NativeArray<LogicHandle> Execute(int threadIdx, Logic.Aspect logic, Goal goal, 
                 AllocatorManager.AllocatorHandle allocator)
             {
-                var path = Search(threadIdx, logic, goal.GetReadOnly(), allocator);
+                var path = Search(threadIdx, logic, goal, allocator);
                 return path;
             }
 
-            private unsafe static NativeArray<LogicHandle> Search(int threadIdx, LogicAspect logic,
-                NativeHashMap<LogicHandle, bool>.ReadOnly goal, AllocatorManager.AllocatorHandle allocator)
+            private unsafe static NativeArray<LogicHandle> Search(int threadIdx, Logic.Aspect logic,
+                Goal goal, AllocatorManager.AllocatorHandle allocator)
             {
                 InitFinder(threadIdx);
                 try
@@ -27,9 +26,8 @@ namespace Game.Model.Logics
                         HeuristicCost = 0.0f
                     };
 
-                    foreach (var nextGoal in goal)
-                        if (!logic.HasWorldState(nextGoal.Key, nextGoal.Value))
-                            root.Goals.Add(nextGoal.Key, nextGoal.Value);
+                    if (!logic.HasWorldState(goal.State, goal.Value))
+                        root.Goals.Add(goal.State, goal.Value);
 
                     var costs = GetCosts(threadIdx);
                     costs.Add(LogicHandle.Null, root);
@@ -43,7 +41,7 @@ namespace Game.Model.Logics
                         IdentifySuccessors(threadIdx, node, logic);
                     }
 
-                    return new NativeList<LogicHandle>(1, allocator).AsArray();
+                    return new NativeList<LogicHandle>(1, Allocator.Persistent).AsArray();
                 }
                 finally
                 {
@@ -51,7 +49,7 @@ namespace Game.Model.Logics
                 }
             }
 
-            private static void IdentifySuccessors(int threadIdx, Node node, LogicAspect logic)
+            private static void IdentifySuccessors(int threadIdx, Node node, Logic.Aspect logic)
             {
                 var costs = GetCosts(threadIdx);
                 var queue = GetQueue(threadIdx);
@@ -61,7 +59,7 @@ namespace Game.Model.Logics
                 {
                     foreach (var pt in logic.Def.GetActionsFromGoal(GoalHandle.FromHandle(iter.Key, iter.Value)))
                     {
-                        var action = logic.Def.GetAction(pt);
+                        logic.Def.TryGetAction(pt, out GoapAction action);
                         if (!costs.TryGetValue(action.Handle, out Node next))
                         {
                             next = new Node(action.Handle, action.Cost);
@@ -94,13 +92,13 @@ namespace Game.Model.Logics
             private static NativeArray<LogicHandle> ShortestPath(int threadIdx, LogicHandle v, AllocatorManager.AllocatorHandle allocator)
             {
                 var hierarchy = GetHierarchy(threadIdx);
-                var path = new NativeList<LogicHandle>(hierarchy.Count, allocator);
+                var path = new NativeList<LogicHandle>(hierarchy.Count, Allocator.Persistent);
                 while (!v.Equals(LogicHandle.Null))
                 {
                     if (!hierarchy.TryGetValue(v, out LogicHandle test))
                     {
                         path.Dispose();
-                        return new NativeList<LogicHandle>(1, allocator).AsArray();
+                        return new NativeList<LogicHandle>(1, Allocator.Persistent).AsArray();
                     }
                     else
                     {

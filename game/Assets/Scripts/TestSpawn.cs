@@ -31,7 +31,6 @@ public class TestSpawn : MonoBehaviour
 
     private async void StartBatle()
     {
-        return;
         var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
         await prefab.IsDone();
 
@@ -46,7 +45,7 @@ public class TestSpawn : MonoBehaviour
             .CreateCommandBuffer();
 
         var entity = ecb.CreateEntity();
-        var transform = WorldTransform.FromPosition(0f, -3f, -1.54f);
+        var transform = LocalTransform.FromPosition(0f, -3f, -1.54f);
         //transform.Rotation = quaternion.RotateY(-180);
         
         transform.Rotation = quaternion.RotateX(math.radians(-90));
@@ -64,7 +63,7 @@ public class TestSpawn : MonoBehaviour
         var view = GetComponent<TestHealthView>();
         var viewObject = GameObject.Instantiate(view.View, view.Canvas.transform);
         var buff = ecb.AddBuffer<StatView>(entity);
-        buff.Add(new StatView(viewObject, Stat.GetID(GlobalStat.Health)));
+        buff.Add(new StatView(viewObject, Stat.GetID(Global.Stat.Health)));
 
 
         /*
@@ -99,6 +98,9 @@ public class TestSpawn : MonoBehaviour
     private async void Start()
     {
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount = 3;
+
         /*
         var guid = SceneSystem.GetSceneGUID(ref m_EntityManager.WorldUnmanaged.GetExistingSystemState<SceneSystem>(), "Assets/Scenes/SampleScene/New Sub Scene.unity");
         //var loadParameters = new SceneSystem.LoadParameters { Flags = SceneLoadFlags.LoadAdditive | SceneLoadFlags.NewInstance };

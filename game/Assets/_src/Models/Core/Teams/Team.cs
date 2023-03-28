@@ -8,7 +8,7 @@ using Game.Model.Logics;
 namespace Game.Model
 {
     [Serializable]
-    public struct Team : IComponentData, IDefineable, IDefineableCallback
+    public struct Team : IComponentData, IDefinable, IDefineableCallback
     {
         private readonly Def<Def> m_Def;
 

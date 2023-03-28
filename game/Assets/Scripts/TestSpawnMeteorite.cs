@@ -30,7 +30,8 @@ public class TestSpawnMeteorite : MonoBehaviour
     {
         //RandomNormal* Mathf.Sqrt(Random.Range(0.0f, 1.0f))
         float radius = UnityEngine.Random.Range(minRad, maxRad);
-        float angle = UnityEngine.Random.Range(0, 360);
+        //float angle = UnityEngine.Random.Range(0, 360);
+        float angle = UnityEngine.Random.Range(-90, 90);
 
         float x = Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
         float y = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
@@ -75,8 +76,9 @@ public class TestSpawnMeteorite : MonoBehaviour
         if (enemy.Prefab == Entity.Null)
             return;
 
-        var point = RandomBetweenRadius2D(5, 25 / 2) + new Vector3(0, 8, 0);
-        var transform = WorldTransform.FromPosition(point);
+        var point = RandomBetweenRadius2D(10, 25 / 2) + new Vector3(0, 8, 0);
+        //var point = RandomBetweenRadius2D(0, 1f) + new Vector3(0, 8, 0);
+        var transform = LocalTransform.FromPosition(point);
         var entity = ecb.CreateEntity();
         ecb.AddComponent(entity, new SpawnTag()
         {
@@ -91,8 +93,9 @@ public class TestSpawnMeteorite : MonoBehaviour
         while (m_Current > 0)
         {
             StartSpawn();
-            var time = UnityEngine.Random.Range(0.01f, 1f);
-            yield return new WaitForSeconds(time);
+            //var time = UnityEngine.Random.Range(0.01f, 1f);
+            //yield return new WaitForSeconds(time);
+            yield return null;
             m_Current--;
         }
     }

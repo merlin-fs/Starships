@@ -58,15 +58,15 @@ namespace Game.Model.Stats
 
         public static unsafe void AddStat(DynamicBuffer<Stat> buff, Enum value, StatValue stat)
         {
+            var element = new Stat(value)
+            {
+                m_Value = stat,
+            };
             var id = FindStat(buff, value);
             if (id < 0)
-            {
-                var element = new Stat(value)
-                {
-                    m_Value = stat,
-                };
                 buff.Add(element);
-            }
+            else
+                buff.ElementAt(id) = element;
         }
 
         public static bool Has(DynamicBuffer<Stat> buff, int statId)

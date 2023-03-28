@@ -10,7 +10,7 @@ namespace Common.Defs
     }
 
     public interface IDef<T>: IDef
-        where T : IDefineable
+        where T : IDefinable
     {
     }
 

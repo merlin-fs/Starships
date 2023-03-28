@@ -3,17 +3,26 @@ using Unity.Entities;
 
 namespace Game.Model.Stats
 {
+    using static Game.Model.Logics.Logic;
 
     public struct DeadTag: IComponentData { }
-    public struct WaitTag : ICleanupComponentData { }
+    //public struct WaitDeadTag : IComponentData { }
 
-    public enum GlobalState
+    public struct Global : IStateData
     {
-        Destroy,
-    }
+        public enum Action
+        {
+            Destroy,
+        }
 
-    public enum GlobalStat
-    {
-        Health,
+        public enum State
+        {
+            Dead,
+        }
+
+        public enum Stat
+        {
+            Health,
+        }
     }
 }

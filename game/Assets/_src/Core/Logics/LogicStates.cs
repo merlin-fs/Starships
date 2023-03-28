@@ -7,14 +7,9 @@ namespace Game.Model.Logics
     {
         public interface IStateData { }
 
-        public struct WorldState: IBufferElementData
+        public struct WorldState : IBufferElementData
         {
             public bool Value;
-        }
-
-        public struct WaitState : IBufferElementData
-        {
-            public int Value;
         }
     }
 }

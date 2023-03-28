@@ -2,31 +2,25 @@ using System;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
-using System.Linq;
 
 namespace Game.Model.Logics
 {
-    using System.Threading;
-
-    using Stats;
-
     [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderLast = true)]
-    public class GamePartLogicSystemGroup : ComponentSystemGroup { }
+    [UpdateAfter(typeof(Logic.System))]
+    public partial class GamePartLogicSystemGroup : ComponentSystemGroup { }
+
 
     public partial struct Logic
     {
-        //[UpdateInGroup(typeof(GameLogicSystemGroup), OrderFirst = true)]
         [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderFirst = true)]
-        public partial class StateMachineSystem : SystemBase
+        public partial class System : SystemBase
         {
             EntityQuery m_Query;
             protected override void OnCreate()
             {
                 PlanFinder.Init();
                 m_Query = SystemAPI.QueryBuilder()
-                    .WithAll<Logic>()
-                    .WithAll<WorldState>()
-                    .WithNone<DeadTag>()
+                    .WithAspect<Logic.Aspect>()
                     .Build();
                 
                 m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<WorldState>());
@@ -38,43 +32,55 @@ namespace Game.Model.Logics
                 PlanFinder.Dispose();
                 base.OnDestroy();
             }
+
             partial struct StateMachineJob : IJobEntity
             {
                 [NativeSetThreadIndex]
                 int m_ThreadIndex;
 
-                void Execute(ref LogicAspect logic)
+                public void Execute(ref Logic.Aspect logic)
                 {
                     if (!logic.IsValid) return;
+                    if (logic.IsWaitNewGoal || logic.IsWaitChangeWorld)
+                        return;
 
-                    if (!logic.IsWork)
+                    logic.CheckCurrentAction();
+
+                    if (logic.IsWork)
+                        return;
+
+                    if (!logic.HasPlan)
                     {
-                        //UnityEngine.Debug.Log($"{logic.Self} [Logic] work - {logic.IsWork}, {logic.CurrentAction}");
-                        if (!logic.HasPlan)
+                        if (logic.GetNextGoal(out Goal goal))
                         {
-                            var goal = logic.Def.GetGoal();
                             var plan = PlanFinder.Execute(m_ThreadIndex, logic, goal, Allocator.TempJob);
                             if (plan.IsCreated && plan.Length > 0)
                             {
-                                UnityEngine.Debug.Log($"{logic.Self} [Logic] new plan - {string.Join(", ", plan.ToArray().Select(i => $"{i}"))}");
                                 logic.SetPlan(plan);
                                 plan.Dispose();
                             }
                             else
                             {
-                                logic.SetFailed();
+                                logic.SetAction(LogicHandle.Null);
+                                logic.SetWaitChangeWorld();
                                 return;
                             }
                         }
-
-                        if (!logic.IsAction() || (logic.IsAction() && logic.IsActionSuccess()))
-                        {
-                            var next = logic.GetNextState();
-                            UnityEngine.Debug.Log($"{logic.Self} [Logic] new action - {next}");
-                            logic.SetAction(next);
-                        }
                         else
-                            logic.SetFailed();
+                        {
+                            logic.SetWaitNewGoal();
+                            return;
+                        }
+                    }
+
+                    if (!logic.IsAction || (logic.IsAction && logic.IsActionSuccess()))
+                    {
+                        var next = logic.GetNextState();
+                        logic.SetAction(next);
+                    }
+                    else
+                    {
+                        logic.SetFailed();
                     }
                 }
             }

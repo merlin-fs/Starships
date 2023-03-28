@@ -23,7 +23,8 @@ namespace Game.Model
         public enum Action
         {
             Init,
-            MoveTo,
+            MoveToTarget,
+            MoveToPosition,
         }
 
         public enum State

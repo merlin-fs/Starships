@@ -1,36 +1,81 @@
 using System;
 using Unity.Entities;
-using Unity.Transforms;
 
 namespace Game
 {
     [UpdateInGroup(typeof(InitializationSystemGroup), OrderFirst = true)]
-    public class GameSpawnSystemCommandBufferSystem : BeginInitializationEntityCommandBufferSystem { }
+    public partial class GameSpawnSystemCommandBufferSystem : BeginInitializationEntityCommandBufferSystem
+    {
+        protected override void OnUpdate()
+        {
+            try
+            {
+                base.OnUpdate();
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogException(e);
+            }
+        }
+    }
+
 
     [UpdateInGroup(typeof(InitializationSystemGroup))]
-    public class GameSpawnSystemGroup : ComponentSystemGroup { }
+    public partial class GameSpawnSystemGroup : ComponentSystemGroup { }
     
 
-
-    public class GameSystemGroup: ComponentSystemGroup { }
+    public partial class GameSystemGroup : ComponentSystemGroup { }
 
         [UpdateInGroup(typeof(GameSystemGroup), OrderFirst = true)]
-        public class GameLogicInitSystemGroup : ComponentSystemGroup { }
-
-            [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderFirst = true)]
-            public class GameLogicCommandBufferSystem : EntityCommandBufferSystem { }
-
+        public partial class GameLogicInitSystemGroup : ComponentSystemGroup { }
 
         [UpdateInGroup(typeof(GameSystemGroup))]
-        public class GameLogicSystemGroup : ComponentSystemGroup { }
+        [UpdateAfter(typeof(GameLogicInitSystemGroup))]
+        public partial class GameLogicSystemGroup : ComponentSystemGroup { }
 
-        [UpdateInGroup(typeof(GameSystemGroup), OrderLast = true)]
-        public class GameLogicDoneSystemGroup : ComponentSystemGroup { }
+            [UpdateInGroup(typeof(GameLogicSystemGroup), OrderLast = true)]
+            public partial class GameLogicCommandBufferSystem : EntityCommandBufferSystem
+            {
+                protected override void OnUpdate()
+                {
+                    try
+                    {
+                        base.OnUpdate();
+                    }
+                    catch (Exception e)
+                    {
+                        UnityEngine.Debug.LogException(e);
+                    }
+                }
+            }
+
+
+
+
+    [UpdateInGroup(typeof(GameSystemGroup), OrderLast = true)]
+        [UpdateAfter(typeof(GameLogicSystemGroup))]
+        public partial class GameLogicEndSystemGroup : ComponentSystemGroup { }
+
+        [UpdateInGroup(typeof(GameLogicEndSystemGroup), OrderLast = true)]
+        public partial class GameLogicEndCommandBufferSystem : EntityCommandBufferSystem 
+        {
+            protected override void OnUpdate()
+            {
+                try
+                {
+                    base.OnUpdate();
+                }
+                catch (Exception e)
+                { 
+                    UnityEngine.Debug.LogException(e);
+                }
+            }
+        }
 
 
 
     [UpdateInGroup(typeof(LateSimulationSystemGroup))]
-    public class GameEndSystemGroup : ComponentSystemGroup { }
+    public partial class GameEndSystemGroup : ComponentSystemGroup { }
 
 
     ///[UpdateInGroup(typeof(SimulationSystemGroup), OrderLast = true)]
@@ -38,5 +83,5 @@ namespace Game
 
 
     [UpdateInGroup(typeof(PresentationSystemGroup))]
-    public class GamePresentationSystemGroup : ComponentSystemGroup { }
+    public partial class GamePresentationSystemGroup : ComponentSystemGroup { }
 }

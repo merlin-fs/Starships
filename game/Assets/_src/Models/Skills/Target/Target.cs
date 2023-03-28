@@ -10,7 +10,8 @@ namespace Game.Model
     public partial struct Target : IComponentData, IStateData
     {
         public Entity Value;
-        public WorldTransform WorldTransform;
+        public LocalTransform Transform;
+        public float Radius;
         public uint SoughtTeams;
 
         public enum Action

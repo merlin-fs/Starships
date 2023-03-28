@@ -12,14 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fae114fcc2e167541a1bf00b4698ad62, type: 3}
   m_Name: Weapon
   m_EditorClassIdentifier: 
-  PrefabObject: {fileID: 3139204547736633351, guid: e68621411f71031488e2552f57db202a,
+  PrefabObject: {fileID: 1979706888108350, guid: bf3b9e24f7f131c479855962a72c5ab1,
     type: 3}
+  Parts:
+  - Child: {fileID: 11400000, guid: fc606ceed2aaa994c8093529cdbf7786, type: 2}
+    PrefabObject: {fileID: 1157879558086612, guid: bf3b9e24f7f131c479855962a72c5ab1,
+      type: 3}
+    Enabled: 1
   Value:
     Bullet: {fileID: 11400000, guid: c94f740253ba24c4db17d250612946be, type: 2}
-    Health: 5
-    DamageValue: 1
+    Health: 50000
+    Range: 25
+    DamageValue: 5
     BarrelCount: 1
     ClipSize: 300
-    Rate: 0.05
-    ReloadTime: 1
+    Rate: 0.1
+    ReloadTime: 2
   Logic: {fileID: 11400000, guid: e50676406152ff04da03a5cf707b2cd9, type: 2}

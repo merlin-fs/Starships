@@ -7,11 +7,18 @@ using Common.Defs;
 namespace Game.Core.Prefabs
 {
     using Defs;
-    using Unity.Entities.Hybrid.Baking;
+
+    using Unity.Collections;
 
     public struct BakedPrefabData : IBufferElementData, IEnableableComponent
     {
         public Entity Prefab;
+        public ObjectID ConfigID;
+    }
+
+    public struct BakedPrefabEnvironmentData : IComponentData
+    {
+        public FixedString64Bytes Repository;
         public ObjectID ConfigID;
     }
 
@@ -23,20 +30,21 @@ namespace Game.Core.Prefabs
     {
         public GameObjectConfig Player;
         public GameObjectConfig Enenmy;
-        public GameObjectConfig Weapon;
+        //public GameObjectConfig Weapon;
 
         public class _baker : Baker<PrefabsStoreConfig>
         {
             public unsafe override void Bake(PrefabsStoreConfig authoring)
             {
-                AddComponent<PrefabStore>();
+                var entity = GetEntity(TransformUsageFlags.Dynamic);
+                AddComponent<PrefabStore>(entity);
                 PrepareItem(authoring.Player);
                 PrepareItem(authoring.Enenmy);
-                PrepareItem(authoring.Weapon);
+                //PrepareItem(authoring.Weapon);
 
                 BakeItem(authoring.Player);
                 BakeItem(authoring.Enenmy);
-                BakeItem(authoring.Weapon);
+                //BakeItem(authoring.Weapon);
             }
 
             public T GetOrAddComponent<T>(GameObject uo) where T : Component
@@ -53,17 +61,25 @@ namespace Game.Core.Prefabs
 
             private void BakeItem(GameObjectConfig config)
             {
-                GetEntity(config.PrefabObject);
+                GetEntity(config.PrefabObject, TransformUsageFlags.Dynamic);
                 GetOrAddComponent<PrefabAuthoring>(config.PrefabObject).ConfigIDs.Add(config.ID);
+                HierarchyConfig(config);
+            }
 
+            private void HierarchyConfig(GameObjectConfig config)
+            {
                 if (config is IConfigContainer container)
                 {
                     foreach (var iter in container.Childs)
                     {
+                        if (!iter.Enabled) continue;
+
                         if (iter.PrefabObject)
                         {
                             GetOrAddComponent<PrefabAuthoring>(iter.PrefabObject).ConfigIDs.Add(iter.Child.ID);
                         }
+                        if (iter.Child is GameObjectConfig objectConfig)
+                            HierarchyConfig(objectConfig);
                     }
                 }
             }

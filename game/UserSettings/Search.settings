@@ -1,4 +1,5 @@
 trackSelection = true
+refreshSearchWindowsInPlayMode = false
 fetchPreview = true
 defaultFlags = 0
 keepOpen = false
@@ -13,6 +14,9 @@ scopes = {
 	"last_search.E8DA15E5" = "t:LogicConfig"
 	"OpenInspectorPreview.E8DA15E5" = "0"
 	"currentGroup.E8DA15E5" = "all"
+	"last_search.223EF03E" = ""
+	"OpenInspectorPreview.223EF03E" = "0"
+	"currentGroup.223EF03E" = "all"
 }
 providers = {
 	adb = {
@@ -55,6 +59,16 @@ providers = {
 		priority = 50
 		defaultAction = null
 	}
+	archetype = {
+		active = true
+		priority = 2500
+		defaultAction = null
+	}
+	journal = {
+		active = true
+		priority = 2500
+		defaultAction = null
+	}
 }
 objectSelectors = {
 }
@@ -79,3 +93,5 @@ queryBuilder = true
 ignoredProperties = "id;name;classname;imagecontentshash"
 helperWidgetCurrentArea = "all"
 disabledIndexers = ""
+minIndexVariations = 2
+findProviderIndexHelper = true

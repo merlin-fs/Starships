@@ -17,6 +17,20 @@ namespace Game.Core.Repositories
 
         private ConcurrentDictionary<Type, object> m_Items = new ConcurrentDictionary<Type, object>();
         private ConcurrentDictionary<Type, Task> m_Tasks = new ConcurrentDictionary<Type, Task>();
+        
+        private ConcurrentDictionary<string, object> m_Repos = new ConcurrentDictionary<string, object>();
+
+        public IRepository<ObjectID, IConfig> GetRepo(string name)
+        {
+            if (m_Repos.TryGetValue(name, out object value))
+                return ((DefsRepository<IConfig>)value).Repo;
+            else
+            {
+                var repo = new DefsRepository<IConfig>();
+                m_Repos.TryAdd(name, repo);
+                return repo.Repo;
+            }
+        }
 
         public Task<IReadonlyRepository<ObjectID, IConfig>> ConfigsAsync()
         {

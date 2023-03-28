@@ -5,6 +5,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Unity.Assertions;
 using Unity.Collections;
+using Unity.Entities;
 
 namespace Game.Model.Logics
 {
@@ -16,9 +17,12 @@ namespace Game.Model.Logics
             private readonly HashSet<Type> m_SupportSystems = new HashSet<Type>();
             public bool IsValid => m_Actions.Count > 0;
 
-            public bool IsSupportSystem(Type typeSystem)
+            public bool IsSupportSystem(IJobEntity job) 
             {
-                return m_SupportSystems.Contains(typeSystem);
+                var type = job.GetType();
+                if (type.IsNested)
+                    type = type.ReflectedType;
+                return m_SupportSystems.Contains(type);
             }
 
             public void AddSupportSystem([NotNull]Type typeSystem)
@@ -31,13 +35,10 @@ namespace Game.Model.Logics
             {
                 m_StateMapping.Clear();
                 m_Actions.Clear();
-
+                m_Goal.Clear();
                 m_Effects.Dispose();
                 m_Effects = new Map<GoalHandle, LogicHandle>(10, Allocator.Persistent, true);
                 
-                m_Goal.Dispose();
-                m_Goal = new States(Allocator.Persistent);
-
                 var types = typeof(IStateData).GetDerivedTypes(true)
                     .SelectMany(t => t.GetNestedTypes())
                     .Where(t => t.IsEnum && t.Name == "State");

@@ -16,8 +16,10 @@ MonoBehaviour:
   m_LogicInst:
     rid: 7383091081461891073
   m_Parts:
-  - Game.Model.Logics.FindOfWeaponTarget
+  - Game.Model.Logics.FindUnitTarget
   - Game.Model.Logics.MoveOfTarget
+  - Game.Model.Logics.Destroy
+  - Game.Model.Logics.LogicPartUnit
   references:
     version: 2
     RefIds:
