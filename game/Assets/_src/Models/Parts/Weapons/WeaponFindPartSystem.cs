@@ -17,14 +17,12 @@ namespace Game.Model.Weapons
             public void OnCreate(ref SystemState state)
             {
                 m_Query = SystemAPI.QueryBuilder()
-                    .WithAll<Weapon>()
-                    .WithAll<Logic>()
+                    .WithAspect<WeaponAspect>()
+                    .WithAspectRO<Logic.Aspect>()
                     .Build();
                 state.RequireForUpdate(m_Query);
                 m_LookupTeams = state.GetComponentLookup<Team>(false);
             }
-
-            public void OnDestroy(ref SystemState state) { }
 
             public void OnUpdate(ref SystemState state)
             {

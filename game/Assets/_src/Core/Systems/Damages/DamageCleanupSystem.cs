@@ -14,7 +14,7 @@ namespace Game.Model.Weapons
             public void OnCreate(ref SystemState state)
             {
                 m_Query = SystemAPI.QueryBuilder()
-                    .WithAll<LastDamage>()
+                    .WithAllRW<LastDamage>()
                     .Build();
                 state.RequireForUpdate(m_Query);
             }

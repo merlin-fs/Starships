@@ -19,7 +19,8 @@ namespace Game.Model
             public void OnCreate(ref SystemState state)
             {
                 m_QueryTargets = SystemAPI.QueryBuilder()
-                    .WithAll<Target>()
+                    .WithAllRW<Target>()
+                    .WithAspect<Logic.Aspect>()
                     .Build();
 
                 m_Query = SystemAPI.QueryBuilder()

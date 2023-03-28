@@ -12,16 +12,13 @@ namespace Game.Model.Stats
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Stat>()
-                .WithAll<Modifier>()
+                .WithAspect<StatAspect>()
                 .WithOptions(EntityQueryOptions.FilterWriteGroup)
                 .Build();
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Modifier>());
             state.RequireForUpdate(m_Query);
         }
-
-        public void OnDestroy(ref SystemState state) { }
 
         partial struct SystemJob : IJobEntity
         {

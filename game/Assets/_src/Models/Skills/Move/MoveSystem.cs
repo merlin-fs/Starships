@@ -17,8 +17,9 @@ namespace Game.Model
             public void OnCreate(ref SystemState state)
             {
                 m_Query = SystemAPI.QueryBuilder()
-                    .WithAll<Move>()
-                    .WithAll<Logic>()
+                    .WithAllRW<Move>()
+                    .WithAllRW<LocalTransform>()
+                    .WithAspect<Logic.Aspect>()
                     .Build();
 
                 state.RequireForUpdate(m_Query);
@@ -43,7 +44,7 @@ namespace Game.Model
                     {
                         UnityEngine.Debug.Log($"{logic.Self} [Move] init {data.Position}, speed {data.Speed}");
                         transform.Position = data.Position;
-                        transform.Rotate(data.Rotation);
+                        transform = transform.Rotate(data.Rotation);
                         logic.SetWorldState(State.Init, true);
                     }
 

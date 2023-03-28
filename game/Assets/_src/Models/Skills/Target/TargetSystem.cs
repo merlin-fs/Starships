@@ -29,8 +29,8 @@ namespace Game.Model
                     .Build();
 
                 m_Query = SystemAPI.QueryBuilder()
-                    .WithAll<Target>()
-                    .WithAll<Logic>()
+                    .WithAllRW<Target>()
+                    .WithAspect<Logic.Aspect>()
                     .Build();
 
                 m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Target>());

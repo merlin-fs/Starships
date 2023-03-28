@@ -20,8 +20,7 @@ namespace Game.Model.Logics
             {
                 PlanFinder.Init();
                 m_Query = SystemAPI.QueryBuilder()
-                    .WithAll<Logic>()
-                    .WithAll<WorldState>()
+                    .WithAspect<Logic.Aspect>()
                     .Build();
                 
                 m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<WorldState>());
@@ -33,6 +32,7 @@ namespace Game.Model.Logics
                 PlanFinder.Dispose();
                 base.OnDestroy();
             }
+
             partial struct StateMachineJob : IJobEntity
             {
                 [NativeSetThreadIndex]

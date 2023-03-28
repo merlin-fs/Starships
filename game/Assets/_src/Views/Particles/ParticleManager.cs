@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Pool;
 using Common.Singletons;
-using static UnityEngine.ParticleSystem;
-using static UnityEngine.Rendering.DebugUI;
 
 namespace Game.Views
 {
@@ -29,13 +27,13 @@ namespace Game.Views
             public Unity.Entities.Hash128 VfxID;
         }
 
-        public async void Play(Entity entity, Particle particle, LocalToWorld transform)
+        public async void Play(Particle particle, LocalToWorld transform)
         {
             PooledObject obj = await Get(particle);
             if (particle.Position)
                 obj.Paricle.transform.position = transform.Position;
             if (particle.Scale)
-                obj.Paricle.transform.localScale = new Vector3(transform.Scale, transform.Scale, transform.Scale);
+                obj.Paricle.transform.localScale = transform.Scale();
             if (particle.Rotation)
                 obj.Paricle.transform.localRotation = transform.Rotation;
             

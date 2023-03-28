@@ -14,7 +14,7 @@ namespace Game.Model.Stats
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Stat>()
-                .WithAll<Logic>()
+                .WithAspect<Logic.Aspect>()
                 .Build();
             //m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Stat>());
             state.RequireForUpdate(m_Query);

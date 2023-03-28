@@ -2,18 +2,20 @@ using System;
 using Unity.Entities;
 using Unity.Mathematics;
 
+using static UnityEngine.Rendering.DebugUI;
+
 namespace Unity.Transforms
 {
-    public readonly struct WorldTransform
+    public struct WorldTransform
     {
-        private readonly ComponentLookup<LocalTransform> m_LookupTransforms;
-        private readonly ComponentLookup<LocalToWorld> m_LookupToWorlds;
+        private ComponentLookup<LocalTransform> m_LookupTransforms;
+        private ComponentLookup<LocalToWorld> m_LookupToWorlds;
 
         public LocalTransform Transform(Entity entity) => m_LookupTransforms[entity];
         public LocalToWorld ToWorld(Entity entity) => m_LookupToWorlds[entity];
 
-        public RefRW<LocalTransform> GetTransformRefRW(Entity entity, bool isReadOnly) => m_LookupTransforms.GetRefRW(entity, isReadOnly);
-        public RefRW<LocalToWorld> GetToWorldRefRW(Entity entity, bool isReadOnly) => m_LookupToWorlds.GetRefRW(entity, isReadOnly);
+        public RefRW<LocalTransform> GetTransformRefRW(Entity entity, bool isReadOnly = false) => m_LookupTransforms.GetRefRW(entity, isReadOnly);
+        public RefRW<LocalToWorld> GetToWorldRefRW(Entity entity, bool isReadOnly = false) => m_LookupToWorlds.GetRefRW(entity, isReadOnly);
         public RefRO<LocalTransform> GetTransformRefRO(Entity entity) => m_LookupTransforms.GetRefRO(entity);
         public RefRO<LocalToWorld> GetToWorldRefRO(Entity entity) => m_LookupToWorlds.GetRefRO(entity);
 
@@ -40,6 +42,11 @@ namespace Unity.Transforms
         public static WorldTransform GetWorldTransformLookup(this ref SystemState state, bool isReadOnly = false)
         {
             return new WorldTransform(ref state, isReadOnly);
+        }
+
+        public static float3 Scale(this ref LocalToWorld self)
+        {
+            return new float3(self.Value.c0.x, self.Value.c1.y, self.Value.c2.z);
         }
     }
 }

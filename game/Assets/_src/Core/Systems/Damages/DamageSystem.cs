@@ -18,9 +18,9 @@ namespace Game.Model.Weapons
             public float Value;
         }
 
-        public static void Apply(Entity entity, LocalTransform SenderTransform, Target target, Bullet bullet, float value)
+        public static void Apply(Entity entity, Target target, Bullet bullet, float value)
         {
-            DamageSystem.Damage(entity, SenderTransform, target, bullet, value);
+            DamageSystem.Damage(entity, target, bullet, value);
         }
 
 
@@ -29,18 +29,17 @@ namespace Game.Model.Weapons
         partial class DamageSystem : SystemBase
         {
             static ConcurrentQueue<Data> m_Queue;
-
+            
             protected override void OnCreate()
             {
                 m_Queue = new ConcurrentQueue<Data>();
             }
 
-            public static void Damage(Entity entity, LocalTransform SenderTransform, Target target, Bullet bullet, float value)
+            public static void Damage(Entity entity, Target target, Bullet bullet, float value)
             {
                 m_Queue.Enqueue(new Data
                 {
                     Sender = entity,
-                    SenderTransform = SenderTransform,
                     Value = value,
                     Target = target,
                     Bullet = bullet,

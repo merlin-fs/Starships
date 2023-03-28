@@ -17,7 +17,7 @@ namespace Game.Views
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Logic>()
+                .WithAspectRO<Logic.Aspect>()
                 .WithAll<Particle>()
                 .Build();
 
@@ -26,7 +26,6 @@ namespace Game.Views
             m_LookupTransforms = state.GetWorldTransformLookup(true);
         }
         
-        public void OnDestroy(ref SystemState state) { }
         public void OnUpdate(ref SystemState state)
         {
             m_LookupTransforms.Update(ref state);
@@ -49,13 +48,12 @@ namespace Game.Views
                     if (logic.IsCurrentAction(iter.Action))
                     {
                         var localEntity = entity;
-                        var localTransform = LookupTransforms.ToWorld(iter.Target);
-                        
+                        var transform = LookupTransforms.ToWorld(iter.Target);
 
                         UnityEngine.Debug.Log($"{entity} [Particle] action {logic.CurrentAction}");
                         UnityMainThread.Context.Post(obj =>
                         {
-                            ParticleManager.Instance.Play(localEntity, iter, localTransform);
+                            ParticleManager.Instance.Play(iter, transform);
                         }, null);
                     }
                 }

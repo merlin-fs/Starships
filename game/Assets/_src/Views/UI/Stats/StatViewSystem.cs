@@ -19,7 +19,7 @@ namespace Game.Views.Stats
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<StatView>()
-                .WithAll<Stat>()
+                .WithAspectRO<StatAspect>()
                 .WithAll<LocalTransform>()
                 .Build();
             state.RequireForUpdate(m_Query);
