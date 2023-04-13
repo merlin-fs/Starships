@@ -129,6 +129,11 @@ namespace Common.Defs
                 buff.Add(data);
             }
 
+            public void AddBuffer(Type type, Entity entity)
+            {
+                m_Manager.AddComponentIDataBuffer(entity, type);
+            }
+
             public void AddComponentData<T>(Entity entity, T data) 
                 where T : unmanaged, IComponentData
             {
@@ -213,6 +218,11 @@ namespace Common.Defs
                 where T : unmanaged, IBufferElementData
             {
                 m_Manager.AppendToBuffer<T>(entity, data);
+            }
+
+            public void AddBuffer(Type type, Entity entity)
+            {
+                m_Manager.AddComponentIDataBuffer(entity, type);
             }
 
             public void AddComponentData<T>(Entity entity, T data)
@@ -300,6 +310,11 @@ namespace Common.Defs
                 where T : unmanaged, IBufferElementData
             {
                 m_Manager.AppendToBuffer<T>(m_SortKey, entity, data);
+            }
+
+            public void AddBuffer(Type type, Entity entity)
+            {
+                m_Manager.AddComponentIDataBuffer(entity, type, m_SortKey);
             }
 
             public void AddComponentData<T>(Entity entity, T data)
@@ -571,6 +586,53 @@ namespace Common.Defs
             value.CmbBuffAdd.Invoke(manager, new object[] { entity, componentData });
         }
 
+        public static void AddComponentIDataBuffer(this EntityManager manager, Entity entity, Type defType)
+        {
+            if (!m_Infos.TryGetValue(defType, out DefineableInfo value) || value.ManagerAddBuffer == null)
+            {
+                var type = manager.GetType();
+                value ??= new DefineableInfo();
+                //AddBuffer<T>(Entity entity)
+                value.ManagerAddBuffer = type.GetMethods()
+                    .First(m => m.Name == "AddBuffer" && m.GetParameters().Length == 1);
+                value.ManagerAddBuffer = value.ManagerAddBuffer.MakeGenericMethod(defType);
+                m_Infos[defType] = value;
+            }
+            value.ManagerAddBuffer.Invoke(manager, new object[] { entity });
+        }
+
+        public static void AddComponentIDataBuffer(this EntityCommandBuffer.ParallelWriter manager, Entity entity, Type defType, int sortKey)
+        {
+            if (!m_Infos.TryGetValue(defType, out DefineableInfo value) || value.WriterAddBuffer == null)
+            {
+                var type = manager.GetType();
+                value ??= new DefineableInfo();
+                //DynamicBuffer<T> AddBuffer<T>(int sortKey, Entity e)
+                value.WriterAddBuffer = type.GetMethods()
+                    .First(m => m.Name == "AddBuffer" && m.GetParameters().Length == 2);
+
+                value.WriterAddBuffer = value.WriterAddBuffer.MakeGenericMethod(defType);
+                m_Infos[defType] = value;
+            }
+            value.WriterAddBuffer.Invoke(manager, new object[] { sortKey, entity });
+        }
+
+        public static void AddComponentIDataBuffer(this EntityCommandBuffer manager, Entity entity, Type defType)
+        {
+            if (!m_Infos.TryGetValue(defType, out DefineableInfo value) || value.CmbBuffAddBuffer == null)
+            {
+                var type = manager.GetType();
+                value ??= new DefineableInfo();
+                //AddBuffer<T>(Entity e)
+                value.CmbBuffAddBuffer = type.GetMethods()
+                    .First(m => m.Name == "AddBuffer" && m.GetParameters().Length == 1);
+
+                value.CmbBuffAddBuffer = value.CmbBuffAddBuffer.MakeGenericMethod(defType);
+                m_Infos[defType] = value;
+            }
+            value.CmbBuffAddBuffer.Invoke(manager, new object[] { entity });
+        }
+
         public static void RemoveComponentIData(this EntityCommandBuffer.ParallelWriter manager, Entity entity, Type typeComponent, int sortKey)
         {
             Type DefType = typeComponent;
@@ -633,12 +695,14 @@ namespace Common.Defs
             public MethodInfo ManagerAdd;
             public MethodInfo WriterAdd;
             public MethodInfo CmbBuffAdd;
-            public MethodInfo BakerAdd;
+
+            public MethodInfo ManagerAddBuffer;
+            public MethodInfo WriterAddBuffer;
+            public MethodInfo CmbBuffAddBuffer;
 
             public MethodInfo ManagerDel;
             public MethodInfo WriterDel;
             public MethodInfo CmbBuffDel;
-            public MethodInfo BakerDel;
         }
         private static ConcurrentDictionary<Type, DefineableInfo> m_Infos = new ConcurrentDictionary<Type, DefineableInfo>();
     }

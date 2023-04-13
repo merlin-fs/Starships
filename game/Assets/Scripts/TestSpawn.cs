@@ -54,9 +54,9 @@ public class TestSpawn : MonoBehaviour
         if (player.Prefab == Entity.Null)
             return;
 
-        ecb.AddComponent(entity, new SpawnTag()
+        ecb.AddComponent(entity, new NewSpawnWorld()
         {
-            Entity = player.Prefab,
+            Prefab = player.Prefab,
             WorldTransform = transform,
         });
 
@@ -91,23 +91,22 @@ public class TestSpawn : MonoBehaviour
         for (var i = 0; i < count; i++)
         {
             var entity = ecb.CreateEntity();
-            ecb.AddComponent(entity, new SpawnTag() { Entity = config.Prefab });
+            ecb.AddComponent(entity, new NewSpawnWorld() { Prefab = config.Prefab });
         }
     }
 
-    private async void Start()
+    private void Start()
     {
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         Application.targetFrameRate = 60;
         QualitySettings.vSyncCount = 3;
-
         /*
         var guid = SceneSystem.GetSceneGUID(ref m_EntityManager.WorldUnmanaged.GetExistingSystemState<SceneSystem>(), "Assets/Scenes/SampleScene/New Sub Scene.unity");
         //var loadParameters = new SceneSystem.LoadParameters { Flags = SceneLoadFlags.LoadAdditive | SceneLoadFlags.NewInstance };
         var sceneEntity = SceneSystem.LoadSceneAsync(m_EntityManager.WorldUnmanaged, guid);
         //SceneSystem.LoadPrefabAsync(m_EntityManager.WorldUnmanaged, guid);
         */
-        var repo = await Repositories.Instance.ConfigsAsync();
+        //var repo = await Repositories.Instance.ConfigsAsync();
         StartBatle();
     }
 

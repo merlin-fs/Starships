@@ -18,3 +18,7 @@ MonoBehaviour:
     type: 3}
   m_CancelAction: {fileID: 8511225957359869417, guid: 2805479214d2ebd499a1f04d37ccca9c,
     type: 3}
+  m_RorateXAction: {fileID: -7010546233439759793, guid: 2805479214d2ebd499a1f04d37ccca9c,
+    type: 3}
+  m_RorateYAction: {fileID: 2931929305465145330, guid: 2805479214d2ebd499a1f04d37ccca9c,
+    type: 3}

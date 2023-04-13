@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,37 +8,37 @@ namespace Common.Repositories
     using Core;
 
     [Serializable]
-    public sealed class DictionaryRepository<TID, TEntity> : IRepository<TID, TEntity>
+    public sealed class DictionaryRepository<TID, TEntity, TAttr> : IRepository<TID, TEntity, TAttr>
         where TEntity: IIdentifiable<TID>
+        where TAttr : IEntityAttributes<TEntity>
     {
-        private readonly Dictionary<TID, TEntity> m_Items;
+        private readonly ConcurrentDictionary<TID, TAttr> m_Items;
 
         public DictionaryRepository()
         {
-            m_Items = new Dictionary<TID, TEntity>();
+            m_Items = new ConcurrentDictionary<TID, TAttr>();
         }
 
-        public DictionaryRepository(Dictionary<TID, TEntity> items)
+        public DictionaryRepository(Dictionary<TID, TAttr> items)
         {
-            m_Items = items;
+            m_Items = new ConcurrentDictionary<TID, TAttr>(items);
         }
 
         #region IRepository<TID, TEntity>
-        public IEnumerable<TEntity> Find(
-            Func<TEntity, bool> filter,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy)
+        public IEnumerable<TEntity> Find(Func<TAttr, bool> filter,
+            Func<IQueryable<TAttr>, IOrderedQueryable<TAttr>> orderBy)
         {
-            IEnumerable<TEntity> qry = m_Items.Values;
+            var qry = m_Items.Values.AsEnumerable();
 
             if (filter != null)
                 qry = qry
                     .Where(filter)
                     .AsEnumerable();
-
+            
             if (orderBy != null)
                 qry = orderBy?.Invoke(qry.AsQueryable());
-
-            return qry;
+            
+            return qry.Select(i => i.Entity);
         }
 
         public T FindByID<T>(TID id) 
@@ -47,47 +48,47 @@ namespace Common.Repositories
         }
         public TEntity FindByID(TID id)
         {
-            return m_Items.TryGetValue(id, out TEntity value) 
-                ? value 
+            return m_Items.TryGetValue(id, out TAttr value) 
+                ? value.Entity
                 : default;
         }
 
-        public void Insert(TID id, TEntity entity)
+        public void Insert(TID id, TAttr entity)
         {
-            m_Items.Add(id, entity);
+            m_Items.TryAdd(id, entity);
         }
 
-        public void Insert(IEnumerable<TEntity> entities)
+        public void Insert(IEnumerable<TAttr> entities)
         {
             foreach (var entity in entities)
             {
-                m_Items.Add(entity.ID, entity);
+                m_Items.TryAdd(entity.Entity.ID, entity);
             }
         }
-        public void Insert(params TEntity[] entities)
+        public void Insert(params TAttr[] entities)
         {
-            Insert(entities as IEnumerable<TEntity>);
+            Insert(entities as IEnumerable<TAttr>);
         }
 
-        public void Update(IEnumerable<TEntity> entities)
+        public void Update(IEnumerable<TAttr> entities)
         {
             foreach (var entity in entities)
-                m_Items[entity.ID] = entity;
+                m_Items[entity.Entity.ID] = entity;
 
         }
-        public void Update(params TEntity[] entities)
+        public void Update(params TAttr[] entities)
         {
-            Update(entities as IEnumerable<TEntity>);
+            Update(entities as IEnumerable<TAttr>);
         }
 
-        public void Remove(IEnumerable<TEntity> entities)
+        public void Remove(IEnumerable<TAttr> entities)
         {
             foreach (var entity in entities)
-                m_Items.Remove(entity.ID);
+                m_Items.TryRemove(entity.Entity.ID, out TAttr _);
         }
-        public void Remove(params TEntity[] entities)
+        public void Remove(params TAttr[] entities)
         {
-            Remove(entities as IEnumerable<TEntity>);
+            Remove(entities as IEnumerable<TAttr>);
         }
 
         public TEntity[] Remove(params TID[] ids)
@@ -95,10 +96,10 @@ namespace Common.Repositories
             List<TEntity> result = new List<TEntity>();
             foreach (var id in ids)
             {
-                if (m_Items.TryGetValue(id, out TEntity found))
+                if (m_Items.TryGetValue(id, out TAttr found))
                 {
-                    result.Add(found);
-                    m_Items.Remove(id);
+                    result.Add(found.Entity);
+                    m_Items.TryRemove(id, out TAttr _);
                 }
             }
             return result.ToArray();

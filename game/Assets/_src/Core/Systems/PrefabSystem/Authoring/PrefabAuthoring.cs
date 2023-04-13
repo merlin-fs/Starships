@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Unity.Entities;
 using UnityEngine;
 using Common.Core;
-using Common.Defs;
 
 namespace Game.Core.Prefabs
 {
@@ -12,9 +11,6 @@ namespace Game.Core.Prefabs
     
     public class PrefabAuthoring : MonoBehaviour
     {
-        [SerializeField, SelectType(typeof(IDefinable))]
-        string m_Type;
-
         [NonSerialized]
         public HashSet<ObjectID> ConfigIDs = new HashSet<ObjectID>();
 
@@ -23,10 +19,10 @@ namespace Game.Core.Prefabs
             public unsafe override void Bake(PrefabAuthoring authoring)
             {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
-                var buffer = AddBuffer<BakedPrefabData>(entity);
+                var buffer = AddBuffer<BakedPrefab>(entity);
                 foreach (var iter in authoring.ConfigIDs)
                 {
-                    buffer.Add(new BakedPrefabData
+                    buffer.Add(new BakedPrefab
                     {
                         ConfigID = iter,
                         Prefab = entity,

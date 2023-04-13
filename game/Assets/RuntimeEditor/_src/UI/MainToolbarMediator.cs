@@ -22,6 +22,15 @@ namespace Game.UI.Elements
             for (int i = 0; i < m_Childs.Length; i++)
             {
                 m_Childs[i].Initialize();
+                m_Childs[i].Element.RegisterCallback<ChangeEvent<DisplayStyle>>(evt =>
+                {
+                    if (evt.newValue == DisplayStyle.None)
+                    {
+                        foreach (var iter in Elements)
+                            if (iter is Toggle toggle && toggle.value)
+                                toggle.SetValueWithoutNotify(false);
+                    }
+                });
             }
         }
 
@@ -42,7 +51,7 @@ namespace Game.UI.Elements
                 {
                     if (evt.newValue)
                         UIManager.Show(m_Childs[idx].Element, ShowStyle.Popup);
-                    else
+                    else 
                         UIManager.Close(m_Childs[idx].Element);
                 });
                 

@@ -1,21 +1,24 @@
 using System;
-using System.Threading.Tasks;
+using System.Threading;
+using System.Collections.Generic;
 using Unity.Entities;
 using Common.Defs;
 using Game;
 using Game.Core;
-using Game.Core.Prefabs;
 using Game.Core.Events;
+using Game.Model;
 
 namespace Buildings
 {
     using Environments;
 
-    public class ApiEditor: IApiEditor, IKernel
+    public class ApiEditor: IApiEditor, IKernel, IApiEditorHandler
     {
         public IEventHandler Events { get; }
 
         private EventDispatcher m_Dispatcher = EventDispatcher.CreateDefault();
+
+        private Dictionary<Entity, IPlaceHolder> m_Holders = new Dictionary<Entity, IPlaceHolder>();
 
         public ApiEditor()
         {
@@ -29,33 +32,74 @@ namespace Buildings
 
         void IKernel.InvokeCallbacks(EventBase evt, PropagationPhase propagationPhase)
         {
-            (Events as ProxyEvents).InvokeCallbacks(evt, propagationPhase);
+            UnityMainThread.Context.Post((obj) =>
+            {
+                (Events as ProxyEvents).InvokeCallbacks(evt, propagationPhase);
+            }, null);
         }
 
-        public async Task<IPlaceHolder> AddEnvironment(IConfig config)
+        public bool TryGetPlaceHolder(Entity entity, out IPlaceHolder holder)
+        {
+            return m_Holders.TryGetValue(entity, out holder);
+        }
+
+        public void AddEnvironment(IConfig config)
+        {
+            var ecb = GetBuffer();
+            var entity = ecb.CreateEntity();
+            ecb.AddBuffer<SpawnComponent>(entity);
+            ecb.AppendToBuffer<SpawnComponent>(entity, ComponentType.ReadOnly<SelectBuildingTag>());
+            ecb.AppendToBuffer<SpawnComponent>(entity, ComponentType.ReadOnly<SpawnEventTag>());
+
+            ecb.AddComponent(entity, new NewSpawnMap
+            {
+                Prefab = config.Prefab,
+            });
+        }
+
+        private static EntityCommandBuffer GetBuffer()
         {
             var manager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            var prefabs = manager.World.GetOrCreateSystemManaged<PrefabEnvironmentSystem>();
-            await prefabs.IsDone();
-
-            var ecb = manager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
+            return manager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
                 .CreateCommandBuffer();
-            var item = ecb.Instantiate(config.Prefab);
-            var holder = new Placeholder(this);
-            ecb.AddComponent<SelectBuildingTag>(item);
-
-            return holder;
         }
 
-        private struct Placeholder : IPlaceHolder
+        #region IApiEditorHandler
+        void IApiEditorHandler.OnSpawn(Entity entity)
         {
-            private ApiEditor m_Kernel;
-            
-            IEventHandler IPlaceHolder.Events => m_Kernel.Events;
+            UnityEngine.Debug.Log($"{entity} OnSpawn");
+            if (m_Holders.ContainsKey(entity)) return;
+            var holder = new Placeholder(entity);
+            m_Holders.Add(entity, holder);
+            m_Dispatcher.Dispatch(EventPlace.GetPooled(entity, EventPlace.eState.New), this, DispatchMode.Default);
+        }
 
-            public Placeholder(ApiEditor kernel)
+        void IApiEditorHandler.OnPlace(Entity entity)
+        {
+            m_Holders.Remove(entity);
+            m_Dispatcher.Dispatch(EventPlace.GetPooled(entity, EventPlace.eState.Apply), this, DispatchMode.Default);
+        }
+
+        void IApiEditorHandler.OnDestroy(Entity entity)
+        {
+            m_Holders.Remove(entity);
+            m_Dispatcher.Dispatch(EventPlace.GetPooled(entity, EventPlace.eState.Cancel), this, DispatchMode.Default);
+        }
+        #endregion
+
+        private readonly struct Placeholder : IPlaceHolder
+        {
+            public Entity Entity { get; }
+
+            public Placeholder(Entity entity)
             {
-                m_Kernel = kernel;
+                Entity = entity;
+            }
+
+            public void Cancel()
+            {
+                var ecb = GetBuffer();
+                ecb.DestroyEntity(Entity);
             }
         }
     }

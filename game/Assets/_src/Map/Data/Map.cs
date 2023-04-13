@@ -3,6 +3,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Common.Defs;
+using Game.UI;
 
 namespace Game.Model.Worlds
 {
@@ -28,7 +29,6 @@ namespace Game.Model.Worlds
             #region IDefineableCallback
             public void AddComponentData(Entity entity, IDefineableContext context)
             {
-                context.AddBuffer<Layers.Floor>(entity);
             }
 
             public void RemoveComponentData(Entity entity, IDefineableContext context) { }

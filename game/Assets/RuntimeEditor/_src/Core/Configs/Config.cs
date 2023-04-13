@@ -14,10 +14,16 @@ namespace Buildings
         
         [SerializeField]
         private InputActionReference m_CancelAction;
+        [SerializeField]
+        private InputActionReference m_RorateXAction;
+        [SerializeField]
+        private InputActionReference m_RorateYAction;
 
         public InputAction MoveAction => m_MoveAction;
         public InputAction PlaceAction => m_PlaceAction;
         public InputAction CancelAction => m_CancelAction;
+        public InputAction RorateXAction => m_RorateXAction;
+        public InputAction RorateYAction => m_RorateYAction;
 
     }
 }

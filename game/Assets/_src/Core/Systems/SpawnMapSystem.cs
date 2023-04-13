@@ -1,32 +1,20 @@
 ﻿using System;
-using Common.Core;
+using Unity.Collections.LowLevel.Unsafe;
+using Unity.Transforms;
 using Unity.Entities;
-using Unity.Mathematics;
-using Common.Defs;
 using Unity.Collections;
-
-namespace Game.Model
-{
-    public struct SpawnMapTag : IComponentData
-    {
-        public Entity Prefab;
-        public int2 Position;
-        public ObjectID ConfigID;
-    }
-}
 
 namespace Game.Systems
 {
-    using Game.Model;
-    using Game.Model.Worlds;
-    using Unity.Collections.LowLevel.Unsafe;
-    using Unity.Transforms;
+    using Model;
+    using Model.Worlds;
 
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
     partial struct SpawnMapSystem : ISystem
     {
         EntityQuery m_Query;
         EntityQuery m_QueryMap;
+        ComponentLookup<LocalTransform> m_LookupTransform;
 
         public void OnCreate(ref SystemState state)
         {
@@ -35,45 +23,49 @@ namespace Game.Systems
                 .Build();
 
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<SpawnMapTag>()
+                .WithAll<NewSpawnMap>()
+                .WithAll<SpawnComponent>()
                 .Build();
 
             state.RequireForUpdate(m_Query);
+            m_LookupTransform = state.GetComponentLookup<LocalTransform>(true);
         }
-
-        public void OnDestroy(ref SystemState state) { }
 
         public void OnUpdate(ref SystemState state)
         {
+            m_LookupTransform.Update(ref state);
             var map = SystemAPI.GetAspectRW<Map.Aspect>(m_QueryMap.GetSingletonEntity());
-
             var system = state.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>();
             var ecb = system.CreateCommandBuffer();
             state.Dependency = new SystemJob()
             {
                 Map = map,
+                LookupTransform = m_LookupTransform,
                 Writer = ecb.AsParallelWriter(),
             }.ScheduleParallel(m_Query, state.Dependency);
-            //system.AddJobHandleForProducer(state.Dependency);
             state.Dependency.Complete();
             ecb.DestroyEntity(m_Query);
         }
 
         partial struct SystemJob : IJobEntity
         {
-            public EntityCommandBuffer.ParallelWriter Writer;
             [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
             public Map.Aspect Map;
+            [ReadOnly]
+            public ComponentLookup<LocalTransform> LookupTransform;
+            public EntityCommandBuffer.ParallelWriter Writer;
 
-            public void Execute([EntityIndexInQuery] int idx, in Entity entity, in SpawnMapTag spawn)
+            public void Execute([EntityIndexInQuery] int idx, in NewSpawnMap spawn, in DynamicBuffer<SpawnComponent> components)
             {
                 var inst = Writer.Instantiate(idx, spawn.Prefab);
-                Writer.AddComponent<Spawn>(idx, inst);
-                var pos = LocalTransform.FromPosition(Map.Value.MapToWord(spawn.Position));
-                pos.Scale = 0.5f;
-                Writer.AddComponent(idx, inst, pos);
 
-                Map.SetObject(spawn.Position, inst);
+                var transform = LookupTransform[spawn.Prefab];
+                transform.Position = Map.Value.MapToWord(spawn.Position);
+
+                Writer.AddComponent<SpawnTag>(idx, inst);
+                Writer.AddComponent(idx, inst, transform);
+                foreach (var iter in components)
+                    Writer.AddComponent(idx, inst, iter.ComponentType);
             }
         }
     }

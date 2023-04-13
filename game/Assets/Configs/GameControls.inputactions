@@ -864,7 +864,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Place",
+                    "name": "BuildingPlace",
                     "type": "Button",
                     "id": "6b06466a-d329-4059-a33f-f0993e441815",
                     "expectedControlType": "Button",
@@ -885,6 +885,24 @@
                     "name": "Cancel",
                     "type": "Button",
                     "id": "aeebd9eb-4e6c-4c2a-934c-cd972420571a",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "BuildingRotateX",
+                    "type": "Button",
+                    "id": "0c33fe3f-d770-47cf-bde4-cf6030f58eec",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "BuildingRotateY",
+                    "type": "Button",
+                    "id": "f44c4894-17f6-418b-913f-0b57be818f83",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -1152,7 +1170,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Place",
+                    "action": "BuildingPlace",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -1186,6 +1204,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1a2a70d8-fec2-428b-aaff-4a4845ef0a5c",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "BuildingRotateX",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "72a3114d-debc-423c-837a-5b0848f1138c",
+                    "path": "<Keyboard>/f",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "BuildingRotateY",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

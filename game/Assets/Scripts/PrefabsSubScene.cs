@@ -27,7 +27,7 @@ public class PrefabsSubScene : MonoBehaviour
                 GetEntity(prefab, TransformUsageFlags.Dynamic);
                 var component = GetOrAddComponent<PrefabEnvironmentAuthoring>(prefab);
                 component.ConfigID = ObjectID.Create(prefab.name);
-                component.Repository = iter.parentGroup.Name;
+                component.Labels = iter.labels.ToArray();
             }
         }
     }

@@ -2,40 +2,55 @@
 using System;
 using Unity.Entities;
 using UnityEngine;
-using Common.Core;
 using Unity.Mathematics;
-
-using Buildings.Environments;
-using static UnityEngine.Rendering.DebugUI;
 using Unity.Collections;
-using static Unity.Entities.EntitiesJournaling;
+using Unity.Transforms;
+using Common.Core;
+using Buildings.Environments;
+using Game.Model.Worlds;
 
 namespace Game.Core.Prefabs
 {
-
     public class PrefabEnvironmentAuthoring : MonoBehaviour
     {
         [SerializeField]
         int2 m_Size;
+        [SerializeField, SelectType(typeof(Map.Layers.ILayer))]
+        string m_Layer;
 
         [NonSerialized]
         public ObjectID ConfigID;
+
         [NonSerialized]
-        public string Repository;
+        public string[] Labels;
 
         class _baker : Baker<PrefabEnvironmentAuthoring>
         {
             public unsafe override void Bake(PrefabEnvironmentAuthoring authoring)
             {
-                var entity = GetEntity(TransformUsageFlags.Dynamic);
-                var data = new BakedPrefabEnvironmentData
+                
+                var entity = GetEntity(TransformUsageFlags.Renderable);
+                var data = new BakedPrefabEnvironment
                 {
                     ConfigID = authoring.ConfigID,
                 };
-                FixedStringMethods.CopyFromTruncated(ref data.Repository, authoring.Repository);
-                
+                var buff = AddBuffer<BakedPrefabLabel>(entity);
+                foreach(var iter in authoring.Labels)
+                {
+                    var lb = new BakedPrefabLabel();
+                    FixedStringMethods.CopyFromTruncated(ref lb.Label, iter);
+                    AppendToBuffer(entity, lb);
+                }
+                var compositeScale = float4x4.Scale(authoring.transform.localScale);
+                AddComponent(entity, new PostTransformMatrix { Value = compositeScale });
                 AddComponent(entity, data);
-                AddComponent(entity, new BuildingSize { Size = authoring.m_Size });
+
+                
+                AddComponent(entity, new BuildingPlace 
+                { 
+                    Size = authoring.m_Size,
+                    Layer = TypeManager.GetTypeIndex(Type.GetType(authoring.m_Layer)),
+                });
             }
         }
 

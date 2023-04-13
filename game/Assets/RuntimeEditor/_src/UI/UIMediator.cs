@@ -39,14 +39,14 @@ namespace Game.UI.Elements
             m_Parent.Add(m_Element);
             OnInitialize(m_Parent);
 
-            Element.RegisterCallback<ChangeEvent<Visibility>>(evt =>
+            Element.RegisterCallback<ChangeEvent<DisplayStyle>>(evt =>
             {
                 switch (evt.newValue)
                 {
-                    case Visibility.Hidden:
+                    case DisplayStyle.None:
                         OnHide();
                         break;
-                    case Visibility.Visible:
+                    case DisplayStyle.Flex:
                         OnShow();
                         break;
                 }

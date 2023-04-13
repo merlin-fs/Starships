@@ -1,9 +1,8 @@
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace System.Reflection
+namespace System.Reflection.Ext
 {
 	#if UNITY_EDITOR
 	public static class ReflectionEditorExt

@@ -1,28 +1,32 @@
 using System;
 using Game.Core.Events;
+using Unity.Entities;
 
 namespace Buildings
 {
     public interface IPlaceHolder
     {
-        IEventHandler Events { get; }
+        void Cancel();
     }
 
-    public class PlaceEvent: EventBase<PlaceEvent>
+    public class EventPlace: EventBase<EventPlace>
     {
         public eState State { get; private set; }
+        public Entity Entity { get; private set; }
 
         public enum eState
         {
+            New,
             Apply,
             Cancel,
         }
 
-        public PlaceEvent() { }
+        public EventPlace() { }
 
-        public static PlaceEvent GetPooled(eState state)
+        public static EventPlace GetPooled(Entity entity, eState state)
         {
-            var e = EventBase<PlaceEvent>.GetPooled();
+            var e = EventBase<EventPlace>.GetPooled();
+            e.Entity = entity;
             e.State = state;
             return e;
         }

@@ -11,7 +11,6 @@ using Game.Core.Prefabs;
 using Game.Core.Repositories;
 using Game.Model;
 using Game.Model.Worlds;
-using Buildings.Environments;
 using Buildings;
 
 public class TestSpawnFloor : MonoBehaviour
@@ -21,41 +20,52 @@ public class TestSpawnFloor : MonoBehaviour
     
     private EntityManager m_EntityManager;
     BuildingContext.Var<IApiEditor> m_ApiEditor;
+    DIContext.Var<Repository> m_Repository;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Initialize()
+    {
+#if UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP_RUNTIME_WORLD
+        DefaultWorldInitialization.Initialize("Default World", false);
+#endif
+    }
 
     private void Start()
     {
         m_Button.onClick.AddListener(AddNewFloor);
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         StartBatle();
+        //AddNewFloor();
     }
 
     private async void AddNewFloor()
     {
-        //var config = Repositories.Instance.GetRepo("Floor").FindByID(ObjectID.Create("Deck_Ceiling_01_snaps002"));
-        //m_ApiEditor.Value.AddEnvironment(config);
-        //return;
-        
-        var prefabs = m_EntityManager.World.GetOrCreateSystemManaged<PrefabEnvironmentSystem>();
-        await prefabs.IsDone();
+        var system = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabEnvironmentSystem>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabEnvironmentSystem>());
+        await system.IsDone();
 
-        var repo = Repositories.Instance.GetRepo("Walls");
-        var prefab = repo.FindByID(ObjectID.Create("Deck_Wall_snaps002"));
+        var config = m_Repository.Value.FindByID("Deck_Wall_snaps002");
+
+        m_ApiEditor.Value.AddEnvironment(config);
+        /*
         var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
             .CreateCommandBuffer();
-        var item = ecb.Instantiate(prefab.Prefab);
-        ecb.AddComponent<SelectBuildingTag>(item);
+        var item = ecb.CreateEntity();
+        ecb.AddComponent(item, new SpawnMapTag
+        {
+             Prefab = prefab.Prefab,
+        });
+        */
     }
 
     private async void StartBatle()
     {
-        var prefabs = m_EntityManager.World.GetOrCreateSystemManaged<PrefabEnvironmentSystem>();
-        await prefabs.IsDone();
+        var prefabSystem = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabEnvironmentSystem>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabEnvironmentSystem>());
+        await prefabSystem.IsDone();
 
-        var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
-            .CreateCommandBuffer();
+        var system = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>();
+        var ecb = system.CreateCommandBuffer();
 
-        var repo = Repositories.Instance.GetRepo("Floor");
-        var prefab = repo.FindByID(ObjectID.Create("Deck_Floor_01_snaps002"));
+        var prefab = m_Repository.Value.FindByID("Deck_Floor_01_snaps002");
 
         var def = new Map.Data.Def
         {
@@ -63,14 +73,20 @@ public class TestSpawnFloor : MonoBehaviour
         };
 
         var entity = m_EntityManager.CreateSingleton<Map.Data>();
-        def.AddComponentData(entity, new DefExt.EntityManagerContext(m_EntityManager));
-        var map = m_EntityManager.GetAspect<Map.Aspect>(entity);
-        map.Init();
+        var context = new DefExt.EntityManagerContext(m_EntityManager);
+        def.AddComponentData(entity, context);
+        
+        Map.Layers.AddLayer<Map.Layers.Floor>(entity, context);
+        Map.Layers.AddLayer<Map.Layers.Structure>(entity, context);
 
-        var arch = m_EntityManager.CreateArchetype(ComponentType.ReadWrite<SpawnMapTag>());
-        int length = def.Size.x * def.Size.y;
+
+        var map = m_EntityManager.GetAspect<Map.Aspect>(entity);
+        map.Init(ref system.CheckedStateRef, map);
 
         /*
+        var arch = m_EntityManager.CreateArchetype(ComponentType.ReadWrite<SpawnMapTag>());
+        int length = def.Size.x * def.Size.y;
+        
         var entities = new NativeArray<Entity>(length, Allocator.Temp);
         m_EntityManager.CreateEntity(arch, entities);
 
@@ -86,7 +102,6 @@ public class TestSpawnFloor : MonoBehaviour
                 Position = pos,
             });
         }
-        //ecb.Instantiate(prefab.Prefab);
         */
     }
 

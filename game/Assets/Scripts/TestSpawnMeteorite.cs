@@ -80,10 +80,9 @@ public class TestSpawnMeteorite : MonoBehaviour
         //var point = RandomBetweenRadius2D(0, 1f) + new Vector3(0, 8, 0);
         var transform = LocalTransform.FromPosition(point);
         var entity = ecb.CreateEntity();
-        ecb.AddComponent(entity, new SpawnTag()
+        ecb.AddComponent(entity, new NewSpawnWorld()
         {
-            Entity = enemy.Prefab,
-            ConfigID = enemy.ID,
+            Prefab = enemy.Prefab,
             WorldTransform = transform
         });
     }

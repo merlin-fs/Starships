@@ -93,6 +93,7 @@ MonoBehaviour:
     - vfx
     - Environment
     - Floor
+    - Walls
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 64c4aa5b69bd57f48b2706360114bbc1, type: 2}

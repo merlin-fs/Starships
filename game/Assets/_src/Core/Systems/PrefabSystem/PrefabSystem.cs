@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 
 namespace Game.Core.Prefabs
 {
+    using Common.Core;
+    using Common.Repositories;
 
     using Repositories;
 
@@ -38,7 +40,7 @@ namespace Game.Core.Prefabs
             base.OnCreate();
 
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<BakedPrefabData>()
+                .WithAll<BakedPrefab>()
                 .WithOptions(EntityQueryOptions.IncludePrefab)
                 .Build();
 
@@ -47,11 +49,9 @@ namespace Game.Core.Prefabs
 
 
         [BurstDiscard]
-        protected async override void OnUpdate()
+        protected override void OnUpdate()
         {
             m_Done = false;
-            await Repositories.Instance.ConfigsAsync();
-
             var system = World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>();
             var ecb = system.CreateCommandBuffer();
             Dependency = new PrefabJob()
@@ -61,15 +61,16 @@ namespace Game.Core.Prefabs
             Dependency.Complete();
             m_Contexts.Clear();
 
-            ecb.RemoveComponent<BakedPrefabData>(m_Query);
+            ecb.RemoveComponent<BakedPrefab>(m_Query);
             m_Done = true;
         }
 
         partial struct PrefabJob : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter Writer;
+            readonly DIContext.Var<Repository> m_Repository;
 
-            void Execute([EntityIndexInQuery] int idx, in Entity entity, in DynamicBuffer<BakedPrefabData> bakeds)
+            void Execute([EntityIndexInQuery] int idx, in Entity entity, in DynamicBuffer<BakedPrefab> bakeds)
             {
                 if (!Instance.m_Contexts.TryGetValue(entity, out IDefineableContext context))
                 {
@@ -79,7 +80,7 @@ namespace Game.Core.Prefabs
 
                 foreach (var iter in bakeds)
                 {
-                    var config = Repositories.Instance.ConfigsAsync().Result.FindByID(iter.ConfigID);
+                    var config = m_Repository.Value.FindByID(iter.ConfigID);
                     config.Configurate(entity, context);
                 }
             }

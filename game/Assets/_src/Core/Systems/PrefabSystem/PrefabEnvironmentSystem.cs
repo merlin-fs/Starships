@@ -1,23 +1,20 @@
 using System;
+using System.Threading.Tasks;
+using System.Linq;
 using Unity.Entities;
 using Unity.Burst;
+using Common.Core;
 using Common.Defs;
-using System.Threading.Tasks;
 
 namespace Game.Core.Prefabs
 {
     using Repositories;
-    using static UnityEngine.Rendering.DebugUI;
-    using Unity.Collections;
 
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
-    partial class PrefabEnvironmentSystem : SystemBase
+    partial struct PrefabEnvironmentSystem : ISystem
     {
-        static PrefabEnvironmentSystem Instance { get; set; }
-
         EntityQuery m_Query;
-        
-        private bool m_Done;
+        private static bool m_Done;
 
         public Task<bool> IsDone()
         {
@@ -29,41 +26,45 @@ namespace Game.Core.Prefabs
             });
         }
 
-        protected override void OnCreate()
+        public void OnCreate(ref SystemState state)
         {
-            Instance = this;
-            base.OnCreate();
-
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<BakedPrefabEnvironmentData>()
+                .WithAll<BakedPrefabEnvironment>()
+                .WithAll<BakedPrefabLabel>()
                 .WithOptions(EntityQueryOptions.IncludePrefab)
                 .Build();
 
-            RequireForUpdate(m_Query);
+            state.RequireForUpdate(m_Query);
         }
 
 
         [BurstDiscard]
-        protected override void OnUpdate()
+        public void OnUpdate(ref SystemState state)
         {
+            //state.GetDynamicComponentTypeHandle()
             m_Done = false;
-            var system = World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>();
-            var ecb = system.CreateCommandBuffer();
-            Dependency = new PrefabJob()
+            var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
+            var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
+            
+            state.Dependency = new PrefabJob()
             {
-            }.ScheduleParallel(m_Query, Dependency);
-            Dependency.Complete();
-            ecb.RemoveComponent<BakedPrefabEnvironmentData>(m_Query);
+            }.ScheduleParallel(m_Query, state.Dependency);
+            ecb.RemoveComponent<BakedPrefabEnvironment>(m_Query);
+            state.CompleteDependency();
             m_Done = true;
         }
 
         partial struct PrefabJob : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter Writer;
+            readonly DIContext.Var<Repository> m_Repository;
 
-            public void Execute(in Entity entity, in BakedPrefabEnvironmentData baked)
+            public void Execute(in Entity entity, in BakedPrefabEnvironment baked, in DynamicBuffer<BakedPrefabLabel> labels)
             {
-                Repositories.Instance.GetRepo(baked.Repository.ToString()).Insert(new Config(baked.ConfigID, entity));
+                //this.__TypeHandle
+                var localLabels = labels.AsNativeArray().ToArray()
+                    .Select(i => i.Label.ToString());
+                m_Repository.Value.Insert(baked.ConfigID, new Config(baked.ConfigID, entity), localLabels.ToArray());
             }
         }
     }

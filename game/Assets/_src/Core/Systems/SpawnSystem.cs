@@ -1,29 +1,40 @@
 ﻿using System;
-using Common.Core;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Collections;
+using Common.Core;
 
 namespace Game.Model
 {
-    public struct SpawnTag : IComponentData
+    public struct NewSpawnWorld : IComponentData
     {
-        public Entity Entity;
+        public Entity Prefab;
         public LocalTransform WorldTransform;
-        public ObjectID ConfigID;
     }
 
-    public struct Spawn : IComponentData { }
+    public struct NewSpawnMap : IComponentData
+    {
+        public Entity Prefab;
+        public int2 Position;
+    }
+
+    public struct SpawnComponent : IBufferElementData
+    {
+        public ComponentType ComponentType;
+        
+        public static implicit operator SpawnComponent(ComponentType componentType) => new SpawnComponent { ComponentType = componentType };
+    }
+
+    public struct SpawnEventTag : IComponentData { }
+
+    public struct SpawnTag : IComponentData { }
 }
 
 namespace Game.Systems
 {
-    using Game.Core.Defs;
-    using Game.Core.Repositories;
-    using Game.Model;
-    using Game.Model.Stats;
-    using Game.Views.Stats;
-
-    using Unity.Collections;
+    using Model;
+    using Views.Stats;
 
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
     partial class SpawnSystem : SystemBase
@@ -35,7 +46,7 @@ namespace Game.Systems
         {
             base.OnCreate();
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<SpawnTag>()
+                .WithAll<NewSpawnWorld>()
                 .Build();
 
             ViewsLookup = GetBufferLookup<StatView>();
@@ -48,11 +59,11 @@ namespace Game.Systems
             [NativeDisableParallelForRestriction]
             public BufferLookup<StatView> ViewsLookup;
 
-            void Execute([EntityIndexInQuery] int idx, in Entity entity, in SpawnTag spawn)
+            void Execute([EntityIndexInQuery] int idx, in Entity entity, in NewSpawnWorld spawn)
             {
-                var inst = Writer.Instantiate(idx, spawn.Entity);
+                var inst = Writer.Instantiate(idx, spawn.Prefab);
                 
-                Writer.AddComponent<Spawn>(idx, inst);
+                Writer.AddComponent<SpawnTag>(idx, inst);
                 Writer.AddComponent(idx, inst, new Move 
                 { 
                     Position = spawn.WorldTransform.Position,

@@ -9,7 +9,7 @@ namespace Common.Defs
     {
         DynamicBuffer<T> AddBuffer<T>(Entity entity) where T : unmanaged, IBufferElementData;
         void AppendToBuffer<T>(Entity entity, T data) where T : unmanaged, IBufferElementData;
-
+        void AddBuffer(Type type, Entity entity);
         void AddComponentData<T>(Entity entity, T data) where T : unmanaged, IComponentData;
         void RemoveComponent<T>(Entity entity) where T : unmanaged, IComponentData;
         void AddComponentData(IDef def, Entity entity);

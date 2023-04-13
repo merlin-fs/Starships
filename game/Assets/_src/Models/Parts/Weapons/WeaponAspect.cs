@@ -3,10 +3,11 @@ using Unity.Entities;
 using Unity.Properties;
 using Unity.Collections;
 using Common.Defs;
-using Unity.Transforms;
 
 namespace Game.Model.Weapons
 {
+    using Common.Core;
+
     using Core.Repositories;
     using Stats;
 
@@ -43,6 +44,8 @@ namespace Game.Model.Weapons
 
         public Bullet Bullet => m_Bullet.ValueRO;
         public Stat Stat(Enum stat) => m_Stats.GetRO(stat);
+        
+        private readonly Repository Repository => default(DIContext.Var<Repository>).Value;
 
         public float Time
         {
@@ -64,8 +67,7 @@ namespace Game.Model.Weapons
             if (m_Bullet.IsValid)
                 m_Bullet.ValueRO.Def.RemoveComponentData(m_Self, context, m_Bullet.ValueRO);
 
-            var bulletConfig = Repositories.Instance.ConfigsAsync().Result
-                .FindByID(m_Weapon.ValueRO.BulletID);
+            var bulletConfig = Repository.FindByID(m_Weapon.ValueRO.BulletID);
 
             if (bulletConfig == null)
                 return false;

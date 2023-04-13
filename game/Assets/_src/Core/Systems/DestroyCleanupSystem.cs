@@ -6,7 +6,7 @@ namespace Game.Systems
     using Model.Stats;
 
     [UpdateInGroup(typeof(GameSpawnSystemGroup), OrderLast = true)]
-    public partial struct CleanupSystem : ISystem
+    public partial struct DestroyCleanupSystem : ISystem
     {
         EntityQuery m_Query;
         public void OnCreate(ref SystemState state)

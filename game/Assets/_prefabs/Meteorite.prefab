@@ -97,7 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c913dc43093fa4042acfcd925afd1071, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Type: 
+  m_Type: Game.Model.General
 --- !u!1 &3758233817938580044
 GameObject:
   m_ObjectHideFlags: 0
@@ -152,6 +152,7 @@ MonoBehaviour:
   Position: 1
   Rotation: 0
   Scale: 0
+  ScaleTime: 1
 --- !u!114 &-4716618417366466929
 MonoBehaviour:
   m_ObjectHideFlags: 0

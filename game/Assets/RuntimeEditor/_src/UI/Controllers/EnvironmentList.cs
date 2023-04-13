@@ -2,16 +2,10 @@ using System;
 using System.Collections.Generic;
 using Common.Defs;
 using Common.Core;
-using Common.Repositories;
 
 namespace Game.UI.Elements
 {
-    using Buildings.Environments;
     using Core.Repositories;
-
-    using Game.Core.Prefabs;
-
-    using Unity.Entities;
 
     public class EnvironmentList: IUIController
     {
@@ -19,14 +13,12 @@ namespace Game.UI.Elements
 
         public event Action<IEnumerable<IConfig>> OnUpdateList;
 
-        private IRepository<ObjectID, IConfig> m_Repository;
-        
-        public IRepository<ObjectID, IConfig> Current => m_Repository;
+        readonly DIContext.Var<Repository> m_Repository;
 
         public void ChoiseGroup(string value)
         {
-            m_Repository = Repositories.Instance.GetRepo(value);
-            OnUpdateList?.Invoke(m_Repository.Find());
+            var items = m_Repository.Value.Find((item) => item.Labels.Contains(value));
+            OnUpdateList?.Invoke(items);
         }
     }
 }

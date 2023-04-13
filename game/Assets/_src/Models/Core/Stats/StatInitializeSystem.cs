@@ -2,9 +2,6 @@
 using Unity.Burst;
 using Unity.Entities;
 
-using static Game.Model.Stats.Global;
-using static UnityEngine.EventSystems.EventTrigger;
-
 namespace Game.Model.Stats
 {
     public struct StatInit : IComponentData { }
@@ -19,7 +16,7 @@ namespace Game.Model.Stats
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Stat>()
-                .WithAll<Spawn>()
+                .WithAll<SpawnTag>()
                 .WithAll<StatInit>()
                 .Build();
             state.RequireForUpdate(m_Query);

@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Common.Defs;
 using Buildings;
+using Unity.Entities;
+using Game.Core.Repositories;
+using Game.Core.Prefabs;
 
 namespace Game.UI.Elements
 {
@@ -19,12 +22,15 @@ namespace Game.UI.Elements
         EnvironmentList m_List = new EnvironmentList();
 
         BuildingContext.Var<IApiEditor> m_ApiEditor;
-        IApiEditor ApiEditor => m_ApiEditor.Value;
+        BuildingContext.Var<Repository> m_Repository;
+        
+        List<string> m_Items => m_Repository.Value.Labels.ToList();
 
         TemplateContainer m_Popup;
         ListView m_ListView;
 
-        List<string> m_Items = new List<string>() { "Floor" };
+        IConfig m_CurrentConfig;
+        Entity m_CurrentEntity;
 
         protected override void MakeItems(out Func<VisualElement> makeItem, out Action<VisualElement, int> bindItem,
             out IList itemsSource)
@@ -43,7 +49,7 @@ namespace Game.UI.Elements
                 {
                     if (evt.newValue)
                         ShowItem(m_Items[idx]);
-                    else
+                    else 
                         UIManager.Close(m_Popup);
                 });
             };
@@ -57,44 +63,40 @@ namespace Game.UI.Elements
             UIManager.Show(m_Popup, ShowStyle.Popup);
         }
 
-        protected override void OnHide()
-        {
-            base.OnHide();
-            foreach (var iter in Elements)
-                if (iter is Toggle toggle)
-                    toggle.value = false;
-        }
-
         private void ChoiseItem(IConfig config)
         {
-            ApiEditor.AddEnvironment(config);
-            /*
-            ApiEditor.Events.RegisterCallback<PlaceEvent>(async evt =>
-            {
-                switch (evt.State)
-                {
-                    case PlaceEvent.eState.Cancel:
-                        UIManager.RestorePopups();
-                        break;
-                    case PlaceEvent.eState.Apply:
-                        await ApiEditor.AddEnvironment(config);
-                        break;
-                }
-            });
-            */
+            UIManager.HidePopups();
+            m_CurrentConfig = config;
+            if (m_ApiEditor.Value.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
+                holder.Cancel();
+            m_ApiEditor.Value.AddEnvironment(config);
         }
 
-        protected override void OnInitialize(VisualElement root)
+        protected override async void OnInitialize(VisualElement root)
         {
+            var manager = World.DefaultGameObjectInjectionWorld.EntityManager.WorldUnmanaged;
+            var system = manager.GetUnsafeSystemRef<PrefabEnvironmentSystem>(manager.GetExistingUnmanagedSystem<PrefabEnvironmentSystem>());
+            await system.IsDone();
+
             base.OnInitialize(root);
-            
+
             m_Popup = m_PopupTemplate.Instantiate();
             UIManager.Close(m_Popup);
             root.Add(m_Popup);
 
+            m_Popup.RegisterCallback<ChangeEvent<DisplayStyle>>(evt =>
+            {
+                if (evt.newValue == DisplayStyle.None)
+                {
+                    foreach (var iter in Elements)
+                        if (iter is Toggle toggle && toggle.value)
+                            toggle.SetValueWithoutNotify(false);
+                }
+            });
+
+
             m_ListView = m_Popup.Q<ListView>(k_List);
             m_ListView.itemsChosen += items =>
-            //m_ListView.selectedIndicesChanged += (items) =>
             {
                 var obj = (IConfig)items.First();
                 ChoiseItem(obj);
@@ -108,6 +110,8 @@ namespace Game.UI.Elements
                 m_ListView.makeItem = () => new Label();
                 m_ListView.bindItem = (item, idx) =>
                 {
+                    if (idx >= list.Count)
+                        return;
                     if (item is Label label)
                     {
                         label.text = list[idx].ID.ToString();
@@ -116,7 +120,24 @@ namespace Game.UI.Elements
                 
                 m_ListView.itemsSource = list;
             };
-            
+
+            m_ApiEditor.Value.Events.RegisterCallback<EventPlace>(evt =>
+            {
+                switch (evt.State)
+                {
+                    case EventPlace.eState.New:
+                        m_CurrentEntity = evt.Entity;
+                        break;
+                    case EventPlace.eState.Cancel:
+                        m_CurrentEntity = Entity.Null;
+                        UIManager.RestorePopups();
+                        break;
+                    case EventPlace.eState.Apply:
+                        m_CurrentEntity = Entity.Null;
+                        m_ApiEditor.Value.AddEnvironment(m_CurrentConfig);
+                        break;
+                }
+            });
         }
     }
 }

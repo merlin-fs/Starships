@@ -91,10 +91,11 @@ namespace Common.Core.Profiles
 
         void SaveToLocal()
         {
-            //TODO: нужно переделать сохранение. Без DIContext. Возможно, 1) перененсти / ввести в PlayerProfile IStorageManager. 2) Singleton менеджер...
+            /*!!!
             var storageObj = DIContext.Root.Get<object>("PlayerProfile");
             var storage = storageObj as IStorageManager<PlayerProfile>;
             storage.SaveData(_dataContainer.PlayerProfile);
+            */
         }
     }
 }

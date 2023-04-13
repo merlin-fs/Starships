@@ -169,5 +169,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_PrefabsGroup:
-  - {fileID: 11400000, guid: 95f65a4409032a84b894cb48f2a436c4, type: 2}
   - {fileID: 11400000, guid: 65d44c03333e78e428f6ef846fcfae2b, type: 2}
+  - {fileID: 11400000, guid: 95f65a4409032a84b894cb48f2a436c4, type: 2}

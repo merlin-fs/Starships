@@ -13,6 +13,8 @@ namespace Game.UI
         private UIDocument m_Document;
         private VisualElement m_Cancel;
         private List<VisualElement> m_PopupStack = new List<VisualElement>();
+        private int m_CancelRef = 0;
+
 
         public void Show(VisualElement element, ShowStyle style = ShowStyle.Normal)
         {
@@ -30,6 +32,7 @@ namespace Game.UI
         public void Close(VisualElement element)
         {
             m_PopupStack.Remove(element);
+            ShowCancelButton(false);
             Show(element, false);
         }
 
@@ -37,21 +40,21 @@ namespace Game.UI
         {
             foreach (var iter in m_PopupStack)
             {
-                Show(m_Cancel, false);
+                ShowCancelButton(false);
                 Show(iter, false);
             }
         }
 
         public void RestorePopups()
         {
-            Show(m_Cancel, true);
+            ShowCancelButton(true);
             foreach (var iter in m_PopupStack)
                 Show(iter, true);
         }
 
         private void ShowPopups(VisualElement element)
         {
-            Show(m_Cancel, true);
+            ShowCancelButton(true);
             Show(element, true);
             if (!m_PopupStack.Contains(element))
                 m_PopupStack.Add(element);
@@ -63,9 +66,20 @@ namespace Game.UI
             {
                 var item = m_PopupStack.Last();
                 m_PopupStack.RemoveAt(m_PopupStack.Count - 1);
-                Show(m_Cancel, false);
+                ShowCancelButton(false);
                 Show(item, false);
             }
+        }
+
+        private void ShowCancelButton(bool show)
+        {
+            /*
+            if (show)
+                Show(m_Cancel, ++m_CancelRef > 0);
+            else
+                Show(m_Cancel, --m_CancelRef > 0);
+            if (m_CancelRef < 0) m_CancelRef = 0;
+            */
         }
 
         public UIManager(GameObject root)
@@ -89,22 +103,15 @@ namespace Game.UI
                 ? DisplayStyle.Flex
                 : DisplayStyle.None;
 
-            element.style.display = style;
-           /* 
-            var style = show
-                ? Visibility.Visible
-                : Visibility.Hidden;
-            
-            if (element.style.visibility != style)
+            if (element.style.display != style)
             {
-                element.style.visibility = style;
-                using (var change = ChangeEvent<Visibility>.GetPooled(element.style.visibility.value, style))
+                using (var change = ChangeEvent<DisplayStyle>.GetPooled(element.style.display.value, style))
                 {
                     change.target = element;
                     element.panel?.visualTree.SendEvent(change);
                 }
+                element.style.display = style;
             }
-            */
         }
     }
 }

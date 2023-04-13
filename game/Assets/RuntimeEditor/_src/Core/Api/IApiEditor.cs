@@ -1,8 +1,9 @@
 using System;
-using System.Threading.Tasks;
 using Common.Defs;
-using Game.Core;
 using Game.Core.Events;
+using Game.Model;
+
+using Unity.Entities;
 
 namespace Game.Core
 {
@@ -18,6 +19,14 @@ namespace Buildings
     public interface IApiEditor
     {
         IEventHandler Events { get; }
-        Task<IPlaceHolder> AddEnvironment(IConfig config);
+        void AddEnvironment(IConfig config);
+        bool TryGetPlaceHolder(Entity entity, out IPlaceHolder holder);
+    }
+
+    public interface IApiEditorHandler
+    {
+        void OnSpawn(Entity entity);
+        void OnPlace(Entity entity);
+        void OnDestroy(Entity entity);
     }
 }

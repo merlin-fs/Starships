@@ -1,4 +1,5 @@
 using System;
+using Unity.Collections;
 using Unity.Entities;
 using UnityEngine;
 using Common.Core;
@@ -8,17 +9,19 @@ namespace Game.Core.Prefabs
 {
     using Defs;
 
-    using Unity.Collections;
-
-    public struct BakedPrefabData : IBufferElementData, IEnableableComponent
+    public struct BakedPrefab : IBufferElementData, IEnableableComponent
     {
         public Entity Prefab;
         public ObjectID ConfigID;
     }
 
-    public struct BakedPrefabEnvironmentData : IComponentData
+    public struct BakedPrefabLabel : IBufferElementData
     {
-        public FixedString64Bytes Repository;
+        public FixedString64Bytes Label;
+    }
+
+    public struct BakedPrefabEnvironment : IComponentData
+    {
         public ObjectID ConfigID;
     }
 

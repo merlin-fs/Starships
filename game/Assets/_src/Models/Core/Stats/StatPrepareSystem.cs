@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Entities;
+using Common.Core;
 
 namespace Game.Model.Stats
 {
@@ -20,13 +21,13 @@ namespace Game.Model.Stats
             state.RequireForUpdate(m_Query);
         }
 
-        public void OnDestroy(ref SystemState state) { }
-
         partial struct PrepareStatsJob : IJobEntity
         {
+            readonly DIContext.Var<Repository> m_Repository;
+
             void Execute(in DynamicBuffer<PrepareStat> configs, ref DynamicBuffer<Stat> stats)
             {
-                var repo = Repositories.Instance.ConfigsAsync().Result;
+                var repo = m_Repository.Value;
                 foreach (var iter in configs)
                 {
                     var config = repo.FindByID(iter.ConfigID);
