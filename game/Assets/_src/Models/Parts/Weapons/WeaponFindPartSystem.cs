@@ -18,7 +18,7 @@ namespace Game.Model.Weapons
             {
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAspect<WeaponAspect>()
-                    .WithAspectRO<Logic.Aspect>()
+                    .WithAspect<Logic.Aspect>()
                     .Build();
                 state.RequireForUpdate(m_Query);
                 m_LookupTeams = state.GetComponentLookup<Team>(false);
@@ -38,7 +38,7 @@ namespace Game.Model.Weapons
             {
                 public float Delta;
                 [ReadOnly] public ComponentLookup<Team> Teams;
-                public void Execute(ref WeaponAspect weapon, in Logic.Aspect logic)
+                public void Execute(WeaponAspect weapon, Logic.Aspect logic)
                 {
                     if (logic.IsCurrentAction(Target.Action.Find))
                     {

@@ -12,12 +12,13 @@ namespace Buildings
 {
     using Environments;
 
+    using Game.Core.Saves;
+
     public class ApiEditor: IApiEditor, IKernel, IApiEditorHandler
     {
         public IEventHandler Events { get; }
 
         private EventDispatcher m_Dispatcher = EventDispatcher.CreateDefault();
-
         private Dictionary<Entity, IPlaceHolder> m_Holders = new Dictionary<Entity, IPlaceHolder>();
 
         public ApiEditor()
@@ -38,6 +39,8 @@ namespace Buildings
             }, null);
         }
 
+        public TypeIndex CurrentLayer { get; private set; }
+
         public bool TryGetPlaceHolder(Entity entity, out IPlaceHolder holder)
         {
             return m_Holders.TryGetValue(entity, out holder);
@@ -48,9 +51,14 @@ namespace Buildings
             var ecb = GetBuffer();
             var entity = ecb.CreateEntity();
             ecb.AddBuffer<SpawnComponent>(entity);
+
             ecb.AppendToBuffer<SpawnComponent>(entity, ComponentType.ReadOnly<SelectBuildingTag>());
             ecb.AppendToBuffer<SpawnComponent>(entity, ComponentType.ReadOnly<SpawnEventTag>());
+            ecb.AppendToBuffer<SpawnComponent>(entity, ComponentType.ReadOnly<SavedTag>());
 
+            var data = World.DefaultGameObjectInjectionWorld.EntityManager.GetComponentData<Buildings.Environments.Building>(
+                config.Prefab);
+            CurrentLayer = data.Def.Layer; 
             ecb.AddComponent(entity, new NewSpawnMap
             {
                 Prefab = config.Prefab,

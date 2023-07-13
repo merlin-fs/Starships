@@ -12,27 +12,24 @@ namespace Game.Core.Prefabs
     public class PrefabAuthoring : MonoBehaviour
     {
         [NonSerialized]
-        public HashSet<ObjectID> ConfigIDs = new HashSet<ObjectID>();
+        public ObjectID ConfigID;
 
-        class _baker : Baker<PrefabAuthoring>
+        class Baker : Baker<PrefabAuthoring>
         {
-            public unsafe override void Bake(PrefabAuthoring authoring)
+            public override void Bake(PrefabAuthoring authoring)
             {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
-                var buffer = AddBuffer<BakedPrefab>(entity);
-                foreach (var iter in authoring.ConfigIDs)
+                AddComponent<BakedPrefabTag>(entity);
+                AddComponent(entity, new BakedPrefab()
                 {
-                    buffer.Add(new BakedPrefab
-                    {
-                        ConfigID = iter,
-                        Prefab = entity,
-                    });
-                }
-
+                    ConfigID = authoring.ConfigID,
+                    Prefab = entity,
+                });
+                
                 var parent = authoring.transform;
                 while (parent.transform.parent != null)
                     parent = parent.transform.parent;
-                AddComponent<Root>(entity, new Root { Value = GetEntity(parent, TransformUsageFlags.Dynamic) });
+                AddComponent(entity, new Root { Value = GetEntity(parent, TransformUsageFlags.Dynamic) });
             }
         }
     }

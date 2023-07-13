@@ -28,7 +28,7 @@ namespace Game.Model.Stats
         {
             public float Delta;
 
-            public void Execute([WithChangeFilter(typeof(Modifier))] ref StatAspect stats)
+            public void Execute([WithChangeFilter(typeof(Modifier))] StatAspect stats)
             {
                 stats.Estimation(Delta);
             }

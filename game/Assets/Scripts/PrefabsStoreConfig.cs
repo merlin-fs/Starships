@@ -5,27 +5,30 @@ using UnityEngine;
 using Common.Core;
 using Common.Defs;
 
+using Unity.Mathematics;
+
 namespace Game.Core.Prefabs
 {
     using Defs;
 
-    public struct BakedPrefab : IBufferElementData, IEnableableComponent
+    public struct BakedPrefabTag : IComponentData { }
+
+    public struct BakedPrefab : IComponentData
     {
         public Entity Prefab;
         public ObjectID ConfigID;
+    }
+
+    public struct BakedEnvironment : IComponentData
+    {
+        public int2 Size;
+        public FixedString128Bytes Layer;
     }
 
     public struct BakedPrefabLabel : IBufferElementData
     {
         public FixedString64Bytes Label;
     }
-
-    public struct BakedPrefabEnvironment : IComponentData
-    {
-        public ObjectID ConfigID;
-    }
-
-    public struct PrefabStore : IComponentData, IEnableableComponent { }
 
 #if UNITY_EDITOR
 
@@ -40,7 +43,7 @@ namespace Game.Core.Prefabs
             public unsafe override void Bake(PrefabsStoreConfig authoring)
             {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
-                AddComponent<PrefabStore>(entity);
+                
                 PrepareItem(authoring.Player);
                 PrepareItem(authoring.Enenmy);
                 //PrepareItem(authoring.Weapon);
@@ -59,13 +62,13 @@ namespace Game.Core.Prefabs
             {
                 var list = config.PrefabObject.GetComponentsInChildren<PrefabAuthoring>();
                 foreach (var iter in list)
-                    iter.ConfigIDs.Clear();
+                    iter.ConfigID = default;
             }
 
             private void BakeItem(GameObjectConfig config)
             {
                 GetEntity(config.PrefabObject, TransformUsageFlags.Dynamic);
-                GetOrAddComponent<PrefabAuthoring>(config.PrefabObject).ConfigIDs.Add(config.ID);
+                GetOrAddComponent<PrefabAuthoring>(config.PrefabObject).ConfigID = config.ID;
                 HierarchyConfig(config);
             }
 
@@ -79,7 +82,7 @@ namespace Game.Core.Prefabs
 
                         if (iter.PrefabObject)
                         {
-                            GetOrAddComponent<PrefabAuthoring>(iter.PrefabObject).ConfigIDs.Add(iter.Child.ID);
+                            GetOrAddComponent<PrefabAuthoring>(iter.PrefabObject).ConfigID = iter.Child.ID;
                         }
                         if (iter.Child is GameObjectConfig objectConfig)
                             HierarchyConfig(objectConfig);

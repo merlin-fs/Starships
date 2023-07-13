@@ -38,7 +38,7 @@ namespace Game.Model
             {
                 public float Delta;
 
-                public void Execute(ref Move data, ref LocalTransform transform, ref Logic.Aspect logic)
+                public void Execute(ref Move data, ref LocalTransform transform, Logic.Aspect logic)
                 {
                     if (logic.IsCurrentAction(Action.Init))
                     {
@@ -48,8 +48,7 @@ namespace Game.Model
                         logic.SetWorldState(State.Init, true);
                     }
 
-                    if (logic.IsCurrentAction(Action.MoveToTarget) ||
-                        logic.IsCurrentAction(Action.MoveToPosition))
+                    if (logic.IsCurrentAction(Action.MoveToTarget) || logic.IsCurrentAction(Action.MoveToPosition))
                     {
                         //UnityEngine.Debug.Log($"[{logic.Self}] move to target {data.Position}, speed {data.Speed}, pos {transform.WorldPosition}");
                         float3 direction = data.Position - transform.Position;

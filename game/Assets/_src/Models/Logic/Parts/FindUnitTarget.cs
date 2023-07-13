@@ -17,7 +17,7 @@ namespace Game.Model.Logics
         {
             m_LookupTeam = state.GetComponentLookup<Team>(false);
             m_Query = SystemAPI.QueryBuilder()
-                .WithAspectRO<Logic.Aspect>()
+                .WithAspect<Logic.Aspect>()
                 .WithAllRW<Target>()
                 .WithAll<Team>()
                 .Build();
@@ -40,7 +40,7 @@ namespace Game.Model.Logics
             [ReadOnly]
             public ComponentLookup<Team> Teams;
 
-            public void Execute(in Logic.Aspect logic, in Team team, ref Target target)
+            public void Execute(Logic.Aspect logic, in Team team, ref Target target)
             {
                 if (!logic.Def.IsSupportSystem(this))
                     return;

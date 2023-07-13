@@ -19,8 +19,8 @@ namespace Game.Model.Logics
             m_Query = SystemAPI.QueryBuilder()
                 .WithAllRW<Move>()
                 .WithAll<Target>()
-                .WithAspectRO<Logic.Aspect>()
-                .WithAspectRO<UnitAspect>()
+                .WithAspect<Logic.Aspect>()
+                .WithAspect<UnitAspect>()
                 .Build();
         }
 
@@ -34,7 +34,7 @@ namespace Game.Model.Logics
         #endregion
         public partial struct SystemJob : IJobEntity
         {
-            public void Execute(ref Move data, in Logic.Aspect logic, in Target target, in UnitAspect unit)
+            public void Execute(ref Move data, Logic.Aspect logic, in Target target, UnitAspect unit)
             {
                 if (!logic.Def.IsSupportSystem(this))
                     return;

@@ -14,20 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 8434163211771786228, guid: f91c07baf31faba439175b9701fa3b76,
     type: 3}
-  m_PrefabID:
-    Value:
-      x: 2876293535
-      y: 1253765439
-      z: 2041934227
-      w: 1739829008
   Value:
-    Weapon: {fileID: 11400000, guid: 4ebc84f02e2b6dc42be590d5613f4838, type: 2}
+    Parts:
+    - Child: {fileID: 0}
+      PrefabObject: {fileID: 0}
+      Enabled: 0
+    - Child: {fileID: 0}
+      PrefabObject: {fileID: 0}
+      Enabled: 0
+    - Child: {fileID: 0}
+      PrefabObject: {fileID: 0}
+      Enabled: 0
+    - Child: {fileID: 0}
+      PrefabObject: {fileID: 0}
+      Enabled: 0
     Speed:
       rid: 129887630149025792
     Health:
       rid: 129887630149025793
-  Logic:
-    m_Configurator: Game.Model.Units.LogicUnit
+  Logic: {fileID: 0}
   Team:
     m_SelfTeam:
       Value: 2

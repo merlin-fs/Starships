@@ -7,8 +7,6 @@ using UnityEngine;
 
 namespace Game.Model.Stats
 {
-    [Serializable]
-    [WriteGroup(typeof(Stat))]
     public struct Stat : IBufferElementData
     {
         #region debug
@@ -23,8 +21,6 @@ namespace Game.Model.Stats
         [HideInInspector]
         public int StatID;
         private StatValue m_Value;
-
-        public bool IsValid => StatID != 0;
 
         [CreateProperty]
         public float Value => m_Value.Current.Value;

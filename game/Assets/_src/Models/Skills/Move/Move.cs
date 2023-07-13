@@ -1,4 +1,7 @@
 using System;
+
+using Game.Core.Saves;
+
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -13,7 +16,7 @@ namespace Game.Model
         float Speed { get; }
     }
 
-    [Serializable]
+    [Serializable, Saved]
     public partial struct Move : IComponentData, IStateData
     {
         public float3 Position;

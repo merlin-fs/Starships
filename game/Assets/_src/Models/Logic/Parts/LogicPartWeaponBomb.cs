@@ -19,7 +19,7 @@ namespace Game.Model.Logics
             m_Query = SystemAPI.QueryBuilder()
                 .WithAny<Damage.LastDamage>()
                 .Build();
-            m_LookupLogicAspect = new Logic.Aspect.Lookup(ref state, false);
+            m_LookupLogicAspect = new Logic.Aspect.Lookup(ref state);
         }
 
         public void OnDestroy(ref SystemState state) { }

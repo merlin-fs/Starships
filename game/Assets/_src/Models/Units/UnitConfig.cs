@@ -9,6 +9,7 @@ namespace Game.Model.Units
     using Stats;
     using Logics;
     using Core.Defs;
+    using Core.Saves;
 
     /// <summary>
     /// Конфиг корабля

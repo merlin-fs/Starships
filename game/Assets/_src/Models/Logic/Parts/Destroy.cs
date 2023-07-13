@@ -15,7 +15,7 @@ namespace Game.Model.Logics
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAspectRO<Logic.Aspect>()
+                .WithAspect<Logic.Aspect>()
                 .Build();
         }
 
@@ -34,7 +34,7 @@ namespace Game.Model.Logics
         {
             public EntityCommandBuffer.ParallelWriter Writer;
 
-            public void Execute([EntityIndexInQuery] int idx, in Logic.Aspect logic)
+            public void Execute([EntityIndexInQuery] int idx, Logic.Aspect logic)
             {
                 if (logic.IsCurrentAction(Global.Action.Destroy) && logic.HasWorldState(Global.State.Dead, true))
                 {

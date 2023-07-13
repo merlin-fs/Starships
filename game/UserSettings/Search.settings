@@ -17,6 +17,9 @@ scopes = {
 	"last_search.223EF03E" = ""
 	"OpenInspectorPreview.223EF03E" = "0"
 	"currentGroup.223EF03E" = "all"
+	"last_search.4D656764" = ""
+	"OpenInspectorPreview.4D656764" = "0"
+	"currentGroup.4D656764" = "all"
 }
 providers = {
 	adb = {
@@ -69,6 +72,46 @@ providers = {
 		priority = 2500
 		defaultAction = null
 	}
+	profilermarkers = {
+		active = false
+		priority = 100
+		defaultAction = null
+	}
+	menu = {
+		active = true
+		priority = 80
+		defaultAction = null
+	}
+	settings = {
+		active = true
+		priority = 100
+		defaultAction = null
+	}
+	calculator = {
+		active = true
+		priority = 10
+		defaultAction = null
+	}
+	static_methods = {
+		active = true
+		priority = 85
+		defaultAction = null
+	}
+	component = {
+		active = true
+		priority = 2500
+		defaultAction = null
+	}
+	nodehierarchy = {
+		active = true
+		priority = 2500
+		defaultAction = null
+	}
+	system = {
+		active = true
+		priority = 2500
+		defaultAction = null
+	}
 }
 objectSelectors = {
 }
@@ -88,7 +131,7 @@ searchItemFavorites = [
 savedSearchesSortOrder = 0
 showSavedSearchPanel = true
 hideTabs = false
-expandedQueries = [961552606]
+expandedQueries = [-1765347274]
 queryBuilder = true
 ignoredProperties = "id;name;classname;imagecontentshash"
 helperWidgetCurrentArea = "all"

@@ -35,7 +35,7 @@ namespace Game.Model.Stats
 
         partial struct SystemJob : IJobEntity
         {
-            public void Execute(in DynamicBuffer<Stat> stats, ref Logic.Aspect logic)
+            public void Execute(in DynamicBuffer<Stat> stats, Logic.Aspect logic)
             {
                 if (logic.IsCurrentAction(Global.Action.Destroy))
                     return;

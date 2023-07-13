@@ -4,23 +4,25 @@ using Unity.Properties;
 using Unity.Serialization;
 using Common.Defs;
 
+using Game.Core.Saves;
+
 namespace Game.Model.Logics
 {
-    [Serializable]
-    [WriteGroup(typeof(WorldState))] 
     public partial struct Logic : IComponentData, IDefinable, IDefineableCallback
     {
-        [DontSerialize]
-        private readonly Def<LogicDef> m_Def;
-        public LogicDef Def => m_Def.Value;
+        private readonly RefLink<LogicDef> m_RefLink;
+        public LogicDef Def => m_RefLink.Value;
 
         public LogicHandle Action;
+        public bool Active;
         public bool Work;
         public bool WaitNewGoal;
         public bool WaitChangeWorld;
-        public Logic(Def<LogicDef> def)
+        
+        public Logic(RefLink<LogicDef> refLink)
         {
-            m_Def = def;
+            m_RefLink = refLink;
+            Active = true;
             Work = false;
             WaitNewGoal = false;
             WaitChangeWorld = false;
@@ -35,8 +37,8 @@ namespace Game.Model.Logics
                 goals.Add(iter);
 
             var buff = context.AddBuffer<WorldState>(entity);
-            buff.ResizeUninitialized(m_Def.Value.StateMapping.Count);
-            foreach (var iter in m_Def.Value.StateMapping)
+            buff.ResizeUninitialized(m_RefLink.Value.StateMapping.Count);
+            foreach (var iter in m_RefLink.Value.StateMapping)
             {
                 buff[iter.Value.Index] = new WorldState { Value = iter.Value.Initialize, };
             }

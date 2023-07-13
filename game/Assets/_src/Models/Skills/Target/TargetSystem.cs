@@ -39,8 +39,6 @@ namespace Game.Model
                 m_LookupTeams = state.GetComponentLookup<Team>(true);
             }
 
-            public void OnDestroy(ref SystemState state) { }
-
             public void OnUpdate(ref SystemState state)
             {
                 m_LookupTransforms.Update(ref state);
@@ -65,7 +63,7 @@ namespace Game.Model
                 [ReadOnly] public ComponentLookup<Team> Teams;
                 [ReadOnly] public NativeList<Entity> Entities;
 
-                public void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target data, ref Logic.Aspect logic)
+                public void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target data, Logic.Aspect logic)
                 {
                     if (!logic.IsCurrentAction(Action.Find)) return;
 

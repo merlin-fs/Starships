@@ -11,15 +11,15 @@ namespace Game.Model.Worlds
     {
         public partial struct Data : IComponentData, IDefinable, IDefineableCallback
         {
-            private readonly Def<Def> m_Def;
-            public Def Define => m_Def.Value;
+            private readonly RefLink<Def> m_RefLink;
+            public Def Define => m_RefLink.Value;
 
             public int2 Size;
             public ViewDataStruct ViewData;
 
-            public Data(Def<Def> def)
+            public Data(RefLink<Def> refLink)
             {
-                m_Def = def;
+                m_RefLink = refLink;
                 Size = default;
                 ViewData = default;
                 ViewData.WorldToLocalMatrix = float4x4.identity / 1.5f;

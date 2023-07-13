@@ -31,6 +31,11 @@ namespace Game.Model.Worlds
                 Layers.SetObject(this, layerType, pos, entity);
             }
 
+            public bool TryGetObject(TypeIndex layerType, int2 pos, out Entity entity)
+            {
+                return Layers.TryGetObject(this, layerType, pos, out entity);
+            }
+            
             public Entity GetObject(TypeIndex layerType, int2 pos)
             {
                 return Layers.GetObject(this, layerType, pos);

@@ -4,9 +4,8 @@ using Unity.Transforms;
 
 namespace Game.Model
 {
-    using static Game.Model.Logics.Logic;
+    using static Logics.Logic;
 
-    [Serializable]
     public partial struct Target : IComponentData, IStateData
     {
         public Entity Value;

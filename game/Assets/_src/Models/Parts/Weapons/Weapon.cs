@@ -3,6 +3,8 @@ using Unity.Entities;
 using Common.Defs;
 using Common.Core;
 
+using Game.Core.Saves;
+
 namespace Game.Model.Weapons
 {
     using static Game.Model.Logics.Logic;
@@ -10,11 +12,11 @@ namespace Game.Model.Weapons
     /// <summary>
     /// Реализация оружия
     /// </summary>
-    [Serializable]
+    [Serializable, Saved]
     public partial struct Weapon: IPart, IDefinable, IComponentData, IDefineableCallback, IStateData
     {
-        private readonly Def<WeaponDef> m_Def;
-        public WeaponDef Def => m_Def.Value;
+        private readonly RefLink<WeaponDef> m_RefLink;
+        public WeaponDef Def => m_RefLink.Value;
 
         public int Count;
 
@@ -22,12 +24,12 @@ namespace Game.Model.Weapons
 
         public ObjectID BulletID;
 
-        public Weapon(Def<WeaponDef> config)
+        public Weapon(RefLink<WeaponDef> config)
         {
-            m_Def = config;
+            m_RefLink = config;
             Time = 0;
             Count = 0;
-            BulletID = m_Def.Value.Bullet.ID;
+            BulletID = m_RefLink.Value.Bullet.ID;
         }
         #region IDefineableCallback
         public void AddComponentData(Entity entity, IDefineableContext context)

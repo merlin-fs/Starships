@@ -65,7 +65,7 @@ namespace Game.Model.Weapons
         {
             UnityEngine.Debug.Log($"{Self} [Weapon] reload");
             if (m_Bullet.IsValid)
-                m_Bullet.ValueRO.Def.RemoveComponentData(m_Self, context, m_Bullet.ValueRO);
+                m_Bullet.ValueRO.Def.RemoveComponentData(m_Self, m_Bullet.ValueRO, context);
 
             var bulletConfig = Repository.FindByID(m_Weapon.ValueRO.BulletID);
 

@@ -27,6 +27,7 @@ namespace Game.Model.Logics
             public bool IsWaitNewGoal => m_Logic.ValueRO.WaitNewGoal;
             public bool IsWaitChangeWorld => m_Logic.ValueRO.WaitChangeWorld;
             public bool IsValid => m_Logic.ValueRO.Def.IsValid;
+            public bool IsActive => m_Logic.ValueRO.Active;
             public bool HasPlan => m_Plan.Length > 0;
             public bool IsAction => m_Logic.ValueRO.Action != LogicHandle.Null;
 
@@ -43,6 +44,7 @@ namespace Game.Model.Logics
 
             public bool IsCurrentAction(Enum action)
             {
+                if (!IsActive) return false;
                 return m_Logic.ValueRO.Action == LogicHandle.FromEnumTest(action);
             }
 

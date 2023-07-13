@@ -8,6 +8,7 @@ namespace Game.Systems
 {
     using Model;
     using Model.Worlds;
+    using Core.Prefabs;
 
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
     partial struct SpawnMapSystem : ISystem
@@ -34,7 +35,7 @@ namespace Game.Systems
         public void OnUpdate(ref SystemState state)
         {
             m_LookupTransform.Update(ref state);
-            var map = SystemAPI.GetAspectRW<Map.Aspect>(m_QueryMap.GetSingletonEntity());
+            var map = SystemAPI.GetAspect<Map.Aspect>(m_QueryMap.GetSingletonEntity());
             var system = state.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>();
             var ecb = system.CreateCommandBuffer();
             state.Dependency = new SystemJob()
@@ -61,6 +62,9 @@ namespace Game.Systems
 
                 var transform = LookupTransform[spawn.Prefab];
                 transform.Position = Map.Value.MapToWord(spawn.Position);
+
+                Writer.AddComponent(idx, inst, new PrefabRef {Prefab = spawn.Prefab});
+                Writer.RemoveComponent<BakedPrefab>(idx, inst);
 
                 Writer.AddComponent<SpawnTag>(idx, inst);
                 Writer.AddComponent(idx, inst, transform);

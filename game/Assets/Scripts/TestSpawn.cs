@@ -13,6 +13,8 @@ using System;
 using UnityEngine.AddressableAssets;
 using Unity.Transforms;
 using Game.Core.Prefabs;
+using Game.Core.Saves;
+
 using Unity.Mathematics;
 using Game.Views.Stats;
 using Game.Model.Stats;
@@ -29,11 +31,26 @@ public class TestSpawn : MonoBehaviour
 
     private EntityManager m_EntityManager;
 
+    private readonly struct SavedContext: ISavedContext
+    {
+        public string Name { get; }
+
+        private SavedContext(string name) => Name = name;
+
+        public static implicit operator SavedContext(string name) => new SavedContext(name);
+    }
+    
     private async void StartBatle()
     {
         var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
         await prefab.IsDone();
 
+        //*
+        var manager = new SaveManager((SavedContext)"Test");
+        manager.Load();
+        /**/
+
+        /*
         var player = !Player.IsValid()
             ? await Player.LoadAssetAsync().Task
             : (UnitConfig)Player.Asset;
@@ -54,6 +71,8 @@ public class TestSpawn : MonoBehaviour
         if (player.Prefab == Entity.Null)
             return;
 
+        ecb.AddBuffer<SpawnComponent>(entity);
+        ecb.AppendToBuffer<SpawnComponent>(entity, ComponentType.ReadOnly<SavedTag>());
         ecb.AddComponent(entity, new NewSpawnWorld()
         {
             Prefab = player.Prefab,
@@ -64,7 +83,7 @@ public class TestSpawn : MonoBehaviour
         var viewObject = GameObject.Instantiate(view.View, view.Canvas.transform);
         var buff = ecb.AddBuffer<StatView>(entity);
         buff.Add(new StatView(viewObject, Stat.GetID(Global.Stat.Health)));
-
+        /**/
 
         /*
         transform = WorldTransform.FromPosition(10, 0, 0);
@@ -91,11 +110,13 @@ public class TestSpawn : MonoBehaviour
         for (var i = 0; i < count; i++)
         {
             var entity = ecb.CreateEntity();
+            ecb.AddBuffer<SpawnComponent>(entity);
             ecb.AddComponent(entity, new NewSpawnWorld() { Prefab = config.Prefab });
+            ecb.AppendToBuffer<SpawnComponent>(entity, ComponentType.ReadOnly<SavedTag>());
         }
     }
 
-    private void Start()
+    private async void Start()
     {
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         Application.targetFrameRate = 60;
@@ -106,7 +127,7 @@ public class TestSpawn : MonoBehaviour
         var sceneEntity = SceneSystem.LoadSceneAsync(m_EntityManager.WorldUnmanaged, guid);
         //SceneSystem.LoadPrefabAsync(m_EntityManager.WorldUnmanaged, guid);
         */
-        //var repo = await Repositories.Instance.ConfigsAsync();
+        await RepositoryLoadSystem.Load();
         StartBatle();
     }
 

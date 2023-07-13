@@ -17,11 +17,11 @@ namespace Game.Model.Units
     [Serializable]
     public struct Unit : IUnit, IDefinable, IComponentData, IDefineableCallback, IStateData
     {
-        public Def<UnitDef> Def { get; }
+        public RefLink<UnitDef> RefLink { get; }
 
-        public Unit(Def<UnitDef> config)
+        public Unit(RefLink<UnitDef> config)
         {
-            Def = config;
+            RefLink = config;
         }
         #region IDefineableCallback
         public void AddComponentData(Entity entity, IDefineableContext context)

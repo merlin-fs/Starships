@@ -48,7 +48,7 @@ namespace Game.Model
             {
                 [ReadOnly] public NativeList<Entity> Entities;
 
-                void Execute(ref Target data, ref Logic.Aspect logic)
+                void Execute(ref Target data, Logic.Aspect logic)
                 {
                     foreach (var iter in Entities)
                     {

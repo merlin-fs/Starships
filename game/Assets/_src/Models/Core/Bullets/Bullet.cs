@@ -11,8 +11,7 @@ namespace Game.Model.Weapons
     [Serializable]
     public struct Bullet: IModifier, IDefinable, IComponentData, IDefineableCallback
     {
-        [DontSerialize]
-        private readonly Def<BulletDef> m_Config;
+        private readonly RefLink<BulletDef> m_Config;
 
         private ulong m_ModUID;
 
@@ -21,7 +20,7 @@ namespace Game.Model.Weapons
         [CreateProperty] public float Multiplier => m_Config.Value.Multiplier;
         [CreateProperty] public float Range => m_Config.Value.Range;
 
-        public Bullet(Def<BulletDef> config)
+        public Bullet(RefLink<BulletDef> config)
         {
             m_Config = config;
             m_ModUID = 0;

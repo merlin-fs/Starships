@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+//#if UNITY_EDITOR
 using System;
 using Unity.Entities;
 using UnityEngine;
@@ -7,6 +7,8 @@ using Unity.Collections;
 using Unity.Transforms;
 using Common.Core;
 using Buildings.Environments;
+
+using Game.Model;
 using Game.Model.Worlds;
 
 namespace Game.Core.Prefabs
@@ -24,17 +26,27 @@ namespace Game.Core.Prefabs
         [NonSerialized]
         public string[] Labels;
 
-        class _baker : Baker<PrefabEnvironmentAuthoring>
+        class Baker : Baker<PrefabEnvironmentAuthoring>
         {
             public unsafe override void Bake(PrefabEnvironmentAuthoring authoring)
             {
-                
                 var entity = GetEntity(TransformUsageFlags.Renderable);
-                var data = new BakedPrefabEnvironment
+                AddComponent<BakedPrefabTag>(entity);
+                AddComponent(entity, new BakedPrefab()
                 {
                     ConfigID = authoring.ConfigID,
-                };
-                var buff = AddBuffer<BakedPrefabLabel>(entity);
+                    Prefab = entity,
+                });
+
+                var fs = new FixedString128Bytes();
+                fs.Append(TypeManager.GetTypeInfo(TypeManager.GetTypeIndex(Type.GetType(authoring.m_Layer))).DebugTypeName);
+                AddComponent(entity, new BakedEnvironment
+                {
+                    Size = authoring.m_Size,
+                    Layer = fs,
+                });
+
+                AddBuffer<BakedPrefabLabel>(entity);
                 foreach(var iter in authoring.Labels)
                 {
                     var lb = new BakedPrefabLabel();
@@ -43,14 +55,12 @@ namespace Game.Core.Prefabs
                 }
                 var compositeScale = float4x4.Scale(authoring.transform.localScale);
                 AddComponent(entity, new PostTransformMatrix { Value = compositeScale });
-                AddComponent(entity, data);
 
-                
-                AddComponent(entity, new BuildingPlace 
-                { 
-                    Size = authoring.m_Size,
-                    Layer = TypeManager.GetTypeIndex(Type.GetType(authoring.m_Layer)),
-                });
+
+                var parent = authoring.transform;
+                while (parent.transform.parent != null)
+                    parent = parent.transform.parent;
+                AddComponent(entity, new Root { Value = GetEntity(parent, TransformUsageFlags.Dynamic) });
             }
         }
 
@@ -60,7 +70,7 @@ namespace Game.Core.Prefabs
             if (meshFilter == null || meshFilter.sharedMesh == null) return;
             var mesh = meshFilter.sharedMesh;
 
-            var offset = mesh.bounds.center / 2 + mesh.bounds.min / 2;//Vector3.zero;//
+            var offset = (mesh.bounds.center / 2) + (mesh.bounds.min / 2);//Vector3.zero;//
             var size = new Vector3(1, 0, 1) * mesh.bounds.extents.x;
 
             for (int x = 0; x < m_Size.x; x++)
@@ -78,4 +88,4 @@ namespace Game.Core.Prefabs
         }
     }
 }
-#endif
+//#endif

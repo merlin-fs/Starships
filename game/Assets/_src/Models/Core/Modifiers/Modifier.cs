@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+
+using Game.Core.Saves;
+
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -10,8 +13,7 @@ using UnityEngine;
 
 namespace Game.Model.Stats
 {
-    [Serializable]
-    [WriteGroup(typeof(Stat))]
+    [Serializable, Saved]
     public unsafe struct Modifier : IBufferElementData, IEquatable<Modifier>
     {
         private static readonly MethodInfo m_Method = typeof(IModifier).GetMethod(nameof(IModifier.Estimation));

@@ -48,7 +48,7 @@ namespace Game.Model.Weapons
                 [ReadOnly] public ComponentLookup<Team> Teams;
                 public EntityCommandBuffer.ParallelWriter Writer;
 
-                public void Execute([EntityIndexInQuery] int idx, ref WeaponAspect weapon, ref Logic.Aspect logic)
+                public void Execute([EntityIndexInQuery] int idx, WeaponAspect weapon, Logic.Aspect logic)
                 {
 
                     if (logic.IsCurrentAction(Action.Reload))
@@ -63,7 +63,7 @@ namespace Game.Model.Weapons
                             {
                                 var count = (int)weapon.Stat(Stats.ClipSize).Value;
                                 logic.SetWorldState(State.NoAmmo,
-                                    !weapon.Reload(new DefExt.WriterContext(Writer, idx), count));
+                                    !weapon.Reload(new WriterContext(Writer, idx), count));
                             }
                         }
                     }

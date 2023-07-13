@@ -16,23 +16,19 @@ namespace Game.Model.Worlds
         {
             private static readonly Dictionary<TypeIndex, LayerInfo> m_Layers = new Dictionary<TypeIndex, LayerInfo>();
 
-            delegate void dInit(ref SystemState systemState, Aspect aspect);
-            delegate void dUpdate(ref SystemState systemState);
-            delegate Entity dGetObject(Aspect aspect, int2 pos);
-            delegate void dSetObject(Aspect aspect, int2 pos, Entity entity);
+            delegate void DInit(ref SystemState systemState, Aspect aspect);
+            delegate void DUpdate(ref SystemState systemState);
+            delegate Entity DGetObject(Aspect aspect, int2 pos);
+            delegate void DSetObject(Aspect aspect, int2 pos, Entity entity);
 
             public static void AddLayer<T>(Entity entity, IDefineableContext context)
                 where T : unmanaged, ILayer
             {
-                AddLayer(typeof(T), entity, context);
-            }
-
-            static void AddLayer(Type type, Entity entity, IDefineableContext context)
-            {
+                var type = typeof(T);
                 var idx = TypeManager.GetTypeIndex(type);
                 if (!m_Layers.ContainsKey(idx))
                     m_Layers.Add(idx, new LayerInfo(type));
-                context.AddBuffer(type, entity);
+                context.AddBuffer<T>(entity);
             }
 
             public static void Init(ref SystemState systemState, Aspect aspect)
@@ -54,6 +50,14 @@ namespace Game.Model.Worlds
                 info.SetObject(aspect, pos, entity);
             }
 
+            public static bool TryGetObject(Aspect aspect, TypeIndex layerType, int2 pos, out Entity entity)
+            {
+                entity = Entity.Null;
+                if (!m_Layers.TryGetValue(layerType, out LayerInfo info)) return false;
+                entity = info.GetObject(aspect, pos);
+                return entity != Entity.Null;
+            }
+
             public static Entity GetObject(Aspect aspect, TypeIndex layerType, int2 pos)
             {
                 if (!m_Layers.TryGetValue(layerType, out LayerInfo info))
@@ -63,19 +67,19 @@ namespace Game.Model.Worlds
 
             private readonly struct LayerInfo
             {
-                public readonly Type Type;
-                private readonly dInit m_Init;
-                private readonly dUpdate m_Update;
-                private readonly dGetObject m_GetObject;
-                private readonly dSetObject m_SetObject;
+                private readonly Type m_Type;
+                private readonly DInit m_Init;
+                private readonly DUpdate m_Update;
+                private readonly DGetObject m_GetObject;
+                private readonly DSetObject m_SetObject;
                 
                 public LayerInfo(Type type)
                 {
-                    Type = typeof(Layer<>).MakeGenericType(type);
-                    m_Init = Type.GetDelegate<dInit>(nameof(Layer<Prototype>.Init), ReflectionHelper.STATIC);
-                    m_Update = Type.GetDelegate<dUpdate>(nameof(Layer<Prototype>.Update), ReflectionHelper.STATIC);
-                    m_GetObject = Type.GetDelegate<dGetObject>(nameof(Layer<Prototype>.GetObject), ReflectionHelper.STATIC);
-                    m_SetObject = Type.GetDelegate<dSetObject>(nameof(Layer<Prototype>.SetObject), ReflectionHelper.STATIC);
+                    m_Type = typeof(Layer<>).MakeGenericType(type);
+                    m_Init = m_Type.GetDelegate<DInit>(nameof(Layer<Prototype>.Init), ReflectionHelper.STATIC);
+                    m_Update = m_Type.GetDelegate<DUpdate>(nameof(Layer<Prototype>.Update), ReflectionHelper.STATIC);
+                    m_GetObject = m_Type.GetDelegate<DGetObject>(nameof(Layer<Prototype>.GetObject), ReflectionHelper.STATIC);
+                    m_SetObject = m_Type.GetDelegate<DSetObject>(nameof(Layer<Prototype>.SetObject), ReflectionHelper.STATIC);
                 }
 
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]

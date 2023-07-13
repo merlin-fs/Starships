@@ -7,12 +7,12 @@ namespace Game.Model.Weapons
     [Serializable]
     public partial struct TurretRotateHorizontal : IDefinable, IComponentData
     {
-        private readonly Def<TurretRotateHorizontalDef> m_Def;
-        public TurretRotateHorizontalDef Def => m_Def.Value;
+        private readonly RefLink<TurretRotateHorizontalDef> m_RefLink;
+        public TurretRotateHorizontalDef Def => m_RefLink.Value;
 
-        public TurretRotateHorizontal(Def<TurretRotateHorizontalDef> config)
+        public TurretRotateHorizontal(RefLink<TurretRotateHorizontalDef> config)
         {
-            m_Def = config;
+            m_RefLink = config;
         }
 
         [Serializable]

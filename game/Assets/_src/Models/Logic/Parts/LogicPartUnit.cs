@@ -28,7 +28,7 @@ namespace Game.Model.Logics
                 .Build();
 
             m_LookupLogic = state.GetComponentLookup<Logic>(true);
-            m_LookupLogicAspect = new Logic.Aspect.Lookup(ref state, false);
+            m_LookupLogicAspect = new Logic.Aspect.Lookup(ref state);
             m_LookupChildren = state.GetBufferLookup<Child>(true);
         }
 
@@ -56,7 +56,7 @@ namespace Game.Model.Logics
             public Logic.Aspect.Lookup LookupLogicAspect;
             [ReadOnly, NativeDisableContainerSafetyRestriction]
             public ComponentLookup<Logic> LookupLogic;
-            public void Execute(Entity self, ref Logic.Aspect logic)
+            public void Execute(Entity self, Logic.Aspect logic)
             {
                 if (!logic.Def.IsSupportSystem(this))
                     return;

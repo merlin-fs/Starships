@@ -1,6 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+
+using Buildings.Environments;
+
 using Unity.Entities;
 using Unity.Burst;
 using Common.Core;
@@ -29,7 +32,9 @@ namespace Game.Core.Prefabs
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<BakedPrefabEnvironment>()
+                .WithAll<BakedPrefabTag>()
+                .WithAll<BakedPrefab>()
+                .WithAll<BakedEnvironment>()
                 .WithAll<BakedPrefabLabel>()
                 .WithOptions(EntityQueryOptions.IncludePrefab)
                 .Build();
@@ -41,16 +46,17 @@ namespace Game.Core.Prefabs
         [BurstDiscard]
         public void OnUpdate(ref SystemState state)
         {
-            //state.GetDynamicComponentTypeHandle()
             m_Done = false;
             var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
             var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
             
             state.Dependency = new PrefabJob()
             {
+                Writer = ecb.AsParallelWriter(),
+                
             }.ScheduleParallel(m_Query, state.Dependency);
-            ecb.RemoveComponent<BakedPrefabEnvironment>(m_Query);
             state.CompleteDependency();
+            ecb.RemoveComponent<BakedPrefabTag>(m_Query);
             m_Done = true;
         }
 
@@ -59,12 +65,25 @@ namespace Game.Core.Prefabs
             public EntityCommandBuffer.ParallelWriter Writer;
             readonly DIContext.Var<Repository> m_Repository;
 
-            public void Execute(in Entity entity, in BakedPrefabEnvironment baked, in DynamicBuffer<BakedPrefabLabel> labels)
+            private void Execute([EntityIndexInQuery] int idx, in Entity entity, 
+                in BakedPrefab bakedPrefab, in BakedEnvironment environment, in DynamicBuffer<BakedPrefabLabel> labels)
             {
-                //this.__TypeHandle
-                var localLabels = labels.AsNativeArray().ToArray()
+                var localLabels = labels.AsNativeArray()
+                    .ToArray()
                     .Select(i => i.Label.ToString());
-                m_Repository.Value.Insert(baked.ConfigID, new Config(baked.ConfigID, entity), localLabels.ToArray());
+                var def = new Building.BuildingDef
+                {
+                    Size = environment.Size, 
+                    Layer = TypeManager.GetTypeIndex(Type.GetType(environment.Layer.Value)),
+                };
+                var config = new BuildingConfig(bakedPrefab.ConfigID, entity, def);
+                
+                var context = new WriterContext(Writer, idx);
+                Writer.RemoveComponent<BakedEnvironment>(idx, entity);
+                def.AddComponentData(entity, context);
+                
+                
+                m_Repository.Value.Insert(bakedPrefab.ConfigID, config, localLabels.ToArray());
             }
         }
     }

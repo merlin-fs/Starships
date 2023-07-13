@@ -38,9 +38,11 @@ namespace Game.Model.Logics
                 [NativeSetThreadIndex]
                 int m_ThreadIndex;
 
-                public void Execute(ref Logic.Aspect logic)
+                public void Execute(Logic.Aspect logic)
                 {
                     if (!logic.IsValid) return;
+                    if (!logic.IsActive) return;
+                    
                     if (logic.IsWaitNewGoal || logic.IsWaitChangeWorld)
                         return;
 

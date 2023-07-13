@@ -17,7 +17,7 @@ namespace Game.Views
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAspectRO<Logic.Aspect>()
+                .WithAspect<Logic.Aspect>()
                 .WithAll<Particle>()
                 .Build();
 
@@ -41,7 +41,7 @@ namespace Game.Views
             [ReadOnly] 
             public WorldTransform LookupTransforms;
 
-            public void Execute(in Entity entity, in Logic.Aspect logic, in DynamicBuffer<Particle> particles)
+            public void Execute(in Entity entity, Logic.Aspect logic, in DynamicBuffer<Particle> particles)
             {
                 foreach(var iter in particles)
                 {

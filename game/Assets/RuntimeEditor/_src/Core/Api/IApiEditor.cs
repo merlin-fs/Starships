@@ -18,6 +18,7 @@ namespace Buildings
 {
     public interface IApiEditor
     {
+        TypeIndex CurrentLayer { get; }
         IEventHandler Events { get; }
         void AddEnvironment(IConfig config);
         bool TryGetPlaceHolder(Entity entity, out IPlaceHolder holder);

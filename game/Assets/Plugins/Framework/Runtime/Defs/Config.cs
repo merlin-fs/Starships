@@ -13,9 +13,9 @@ namespace Common.Defs
         public ObjectID ID => m_ID;
         public Entity Prefab => m_Prefab;
 
-        public Config(ObjectID iD, Entity prefab)
+        public Config(ObjectID id, Entity prefab)
         {
-            m_ID = iD;
+            m_ID = id;
             m_Prefab = prefab;
         }
 
