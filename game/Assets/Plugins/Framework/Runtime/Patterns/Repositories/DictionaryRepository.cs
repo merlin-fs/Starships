@@ -65,6 +65,7 @@ namespace Common.Repositories
                 m_Items.TryAdd(entity.Entity.ID, entity);
             }
         }
+        
         public void Insert(params TAttr[] entities)
         {
             Insert(entities as IEnumerable<TAttr>);

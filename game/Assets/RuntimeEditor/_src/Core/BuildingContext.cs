@@ -25,7 +25,8 @@ namespace Buildings
             Bind<IUIManager>(new UIManager(m_RootUI.gameObject));
             Bind<IApiEditorHandler>(api as IApiEditorHandler);
 
-            Bind<Repository>(new Repository());
+            Bind<ObjectRepository>(new ObjectRepository());
+            Bind<AnimationRepository>(new AnimationRepository());
 
         }
     }

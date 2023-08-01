@@ -19,7 +19,7 @@ public class PrefabsSubScene : MonoBehaviour
             return uo.GetComponent<T>() ?? uo.AddComponent<T>();
         }
 
-        public unsafe override void Bake(PrefabsSubScene authoring)
+        public override void Bake(PrefabsSubScene authoring)
         {
             foreach (var iter in authoring.m_PrefabsGroup.SelectMany(p => p.entries))
             {

@@ -63,7 +63,7 @@ namespace Game.Core.Prefabs
         partial struct PrefabJob : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter Writer;
-            readonly DIContext.Var<Repository> m_Repository;
+            readonly DIContext.Var<ObjectRepository> m_Repository;
 
             private void Execute([EntityIndexInQuery] int idx, in Entity entity, 
                 in BakedPrefab bakedPrefab, in BakedEnvironment environment, in DynamicBuffer<BakedPrefabLabel> labels)
@@ -74,6 +74,7 @@ namespace Game.Core.Prefabs
                 var def = new Building.BuildingDef
                 {
                     Size = environment.Size, 
+                    Pivot = environment.Pivot,
                     Layer = TypeManager.GetTypeIndex(Type.GetType(environment.Layer.Value)),
                 };
                 var config = new BuildingConfig(bakedPrefab.ConfigID, entity, def);

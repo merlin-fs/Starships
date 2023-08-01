@@ -22,7 +22,7 @@ namespace Game.UI.Elements
         EnvironmentList m_List = new EnvironmentList();
 
         BuildingContext.Var<IApiEditor> m_ApiEditor;
-        BuildingContext.Var<Repository> m_Repository;
+        BuildingContext.Var<ObjectRepository> m_Repository;
         
         List<string> m_Items => m_Repository.Value.Labels.ToList();
 

@@ -23,7 +23,7 @@ public class TestSpawnFloor : MonoBehaviour
     
     private EntityManager m_EntityManager;
     BuildingContext.Var<IApiEditor> m_ApiEditor;
-    DIContext.Var<Repository> m_Repository;
+    DIContext.Var<ObjectRepository> m_Repository;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
@@ -81,6 +81,9 @@ public class TestSpawnFloor : MonoBehaviour
 
     private async void StartBatle()
     {
+        await RepositoryLoadSystem.LoadObjects();
+        await RepositoryLoadSystem.LoadAnimations();
+    
         var prefabSystem = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabEnvironmentSystem>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabEnvironmentSystem>());
         await prefabSystem.IsDone();
 
@@ -95,6 +98,7 @@ public class TestSpawnFloor : MonoBehaviour
         var context = new EntityManagerContext(m_EntityManager);
         def.AddComponentData(entity, context);
         
+        Map.Layers.AddLayer<Map.Layers.Door>(entity, context);
         Map.Layers.AddLayer<Map.Layers.Floor>(entity, context);
         Map.Layers.AddLayer<Map.Layers.Structure>(entity, context);
 

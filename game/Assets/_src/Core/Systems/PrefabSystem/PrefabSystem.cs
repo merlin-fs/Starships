@@ -81,7 +81,7 @@ namespace Game.Core.Prefabs
         partial struct PrefabJob : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter Writer;
-            readonly DIContext.Var<Repository> m_Repository;
+            readonly DIContext.Var<ObjectRepository> m_Repository;
 
             void Execute([EntityIndexInQuery] int idx, in Entity entity, in BakedPrefab baked)
             {

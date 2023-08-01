@@ -63,8 +63,7 @@ namespace Buildings.Environments
             private void Execute(in Entity entity, in Building building, in Move move, ref LocalTransform transform)
             {
                 var newPos = Aspect.Value.MapToWord(move.Position);
-                //var pivot = -bilding.Bounds.extents / 2;
-                var pivot = - new float3(1.5f, 0.0625f, 1.5f) / 2;
+                var pivot = building.Def.Pivot;
 
                 transform.Rotation = quaternion.identity;
                 transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(move.Rorate.y)));

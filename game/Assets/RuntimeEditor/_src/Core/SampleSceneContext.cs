@@ -9,7 +9,8 @@ namespace Game
     {
         protected override void OnBind()
         {
-            Bind<Repository>(new Repository());
+            Bind<ObjectRepository>(new ObjectRepository());
+            Bind<AnimationRepository>(new AnimationRepository());
         }
     }
 }

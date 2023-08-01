@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 3333b7e864e8b2f42b4f7dae17ba3546
   m_currentHash:
     serializedVersion: 2
-    Hash: 00000000000000000000000000000000
+    Hash: 60ff1eb1b3fae126617d25473b3d08b6
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -48,6 +48,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 53dc0d2d7b3763a4c844a2362ab22af1, type: 2}
   - {fileID: 11400000, guid: 95f65a4409032a84b894cb48f2a436c4, type: 2}
   - {fileID: 11400000, guid: 65d44c03333e78e428f6ef846fcfae2b, type: 2}
+  - {fileID: 11400000, guid: f9da3645def6d334989ad42cee79932f, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1
@@ -94,6 +95,8 @@ MonoBehaviour:
     - Environment
     - Floor
     - Walls
+    - Doors
+    - animation
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 64c4aa5b69bd57f48b2706360114bbc1, type: 2}

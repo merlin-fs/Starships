@@ -127,7 +127,8 @@ public class TestSpawn : MonoBehaviour
         var sceneEntity = SceneSystem.LoadSceneAsync(m_EntityManager.WorldUnmanaged, guid);
         //SceneSystem.LoadPrefabAsync(m_EntityManager.WorldUnmanaged, guid);
         */
-        await RepositoryLoadSystem.Load();
+        await RepositoryLoadSystem.LoadObjects();
+        await RepositoryLoadSystem.LoadAnimations();
         StartBatle();
     }
 

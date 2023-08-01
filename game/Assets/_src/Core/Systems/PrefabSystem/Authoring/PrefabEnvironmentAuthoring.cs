@@ -15,8 +15,8 @@ namespace Game.Core.Prefabs
 {
     public class PrefabEnvironmentAuthoring : MonoBehaviour
     {
-        [SerializeField]
-        int2 m_Size;
+        [SerializeField] int2 m_Size;
+        [SerializeField] float3 m_Pivot = new float3(1.5f, 0.0625f, 1.5f);
         [SerializeField, SelectType(typeof(Map.Layers.ILayer))]
         string m_Layer;
 
@@ -28,9 +28,9 @@ namespace Game.Core.Prefabs
 
         class Baker : Baker<PrefabEnvironmentAuthoring>
         {
-            public unsafe override void Bake(PrefabEnvironmentAuthoring authoring)
+            public override void Bake(PrefabEnvironmentAuthoring authoring)
             {
-                var entity = GetEntity(TransformUsageFlags.Renderable);
+                var entity = GetEntity(TransformUsageFlags.Dynamic);
                 AddComponent<BakedPrefabTag>(entity);
                 AddComponent(entity, new BakedPrefab()
                 {
@@ -43,6 +43,7 @@ namespace Game.Core.Prefabs
                 AddComponent(entity, new BakedEnvironment
                 {
                     Size = authoring.m_Size,
+                    Pivot = -authoring.m_Pivot / 2,
                     Layer = fs,
                 });
 

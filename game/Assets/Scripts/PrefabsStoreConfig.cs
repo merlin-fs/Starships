@@ -22,6 +22,7 @@ namespace Game.Core.Prefabs
     public struct BakedEnvironment : IComponentData
     {
         public int2 Size;
+        public float3 Pivot;
         public FixedString128Bytes Layer;
     }
 

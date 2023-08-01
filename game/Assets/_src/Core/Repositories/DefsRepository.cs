@@ -8,38 +8,40 @@ using Common.Defs;
 
 namespace Game.Core.Repositories
 {
-    public class DefsRepository<Object> : IReadonlyRepository<ObjectID, Object, DefsRepository<Object>.Attribute>
-        where Object : IIdentifiable<ObjectID>
+    public class DefsRepository<TObject> : IReadonlyRepository<ObjectID, TObject, DefsRepository<TObject>.Attribute>
+        where TObject : IIdentifiable<ObjectID>
     {
-        public class Attribute : IEntityAttributes<Object>
+        public class Attribute : IEntityAttributes<TObject>
         {
-            public Object Entity { get; }
+            public TObject Entity { get; }
             public HashSet<string> Labels { get; }
 
-            public Attribute(Object entity, string[] labels)
+            public Attribute(TObject entity, string[] labels)
             {
                 Entity = entity;
-                Labels = new HashSet<string>(labels);
+                Labels = labels != null 
+                    ? new HashSet<string>(labels) 
+                    : new HashSet<string>();
             }
         }
 
-        protected readonly DictionaryRepository<ObjectID, Object, Attribute> m_Repo = new DictionaryRepository<ObjectID, Object, Attribute>();
+        protected readonly DictionaryRepository<ObjectID, TObject, Attribute> m_Repo = new DictionaryRepository<ObjectID, TObject, Attribute>();
 
         #region IReadonlyRepository
-        public IEnumerable<Object> Find(
+        public IEnumerable<TObject> Find(
             Func<Attribute, bool> filter = null,
             Func<IQueryable<Attribute>, IOrderedQueryable<Attribute>> orderBy = null)
         {
             return m_Repo.Find(filter, orderBy);
         }
 
-        public Object FindByID(ObjectID id)
+        public TObject FindByID(ObjectID id)
         {
             return m_Repo.FindByID(id);
         }
 
         public T FindByID<T>(ObjectID id)
-            where T : Object
+            where T : TObject
         {
             return m_Repo.FindByID<T>(id);
         }

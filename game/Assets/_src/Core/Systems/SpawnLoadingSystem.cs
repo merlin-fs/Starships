@@ -35,7 +35,7 @@ namespace Game.Systems
 
         partial struct SpawnJob : IJobEntity
         {
-            private DIContext.Var<Repository> m_Repository;
+            private DIContext.Var<ObjectRepository> m_Repository;
             public EntityCommandBuffer.ParallelWriter Writer;
             [NativeDisableParallelForRestriction]
             public BufferLookup<StatView> ViewsLookup;

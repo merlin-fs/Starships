@@ -13,7 +13,7 @@ namespace Game.UI.Elements
 
         public event Action<IEnumerable<IConfig>> OnUpdateList;
 
-        readonly DIContext.Var<Repository> m_Repository;
+        readonly DIContext.Var<ObjectRepository> m_Repository;
 
         public void ChoiseGroup(string value)
         {

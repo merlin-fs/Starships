@@ -23,7 +23,7 @@ namespace Game.Model.Stats
 
         partial struct PrepareStatsJob : IJobEntity
         {
-            readonly DIContext.Var<Repository> m_Repository;
+            readonly DIContext.Var<ObjectRepository> m_Repository;
 
             void Execute(in DynamicBuffer<PrepareStat> configs, ref DynamicBuffer<Stat> stats)
             {

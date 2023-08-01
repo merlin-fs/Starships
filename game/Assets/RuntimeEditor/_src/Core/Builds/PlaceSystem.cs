@@ -43,6 +43,7 @@ namespace Buildings.Environments
         public class BuildingDef : IDef<Building>
         {
             public int2 Size;
+            public float3 Pivot;
             public TypeIndex Layer;
         }
 
@@ -154,8 +155,7 @@ namespace Buildings.Environments
                     newMove.Position = pos;
                     
                     var newPos = Aspect.Value.MapToWord(pos);
-                    //var pivot = -bilding.Bounds.extents / 2;
-                    var pivot = - new float3(1.5f, 0.0625f, 1.5f) / 2;
+                    var pivot = building.Def.Pivot;
 
                     transform.Rotation = quaternion.identity;
                     transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(newMove.Rorate.y)));

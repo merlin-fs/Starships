@@ -45,7 +45,7 @@ namespace Game.Model.Weapons
         public Bullet Bullet => m_Bullet.ValueRO;
         public Stat Stat(Enum stat) => m_Stats.GetRO(stat);
         
-        private readonly Repository Repository => default(DIContext.Var<Repository>).Value;
+        private readonly ObjectRepository ObjectRepository => default(DIContext.Var<ObjectRepository>).Value;
 
         public float Time
         {
@@ -67,7 +67,7 @@ namespace Game.Model.Weapons
             if (m_Bullet.IsValid)
                 m_Bullet.ValueRO.Def.RemoveComponentData(m_Self, m_Bullet.ValueRO, context);
 
-            var bulletConfig = Repository.FindByID(m_Weapon.ValueRO.BulletID);
+            var bulletConfig = ObjectRepository.FindByID(m_Weapon.ValueRO.BulletID);
 
             if (bulletConfig == null)
                 return false;
