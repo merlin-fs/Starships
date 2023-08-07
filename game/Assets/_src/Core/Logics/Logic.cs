@@ -28,6 +28,11 @@ namespace Game.Model.Logics
             WaitChangeWorld = false;
             Action = LogicHandle.Null;
         }
+
+        private readonly bool IsCurrentAction(LogicHandle action)
+        {
+            return Active && Action == action;
+        }
         #region IDefineableCallback
         void IDefineableCallback.AddComponentData(Entity entity, IDefineableContext context)
         {

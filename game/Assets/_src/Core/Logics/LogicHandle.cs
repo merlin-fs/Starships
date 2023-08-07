@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection.Ext;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -7,22 +10,13 @@ namespace Game.Model.Logics
     public readonly struct LogicHandle : IEquatable<LogicHandle>, IComparable<LogicHandle>, IBufferElementData
     {
         private readonly int m_ID;
-
         private readonly FixedString64Bytes m_Name;
 
         public static LogicHandle Null { get; } = new LogicHandle(0, "null");
 
         public static LogicHandle FromEnum(Enum value)
         {
-            return new LogicHandle(
-                new Unity.Mathematics.int2(value.GetType().FullName.GetHashCode(), value.GetHashCode()).GetHashCode(),
-                $"{value} ({value.GetType().DeclaringType?.Name})");
-        }
-
-        public static LogicHandle FromEnumTest(Enum value)
-        {
-            return new LogicHandle(
-                new Unity.Mathematics.int2(value.GetType().FullName.GetHashCode(), value.GetHashCode()).GetHashCode(), null);
+            return m_Handles[value];
         }
 
         public static LogicHandle FromType(Type value)
@@ -72,5 +66,33 @@ namespace Game.Model.Logics
         {
             return m_ID - other.m_ID;
         }
+        
+        private static Dictionary<Enum, LogicHandle> m_Handles = new Dictionary<Enum, LogicHandle>();
+
+        static LogicHandle InternalFromEnum(Enum value)
+        {
+            return new LogicHandle(
+                new Unity.Mathematics.int2(value.GetType().FullName.GetHashCode(), value.GetHashCode()).GetHashCode(),
+                $"{value} ({value.GetType().DeclaringType?.Name})");
+        }
+
+        static LogicHandle()
+        {
+            var names = new HashSet<string> {"State", "Action", "Stat"};
+            
+            var types = typeof(Logic.IStateData).GetDerivedTypes(true)
+                .SelectMany(t => t.GetNestedTypes())
+                .Where(t => t.IsEnum && names.Contains(t.Name));
+
+            foreach (var iter in types)
+            {
+                foreach (var e in iter.GetEnumValues())
+                {
+                    var key = (Enum)e;
+                    var value = InternalFromEnum(key);
+                    m_Handles.Add(key, value);
+                }
+            }
+        } 
     }
 }

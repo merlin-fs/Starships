@@ -44,13 +44,12 @@ namespace Game.Model.Logics
 
             public bool IsCurrentAction(Enum action)
             {
-                if (!IsActive) return false;
-                return m_Logic.ValueRO.Action == LogicHandle.FromEnumTest(action);
+                return m_Logic.ValueRO.IsCurrentAction(LogicHandle.FromEnum(action));
             }
 
             public bool IsCurrentAction(LogicHandle action)
             {
-                return m_Logic.ValueRO.Action == action;
+                return m_Logic.ValueRO.IsCurrentAction(action);
             }
 
             public void SetWorldState(Enum worldState, bool value)
@@ -72,7 +71,7 @@ namespace Game.Model.Logics
 
             public bool HasWorldState(Enum worldState, bool value)
             {
-                var index = m_Logic.ValueRO.Def.StateMapping[LogicHandle.FromEnumTest(worldState)].Index;
+                var index = m_Logic.ValueRO.Def.StateMapping[LogicHandle.FromEnum(worldState)].Index;
                 return m_WorldStates[index].Value == value;
             }
 

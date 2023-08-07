@@ -3,10 +3,9 @@ using Unity.Entities;
 
 namespace Game.Model.Stats
 {
-    using static Game.Model.Logics.Logic;
+    using static Logics.Logic;
 
     public struct DeadTag: IComponentData { }
-    //public struct WaitDeadTag : IComponentData { }
 
     public struct Global : IStateData
     {

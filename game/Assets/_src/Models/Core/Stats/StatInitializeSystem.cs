@@ -32,7 +32,6 @@ namespace Game.Model.Stats
                 Delta = SystemAPI.Time.DeltaTime,
             };
             state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
-            //state.Dependency.Complete();
         }
 
         partial struct SystemJob : IJobEntity

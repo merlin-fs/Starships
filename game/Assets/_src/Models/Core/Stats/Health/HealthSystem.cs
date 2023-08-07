@@ -16,7 +16,7 @@ namespace Game.Model.Stats
                 .WithAll<Stat>()
                 .WithAspect<Logic.Aspect>()
                 .Build();
-            //m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Stat>());
+            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Stat>());
             state.RequireForUpdate(m_Query);
         }
 
@@ -26,24 +26,24 @@ namespace Game.Model.Stats
         {
             //var system = state.World.GetOrCreateSystemManaged<GameLogicEndCommandBufferSystem>();
             //var ecb = system.CreateCommandBuffer();
-            var job = new SystemJob()
+            state.Dependency = new SystemJob()
             {
-            };
-            state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
+            }.ScheduleParallel(m_Query, state.Dependency);
+            
             state.Dependency.Complete();
         }
 
         partial struct SystemJob : IJobEntity
         {
-            public void Execute(in DynamicBuffer<Stat> stats, Logic.Aspect logic)
+            void Execute(in DynamicBuffer<Stat> stats, Logic.Aspect logic)
             {
                 if (logic.IsCurrentAction(Global.Action.Destroy))
                     return;
-                if (stats.TryGetStat(Global.Stat.Health, out Stat health) && health.Value <= 0)
-                {
-                    UnityEngine.Debug.Log($"{logic.Self}, {logic.SelfName} [Health system] set Destroy");
-                    logic.SetEvent(Global.Action.Destroy);
-                }
+
+                if (!stats.TryGetStat(Global.Stat.Health, out Stat health) || !(health.Value <= 0)) return;
+                
+                UnityEngine.Debug.Log($"{logic.Self}, {logic.SelfName} [Health system] set Destroy");
+                logic.SetEvent(Global.Action.Destroy);
             }
         }
     }
