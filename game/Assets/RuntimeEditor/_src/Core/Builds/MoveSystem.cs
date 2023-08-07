@@ -10,14 +10,6 @@ using Game.Model.Worlds;
 
 namespace Buildings.Environments
 {
-    
-    [Serializable, Saved]
-    public struct Move : IComponentData
-    {
-        public int2 Position;
-        public float2 Rorate;
-    }
-
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
     [UpdateAfter(typeof(PlaceSystem))]
     partial struct MoveSystem : ISystem
@@ -32,12 +24,11 @@ namespace Buildings.Environments
                 .Build();
 
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Building>()
-                .WithAllRW<Move>()
-                .WithAllRW<LocalTransform>()
+                .WithAll<Map.Placement>()
+                .WithAllRW<Map.Transform, LocalTransform>()
                 .Build();
 
-            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Move>());
+            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Map.Transform>());
             state.RequireForUpdate(m_Query);
         }
 
@@ -60,17 +51,17 @@ namespace Buildings.Environments
             [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
             public Map.Aspect Aspect;
 
-            private void Execute(in Entity entity, in Building building, in Move move, ref LocalTransform transform)
+            private void Execute(in Entity entity, in Map.Placement placement, in Map.Transform move, ref LocalTransform transform)
             {
                 var newPos = Aspect.Value.MapToWord(move.Position);
-                var pivot = building.Def.Pivot;
+                var pivot = placement.Value.Pivot;
 
                 transform.Rotation = quaternion.identity;
                 transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(move.Rorate.y)));
                 transform.Rotation = math.mul(transform.Rotation, quaternion.RotateY(math.radians(move.Rorate.x)));
                 transform.Position = newPos + math.mul(transform.Rotation, pivot);
 
-                Aspect.SetObject(building.Def.Layer, move.Position, entity);
+                Aspect.SetObject(placement.Value.Layer, move.Position, entity);
             }
         }
     }

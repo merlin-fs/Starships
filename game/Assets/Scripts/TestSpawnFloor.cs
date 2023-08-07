@@ -1,4 +1,7 @@
 using System;
+using System.Linq;
+using System.Threading.Tasks;
+
 using UnityEngine.UI;
 using Unity.Entities;
 using UnityEngine;
@@ -22,9 +25,12 @@ public class TestSpawnFloor : MonoBehaviour
     [SerializeField] Button m_BtnLoad;
     
     private EntityManager m_EntityManager;
-    BuildingContext.Var<IApiEditor> m_ApiEditor;
+    
+    DIContext.Var<IApiEditor> m_ApiEditor;
     DIContext.Var<ObjectRepository> m_Repository;
-
+    DIContext.Var<ReferenceSubSceneManager> m_ReferenceSubSceneManager;
+    
+    
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
     {
@@ -64,7 +70,8 @@ public class TestSpawnFloor : MonoBehaviour
 
     private async void AddNewFloor()
     {
-        var system = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabEnvironmentSystem>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabEnvironmentSystem>());
+        var system = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabInfo.System>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabInfo.System>());
+        //var system = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabEnvironmentSystem>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabEnvironmentSystem>());
         await system.IsDone();
         var config = m_Repository.Value.FindByID("Deck_Wall_snaps002");
         m_ApiEditor.Value.AddEnvironment(config);
@@ -81,10 +88,16 @@ public class TestSpawnFloor : MonoBehaviour
 
     private async void StartBatle()
     {
+        var list = await Task.WhenAll(RepositoryLoadSystem.LoadObjects(), RepositoryLoadSystem.LoadAnimations());
+        await m_ReferenceSubSceneManager.Value.LoadAsync();
+        var ids = list.SelectMany(iter => iter).Select(iter => iter.ID);
+        m_ReferenceSubSceneManager.Value.LoadSubScenes(m_EntityManager.WorldUnmanaged, ids);
+        
         await RepositoryLoadSystem.LoadObjects();
         await RepositoryLoadSystem.LoadAnimations();
+        
     
-        var prefabSystem = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabEnvironmentSystem>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabEnvironmentSystem>());
+        var prefabSystem = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabInfo.System>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabInfo.System>());
         await prefabSystem.IsDone();
 
         var system = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>();
@@ -101,6 +114,7 @@ public class TestSpawnFloor : MonoBehaviour
         Map.Layers.AddLayer<Map.Layers.Door>(entity, context);
         Map.Layers.AddLayer<Map.Layers.Floor>(entity, context);
         Map.Layers.AddLayer<Map.Layers.Structure>(entity, context);
+        Map.Layers.AddLayer<Map.Layers.UserObject, Map.Layers.UserObject.Validator>(entity, context);
 
         var map = m_EntityManager.GetAspect<Map.Aspect>(entity);
         map.Init(ref system.CheckedStateRef, map);

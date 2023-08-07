@@ -28,6 +28,7 @@ namespace Buildings
             Bind<ObjectRepository>(new ObjectRepository());
             Bind<AnimationRepository>(new AnimationRepository());
 
+            Bind<ReferenceSubSceneManager>(new ReferenceSubSceneManager());
         }
     }
 }

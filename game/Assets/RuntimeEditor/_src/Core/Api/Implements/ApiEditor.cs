@@ -6,7 +6,9 @@ using Common.Defs;
 using Game;
 using Game.Core;
 using Game.Core.Events;
+using Game.Core.Spawns;
 using Game.Model;
+using Game.Model.Worlds;
 
 namespace Buildings
 {
@@ -50,16 +52,16 @@ namespace Buildings
         {
             var ecb = GetBuffer();
             var entity = ecb.CreateEntity();
-            ecb.AddBuffer<SpawnComponent>(entity);
+            ecb.AddBuffer<Spawn.Component>(entity);
 
-            ecb.AppendToBuffer<SpawnComponent>(entity, ComponentType.ReadOnly<SelectBuildingTag>());
-            ecb.AppendToBuffer<SpawnComponent>(entity, ComponentType.ReadOnly<SpawnEventTag>());
-            ecb.AppendToBuffer<SpawnComponent>(entity, ComponentType.ReadOnly<SavedTag>());
+            ecb.AppendToBuffer<Spawn.Component>(entity, ComponentType.ReadOnly<SelectBuildingTag>());
+            ecb.AppendToBuffer<Spawn.Component>(entity, ComponentType.ReadOnly<Spawn.EventTag>());
+            ecb.AppendToBuffer<Spawn.Component>(entity, ComponentType.ReadOnly<SavedTag>());
+            ecb.AppendToBuffer<Spawn.Component>(entity, ComponentType.ReadOnly<Map.Transform>());
 
-            var data = World.DefaultGameObjectInjectionWorld.EntityManager.GetComponentData<Buildings.Environments.Building>(
-                config.Prefab);
-            CurrentLayer = data.Def.Layer; 
-            ecb.AddComponent(entity, new NewSpawnMap
+            //var data = World.DefaultGameObjectInjectionWorld.EntityManager.GetComponentData<Buildings.Environments.Building>(config.Prefab);
+            //CurrentLayer = data.Def.Layer; 
+            ecb.AddComponent(entity, new Spawn
             {
                 Prefab = config.Prefab,
             });

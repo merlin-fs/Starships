@@ -6,6 +6,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using Common.Defs;
+
+using Game.Core.Prefabs;
+using Game.Core.Spawns;
 using Game.Model;
 using Game.Model.Stats;
 using Unity.Collections;
@@ -107,7 +110,7 @@ namespace Game.Core.Saves
             private Dictionary<Type, Contract> m_Converters = new Dictionary<Type, Contract>() 
             {
                 {typeof(Entity), new Contract{Converter = new EntityConverter(), IsRef = true}},
-                {typeof(PrefabRef), new Contract{Converter = new PrefabConverter(), IsRef = false}},
+                {typeof(PrefabInfo), new Contract{Converter = new PrefabConverter(), IsRef = false}},
                 {typeof(DynamicBuffer<>), new Contract{Converter = new DynamicBufferConverter(), IsRef = false}},
                 {typeof(Stat), new Contract{Converter = new StatConverter(), IsRef = false}},
                 {typeof(ModifierConverter), new Contract{Converter = new ModifierConverter(), IsRef = false}},
@@ -243,8 +246,8 @@ namespace Game.Core.Saves
             var ecb = manager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
                 .CreateCommandBuffer()
                 .AsParallelWriter();
-            var archetype = manager.CreateArchetype(ComponentType.ReadWrite<LoadSpawnWorld>(),
-                ComponentType.ReadWrite<SpawnComponent>());
+            var archetype = manager.CreateArchetype(ComponentType.ReadWrite<Spawn.Load>(),
+                ComponentType.ReadWrite<Spawn.Component>());
 
             using var entities = manager.CreateEntity(archetype, data.Count, Allocator.Temp);
             for (int i = 0; i < data.Count; i++)
@@ -252,11 +255,11 @@ namespace Game.Core.Saves
             {
                 var entity = entities[i];
                 var link = new RefLink<JToken>(GCHandle.Alloc(data[i], GCHandleType.Pinned));
-                ecb.AppendToBuffer<SpawnComponent>(i, entity, ComponentType.ReadOnly<SavedTag>());
-                ecb.SetComponent(i, entity, new LoadSpawnWorld()
+                ecb.AppendToBuffer<Spawn.Component>(i, entity, ComponentType.ReadOnly<SavedTag>());
+                ecb.SetComponent(i, entity, new Spawn.Load
                 {
                     Data = link,
-                    id = data[i].Value<int>("$id")
+                    ID = data[i].Value<int>("$id")
                 });
             }
 

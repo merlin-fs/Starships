@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 23328578915957394}
   - component: {fileID: -2092609488156457163}
   - component: {fileID: -6109597471345441423}
+  - component: {fileID: -7569040013066194260}
   m_Layer: 0
   m_Name: Deck_Door_02_snaps002
   m_TagString: Untagged
@@ -118,3 +119,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f0f6d86a2336714697ece77025afd73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &-7569040013066194260
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1461504648163160}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5d1c0ce0a8d8b5d4d957b010f44b43ce, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

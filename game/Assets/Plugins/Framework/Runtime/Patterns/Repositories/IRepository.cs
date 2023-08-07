@@ -20,16 +20,13 @@ namespace Common.Repositories
     public interface IRepository<TID, TEntity, TAttr>: IReadonlyRepository<TID, TEntity, TAttr>
         where TAttr : IEntityAttributes<TEntity>
     {
-        void Insert(params TAttr[] entities);
-        void Insert(IEnumerable<TAttr> entities);
+        void Insert(IEnumerable<TAttr> entities, Action<TEntity> callback = null);
 
-        void Update(params TAttr[] entities);
         void Update(IEnumerable<TAttr> entities);
 
-        void Remove(params TAttr[] entities);
-        void Remove(IEnumerable<TAttr> entities);
+        void Remove(IEnumerable<TAttr> entities, Action<TEntity> callback = null);
 
-        TEntity[] Remove(params TID[] ids);
+        IEnumerable<TEntity> Remove(IEnumerable<TID> ids, Action<TEntity> callback = null);
     }
 }
 

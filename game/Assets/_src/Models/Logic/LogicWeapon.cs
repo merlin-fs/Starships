@@ -12,7 +12,7 @@ namespace Game.Model.Logics
         {
             logic.SetInitializeState(Weapon.State.NoAmmo, true);
             logic.SetInitializeState(Weapon.State.HasAmo, true);
-            logic.SetInitializeState(Weapon.State.Active, false);
+            logic.SetInitializeState(Weapon.State.Active, true);
 
             logic.AddAction(Target.Action.Find)
                 .AddPreconditions(Weapon.State.Active, true)

@@ -6,7 +6,7 @@ using Unity.Entities;
 
 namespace Game.Core.Saves.Converters
 {
-    public class PrefabConverter : DefaultConverter<PrefabRef>
+    public class PrefabConverter : DefaultConverter<PrefabInfo>
     {
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
@@ -15,10 +15,8 @@ namespace Game.Core.Saves.Converters
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            EntityManager manager = (EntityManager)serializer.Context.Context;
-            var data = manager.GetComponentData<BakedPrefab>(((PrefabRef)value).Prefab);
-            //writer.WritePropertyName(nameof(data.ConfigID));
-            serializer.Serialize(writer, data.ConfigID.ToString());
+            var info = (PrefabInfo)value;
+            serializer.Serialize(writer, info.ConfigID.ToString());
         }
     }
 }

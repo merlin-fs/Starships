@@ -75,7 +75,7 @@ namespace Game.UI.Elements
         protected override async void OnInitialize(VisualElement root)
         {
             var manager = World.DefaultGameObjectInjectionWorld.EntityManager.WorldUnmanaged;
-            var system = manager.GetUnsafeSystemRef<PrefabEnvironmentSystem>(manager.GetExistingUnmanagedSystem<PrefabEnvironmentSystem>());
+            var system = manager.GetUnsafeSystemRef<PrefabInfo.System>(manager.GetExistingUnmanagedSystem<PrefabInfo.System>());
             await system.IsDone();
 
             base.OnInitialize(root);

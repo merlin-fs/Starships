@@ -7,8 +7,6 @@ using Unity.Collections;
 using Unity.Transforms;
 
 using Common.Core;
-using Common.Defs;
-
 using Game;
 using Game.Model.Worlds;
 
@@ -19,41 +17,9 @@ namespace Buildings.Environments
 {
     public struct SelectBuildingTag : IComponentData
     {
-        public Move Move;
-    }
-    public class BuildingConfig : Common.Defs.Config
-    {
-        public Building.BuildingDef Value { get; } 
-        public BuildingConfig(ObjectID id, Entity prefab, Building.BuildingDef def) : base(id, prefab)
-        {
-            Value = def;
-        }
+        public Map.Transform Move;
     }
     
-    public struct Building : IComponentData, IDefinable, IDefineableCallback
-    {
-        private RefLink<BuildingDef> m_Config;
-        public BuildingDef Def => m_Config.Value;
-        public Building(RefLink<BuildingDef> config)
-        {
-            m_Config = config;
-        }
-
-        [Serializable]
-        public class BuildingDef : IDef<Building>
-        {
-            public int2 Size;
-            public float3 Pivot;
-            public TypeIndex Layer;
-        }
-
-        public void AddComponentData(Entity entity, IDefineableContext context)
-        {
-            context.AddComponentData(entity, new Move());
-        }
-        public void RemoveComponentData(Entity entity, IDefineableContext context){}
-    }
-
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
     partial struct PlaceSystem : ISystem
     {
@@ -69,10 +35,8 @@ namespace Buildings.Environments
                 .Build();
 
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Move>()
-                .WithAll<Building>()
-                .WithAllRW<SelectBuildingTag>()
-                .WithAllRW<LocalTransform>()
+                .WithAll<Map.Transform, Map.Placement>()
+                .WithAllRW<LocalTransform, SelectBuildingTag>()
                 .Build();
 
             m_Ground = new Plane(Vector3.up, Vector3.zero);
@@ -121,12 +85,12 @@ namespace Buildings.Environments
             public bool IsRotateX;
             public bool IsRotateY;
 
-            public void Execute([EntityIndexInQuery] int idx, in Entity entity, in Move move,
-                ref SelectBuildingTag selected, in Building building, ref LocalTransform transform)
+            public void Execute([EntityIndexInQuery] int idx, in Entity entity, in Map.Transform move,
+                ref SelectBuildingTag selected, in Map.Placement placement, ref LocalTransform transform)
             {
                 if (IsCancel)
                 {
-                    Aspect.SetObject(building.Def.Layer, move.Position, Entity.Null);
+                    Aspect.SetObject(placement.Value.Layer, move.Position, Entity.Null);
                     Writer.DestroyEntity(idx, entity);
                     m_ApiHandler.Value.OnDestroy(entity);
                 }
@@ -155,26 +119,26 @@ namespace Buildings.Environments
                     newMove.Position = pos;
                     
                     var newPos = Aspect.Value.MapToWord(pos);
-                    var pivot = building.Def.Pivot;
+                    var pivot = placement.Value.Pivot;
 
                     transform.Rotation = quaternion.identity;
                     transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(newMove.Rorate.y)));
                     transform.Rotation = math.mul(transform.Rotation, quaternion.RotateY(math.radians(newMove.Rorate.x)));
                     transform.Position = newPos + math.mul(transform.Rotation, pivot);
 
-                    passable &= !IsPlaceTaken(Aspect, building.Def.Layer, pos, building.Def.Size, entity);
+                    passable &= !IsPlaceTaken(Aspect, placement.Value.Layer, pos, placement.Value.Size, entity);
                     selected.Move = newMove; 
 
                     if (IsPlace && !passable)
                     {
-                        Debug.LogError($"Position {pos} in {building.Def.Layer} layer is already occupied");
+                        Debug.LogError($"Position {pos} in {placement.Value.Layer} layer is already occupied");
                     }
-                    if (passable && IsPlace)
-                    {
-                        Writer.SetComponent(idx, entity, newMove);
-                        Writer.RemoveComponent<SelectBuildingTag>(idx, entity);
-                        m_ApiHandler.Value.OnPlace(entity);
-                    }
+
+                    if (!passable || !IsPlace) return;
+                    
+                    Writer.SetComponent(idx, entity, newMove);
+                    Writer.RemoveComponent<SelectBuildingTag>(idx, entity);
+                    m_ApiHandler.Value.OnPlace(entity);
                 }
             }
 

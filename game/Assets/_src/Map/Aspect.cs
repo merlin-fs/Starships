@@ -26,16 +26,34 @@ namespace Game.Model.Worlds
                 Layers.Init(ref systemState, aspect);
             }
 
+            public void SetObject<T>(int2 pos, Entity entity)
+                where T: Layers.ILayer
+            {
+                Layers.SetObject(this, TypeManager.GetTypeIndex(typeof(T)), pos, entity);
+            }
+            
             public void SetObject(TypeIndex layerType, int2 pos, Entity entity)
             {
                 Layers.SetObject(this, layerType, pos, entity);
             }
 
+            public bool TryGetObject<T>(int2 pos, out Entity entity)
+                where T: Layers.ILayer
+            {
+                return Layers.TryGetObject(this, TypeManager.GetTypeIndex(typeof(T)), pos, out entity);
+            }
+            
             public bool TryGetObject(TypeIndex layerType, int2 pos, out Entity entity)
             {
                 return Layers.TryGetObject(this, layerType, pos, out entity);
             }
             
+            public Entity GetObject<T>(int2 pos, Entity entity)
+                where T: Layers.ILayer
+            {
+                return Layers.GetObject(this, TypeManager.GetTypeIndex(typeof(T)), pos);
+            }
+
             public Entity GetObject(TypeIndex layerType, int2 pos)
             {
                 return Layers.GetObject(this, layerType, pos);

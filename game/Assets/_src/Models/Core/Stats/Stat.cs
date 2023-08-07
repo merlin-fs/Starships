@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Game.Model.Stats
 {
-    public struct Stat : IBufferElementData
+    public partial struct Stat : IBufferElementData
     {
         #region debug
         private static readonly ConcurrentDictionary<int, Enum> m_DebugNames = new ConcurrentDictionary<int, Enum>();

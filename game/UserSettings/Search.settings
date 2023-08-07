@@ -20,6 +20,15 @@ scopes = {
 	"last_search.4D656764" = ""
 	"OpenInspectorPreview.4D656764" = "0"
 	"currentGroup.4D656764" = "all"
+	"last_search.956173B0" = ""
+	"OpenInspectorPreview.956173B0" = "0"
+	"currentGroup.956173B0" = "all"
+	"last_search.98D18836" = ""
+	"OpenInspectorPreview.98D18836" = "0"
+	"currentGroup.98D18836" = "all"
+	"last_search.7B5C2356" = ""
+	"OpenInspectorPreview.7B5C2356" = "0"
+	"currentGroup.7B5C2356" = "all"
 }
 providers = {
 	adb = {
@@ -131,7 +140,8 @@ searchItemFavorites = [
 savedSearchesSortOrder = 0
 showSavedSearchPanel = true
 hideTabs = false
-expandedQueries = [-1765347274]
+expandedQueries = [
+]
 queryBuilder = true
 ignoredProperties = "id;name;classname;imagecontentshash"
 helperWidgetCurrentArea = "all"

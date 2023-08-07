@@ -1,11 +1,15 @@
 using System;
 using Common.Core;
+
+using Game.Model.Logics;
+
 using Unity.Entities;
 
 namespace Game.Core.Animations
 {
     public partial struct Animation : IComponentData
     {
+        public ObjectID AnimatorID;
         public bool Playing;
         public bool InTransition;
         
@@ -17,6 +21,16 @@ namespace Game.Core.Animations
 
     public partial struct Animation
     {
+        public struct Trigger : IBufferElementData
+        {
+            public LogicHandle Action;
+            public ObjectID ClipID;
+
+            public bool Scale;
+            public bool Position;
+            public bool Rotation;
+            public float ScaleTime;
+        }
         public struct Bone : IComponentData
         {
             public Entity Animator;

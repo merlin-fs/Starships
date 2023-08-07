@@ -30,20 +30,21 @@ namespace Game.Core.Animations
 
             public void Play(ObjectID clipId, bool loop)
             {
+                if (m_CurrentClip.ValueRO.Data.ClipID == clipId && m_Player.ValueRO.Playing) return;
                 m_CurrentClip.ValueRW.Data.ClipID = clipId;
-                //var config = Consts.Repository.FindByID<EntityAnimatorConfig>("AnimatorDoor");
-                //config.GetClip(clipId).
+                var config = Consts.Repository.FindByID<EntityAnimatorConfig>(m_Player.ValueRO.AnimatorID);
+
                 m_CurrentClip.ValueRW.Data.Elapsed = 0;
-                m_CurrentClip.ValueRW.Data.Duration = 1f;//clip.Duration;
+                m_CurrentClip.ValueRW.Data.Duration = config.GetClip(clipId).Length;
                 m_CurrentClip.ValueRW.Data.Speed = 1f;//clip.Speed;
-                m_CurrentClip.ValueRW.Data.Loop = loop;
+                m_CurrentClip.ValueRW.Data.Loop = config.GetClip(clipId).Loop;
                 m_Player.ValueRW.Playing = true;
                 m_Player.ValueRW.InTransition = false;
             }
             
             public bool GetPosition(int boneId, out float3 value)
             {
-                var config = Consts.Repository.FindByID<EntityAnimatorConfig>("AnimatorDoor");
+                var config = Consts.Repository.FindByID<EntityAnimatorConfig>(m_Player.ValueRO.AnimatorID);
                 var clipData = m_CurrentClip.ValueRO.Data;
                 var clip = config.GetClip(clipData.ClipID);
                 return clip.GetPosition(boneId, clipData.Elapsed, out value);
@@ -51,7 +52,7 @@ namespace Game.Core.Animations
 
             public bool GetRotation(int boneId, out quaternion value)
             {
-                var config = Consts.Repository.FindByID<EntityAnimatorConfig>("AnimatorDoor");
+                var config = Consts.Repository.FindByID<EntityAnimatorConfig>(m_Player.ValueRO.AnimatorID);
                 var clipData = m_CurrentClip.ValueRO.Data;
                 var clip = config.GetClip(clipData.ClipID);
                 return clip.GetRotation(boneId, clipData.Elapsed, out value);

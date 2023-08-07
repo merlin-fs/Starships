@@ -77,7 +77,7 @@ namespace Buildings.Environments
 
                 if (Map.TryGetObject(m_ApiEditor.Value.CurrentLayer, pos, out var target))
                 {
-                    Writer.AddComponent(0, target, new SelectBuildingTag {Move = new Move() {Position = pos}});
+                    Writer.AddComponent(0, target, new SelectBuildingTag {Move = new Map.Transform{ Position = pos }});
                 }
             }
         }

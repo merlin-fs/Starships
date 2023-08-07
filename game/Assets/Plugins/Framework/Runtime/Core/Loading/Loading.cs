@@ -58,20 +58,20 @@ namespace Common.Core.Loading
             Task.Run(
                 () =>
                 {
-                    //копия для возможности перезагрузки игры
+                    //ГЄГ®ГЇГЁГї Г¤Г«Гї ГўГ®Г§Г¬Г®Г¦Г­Г®Г±ГІГЁ ГЇГҐГ°ГҐГ§Г ГЈГ°ГіГ§ГЄГЁ ГЁГЈГ°Г»
                     List<CommandItem> commands = new List<CommandItem>(m_Commands);
                     Prepare();
 
                     int count = commands.Count;
 
-                    //пока есть комманды
+                    //ГЇГ®ГЄГ  ГҐГ±ГІГј ГЄГ®Г¬Г¬Г Г­Г¤Г»
                     while (count > 0)
                     {
-                        //получаем комманды, для которых нет зависимостей
+                        //ГЇГ®Г«ГіГ·Г ГҐГ¬ ГЄГ®Г¬Г¬Г Г­Г¤Г», Г¤Г«Гї ГЄГ®ГІГ®Г°Г»Гµ Г­ГҐГІ Г§Г ГўГЁГ±ГЁГ¬Г®Г±ГІГҐГ©
                         ILoadingCommand command = null;
                         while ((command = GetNextCommand()) != null)
                         {
-                            //запускаем выполнение комманды
+                            //Г§Г ГЇГіГ±ГЄГ ГҐГ¬ ГўГ»ГЇГ®Г«Г­ГҐГ­ГЁГҐ ГЄГ®Г¬Г¬Г Г­Г¤Г»
                             context.Post(
                                 (o) =>
                                 {
@@ -79,7 +79,7 @@ namespace Common.Core.Loading
                                     cmd.Exec(this,
                                         (cmd) =>
                                         {
-                                            //удаляем из зависимостей
+                                            //ГіГ¤Г Г«ГїГҐГ¬ ГЁГ§ Г§Г ГўГЁГ±ГЁГ¬Г®Г±ГІГҐГ©
                                             RemoveDependency(cmd);
                                             @event.Set();
                                             count--;
@@ -87,7 +87,7 @@ namespace Common.Core.Loading
                                 }, command);
                         }
                         
-                        //ожидание выполнения комманд
+                        //Г®Г¦ГЁГ¤Г Г­ГЁГҐ ГўГ»ГЇГ®Г«Г­ГҐГ­ГЁГї ГЄГ®Г¬Г¬Г Г­Г¤
                         while (!@event.WaitOne(15) && count > 0)
                         {
                             foreach (var iter in m_Commands)
@@ -102,7 +102,7 @@ namespace Common.Core.Loading
                         }
                     }
 
-                    //финализация прогресса
+                    //ГґГЁГ­Г Г«ГЁГ§Г Г¶ГЁГї ГЇГ°Г®ГЈГ°ГҐГ±Г±Г 
                     context.Post(
                         (state) =>
                         {

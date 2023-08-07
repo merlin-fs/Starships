@@ -49,13 +49,16 @@ namespace Game.Core.Animations
         {
             switch (property)
             {
-                case "m_LocalRotation.x": 
+                case "m_LocalRotation.x":
+                case "localEulerAnglesRaw.x":
                     x = curve;
                     break;
                 case "m_LocalRotation.y": 
+                case "localEulerAnglesRaw.y":
                     y = curve;
                     break;
-                case "m_LocalRotation.z": 
+                case "m_LocalRotation.z":
+                case "localEulerAnglesRaw.z":
                     z = curve;
                     break;
                 case "m_LocalRotation.w": 
@@ -67,9 +70,18 @@ namespace Game.Core.Animations
 
     public class EntityClip
     {
-        private Dictionary<int, AnimationCurvePosition> m_Positions = new Dictionary<int, AnimationCurvePosition>();
-        private Dictionary<int, AnimationCurveRotation> m_Rotations = new Dictionary<int, AnimationCurveRotation>();
+        private readonly Dictionary<int, AnimationCurvePosition> m_Positions = new Dictionary<int, AnimationCurvePosition>();
+        private readonly Dictionary<int, AnimationCurveRotation> m_Rotations = new Dictionary<int, AnimationCurveRotation>();
 
+        public float Length { get; }
+        public bool Loop { get; }
+        
+        public EntityClip(float length, bool loop)
+        {
+            Length = length;
+            Loop = loop;
+        }
+        
         public bool GetPosition(int boneId, float t, out float3 value)
         {
             value = float3.zero;
@@ -84,7 +96,10 @@ namespace Game.Core.Animations
             value = quaternion.identity;
             if (!m_Rotations.TryGetValue(boneId, out AnimationCurveRotation curve) || curve.x == null)
                 return false;
-            value = new quaternion(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.x.Evaluate(t), curve.w.Evaluate(t));
+            
+            value = curve.w != null 
+                ? new quaternion(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.x.Evaluate(t), curve.w.Evaluate(t)) 
+                : quaternion.EulerXYZ(math.radians(curve.x.Evaluate(t)), math.radians(curve.y.Evaluate(t)), math.radians(curve.x.Evaluate(t)));
             return true;
         }
 
@@ -114,21 +129,26 @@ namespace Game.Core.Animations
         public const string ROOT_NAME = "_root_";
         
         [HideInInspector]
+        [SerializeField] private AnimatorClipItem [] m_ClipItems;
+        [HideInInspector]
         [SerializeField] private AnimatorItem [] m_Items;
 #if UNITY_EDITOR         
         [SerializeField] private AnimatorController m_AnimatorController;
+#endif        
 
-        private Dictionary<ObjectID, EntityClip> m_Clips = new Dictionary<ObjectID, EntityClip>();
+        private readonly Dictionary<ObjectID, EntityClip> m_Clips = new Dictionary<ObjectID, EntityClip>();
 
-        public EntityClip GetClip(ObjectID id) => GetClip(id, false); 
-
-        EntityClip GetClip(ObjectID id, bool need)
+        public EntityClip GetClip(ObjectID id)
         {
-            if (m_Clips.TryGetValue(id, out var clip) || !need) return clip;
-            
-            clip = new EntityClip();
+            return m_Clips.TryGetValue(id, out var clip) 
+                ? clip 
+                : null;
+        }
+
+        private void AddClip(ObjectID id, float length, bool loop)
+        {
+            var clip = new EntityClip(length, loop);
             m_Clips.Add(id, clip);
-            return clip;
         }
 
         void IInitiated.Init()
@@ -138,19 +158,33 @@ namespace Game.Core.Animations
         
         void BuildHash()
         {
+            foreach (var iter in m_ClipItems)
+                AddClip(iter.ID, iter.Length, iter.Loop);
+            
             foreach (var iter in m_Items)
             {
-                var clip = GetClip(iter.ID, need: true);
+                var clip = GetClip(iter.ID);
                 clip.AddPosition(iter.HashCode, iter.PropertyName, iter.Curve);
                 clip.AddRotation(iter.HashCode, iter.PropertyName, iter.Curve);
             }
         }
         
+#if UNITY_EDITOR         
         public override void OnBeforeSerialize()
         {
             base.OnBeforeSerialize();
             m_Items = new AnimatorItem[]{};
             if (!m_AnimatorController) return;
+
+            
+            m_ClipItems = m_AnimatorController.animationClips
+                .Select(iter => new AnimatorClipItem 
+                {
+                    Length = iter.length,
+                    Loop = iter.isLooping,
+                    ID = iter.name,
+                })
+                .ToArray();
             
             foreach (var iter in m_AnimatorController.animationClips.Where(clip => clip!= null))
             {
@@ -173,6 +207,14 @@ namespace Game.Core.Animations
             base.OnAfterDeserialize();
         }
 #endif        
+        [Serializable]
+        private struct AnimatorClipItem
+        {
+            public ObjectID ID;
+            public float Length;
+            public bool Loop;
+        }
+
         [Serializable]
         private struct AnimatorItem
         {

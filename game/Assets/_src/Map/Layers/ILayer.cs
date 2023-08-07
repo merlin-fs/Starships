@@ -1,5 +1,6 @@
 using System;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Game.Model.Worlds
 {
@@ -9,7 +10,12 @@ namespace Game.Model.Worlds
         {
             public interface ILayer : IBufferElementData
             {
-                public Entity Entity { get; set; }
+                Entity Entity { get; set; }
+            }
+            
+            public interface ILayerValidator
+            {
+                bool CanPlace(Aspect aspect, int2 pos, Entity entity);
             }
         }
     }

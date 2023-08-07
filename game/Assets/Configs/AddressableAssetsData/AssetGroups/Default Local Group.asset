@@ -41,26 +41,8 @@ MonoBehaviour:
     m_SerializedLabels:
     - defs
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 2c3d48684f280be4a8cde77ecefea1da
-    m_Address: Assets/_configs/Units/Player.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 33afe59c7168f4a4d92d08fc86373d52
-    m_Address: Assets/_configs/Units/Enemy.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4ebc84f02e2b6dc42be590d5613f4838
     m_Address: Assets/_configs/Weapon/Weapon.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: bf9bf38987a411045bec52e03ed7852d
-    m_Address: Assets/_configs/Units/Meteorite.asset
     m_ReadOnly: 0
     m_SerializedLabels:
     - defs
@@ -103,6 +85,18 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5327b6ebd0f62ac42ababf221f8a44f1
     m_Address: Assets/_prefabs/Environment/Structure/Doors/Animation/AnimatorDoor.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - animation
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 61512ae7216d1db42835766df4ef04ba
+    m_Address: Assets/_configs/ReferenceSubScene.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - System
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4c2cc2f3f70596f4faf239e1d98b048d
+    m_Address: Assets/_prefabs/Unit/GatelingGun/Animation/GatelingGun.asset
     m_ReadOnly: 0
     m_SerializedLabels:
     - animation

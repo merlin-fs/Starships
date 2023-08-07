@@ -27,14 +27,14 @@ namespace Game.Views
             public Unity.Entities.Hash128 VfxID;
         }
 
-        public async void Play(Particle particle, LocalToWorld transform)
+        public async void Play(ParticleTrigger particleTrigger, LocalToWorld transform)
         {
-            PooledObject obj = await Get(particle);
-            if (particle.Position)
+            PooledObject obj = await Get(particleTrigger);
+            if (particleTrigger.Position)
                 obj.Paricle.transform.position = transform.Position;
-            if (particle.Scale)
+            if (particleTrigger.Scale)
                 obj.Paricle.transform.localScale = transform.Scale();
-            if (particle.Rotation)
+            if (particleTrigger.Rotation)
                 obj.Paricle.transform.localRotation = transform.Rotation;
             
             obj.Paricle.SetActive(true);
@@ -47,7 +47,7 @@ namespace Game.Views
             foreach (var iter in system.GetComponentsInChildren<UnityEngine.ParticleSystem>(true))
             {
                 var main = iter.main;
-                main.simulationSpeed = particle.ScaleTime;
+                main.simulationSpeed = particleTrigger.ScaleTime;
             }
             system.Play(true);
         }
@@ -64,20 +64,20 @@ namespace Game.Views
                 pool.Release(obj);
         }
 
-        private async Task<PooledObject> Get(Particle particle)
+        private async Task<PooledObject> Get(ParticleTrigger particleTrigger)
         {
-            if (!m_Pool.TryGetValue(particle.VfxID, out ObjectsPoolAsync<PooledObject> pool))
+            if (!m_Pool.TryGetValue(particleTrigger.VfxID, out ObjectsPoolAsync<PooledObject> pool))
             {
                 pool = new ObjectsPoolAsync<PooledObject>(CreatePooledItem, OnTakeFromPool, OnReturnedToPool,
                 OnDestroyPoolObject, true, m_DefaultCapacity, m_MaxPoolSize);
-                m_Pool.Add(particle.VfxID, pool);
+                m_Pool.Add(particleTrigger.VfxID, pool);
             }
-            return await pool.Get(particle);
+            return await pool.Get(particleTrigger);
         }
 
         private async Task<PooledObject> CreatePooledItem(object arg)
         {
-            var particle = (Particle)arg;
+            var particle = (ParticleTrigger)arg;
             var reference = new AssetReferenceT<GameObject>(particle.VfxID.ToString());
             var prefab = !reference.IsValid()
                 ? await reference.LoadAssetAsync().Task

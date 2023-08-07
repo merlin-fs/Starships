@@ -14,11 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 1979706888108350, guid: bf3b9e24f7f131c479855962a72c5ab1,
     type: 3}
-  Parts:
-  - Child: {fileID: 11400000, guid: fc606ceed2aaa994c8093529cdbf7786, type: 2}
-    PrefabObject: {fileID: 1157879558086612, guid: bf3b9e24f7f131c479855962a72c5ab1,
-      type: 3}
-    Enabled: 1
+  Parts: []
   Value:
     Bullet: {fileID: 11400000, guid: c94f740253ba24c4db17d250612946be, type: 2}
     Health: 50000

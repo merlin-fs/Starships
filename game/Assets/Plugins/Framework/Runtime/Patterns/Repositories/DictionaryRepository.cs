@@ -46,6 +46,7 @@ namespace Common.Repositories
         {
             return (T)FindByID(id);
         }
+        
         public TEntity FindByID(TID id)
         {
             return m_Items.TryGetValue(id, out TAttr value) 
@@ -53,46 +54,35 @@ namespace Common.Repositories
                 : default;
         }
 
-        public void Insert(TID id, TAttr entity)
+        public void Insert(TID id, TAttr entity, Action<TEntity> callback = null)
         {
-            m_Items.TryAdd(id, entity);
+            if (m_Items.TryAdd(id, entity))
+                callback?.Invoke(entity.Entity);
         }
 
-        public void Insert(IEnumerable<TAttr> entities)
+        public void Insert(IEnumerable<TAttr> entities, Action<TEntity> callback = null)
         {
             foreach (var entity in entities)
             {
-                m_Items.TryAdd(entity.Entity.ID, entity);
+                if (m_Items.TryAdd(entity.Entity.ID, entity))
+                    callback?.Invoke(entity.Entity);
             }
         }
         
-        public void Insert(params TAttr[] entities)
-        {
-            Insert(entities as IEnumerable<TAttr>);
-        }
-
         public void Update(IEnumerable<TAttr> entities)
         {
             foreach (var entity in entities)
                 m_Items[entity.Entity.ID] = entity;
 
         }
-        public void Update(params TAttr[] entities)
-        {
-            Update(entities as IEnumerable<TAttr>);
-        }
-
-        public void Remove(IEnumerable<TAttr> entities)
+        public void Remove(IEnumerable<TAttr> entities, Action<TEntity> callback = null)
         {
             foreach (var entity in entities)
-                m_Items.TryRemove(entity.Entity.ID, out TAttr _);
-        }
-        public void Remove(params TAttr[] entities)
-        {
-            Remove(entities as IEnumerable<TAttr>);
+                if (m_Items.TryRemove(entity.Entity.ID, out TAttr _))
+                    callback?.Invoke(entity.Entity);
         }
 
-        public TEntity[] Remove(params TID[] ids)
+        public IEnumerable<TEntity> Remove(IEnumerable<TID> ids, Action<TEntity> callback = null)
         {
             List<TEntity> result = new List<TEntity>();
             foreach (var id in ids)
@@ -100,7 +90,8 @@ namespace Common.Repositories
                 if (m_Items.TryGetValue(id, out TAttr found))
                 {
                     result.Add(found.Entity);
-                    m_Items.TryRemove(id, out TAttr _);
+                    if (m_Items.TryRemove(id, out TAttr _))
+                        callback?.Invoke(found.Entity);
                 }
             }
             return result.ToArray();

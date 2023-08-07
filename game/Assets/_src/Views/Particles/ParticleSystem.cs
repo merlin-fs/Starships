@@ -18,7 +18,7 @@ namespace Game.Views
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAspect<Logic.Aspect>()
-                .WithAll<Particle>()
+                .WithAll<ParticleTrigger>()
                 .Build();
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
@@ -41,7 +41,7 @@ namespace Game.Views
             [ReadOnly] 
             public WorldTransform LookupTransforms;
 
-            public void Execute(in Entity entity, Logic.Aspect logic, in DynamicBuffer<Particle> particles)
+            public void Execute(in Entity entity, Logic.Aspect logic, in DynamicBuffer<ParticleTrigger> particles)
             {
                 foreach(var iter in particles)
                 {

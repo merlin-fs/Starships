@@ -12,6 +12,7 @@ using Game.Core.Prefabs;
 using System.Collections;
 
 using Game.Core.Saves;
+using Game.Core.Spawns;
 
 public class TestSpawnMeteorite : MonoBehaviour
 {
@@ -83,8 +84,8 @@ public class TestSpawnMeteorite : MonoBehaviour
 
     private async void StartSpawn()
     {
-        var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
-        await prefab.IsDone();
+        //!!!var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
+        //await prefab.IsDone();
         
         //*
         var enemy  = !Enemy.IsValid()
@@ -101,12 +102,12 @@ public class TestSpawnMeteorite : MonoBehaviour
         //var point = RandomBetweenRadius2D(0, 1f) + new Vector3(0, 8, 0);
         var transform = LocalTransform.FromPosition(point);
         var entity = ecb.CreateEntity();
-        ecb.AddBuffer<SpawnComponent>(entity);
-        ecb.AppendToBuffer<SpawnComponent>(entity, ComponentType.ReadOnly<SavedTag>());
-        ecb.AddComponent(entity, new NewSpawnWorld()
+        ecb.AddBuffer<Spawn.Component>(entity);
+        ecb.AppendToBuffer<Spawn.Component>(entity, ComponentType.ReadOnly<SavedTag>());
+        ecb.AddComponent(entity, new Spawn()
         {
             Prefab = enemy.Prefab,
-            WorldTransform = transform
+            //WorldTransform = transform
         });
         /**/
     }

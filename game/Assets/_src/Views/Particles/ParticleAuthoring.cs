@@ -23,9 +23,9 @@ namespace Game.Views
             public unsafe override void Bake(ParticleAuthoring authoring)
             {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
-                var buffer = AddBuffer<Particle>(entity);
+                var buffer = AddBuffer<ParticleTrigger>(entity);
 
-                buffer.Add(new Particle
+                buffer.Add(new ParticleTrigger
                 {
                     Action = LogicHandle.FromEnum(Weapon.Action.Shoot),
                     VfxID = new Unity.Entities.Hash128(authoring.Vfx.AssetGUID),

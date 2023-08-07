@@ -10,10 +10,17 @@ using Game.Model.Units;
 using Game.Systems;
 using Game.Core.Repositories;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+using Common.Core;
+
 using UnityEngine.AddressableAssets;
 using Unity.Transforms;
 using Game.Core.Prefabs;
 using Game.Core.Saves;
+using Game.Core.Spawns;
 
 using Unity.Mathematics;
 using Game.Views.Stats;
@@ -30,6 +37,8 @@ public class TestSpawn : MonoBehaviour
     public AssetReferenceT<UnitConfig> Enemy;
 
     private EntityManager m_EntityManager;
+    
+    readonly static DIContext.Var<ReferenceSubSceneManager> m_ReferenceSubSceneManager;
 
     private readonly struct SavedContext: ISavedContext
     {
@@ -42,8 +51,11 @@ public class TestSpawn : MonoBehaviour
     
     private async void StartBatle()
     {
-        var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
-        await prefab.IsDone();
+        //m_EntityManager.WorldUnmanaged.ResolveSystemStateRef()
+        //var system = SystemAPI.
+        //var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
+        //var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabInfo.System>();
+        //!!! await prefab.IsDone();
 
         //*
         var manager = new SaveManager((SavedContext)"Test");
@@ -110,9 +122,9 @@ public class TestSpawn : MonoBehaviour
         for (var i = 0; i < count; i++)
         {
             var entity = ecb.CreateEntity();
-            ecb.AddBuffer<SpawnComponent>(entity);
-            ecb.AddComponent(entity, new NewSpawnWorld() { Prefab = config.Prefab });
-            ecb.AppendToBuffer<SpawnComponent>(entity, ComponentType.ReadOnly<SavedTag>());
+            ecb.AddBuffer<Spawn.Component>(entity);
+            ecb.AddComponent(entity, new Spawn() { Prefab = config.Prefab });
+            ecb.AppendToBuffer<Spawn.Component>(entity, ComponentType.ReadOnly<SavedTag>());
         }
     }
 
@@ -127,8 +139,11 @@ public class TestSpawn : MonoBehaviour
         var sceneEntity = SceneSystem.LoadSceneAsync(m_EntityManager.WorldUnmanaged, guid);
         //SceneSystem.LoadPrefabAsync(m_EntityManager.WorldUnmanaged, guid);
         */
-        await RepositoryLoadSystem.LoadObjects();
-        await RepositoryLoadSystem.LoadAnimations();
+        
+        var list = await Task.WhenAll(RepositoryLoadSystem.LoadObjects(), RepositoryLoadSystem.LoadAnimations());
+        await m_ReferenceSubSceneManager.Value.LoadAsync();
+        m_ReferenceSubSceneManager.Value.LoadSubScenes(m_EntityManager.WorldUnmanaged, list.SelectMany(iter => iter).Select(iter => iter.ID));
+        
         StartBatle();
     }
 
