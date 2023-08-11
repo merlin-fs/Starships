@@ -11,6 +11,7 @@ namespace Game.Model
     using Stats;
     using Logics;
 
+    //TODO: нужно переделать на Job`ы (заменить Parallel.For)
     public partial struct Target
     {
         [UpdateInGroup(typeof(GameLogicSystemGroup))]

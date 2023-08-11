@@ -4,6 +4,7 @@ using System.Linq;
 using Common.Core;
 using Common.Defs;
 
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -17,11 +18,11 @@ namespace Game.Core.Animations
 {
     public class AnimationCurvePosition
     {
-        public AnimationCurve x;
-        public AnimationCurve y;
-        public AnimationCurve z;
+        public Animation.AnimationCurveValueType x;
+        public Animation.AnimationCurveValueType y;
+        public Animation.AnimationCurveValueType z;
 
-        public void SetValue(string property, AnimationCurve curve)
+        public void SetValue(string property, Animation.AnimationCurveValueType curve)
         {
             switch (property)
             {
@@ -40,12 +41,12 @@ namespace Game.Core.Animations
 
     public class AnimationCurveRotation
     {
-        public AnimationCurve x;
-        public AnimationCurve y;
-        public AnimationCurve z;
-        public AnimationCurve w;
+        public Animation.AnimationCurveValueType x;
+        public Animation.AnimationCurveValueType y;
+        public Animation.AnimationCurveValueType z;
+        public Animation.AnimationCurveValueType w;
 
-        public void SetValue(string property, AnimationCurve curve)
+        public void SetValue(string property, Animation.AnimationCurveValueType curve)
         {
             switch (property)
             {
@@ -84,29 +85,27 @@ namespace Game.Core.Animations
         
         public void SetPosition(int boneId, float t, ref float3 value)
         {
-            if (!m_Positions.TryGetValue(boneId, out AnimationCurvePosition curve) || curve.x == null)
+            if (!m_Positions.TryGetValue(boneId, out AnimationCurvePosition curve) || !curve.x.IsCreated())
                 return;
             value = new float3(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.z.Evaluate(t));
         }
 
         public void SetRotation(int boneId, float t, ref quaternion value)
         {
-            if (!m_Rotations.TryGetValue(boneId, out AnimationCurveRotation curve) || curve.x == null)
+            if (!m_Rotations.TryGetValue(boneId, out AnimationCurveRotation curve) || !curve.x.IsCreated())
                 return;
 
-            if (curve.w != null)
+            if (curve.w.IsCreated())
             {
-                value = new quaternion(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.x.Evaluate(t),
-                    curve.w.Evaluate(t));
+                value = new quaternion(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.x.Evaluate(t), curve.w.Evaluate(t));
             }
             else{
-                var rotate = new float3(math.radians(curve.x.Evaluate(t)), math.radians(curve.y.Evaluate(t)), math.radians(curve.x.Evaluate(t)));
-                //var rotate = new float3(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.x.Evaluate(t));
+                var rotate = new float3(math.radians(curve.x.Evaluate(t)), math.radians(curve.y.Evaluate(t)), math.radians(curve.z.Evaluate(t)));
                 value = quaternion.Euler(rotate);
             }
         }
 
-        public void AddPosition(int boneId, string property, AnimationCurve curve)
+        public void AddPosition(int boneId, string property, Animation.AnimationCurveValueType curve)
         {
             if (!m_Positions.TryGetValue(boneId, out var value))
             {
@@ -116,7 +115,7 @@ namespace Game.Core.Animations
             value.SetValue(property, curve);
         }
 
-        public void AddRotation(int boneId, string property, AnimationCurve curve)
+        public void AddRotation(int boneId, string property, Animation.AnimationCurveValueType curve)
         {
             if (!m_Rotations.TryGetValue(boneId, out var value))
             {
@@ -167,8 +166,8 @@ namespace Game.Core.Animations
             foreach (var iter in m_Items)
             {
                 var clip = GetClip(iter.ID);
-                clip.AddPosition(iter.HashCode, iter.PropertyName, iter.Curve);
-                clip.AddRotation(iter.HashCode, iter.PropertyName, iter.Curve);
+                clip.AddPosition(iter.HashCode, iter.PropertyName, new Animation.AnimationCurveValueType(iter.Curve, Allocator.Persistent));
+                clip.AddRotation(iter.HashCode, iter.PropertyName, new Animation.AnimationCurveValueType(iter.Curve, Allocator.Persistent));
             }
         }
         
