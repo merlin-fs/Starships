@@ -8,7 +8,7 @@ namespace Game.Model
     {
         public override void Apply(ref StatAspect stat, float value)
         {
-            stat.GetRW(Global.Stat.Health).Damage(value);
+            stat.GetRW(Global.Stats.Health).Damage(value);
         }
     }
 }   

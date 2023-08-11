@@ -42,20 +42,20 @@ namespace Game.Core.Animations
                 m_Player.ValueRW.InTransition = false;
             }
             
-            public bool GetPosition(int boneId, out float3 value)
+            public void SetPosition(int boneId, ref float3 value)
             {
                 var config = Consts.Repository.FindByID<EntityAnimatorConfig>(m_Player.ValueRO.AnimatorID);
                 var clipData = m_CurrentClip.ValueRO.Data;
                 var clip = config.GetClip(clipData.ClipID);
-                return clip.GetPosition(boneId, clipData.Elapsed, out value);
+                clip.SetPosition(boneId, clipData.Elapsed, ref value);
             }
 
-            public bool GetRotation(int boneId, out quaternion value)
+            public void SetRotation(int boneId, ref quaternion value)
             {
                 var config = Consts.Repository.FindByID<EntityAnimatorConfig>(m_Player.ValueRO.AnimatorID);
                 var clipData = m_CurrentClip.ValueRO.Data;
                 var clip = config.GetClip(clipData.ClipID);
-                return clip.GetRotation(boneId, clipData.Elapsed, out value);
+                clip.SetRotation(boneId, clipData.Elapsed, ref value);
             }
         }
     }

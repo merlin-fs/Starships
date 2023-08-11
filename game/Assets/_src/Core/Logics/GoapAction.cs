@@ -1,4 +1,7 @@
 using System;
+
+using Game.Core;
+
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -15,11 +18,11 @@ namespace Game.Model.Logics
             private States m_Effects;
             private unsafe byte* m_Data;
 
-            public LogicHandle Handle { get; }
+            public EnumHandle Handle { get; }
 
             public float Cost { get; private set; }
 
-            public unsafe GoapAction(LogicHandle handle)
+            public unsafe GoapAction(EnumHandle handle)
             {
                 Handle = handle;
                 Cost = 1;
@@ -29,7 +32,7 @@ namespace Game.Model.Logics
             }
 
 
-            public NativeHashMap<LogicHandle, bool>.ReadOnly GetEffects()
+            public NativeHashMap<EnumHandle, bool>.ReadOnly GetEffects()
             {
                 return m_Effects.GetReadOnly();
             }
@@ -100,7 +103,7 @@ namespace Game.Model.Logics
                     m_Data = action.m_Data;
                 }
                 
-                public bool LeadsToGoal(LogicHandle worldState)
+                public bool LeadsToGoal(EnumHandle worldState)
                 {
                     return Action.m_Effects.GetReadOnly().ContainsKey(worldState);
                 }
@@ -138,12 +141,12 @@ namespace Game.Model.Logics
                     m_Data = action.m_Data;
                 }
 
-                public void AddPreconditions(LogicHandle condition, bool value)
+                public void AddPreconditions(EnumHandle condition, bool value)
                 {
                     Action.m_Preconditions.SetState(condition, value);
                 }
 
-                public void AddEffect(LogicHandle effect, bool value)
+                public void AddEffect(EnumHandle effect, bool value)
                 {
                     Action.m_Effects.SetState(effect, value);
                 }

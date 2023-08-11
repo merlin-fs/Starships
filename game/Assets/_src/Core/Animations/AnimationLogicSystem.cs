@@ -38,15 +38,14 @@ namespace Game.Core.Animations
 
             partial struct SystemJob : IJobEntity
             {
-                public void Execute(in Entity entity, Logic.Aspect logic, Aspect animation, in DynamicBuffer<Trigger> triggers)
+                private void Execute(in Entity entity, Logic.Aspect logic, Aspect animation, in DynamicBuffer<Trigger> triggers)
                 {
                     foreach (var iter in triggers)
                     {
-                        if (logic.IsCurrentAction(iter.Action))
-                        {
-                            UnityEngine.Debug.Log($"{entity} [Animation] action {logic.CurrentAction}");
-                            animation.Play(iter.ClipID, true);
-                        }
+                        if (!logic.IsCurrentAction(iter.Action)) continue;
+                        
+                        //UnityEngine.Debug.Log($"{entity} [Animation] action {logic.CurrentAction}");
+                        animation.Play(iter.ClipID, true);
                     }
                 }
             }

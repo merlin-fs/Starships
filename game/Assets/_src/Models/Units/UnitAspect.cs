@@ -18,7 +18,7 @@ namespace Game.Model.Units
         [ReadOnly] readonly DynamicBuffer<Stat> m_Stats;
 
         public Team Team => m_Team.ValueRO;
-        public Stat Stat(Enum stat) => m_Stats.GetRO(stat);
+        public Stat Stat<T>(T stat) where T: struct, IConvertible => m_Stats.GetRO(stat);
 
         #region DesignTime
 #if UNITY_EDITOR

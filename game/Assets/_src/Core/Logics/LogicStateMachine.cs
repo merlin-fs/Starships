@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+
+using Game.Core;
+
 using JetBrains.Annotations;
 using Unity.Assertions;
 using Unity.Collections;
@@ -9,7 +12,6 @@ using Unity.Entities;
 
 namespace Game.Model.Logics
 {
-
     public partial struct Logic
     {
         public partial class LogicDef
@@ -37,7 +39,7 @@ namespace Game.Model.Logics
                 m_Actions.Clear();
                 m_Goal.Clear();
                 m_Effects.Dispose();
-                m_Effects = new Map<GoalHandle, LogicHandle>(10, Allocator.Persistent, true);
+                m_Effects = new Map<GoalHandle, EnumHandle>(10, Allocator.Persistent, true);
                 
                 var types = typeof(IStateData).GetDerivedTypes(true)
                     .SelectMany(t => t.GetNestedTypes())
@@ -47,7 +49,7 @@ namespace Game.Model.Logics
                 {
                     foreach (var e in iter.GetEnumValues())
                     {
-                        var value = LogicHandle.FromEnum((Enum)e);
+                        var value = EnumHandle.Manager.FromEnum(e);
                         m_StateMapping.Add(value, new WorldActionData { Index = m_StateMapping.Count });
                     }
                 }

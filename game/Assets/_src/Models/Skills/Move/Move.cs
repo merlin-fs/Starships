@@ -1,5 +1,6 @@
 using System;
 
+using Game.Core;
 using Game.Core.Saves;
 
 using Unity.Entities;
@@ -23,6 +24,7 @@ namespace Game.Model
         public quaternion Rotation;
         public float Speed;
 
+        [EnumHandle]
         public enum Action
         {
             Init,
@@ -30,6 +32,7 @@ namespace Game.Model
             MoveToPosition,
         }
 
+        [EnumHandle]
         public enum State
         {
             Init,

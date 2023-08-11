@@ -11,7 +11,7 @@ namespace Game.Core.Saves.Converters
         {
             var stat = (Stat)value;
             var obj = new JObject(
-                new JProperty("$id", stat.StatID),
+                new JProperty("$id", stat.ToString()),
                 new JProperty("value", stat.Value)
                 );
             obj.WriteTo(writer);

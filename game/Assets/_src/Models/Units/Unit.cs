@@ -1,6 +1,7 @@
 ﻿using System;
 using Common.Defs;
 
+using Game.Core;
 using Game.Model.Worlds;
 
 using Unity.Entities;
@@ -33,17 +34,21 @@ namespace Game.Model.Units
 
         public void RemoveComponentData(Entity entity, IDefineableContext context) { }
         #endregion
+        
+        [EnumHandle]
         public enum Action
         {
             ActiveWeapons,
         }
 
+        [EnumHandle]
         public enum State
         {
             Stop,
             WeaponsActive,
         }
 
+        [EnumHandle]
         public enum Stats
         {
             Speed,

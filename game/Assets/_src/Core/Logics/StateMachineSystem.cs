@@ -1,4 +1,7 @@
 using System;
+
+using Game.Core;
+
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -63,7 +66,7 @@ namespace Game.Model.Logics
                             }
                             else
                             {
-                                logic.SetAction(LogicHandle.Null);
+                                logic.SetAction(EnumHandle.Null);
                                 logic.SetWaitChangeWorld();
                                 return;
                             }

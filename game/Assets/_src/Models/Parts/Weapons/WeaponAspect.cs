@@ -43,7 +43,7 @@ namespace Game.Model.Weapons
         public uint SoughtTeams => m_Target.ValueRO.SoughtTeams;
 
         public Bullet Bullet => m_Bullet.ValueRO;
-        public Stat Stat(Enum stat) => m_Stats.GetRO(stat);
+        public Stat Stat<T>(T stat) where T: struct, IConvertible => m_Stats.GetRO(stat);
         
         private readonly ObjectRepository ObjectRepository => default(DIContext.Var<ObjectRepository>).Value;
 

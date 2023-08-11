@@ -1,4 +1,7 @@
 ﻿using System;
+
+using Game.Core;
+
 using Unity.Entities;
 
 namespace Game.Model.Stats
@@ -9,17 +12,20 @@ namespace Game.Model.Stats
 
     public struct Global : IStateData
     {
+        [EnumHandle]
         public enum Action
         {
             Destroy,
         }
-
+        
+        [EnumHandle]
         public enum State
         {
             Dead,
         }
 
-        public enum Stat
+        [EnumHandle]
+        public enum Stats
         {
             Health,
         }

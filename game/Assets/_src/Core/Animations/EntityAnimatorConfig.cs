@@ -82,25 +82,28 @@ namespace Game.Core.Animations
             Loop = loop;
         }
         
-        public bool GetPosition(int boneId, float t, out float3 value)
+        public void SetPosition(int boneId, float t, ref float3 value)
         {
-            value = float3.zero;
             if (!m_Positions.TryGetValue(boneId, out AnimationCurvePosition curve) || curve.x == null)
-                return false;
+                return;
             value = new float3(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.z.Evaluate(t));
-            return true;
         }
 
-        public bool GetRotation(int boneId, float t, out quaternion value)
+        public void SetRotation(int boneId, float t, ref quaternion value)
         {
-            value = quaternion.identity;
             if (!m_Rotations.TryGetValue(boneId, out AnimationCurveRotation curve) || curve.x == null)
-                return false;
-            
-            value = curve.w != null 
-                ? new quaternion(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.x.Evaluate(t), curve.w.Evaluate(t)) 
-                : quaternion.EulerXYZ(math.radians(curve.x.Evaluate(t)), math.radians(curve.y.Evaluate(t)), math.radians(curve.x.Evaluate(t)));
-            return true;
+                return;
+
+            if (curve.w != null)
+            {
+                value = new quaternion(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.x.Evaluate(t),
+                    curve.w.Evaluate(t));
+            }
+            else{
+                var rotate = new float3(math.radians(curve.x.Evaluate(t)), math.radians(curve.y.Evaluate(t)), math.radians(curve.x.Evaluate(t)));
+                //var rotate = new float3(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.x.Evaluate(t));
+                value = quaternion.Euler(rotate);
+            }
         }
 
         public void AddPosition(int boneId, string property, AnimationCurve curve)

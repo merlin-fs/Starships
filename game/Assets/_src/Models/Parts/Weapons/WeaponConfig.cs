@@ -32,7 +32,7 @@ namespace Game.Model.Weapons
 
         void IConfigStats.Configurate(DynamicBuffer<Stat> stats)
         {
-            stats.AddStat(Global.Stat.Health, Value.Health);
+            stats.AddStat(Global.Stats.Health, Value.Health);
             stats.AddStat(Weapon.Stats.Rate, Value.Rate);
             stats.AddStat(Weapon.Stats.Damage, Value.DamageValue);
             stats.AddStat(Weapon.Stats.ReloadTime, Value.ReloadTime);

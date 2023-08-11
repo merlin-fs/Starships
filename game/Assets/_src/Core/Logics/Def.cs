@@ -3,6 +3,7 @@ using Common.Defs;
 using System.Collections.Generic;
 using Unity.Collections;
 using System.Linq;
+using Game.Core;
 
 namespace Game.Model.Logics
 {
@@ -11,9 +12,9 @@ namespace Game.Model.Logics
         [Serializable]
         public partial class LogicDef : IDef<Logic>
         {
-            private Dictionary<LogicHandle, ConfigAction> m_Actions = new Dictionary<LogicHandle, ConfigAction>();
-            private Map<GoalHandle, LogicHandle> m_Effects = new Map<GoalHandle, LogicHandle>(10, Allocator.Persistent, true);
-            private Dictionary<LogicHandle, WorldActionData> m_StateMapping = new Dictionary<LogicHandle, WorldActionData>(10);
+            private Dictionary<EnumHandle, ConfigAction> m_Actions = new Dictionary<EnumHandle, ConfigAction>();
+            private Map<GoalHandle, EnumHandle> m_Effects = new Map<GoalHandle, EnumHandle>(10, Allocator.Persistent, true);
+            private Dictionary<EnumHandle, WorldActionData> m_StateMapping = new Dictionary<EnumHandle, WorldActionData>(10);
             private List<Goal> m_Goal = new List<Goal>();
 
             ~LogicDef()
@@ -21,42 +22,45 @@ namespace Game.Model.Logics
                 m_Effects.Dispose();
             }
 
-            public Dictionary<LogicHandle, WorldActionData> StateMapping => m_StateMapping;
+            public Dictionary<EnumHandle, WorldActionData> StateMapping => m_StateMapping;
             public IEnumerable<Goal> Goals => m_Goal.Reverse<Goal>();
-            public ConfigAction AddAction(Enum value)
+            public ConfigAction AddAction<T>(T value)
+                where T: struct, IConvertible
             {
-                var config = new ConfigAction(value, m_Effects);
+                var config = new ConfigAction(EnumHandle.FromEnum(value), m_Effects);
                 m_Actions.Add(config.Action.Handle, config);
                 return config;
             }
 
-            public IEnumerable<LogicHandle> GetActionsFromGoal(GoalHandle goal)
+            public IEnumerable<EnumHandle> GetActionsFromGoal(GoalHandle goal)
             {
-                m_Effects.TryGetValues(goal, out IEnumerable<LogicHandle> values);
+                m_Effects.TryGetValues(goal, out IEnumerable<EnumHandle> values);
                 return values;
             } 
 
-            public void EnqueueGoal(Enum goal, bool value)
+            public void EnqueueGoal<T>(T goal, bool value)
+                where T: struct, IConvertible
             {
                 m_Goal.Add(new Goal 
                 { 
-                    State = LogicHandle.FromEnum(goal), 
+                    State = EnumHandle.FromEnum(goal), 
                     Value = value, 
                     Repeat = false, 
                 });
             }
 
-            public void EnqueueGoalRepeat(Enum goal, bool value)
+            public void EnqueueGoalRepeat<T>(T goal, bool value)
+                where T: struct, IConvertible
             {
                 m_Goal.Add(new Goal
                 {
-                    State = LogicHandle.FromEnum(goal),
+                    State = EnumHandle.FromEnum(goal),
                     Value = value,
                     Repeat = true,
                 });
             }
 
-            public bool TryGetAction(LogicHandle handle, out GoapAction action)
+            public bool TryGetAction(EnumHandle handle, out GoapAction action)
             {
                 if (m_Actions.TryGetValue(handle, out ConfigAction config))
                 {
@@ -67,9 +71,10 @@ namespace Game.Model.Logics
                 return false;
             }
 
-            public void SetInitializeState(Enum state, bool value)
+            public void SetInitializeState<T>(T state, bool value)
+                where T: struct, IConvertible
             {
-                var handle = LogicHandle.FromEnum(state);
+                var handle = EnumHandle.FromEnum(state);
                 var data = m_StateMapping[handle];
                 data.Initialize = value;
                 m_StateMapping[handle] = data;
@@ -92,23 +97,25 @@ namespace Game.Model.Logics
 
                 private GoapAction m_Action;
                 public ref GoapAction Action => ref m_Action;
-                private Map<GoalHandle, LogicHandle> m_Hash;
+                private Map<GoalHandle, EnumHandle> m_Hash;
 
-                public ConfigAction(Enum value, Map<GoalHandle, LogicHandle> hash)
+                public ConfigAction(EnumHandle value, Map<GoalHandle, EnumHandle> hash)
                 {
                     m_Hash = hash;
-                    m_Action = new GoapAction(LogicHandle.FromEnum(value));
+                    m_Action = new GoapAction(value);
                 }
 
-                public ConfigAction AddPreconditions(Enum condition, bool value)
+                public ConfigAction AddPreconditions<T>(T condition, bool value)
+                    where T: struct, IConvertible
                 {
-                    m_Action.GetWriter().AddPreconditions(LogicHandle.FromEnum(condition), value);
+                    m_Action.GetWriter().AddPreconditions(EnumHandle.FromEnum(condition), value);
                     return this;
                 }
 
-                public ConfigAction AddEffect(Enum effect, bool value)
+                public ConfigAction AddEffect<T>(T effect, bool value)
+                    where T: struct, IConvertible
                 {
-                    var handle = LogicHandle.FromEnum(effect);
+                    var handle = EnumHandle.FromEnum(effect);
                     m_Hash.Add(GoalHandle.FromHandle(handle, value), Action.Handle);
                     m_Action.GetWriter().AddEffect(handle, value);
                     return this;

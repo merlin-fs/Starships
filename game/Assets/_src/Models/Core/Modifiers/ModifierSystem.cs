@@ -34,10 +34,11 @@ namespace Game.Model.Stats
             //m_Queue.Dispose();
         }
 
-        public ulong AddModifier<T>(Entity entity, ref T modifier, Enum statType)
+        public ulong AddModifier<T, S>(Entity entity, ref T modifier, S statType)
             where T: struct, IModifier
+            where S: struct, IConvertible
         {
-            var mod = Modifier.Create<T>(ref modifier, statType);
+            var mod = Modifier.Create(ref modifier, statType);
             var item = new Item()
             {
                 UID = 0,

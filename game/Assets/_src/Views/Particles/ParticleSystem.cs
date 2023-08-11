@@ -50,7 +50,7 @@ namespace Game.Views
                         var localEntity = entity;
                         var transform = LookupTransforms.ToWorld(iter.Target);
 
-                        UnityEngine.Debug.Log($"{entity} [Particle] action {logic.CurrentAction}");
+                        UnityEngine.Debug.Log($"{entity} [Particle] action {logic. CurrentAction}");
                         UnityMainThread.Context.Post(obj =>
                         {
                             ParticleManager.Instance.Play(iter, transform);

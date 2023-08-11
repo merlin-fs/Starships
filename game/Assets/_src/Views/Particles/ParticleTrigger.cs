@@ -1,13 +1,14 @@
 using System;
+
+using Game.Core;
+
 using Unity.Entities;
 
 namespace Game.Views
 {
-    using Model.Logics;
-
     public struct ParticleTrigger : IBufferElementData
     {
-        public LogicHandle Action;
+        public EnumHandle Action;
         public Hash128 VfxID;
         public Entity Target;
 

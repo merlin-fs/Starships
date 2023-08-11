@@ -1,48 +1,44 @@
 using System;
-
-using Unity.Collections;
+using Game.Core;
 
 namespace Game.Model.Logics
 {
     public readonly struct GoalHandle : IEquatable<GoalHandle>, IComparable<GoalHandle>
     {
+        private readonly EnumHandle m_Handle;
         private readonly int m_ID;
 
-        private readonly FixedString64Bytes m_Name;
+        public static GoalHandle Null { get; } = new GoalHandle(EnumHandle.Null, 0);
 
-        public static GoalHandle Null { get; } = new GoalHandle(0, "null");
-
-        public static GoalHandle FromHandle(LogicHandle handle, bool value)
+        public static GoalHandle FromHandle(EnumHandle handle, bool value)
         {
-            return new GoalHandle(
-                new Unity.Mathematics.int2(handle.GetHashCode(), value.GetHashCode()).GetHashCode(),
-                $"{handle} = {value})");
+            return new GoalHandle(handle, HashCode.Combine(handle, value));
         }
 
-        private GoalHandle(int id, string name)
+        private GoalHandle(EnumHandle handle, int id)
         {
+            m_Handle = handle;
             m_ID = id;
-            m_Name = name;
         }
 
         public override string ToString()
         {
-            return m_Name.ToString();
+            return m_Handle.ToString();
         }
 
         public bool Equals(GoalHandle other)
         {
-            return string.Equals(m_ID, other.m_ID);
+            return m_ID == other.m_ID;
         }
         
         public override bool Equals(object obj)
         {
-            return obj is not null && obj is GoalHandle lh && Equals(lh);
+            return obj is GoalHandle lh && Equals(lh);
         }
 
         public override int GetHashCode()
         {
-            return m_ID;
+            return m_ID.GetHashCode();
         }
 
         public static bool operator ==(GoalHandle left, GoalHandle right)
@@ -57,7 +53,7 @@ namespace Game.Model.Logics
 
         public int CompareTo(GoalHandle other)
         {
-            return m_ID - other.m_ID;
+            return m_ID.CompareTo(other.m_ID);
         }
     }
 }

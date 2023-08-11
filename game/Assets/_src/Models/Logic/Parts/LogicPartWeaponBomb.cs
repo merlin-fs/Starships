@@ -1,4 +1,7 @@
 ﻿using System;
+
+using Game.Core;
+
 using Unity.Entities;
 using Unity.Collections;
 
@@ -21,8 +24,6 @@ namespace Game.Model.Logics
                 .Build();
             m_LookupLogicAspect = new Logic.Aspect.Lookup(ref state);
         }
-
-        public void OnDestroy(ref SystemState state) { }
 
         public void OnUpdate(ref SystemState state)
         {
@@ -61,7 +62,7 @@ namespace Game.Model.Logics
                 {
                     UnityEngine.Debug.Log($"{logic.Self},{logic.SelfName} [Logic part] Destroy");
                     logic.SetWorldState(Weapon.State.Active, true);
-                    logic.SetAction(LogicHandle.FromEnum(Weapon.Action.Shooting));
+                    logic.SetAction(EnumHandle.FromEnum(Weapon.Action.Shooting));
                 }
             }
         }

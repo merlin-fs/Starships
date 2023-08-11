@@ -23,7 +23,7 @@ namespace Game.Core.Animations
     {
         public struct Trigger : IBufferElementData
         {
-            public LogicHandle Action;
+            public EnumHandle Action;
             public ObjectID ClipID;
 
             public bool Scale;

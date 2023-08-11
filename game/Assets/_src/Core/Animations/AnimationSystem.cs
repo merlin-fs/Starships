@@ -56,10 +56,8 @@ namespace Game.Core.Animations
                     var animator = LookupAspect[bone.Animator];
                     if (!animator.Playing) return;
 
-                    if (animator.GetPosition(bone.BoneID, out float3 position))
-                        localTransform.Position = position;
-                    if (animator.GetRotation(bone.BoneID, out quaternion rotation))
-                        localTransform.Rotation = rotation;
+                    animator.SetPosition(bone.BoneID, ref localTransform.Position);
+                    animator.SetRotation(bone.BoneID, ref localTransform.Rotation);
                 }
             }
 

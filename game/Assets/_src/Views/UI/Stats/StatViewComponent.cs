@@ -1,5 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
+
+using Game.Core;
+
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,11 +17,11 @@ namespace Game.Views.Stats
     public struct StatView: IBufferElementData, IDisposable
     {
         private IntPtr m_ViewHandle;
-        public int StatID;
+        public EnumHandle StatID;
 
         public IStatViewComponent View => (IStatViewComponent)GCHandle.FromIntPtr(m_ViewHandle).Target;
 
-        public StatView(IStatViewComponent value, int statId)
+        public StatView(IStatViewComponent value, EnumHandle statId)
         {
             StatID = statId;
             unsafe 

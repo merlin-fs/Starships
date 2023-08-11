@@ -21,14 +21,15 @@ namespace Game.Model.Logics
 
         public void OnUpdate(ref SystemState state)
         {
-            var ecb = state.World.GetExistingSystemManaged<GameLogicEndCommandBufferSystem>().CreateCommandBuffer();
+            var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+            //var ecb = state.World.GetExistingSystemManaged<GameLogicEndCommandBufferSystem>().CreateCommandBuffer();
             
             state.Dependency = new SystemJob()
             {
-                Writer = ecb.AsParallelWriter(),
+                Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
             }
             .ScheduleParallel(m_Query, state.Dependency);
-            
+            //state.Dependency.Complete();
         }
         #endregion
         public partial struct SystemJob : IJobEntity
@@ -37,12 +38,12 @@ namespace Game.Model.Logics
 
             void Execute([EntityIndexInQuery] int idx, Logic.Aspect logic)
             {
-                if (logic.IsCurrentAction(Global.Action.Destroy) && logic.HasWorldState(Global.State.Dead, true))
-                {
-                    UnityEngine.Debug.Log($"{logic.Self} [Cleanup] set DeadTag");
-                    Writer.AddComponent<DeadTag>(idx, logic.Self);
-                    return;
-                }
+                if (!logic.IsCurrentAction(Global.Action.Destroy) ||
+                    !logic.HasWorldState(Global.State.Dead, true)) return;
+                
+                UnityEngine.Debug.Log($"{logic.Self} [Cleanup] set DeadTag");
+                Writer.AddComponent<DeadTag>(idx, logic.Self);
+                return;
             }
         }
     }

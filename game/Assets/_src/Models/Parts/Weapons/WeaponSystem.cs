@@ -3,6 +3,8 @@ using Unity.Entities;
 using Unity.Collections;
 using Common.Defs;
 
+using Game.Core;
+
 namespace Game.Model.Weapons
 {
     using Stats;
@@ -28,15 +30,16 @@ namespace Game.Model.Weapons
 
             public void OnUpdate(ref SystemState state)
             {
-                var system = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>();
+                var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+                //var system = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>();
                 
                 state.Dependency = new SystemJob()
                 {
-                    Writer = system.CreateCommandBuffer().AsParallelWriter(),
+                    Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
                     Delta = SystemAPI.Time.DeltaTime,
                 }.ScheduleParallel(m_Query, state.Dependency);
                 
-                state.Dependency.Complete();
+                //state.Dependency.Complete();
                 //system.AddJobHandleForProducer(state.Dependency);
             }
 
@@ -67,7 +70,7 @@ namespace Game.Model.Weapons
                         if (weapon.Time >= weapon.Stat(Stats.Rate).Value)
                         {
                             //TODO: Доделать на стороне StateMachine
-                            logic.SetAction(LogicHandle.FromEnum(Action.Shoot));
+                            logic.SetAction(EnumHandle.FromEnum(Action.Shoot));
                             weapon.Time = 0;
                             weapon.Shot();
                             if (weapon.Count == 0)
@@ -82,7 +85,7 @@ namespace Game.Model.Weapons
                     if (logic.IsCurrentAction(Action.Shoot))
                     {
                         //TODO: Доделать на стороне StateMachine
-                        logic.SetAction(LogicHandle.FromEnum(Action.Shooting));
+                        logic.SetAction(EnumHandle.FromEnum(Action.Shooting));
                         return;
                     }
 

@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+
+using Game.Core;
+
 using Unity.Collections;
 
 namespace Game.Model.Logics
@@ -8,20 +11,20 @@ namespace Game.Model.Logics
     {
         public partial struct PlanFinder
         {
-            public static NativeArray<LogicHandle> Execute(int threadIdx, Logic.Aspect logic, Goal goal, 
+            public static NativeArray<EnumHandle> Execute(int threadIdx, Logic.Aspect logic, Goal goal, 
                 AllocatorManager.AllocatorHandle allocator)
             {
                 var path = Search(threadIdx, logic, goal, allocator);
                 return path;
             }
 
-            private unsafe static NativeArray<LogicHandle> Search(int threadIdx, Logic.Aspect logic,
+            private unsafe static NativeArray<EnumHandle> Search(int threadIdx, Logic.Aspect logic,
                 Goal goal, AllocatorManager.AllocatorHandle allocator)
             {
                 InitFinder(threadIdx);
                 try
                 {
-                    var root = new Node(LogicHandle.Null, 0)
+                    var root = new Node(EnumHandle.Null, 0)
                     {
                         HeuristicCost = 0.0f
                     };
@@ -30,7 +33,7 @@ namespace Game.Model.Logics
                         root.Goals.Add(goal.State, goal.Value);
 
                     var costs = GetCosts(threadIdx);
-                    costs.Add(LogicHandle.Null, root);
+                    costs.Add(EnumHandle.Null, root);
                     var queue = GetQueue(threadIdx);
 
                     queue.Push(root);
@@ -41,7 +44,7 @@ namespace Game.Model.Logics
                         IdentifySuccessors(threadIdx, node, logic);
                     }
 
-                    return new NativeList<LogicHandle>(1, Allocator.Persistent).AsArray();
+                    return new NativeList<EnumHandle>(1, Allocator.Persistent).AsArray();
                 }
                 finally
                 {
@@ -89,16 +92,16 @@ namespace Game.Model.Logics
                 }
             }
 
-            private static NativeArray<LogicHandle> ShortestPath(int threadIdx, LogicHandle v, AllocatorManager.AllocatorHandle allocator)
+            private static NativeArray<EnumHandle> ShortestPath(int threadIdx, EnumHandle v, AllocatorManager.AllocatorHandle allocator)
             {
                 var hierarchy = GetHierarchy(threadIdx);
-                var path = new NativeList<LogicHandle>(hierarchy.Count, Allocator.Persistent);
-                while (!v.Equals(LogicHandle.Null))
+                var path = new NativeList<EnumHandle>(hierarchy.Count, Allocator.Persistent);
+                while (!v.Equals(EnumHandle.Null))
                 {
-                    if (!hierarchy.TryGetValue(v, out LogicHandle test))
+                    if (!hierarchy.TryGetValue(v, out EnumHandle test))
                     {
                         path.Dispose();
-                        return new NativeList<LogicHandle>(1, Allocator.Persistent).AsArray();
+                        return new NativeList<EnumHandle>(1, Allocator.Persistent).AsArray();
                     }
                     else
                     {
@@ -120,13 +123,13 @@ namespace Game.Model.Logics
             {
                 public float? HeuristicCost { get; set; }
                 public float Cost { get; }
-                public LogicHandle Handle { get; }
+                public EnumHandle Handle { get; }
 
-                public NativeHashMap<LogicHandle, bool> Goals { get; }
+                public NativeHashMap<EnumHandle, bool> Goals { get; }
 
-                public Node(LogicHandle source, float cost)
+                public Node(EnumHandle source, float cost)
                 {
-                    Goals = new NativeHashMap<LogicHandle, bool>(5, Allocator.TempJob);
+                    Goals = new NativeHashMap<EnumHandle, bool>(5, Allocator.TempJob);
                     Handle = source;
                     HeuristicCost = null;
                     Cost = cost;

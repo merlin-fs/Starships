@@ -1,4 +1,7 @@
 ﻿using System;
+
+using Game.Core;
+
 using Unity.Collections;
 using Unity.Entities;
 
@@ -17,14 +20,14 @@ namespace Game.Model.Logics
 
         public struct States: IDisposable
         {
-            private NativeHashMap<LogicHandle, bool> m_States;
+            private NativeHashMap<EnumHandle, bool> m_States;
 
             public States(AllocatorManager.AllocatorHandle allocator)
             {
-                m_States = new NativeHashMap<LogicHandle, bool>(1, allocator);
+                m_States = new NativeHashMap<EnumHandle, bool>(1, allocator);
             }
 
-            public NativeHashMap<LogicHandle, bool>.ReadOnly GetReadOnly()
+            public NativeHashMap<EnumHandle, bool>.ReadOnly GetReadOnly()
             {
                 return m_States.AsReadOnly();
             }
@@ -52,7 +55,7 @@ namespace Game.Model.Logics
                 return true;
             }
 
-            public bool Has(LogicHandle state, bool value)
+            public bool Has(EnumHandle state, bool value)
             {
                 return m_States.TryGetValue(state, out bool stateValue) && stateValue == value;
             }
@@ -72,18 +75,19 @@ namespace Game.Model.Logics
                 return this;
             }
 
-            public States SetState(Enum state, bool value)
+            public States SetState<T>(T state, bool value)
+                where T: struct, IConvertible
             {
-                return SetState(LogicHandle.FromEnum(state), value);
+                return SetState(EnumHandle.FromEnum(state), value);
             }
 
-            public States SetState(LogicHandle state, bool value)
+            public States SetState(EnumHandle state, bool value)
             {
                 m_States[state] = value;
                 return this;
             }
 
-            public States RemoveState(LogicHandle state)
+            public States RemoveState(EnumHandle state)
             {
                 m_States.Remove(state);
                 return this;

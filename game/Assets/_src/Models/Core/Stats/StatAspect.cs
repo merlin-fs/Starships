@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+
+using Game.Core;
+
 using Unity.Entities;
 using Unity.Properties;
 using Unity.Collections;
@@ -28,22 +31,24 @@ namespace Game.Model.Stats
             }
         }
 
-        public ref Stat GetRW(Enum stat)
+        public ref Stat GetRW<T>(T stat)
+            where T: struct, IConvertible
         {
-            return ref m_Items.GetRW(Stat.GetID(stat));
+            return ref m_Items.GetRW(stat);
         }
 
-        public ref Stat GetRW(int statId)
+        public ref Stat GetRW(EnumHandle statId)
         {
             return ref m_Items.GetRW(statId);
         }
 
-        public Stat GetRO(Enum stat)
+        public Stat GetRO<T>(T stat)
+            where T: struct, IConvertible
         {
-            return m_Items.GetRO(Stat.GetID(stat));
+            return m_Items.GetRO(stat);
         }
 
-        public Stat GetRO(int statId)
+        public Stat GetRO(EnumHandle statId)
         {
             return m_Items.GetRO(statId);
         }

@@ -3,6 +3,7 @@ using Unity.Entities;
 using Common.Defs;
 using Common.Core;
 
+using Game.Core;
 using Game.Core.Saves;
 
 namespace Game.Model.Weapons
@@ -44,6 +45,7 @@ namespace Game.Model.Weapons
         /// <summary>
         /// Состояние оружия
         /// </summary>
+        [EnumHandle]
         public enum Action
         {
             Init,
@@ -53,6 +55,7 @@ namespace Game.Model.Weapons
             Sleep,
         }
 
+        [EnumHandle]
         public enum State
         {
             Active,
@@ -63,6 +66,7 @@ namespace Game.Model.Weapons
         /// <summary>
         /// Список статов оружия
         /// </summary>
+        [EnumHandle]
         public enum Stats
         {
             /// <summary>

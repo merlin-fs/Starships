@@ -1,25 +1,23 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
+using Game.Core;
+using Game.Model.Logics;
+
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Properties;
-using UnityEngine;
 
 namespace Game.Model.Stats
 {
     public partial struct Stat : IBufferElementData
     {
-        #region debug
-        private static readonly ConcurrentDictionary<int, Enum> m_DebugNames = new ConcurrentDictionary<int, Enum>();
-        public static string GetName(int statID) => Enum.GetName(m_DebugNames[statID].GetType(), m_DebugNames[statID]);
-        [CreateProperty]
-        public string StatName => GetName(StatID);
-        #endregion
-        private static readonly ConcurrentDictionary<Enum, int> m_AllStats = new ConcurrentDictionary<Enum, int>();
-        private static Stat m_Null = new Stat() { StatID = 0, };
+        private static Stat m_Null = new Stat() { m_StatID = EnumHandle.Null, };
 
-        [HideInInspector]
-        public int StatID;
+        [CreateProperty] private string ID => m_StatID.ToString();
+        
+        private EnumHandle m_StatID;
         private StatValue m_Value;
 
         [CreateProperty]
@@ -42,22 +40,22 @@ namespace Game.Model.Stats
             m_Value.Current = m_Value.Original;
         }
 
-        public static unsafe void AddStat(DynamicBuffer<Stat> buff, Enum value, StatValue* stat = null)
+        public static unsafe void AddStat<T>(DynamicBuffer<Stat> buff, T value, StatValue* stat = null)
+            where T: struct, IConvertible
         {
             AddStat(buff, value, (stat != null) ? *stat : StatValue.Default);
         }
 
-        public static unsafe void AddStat(DynamicBuffer<Stat> buff, Enum value, float initial)
+        public static void AddStat<T>(DynamicBuffer<Stat> buff, T value, float initial)
+            where T: struct, IConvertible
         {
             AddStat(buff, value, (StatValue)initial);
         }
 
-        public static unsafe void AddStat(DynamicBuffer<Stat> buff, Enum value, StatValue stat)
+        public static void AddStat<T>(DynamicBuffer<Stat> buff, T value, StatValue stat)
+            where T: struct, IConvertible
         {
-            var element = new Stat(value)
-            {
-                m_Value = stat,
-            };
+            var element = Stat.FromEnum(value, stat);
             var id = FindStat(buff, value);
             if (id < 0)
                 buff.Add(element);
@@ -65,28 +63,29 @@ namespace Game.Model.Stats
                 buff.ElementAt(id) = element;
         }
 
-        public static bool Has(DynamicBuffer<Stat> buff, int statId)
+        public static bool Has(DynamicBuffer<Stat> buff, EnumHandle statId)
         {
             return FindStat(buff, statId) >= 0;
         }
 
-        public static ref Stat GetRW(DynamicBuffer<Stat> buff, int statId)
+        public static ref Stat GetRW(DynamicBuffer<Stat> buff, EnumHandle statId)
         {
             var id = FindStat(buff, statId);
             if (id == -1)
-                throw new NotImplementedException($"Stat: {GetName(statId)}");
+                throw new NotImplementedException($"Stat: {statId}");
             return ref buff.ElementAt(id);
         }
 
-        public static Stat GetRO(DynamicBuffer<Stat> buff, int statId)
+        public static Stat GetRO(DynamicBuffer<Stat> buff, EnumHandle statId)
         {
             var id = FindStat(buff, statId);
             if (id == -1)
-                throw new NotImplementedException($"Stat: {GetName(statId)}");
+                throw new NotImplementedException($"Stat: {statId}");
             return buff[id];
         }
 
-        public static bool TryGetStat(DynamicBuffer<Stat> buff, Enum stat, out Stat data)
+        public static bool TryGetStat<T>(DynamicBuffer<Stat> buff, T stat, out Stat data)
+            where T: struct, IConvertible
         {
             data = m_Null;
             var id = FindStat(buff, stat);
@@ -96,7 +95,8 @@ namespace Game.Model.Stats
             return true;
         }
 
-        public static void SetStat(DynamicBuffer<Stat> buff, Enum stat, ref Stat data)
+        public static void SetStat<T>(DynamicBuffer<Stat> buff, T stat, ref Stat data)
+            where T: struct, IConvertible
         {
             var id = FindStat(buff, stat);
             if (id == -1)
@@ -105,92 +105,99 @@ namespace Game.Model.Stats
             buff.ElementAt(id) = data;
         }
 
-        private static int FindStat(DynamicBuffer<Stat> buff, Enum stat)
+        private static int FindStat<T>(DynamicBuffer<Stat> buff, T stat)
+            where T: struct, IConvertible
         {
-            return FindStat(buff, GetID(stat));
+            return FindStat(buff, EnumHandle.FromEnum(stat));
         }
 
-        private static int FindStat(DynamicBuffer<Stat> buff, int statId)
+        private static int FindStat(DynamicBuffer<Stat> buff, EnumHandle statId)
         {
             for (int i = 0; i < buff.Length; i++)
             {
-                if (buff[i].StatID == statId)
+                if (buff[i].m_StatID == statId)
                     return i;
             }
             return -1;
         }
 
-        public static int GetID(Enum value)
+        static Stat FromEnum<T>(T value, StatValue stat)
+            where T: struct, IConvertible
         {
-            if (!m_AllStats.TryGetValue(value, out int id))
+            return new Stat(EnumHandle.FromEnum(value)) 
             {
-                id = new int2(value.GetType().GetHashCode(), value.GetHashCode()).GetHashCode();
-                m_AllStats.TryAdd(value, id);
-            }
-            return id;
+                m_Value = stat
+            };
         }
 
-        private Stat(Enum value)
+        private Stat(EnumHandle value)
         {
-            StatID = GetID(value);
+            m_StatID = value;
             m_Value = StatValue.Default;
-            m_DebugNames.TryAdd(StatID, value);
         }
 
-        public static implicit operator Stat(Enum @enum)
-        {
-            return new Stat(@enum);
-        }
+        public static bool operator ==(Stat left, EnumHandle right) => left.m_StatID == right;
+        public static bool operator !=(Stat left, EnumHandle right) => left.m_StatID != right;
+        public static bool operator ==(Stat left, Stat right) => left.m_StatID == right.m_StatID;
+        public static bool operator !=(Stat left, Stat right) => left.m_StatID != right.m_StatID;
     }
 
     public static class StatExt
     {
-        public static unsafe void AddStat(this DynamicBuffer<Stat> buff, Enum value, StatValue* stat = null)
+        public static unsafe void AddStat<T>(this DynamicBuffer<Stat> buff, T value, StatValue* stat = null)
+            where T: struct, IConvertible
         {
             Stat.AddStat(buff, value, stat);
         }
 
-        public static void AddStat(this DynamicBuffer<Stat> buff, Enum value, float initial)
+        public static void AddStat<T>(this DynamicBuffer<Stat> buff, T value, float initial)
+            where T: struct, IConvertible
         {
             Stat.AddStat(buff, value, initial);
         }
 
-        public static void AddStat(this DynamicBuffer<Stat> buff, Enum value, StatValue stat)
+        public static void AddStat<T>(this DynamicBuffer<Stat> buff, T value, StatValue stat)
+            where T: struct, IConvertible
         {
             Stat.AddStat(buff, value, stat);
         }
 
-        public static void AddStat(this DynamicBuffer<Stat> buff, Enum value, IStatValue stat)
+        public static void AddStat<T>(this DynamicBuffer<Stat> buff, T value, IStatValue stat)
+            where T: struct, IConvertible
         {
             Stat.AddStat(buff, value, stat.Value);
         }
 
-        public static bool Has(this DynamicBuffer<Stat> buff, Enum stat)
+        public static bool Has<T>(this DynamicBuffer<Stat> buff, T stat)
+            where T: struct, IConvertible
         {
-            return Stat.Has(buff, Stat.GetID(stat));
+            return Stat.Has(buff, EnumHandle.FromEnum(stat));
         }
 
-        public static bool TryGetStat(this DynamicBuffer<Stat> buff, Enum stat, out Stat data)
+        public static bool TryGetStat<T>(this DynamicBuffer<Stat> buff, T stat, out Stat data)
+            where T: struct, IConvertible
         {
             return Stat.TryGetStat(buff, stat, out data);
         }
 
-        public static ref Stat GetRW(this DynamicBuffer<Stat> buff, Enum stat)
+        public static ref Stat GetRW<T>(this DynamicBuffer<Stat> buff, T stat)
+            where T: struct, IConvertible
         {
-            return ref Stat.GetRW(buff, Stat.GetID(stat));
+            return ref Stat.GetRW(buff, EnumHandle.FromEnum(stat));
         }
 
-        public static Stat GetRO(this DynamicBuffer<Stat> buff, Enum stat)
+        public static Stat GetRO<T>(this DynamicBuffer<Stat> buff, T stat)
+            where T: struct, IConvertible
         {
-            return Stat.GetRO(buff, Stat.GetID(stat));
+            return Stat.GetRO(buff, EnumHandle.FromEnum(stat));
         }
 
-        public static ref Stat GetRW(this DynamicBuffer<Stat> buff, int statId)
+        public static ref Stat GetRW(this DynamicBuffer<Stat> buff, EnumHandle statId)
         {
             return ref Stat.GetRW(buff, statId);
         }
 
-        public static Stat GetRO(this DynamicBuffer<Stat> buff, int statId)
+        public static Stat GetRO(this DynamicBuffer<Stat> buff, EnumHandle statId)
         {
             return Stat.GetRO(buff, statId);
         }

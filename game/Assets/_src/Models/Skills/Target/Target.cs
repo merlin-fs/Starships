@@ -1,4 +1,7 @@
 using System;
+
+using Game.Core;
+
 using Unity.Entities;
 using Unity.Transforms;
 
@@ -13,11 +16,13 @@ namespace Game.Model
         public float Radius;
         public uint SoughtTeams;
 
+        [EnumHandle]
         public enum Action
         {
             Find,
         }
 
+        [EnumHandle]
         public enum State
         {
             Found,

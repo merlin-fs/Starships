@@ -7,7 +7,6 @@ using Common.Defs;
 namespace Game.Model.Logics
 {
     using Core.Defs;
-    using Weapons;
     using static Game.Model.Logics.Logic;
 
     [CreateAssetMenu(fileName = "Logic", menuName = "Configs/Logic")]
