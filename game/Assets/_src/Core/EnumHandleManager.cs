@@ -97,11 +97,6 @@ namespace Game.Core
                     }
                 }
             }
-
-            static Manager()
-            {
-                Initialize();
-            }
         }
     }
 }

@@ -97,7 +97,7 @@ namespace Game.Model
                     var CounterLock = new object();
                     var selfPosition = transforms[self].Position;
                     var entities = Entities;
-
+/*
                     Parallel.For(0, entities.Length, (i) =>
                     {
                         var target = entities[i];
@@ -123,6 +123,7 @@ namespace Game.Model
                             }
                         }
                     });
+                    */
                     target = find.Entity;
                     transform = find.Transform;
                     return target != Entity.Null;

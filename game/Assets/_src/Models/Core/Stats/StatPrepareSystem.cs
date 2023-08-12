@@ -47,7 +47,7 @@ namespace Game.Model.Stats
             {
             }.ScheduleParallel(m_Query, state.Dependency);
 
-            ecb.RemoveComponent<PrepareStat>(m_Query);
+            ecb.RemoveComponent<PrepareStat>(m_Query, EntityQueryCaptureMode.AtPlayback);
         }
     }
 }

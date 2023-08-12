@@ -17,7 +17,18 @@ using Game.Model.Worlds;
 using Buildings;
 using Game.Core.Saves;
 
-using UnityEngine.Serialization;
+#if UNITY_EDITOR
+using UnityEditor;
+[InitializeOnLoad]
+public class TestSpawnFloorStatic
+{
+    static TestSpawnFloorStatic()
+    {
+        Game.Core.Animations.Animation.Init();
+        Game.Core.EnumHandle.Manager.Initialize();
+    }
+}
+#endif
 
 public class TestSpawnFloor : MonoBehaviour
 {
@@ -34,6 +45,8 @@ public class TestSpawnFloor : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
     {
+        Game.Core.Animations.Animation.Init();
+        Game.Core.EnumHandle.Manager.Initialize();
 #if UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP_RUNTIME_WORLD
         DefaultWorldInitialization.Initialize("Default World", false);
 #endif

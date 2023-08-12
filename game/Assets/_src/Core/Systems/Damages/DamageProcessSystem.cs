@@ -68,7 +68,7 @@ namespace Game.Model.Weapons
                 };
                 state.Dependency = job.ScheduleParallel(m_Query, jobHandle);
                 state.Dependency.Complete();
-                ecb.DestroyEntity(m_Query);
+                ecb.DestroyEntity(m_Query, EntityQueryCaptureMode.AtPlayback);
                 entities.Dispose(state.Dependency);
             }
 

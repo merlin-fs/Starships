@@ -13,7 +13,7 @@ namespace Game.UI
         private UIDocument m_Document;
         private VisualElement m_Cancel;
         private List<VisualElement> m_PopupStack = new List<VisualElement>();
-        private int m_CancelRef = 0;
+        //private int m_CancelRef = 0;
 
 
         public void Show(VisualElement element, ShowStyle style = ShowStyle.Normal)

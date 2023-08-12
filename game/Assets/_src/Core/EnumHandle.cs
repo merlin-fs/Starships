@@ -33,10 +33,5 @@ namespace Game.Core
         public static bool operator !=(EnumHandle left, EnumHandle right) => !left.Equals(right);
 
         public int CompareTo(EnumHandle other) => m_ID - other.m_ID;
-
-        static EnumHandle()
-        {
-            Manager.Initialize();
-        }
     }
 }

@@ -136,6 +136,9 @@ namespace Game.Model.Stats
             m_Value = StatValue.Default;
         }
 
+        public override bool Equals(object obj) => obj is Stat stat && stat.m_StatID == m_StatID;
+        public override int GetHashCode() => m_StatID.GetHashCode();
+        public override string ToString() => m_StatID.ToString();
         public static bool operator ==(Stat left, EnumHandle right) => left.m_StatID == right;
         public static bool operator !=(Stat left, EnumHandle right) => left.m_StatID != right;
         public static bool operator ==(Stat left, Stat right) => left.m_StatID == right.m_StatID;

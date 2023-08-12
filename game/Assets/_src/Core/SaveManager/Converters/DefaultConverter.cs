@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Game.Core.Saves.Converters
 {
+#nullable enable        
     public class DefaultConverter<T> : JsonConverter
     {
         private Type m_Type = typeof(T);
@@ -32,7 +33,7 @@ namespace Game.Core.Saves.Converters
             var properties = GetFields(objectType);
             foreach (var property in properties)
             {
-                JToken value = jsonObject[property.Name];
+                JToken? value = jsonObject[property.Name];
                 if (value != null && value.Type != JTokenType.Null)
                 {
                     property.SetValue(result, value.ToObject(property.FieldType, serializer));
@@ -42,9 +43,9 @@ namespace Game.Core.Saves.Converters
             return result;
         }
         
-        private IEnumerable<FieldInfo> GetFields(IReflect type)
+        private static IEnumerable<FieldInfo> GetFields(IReflect type)
         {
-            return type?.GetFields(BindingFlags.Public | BindingFlags.Instance)
+            return type.GetFields(BindingFlags.Public | BindingFlags.Instance)
                 .Where(f => f.GetCustomAttribute<NonSerializedAttribute>(true) == null);
         }
 
@@ -56,19 +57,18 @@ namespace Game.Core.Saves.Converters
         
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            var type = value.GetType();
+            if (value == null) return;
+            Type type = value.GetType();
 
             writer.WriteStartObject();
             var properties = GetFields(type);
-            if (properties != null)
+            foreach (var property in properties)
             {
-                foreach (var property in properties)
-                {
-                    writer.WritePropertyName(property.Name);
-                    serializer.Serialize(writer, property.GetValue(value));
-                }
+                writer.WritePropertyName(property.Name);
+                serializer.Serialize(writer, property.GetValue(value));
             }
             writer.WriteEndObject();
         }            
     }
+#nullable disable        
 }

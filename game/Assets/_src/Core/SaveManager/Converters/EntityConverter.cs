@@ -12,6 +12,7 @@ using Unity.Transforms;
 
 namespace Game.Core.Saves.Converters
 {
+#nullable enable        
     public class EntityConverter : DefaultConverter<Entity>
     {
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
@@ -22,7 +23,7 @@ namespace Game.Core.Saves.Converters
             //.Where(p => !p.GetCustomAttributes(false).Any(a => _ignoredAttributes.Contains(a.GetType())));
             foreach (var property in properties)
             {
-                JToken value = jsonObject[property.Name];
+                JToken? value = jsonObject[property.Name];
                 if (value != null && value.Type != JTokenType.Null)
                 {
                     property.SetValue(result, value.ToObject(property.FieldType, serializer));
@@ -33,11 +34,13 @@ namespace Game.Core.Saves.Converters
 
         private IEnumerable<FieldInfo> GetFields(IReflect type)
         {
-            return type?.GetFields(BindingFlags.Public | BindingFlags.Instance);
+            return type.GetFields(BindingFlags.Public | BindingFlags.Instance);
         }
         
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
+            if (value == null) return;
+            
             EntityManager manager = (EntityManager)serializer.Context.Context;
             Entity entity = (Entity)value;
             if (entity == Entity.Null)
@@ -94,4 +97,5 @@ namespace Game.Core.Saves.Converters
             }
         }
     }
+#nullable disable        
 }

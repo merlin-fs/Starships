@@ -18,11 +18,11 @@ namespace Game.Core.Animations
 {
     public class AnimationCurvePosition
     {
-        public Animation.AnimationCurveValueType x;
-        public Animation.AnimationCurveValueType y;
-        public Animation.AnimationCurveValueType z;
+        public AnimationCurve x;
+        public AnimationCurve y;
+        public AnimationCurve z;
 
-        public void SetValue(string property, Animation.AnimationCurveValueType curve)
+        public void SetValue(string property, AnimationCurve curve)
         {
             switch (property)
             {
@@ -41,12 +41,12 @@ namespace Game.Core.Animations
 
     public class AnimationCurveRotation
     {
-        public Animation.AnimationCurveValueType x;
-        public Animation.AnimationCurveValueType y;
-        public Animation.AnimationCurveValueType z;
-        public Animation.AnimationCurveValueType w;
+        public AnimationCurve x;
+        public AnimationCurve y;
+        public AnimationCurve z;
+        public AnimationCurve w;
 
-        public void SetValue(string property, Animation.AnimationCurveValueType curve)
+        public void SetValue(string property, AnimationCurve curve)
         {
             switch (property)
             {
@@ -71,9 +71,9 @@ namespace Game.Core.Animations
 
     public class EntityClip
     {
-        private readonly Dictionary<int, AnimationCurvePosition> m_Positions = new Dictionary<int, AnimationCurvePosition>();
-        private readonly Dictionary<int, AnimationCurveRotation> m_Rotations = new Dictionary<int, AnimationCurveRotation>();
-
+        private readonly Dictionary<int, AnimationCurvePosition[]> m_Positions = new Dictionary<int, AnimationCurvePosition[]>();
+        private readonly Dictionary<int, AnimationCurveRotation[]> m_Rotations = new Dictionary<int, AnimationCurveRotation[]>();
+       
         public float Length { get; }
         public bool Loop { get; }
         
@@ -83,19 +83,21 @@ namespace Game.Core.Animations
             Loop = loop;
         }
         
-        public void SetPosition(int boneId, float t, ref float3 value)
+        public void SetPosition(int threadId, int boneId, float t, ref float3 value)
         {
-            if (!m_Positions.TryGetValue(boneId, out AnimationCurvePosition curve) || !curve.x.IsCreated())
+            if (!m_Positions.TryGetValue(boneId, out AnimationCurvePosition[] curves) || curves[threadId].x == null)
                 return;
+            var curve = curves[threadId];
             value = new float3(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.z.Evaluate(t));
         }
 
-        public void SetRotation(int boneId, float t, ref quaternion value)
+        public void SetRotation(int threadId, int boneId, float t, ref quaternion value)
         {
-            if (!m_Rotations.TryGetValue(boneId, out AnimationCurveRotation curve) || !curve.x.IsCreated())
+            if (!m_Rotations.TryGetValue(boneId, out AnimationCurveRotation[] curves) || curves[threadId].x == null)
                 return;
 
-            if (curve.w.IsCreated())
+            var curve = curves[threadId];
+            if (curve.w != null)
             {
                 value = new quaternion(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.x.Evaluate(t), curve.w.Evaluate(t));
             }
@@ -105,24 +107,32 @@ namespace Game.Core.Animations
             }
         }
 
-        public void AddPosition(int boneId, string property, Animation.AnimationCurveValueType curve)
+        public void AddPosition(int boneId, string property, AnimationCurve curve)
         {
             if (!m_Positions.TryGetValue(boneId, out var value))
             {
-                value = new AnimationCurvePosition();
+                value = new AnimationCurvePosition[Animation.ArrayLength];
+                for (int i = 0; i < Animation.ArrayLength; i++)
+                    value[i] = new AnimationCurvePosition();
                 m_Positions.Add(boneId, value);
             }
-            value.SetValue(property, curve);
+
+            for (int i = 0; i < Animation.ArrayLength; i++)
+                value[i].SetValue(property, new AnimationCurve(curve.keys));
+                
         }
 
-        public void AddRotation(int boneId, string property, Animation.AnimationCurveValueType curve)
+        public void AddRotation(int boneId, string property, AnimationCurve curve)
         {
             if (!m_Rotations.TryGetValue(boneId, out var value))
             {
-                value = new AnimationCurveRotation();
+                value = new AnimationCurveRotation[Animation.ArrayLength];
+                for (int i = 0; i < Animation.ArrayLength; i++)
+                    value[i] = new AnimationCurveRotation();
                 m_Rotations.Add(boneId, value);
             }
-            value.SetValue(property, curve);
+            for (int i = 0; i < Animation.ArrayLength; i++)
+                value[i].SetValue(property, new AnimationCurve(curve.keys));
         }
     }
 
@@ -166,8 +176,8 @@ namespace Game.Core.Animations
             foreach (var iter in m_Items)
             {
                 var clip = GetClip(iter.ID);
-                clip.AddPosition(iter.HashCode, iter.PropertyName, new Animation.AnimationCurveValueType(iter.Curve, Allocator.Persistent));
-                clip.AddRotation(iter.HashCode, iter.PropertyName, new Animation.AnimationCurveValueType(iter.Curve, Allocator.Persistent));
+                clip.AddPosition(iter.HashCode, iter.PropertyName, iter.Curve);
+                clip.AddRotation(iter.HashCode, iter.PropertyName, iter.Curve);
             }
         }
         

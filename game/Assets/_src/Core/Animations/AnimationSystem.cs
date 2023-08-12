@@ -5,6 +5,7 @@ using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 
 namespace Game.Core.Animations
@@ -48,6 +49,8 @@ namespace Game.Core.Animations
 
             partial struct SystemJob : IJobEntity
             {
+                [NativeSetThreadIndex]
+                int m_ThreadIndex;
                 [NativeDisableParallelForRestriction]
                 public Aspect.Lookup LookupAspect;
 
@@ -56,16 +59,16 @@ namespace Game.Core.Animations
                     var animator = LookupAspect[bone.Animator];
                     if (!animator.Playing) return;
 
-                    animator.SetPosition(bone.BoneID, ref localTransform.Position);
-                    animator.SetRotation(bone.BoneID, ref localTransform.Rotation);
+                    animator.SetPosition(m_ThreadIndex, bone.BoneID, ref localTransform.Position);
+                    animator.SetRotation(m_ThreadIndex, bone.BoneID, ref localTransform.Rotation);
                 }
             }
 
+            [BurstCompile]
             partial struct UpdateAnimatorJob : IJobEntity
             {
                 public float DT;
 
-                [BurstCompile]
                 private void Execute(ref Animation animation, ref CurrentClip currentClip, ref NextClip nextClip)
                 {
                     if (!animation.Playing) return;

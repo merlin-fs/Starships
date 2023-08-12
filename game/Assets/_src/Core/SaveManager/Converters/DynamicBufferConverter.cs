@@ -10,6 +10,7 @@ using Unity.Entities;
 
 namespace Game.Core.Saves.Converters
 {
+#nullable enable        
     public class DynamicBufferConverter : JsonConverter
     {
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
@@ -25,4 +26,5 @@ namespace Game.Core.Saves.Converters
             serializer.Serialize(writer, value);
         }
     }
+#nullable disable        
 }

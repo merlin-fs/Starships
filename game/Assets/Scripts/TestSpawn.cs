@@ -49,7 +49,7 @@ public class TestSpawn : MonoBehaviour
         public static implicit operator SavedContext(string name) => new SavedContext(name);
     }
     
-    private async void StartBatle()
+    private void StartBatle()
     {
         //m_EntityManager.WorldUnmanaged.ResolveSystemStateRef()
         //var system = SystemAPI.

@@ -73,7 +73,7 @@ namespace Game.Views.Stats
 
             var ecb = state.World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>()
                 .CreateCommandBuffer();
-            ecb.RemoveComponent<StatView>(m_Query);
+            ecb.RemoveComponent<StatView>(m_Query, EntityQueryCaptureMode.AtPlayback);
         }
 
         partial struct RemoveViewJob : IJobEntity

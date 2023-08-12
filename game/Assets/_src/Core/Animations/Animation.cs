@@ -21,6 +21,13 @@ namespace Game.Core.Animations
 
     public partial struct Animation
     {
+        public static int ArrayLength;
+
+        public static void Init()
+        {
+            ArrayLength = Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount + 2;
+        }
+
         public struct Trigger : IBufferElementData
         {
             public EnumHandle Action;
