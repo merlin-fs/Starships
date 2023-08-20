@@ -5,7 +5,7 @@ using Game.Core.Repositories;
 
 namespace Game
 {
-    public class SampleSceneContext : DIContext
+    public class SampleSceneContext : DiContext
     {
         protected override void OnBind()
         {

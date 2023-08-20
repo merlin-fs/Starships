@@ -11,23 +11,21 @@ namespace Buildings
 
     public class EventPlace: EventBase<EventPlace>
     {
-        public eState State { get; private set; }
+        public State Value { get; private set; }
         public Entity Entity { get; private set; }
 
-        public enum eState
+        public enum State
         {
             New,
             Apply,
             Cancel,
         }
 
-        public EventPlace() { }
-
-        public static EventPlace GetPooled(Entity entity, eState state)
+        public static EventPlace GetPooled(Entity entity, State state)
         {
             var e = EventBase<EventPlace>.GetPooled();
             e.Entity = entity;
-            e.State = state;
+            e.Value = state;
             return e;
         }
     }

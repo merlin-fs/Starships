@@ -26,7 +26,7 @@ namespace Buildings.Environments
         EntityQuery m_Query;
         EntityQuery m_QueryMap;
         Plane m_Ground;
-        DIContext.Var<Config> m_Config;
+        DiContext.Var<Config> m_Config;
 
         public void OnCreate(ref SystemState state)
         {
@@ -73,7 +73,7 @@ namespace Buildings.Environments
 
         partial struct SystemJob : IJobEntity
         {
-            private readonly DIContext.Var<IApiEditorHandler> m_ApiHandler;
+            private readonly DiContext.Var<IApiEditorHandler> m_ApiHandler;
             [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
             public Map.Aspect Aspect;
 

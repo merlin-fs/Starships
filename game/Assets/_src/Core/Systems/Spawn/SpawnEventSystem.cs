@@ -25,7 +25,7 @@ namespace Game.Core.Spawns
 
             partial struct SystemJob : IJobEntity
             {
-                private DIContext.Var<IApiEditorHandler> m_ApiHandler;
+                private DiContext.Var<IApiEditorHandler> m_ApiHandler;
 
                 void Execute(in Entity entity)
                 {

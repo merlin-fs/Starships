@@ -14,7 +14,7 @@ namespace Game.Core.Animations
     {
         private static class Consts
         {
-            private static readonly DIContext.Var<AnimationRepository> m_AnimationRepository;
+            private static readonly DiContext.Var<AnimationRepository> m_AnimationRepository;
             public static AnimationRepository Repository => m_AnimationRepository.Value;
         }
 

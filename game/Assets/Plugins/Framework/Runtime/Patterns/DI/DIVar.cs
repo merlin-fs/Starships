@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Common.Core
 {
-    public partial class DIContext
+    public partial class DiContext
     {
         public struct Var<T>
         {
@@ -11,13 +11,13 @@ namespace Common.Core
             
             public T Value => m_Value;
 
-            internal static void Initialize(IDIContext context)
+            internal static void Initialize(IDiContext context)
             {
                 m_Value = context.Get<T>();
             }
         }
 
-        private delegate void InitMethod(IDIContext context);
+        private delegate void InitMethod(IDiContext context);
         
         private void InitVars()
         {

@@ -15,7 +15,7 @@ namespace Common.Core.Loading
         [SerializeField]
         private List<CommandItem> m_Commands = new List<CommandItem>();
 
-        public IDIContext Context { get; private set; }
+        public IDiContext Context { get; private set; }
 
         private MultiProgress m_Progress;
         
@@ -35,7 +35,7 @@ namespace Common.Core.Loading
         }
 
         #region ILoading
-        void IInjectionInitable.Init(IDIContext context)
+        void IInjectionInitable.Init(IDiContext context)
         {
             Context = context;
             SynchronizationContext = SynchronizationContext.Current;

@@ -45,7 +45,7 @@ namespace Game.Model.Weapons
         public Bullet Bullet => m_Bullet.ValueRO;
         public Stat Stat<T>(T stat) where T: struct, IConvertible => m_Stats.GetRO(stat);
         
-        private readonly ObjectRepository ObjectRepository => default(DIContext.Var<ObjectRepository>).Value;
+        private readonly ObjectRepository ObjectRepository => default(DiContext.Var<ObjectRepository>).Value;
 
         public float Time
         {

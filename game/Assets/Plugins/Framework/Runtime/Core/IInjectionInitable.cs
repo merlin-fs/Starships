@@ -4,6 +4,6 @@ namespace Common.Core
 {
     public interface IInjectionInitable
     {
-        void Init(IDIContext context);
+        void Init(IDiContext context);
     }
 }

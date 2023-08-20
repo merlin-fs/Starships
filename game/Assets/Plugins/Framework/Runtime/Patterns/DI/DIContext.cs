@@ -4,27 +4,26 @@ using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
 
+using UnityEngine.SceneManagement;
+
 namespace Common.Core
 {
-    public interface IDIContext
+    public interface IDiContext
     {
         T Get<T>(object id = null);
         bool TryGet<T>(out T value, object id = null);
     }
 
-    public abstract class DIBindContext
+    public abstract partial class DiContext : MonoBehaviour, IDiContext, ISerializationCallbackReceiver
     {
-        public abstract void Bind<T>(T instance, object id = null);
-    }
+        private static DiContext Current { get; set; }
 
-    public abstract partial class DIContext : MonoBehaviour, IDIContext
-    {
-        private static DIContext Current { get; set; }
-
-        private static readonly HashSet<IDIContext> m_Containers = new HashSet<IDIContext>();
+        private static readonly HashSet<IDiContext> m_Containers = new HashSet<IDiContext>();
 
         private readonly DIContextContainer m_Container = new DIContextContainer();
 
+        private static DiContext m_Init;
+        
         #region IDIContext
         public T Get<T>(object id)
         {
@@ -33,7 +32,7 @@ namespace Common.Core
 
             foreach (var iter in m_Containers)
             {
-                if (iter == (IDIContext)this)
+                if (iter == (IDiContext)this)
                     continue;
 
                 if (iter.TryGet<T>(out value, id))
@@ -47,8 +46,23 @@ namespace Common.Core
             return m_Container.TryGet<T>(out value, id);
         }
         #endregion
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Initialize()
+        {
+            m_Init.Build();
+        }
+        void ISerializationCallbackReceiver.OnBeforeSerialize() {}
+        void ISerializationCallbackReceiver.OnAfterDeserialize() => m_Init = this;
+        
         #region MonoBehaviour
         protected virtual void Awake()
+        {
+            if (Current == this) return;
+            Build();
+        }
+
+        private void Build()
         {
             Push(this);
             OnBind();
@@ -59,7 +73,7 @@ namespace Common.Core
                 iter.Init(this);
             }
         }
-
+        
         protected virtual void OnDestroy()
         {
             Pop(this);
@@ -67,16 +81,16 @@ namespace Common.Core
         #endregion
         protected abstract void OnBind();
 
-        private void Push(IDIContext context)
+        private void Push(IDiContext context)
         {
             m_Containers.Add(context);
-            Current = context as DIContext;
+            Current = context as DiContext;
         }
 
-        private void Pop(IDIContext context)
+        private void Pop(IDiContext context)
         { 
             m_Containers.Remove(context);
-            Current = m_Containers.LastOrDefault() as DIContext;
+            Current = m_Containers.LastOrDefault() as DiContext;
         }
 
         protected void Bind<T>(T instance, object id = null)

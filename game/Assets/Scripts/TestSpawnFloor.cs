@@ -37,9 +37,9 @@ public class TestSpawnFloor : MonoBehaviour
     
     private EntityManager m_EntityManager;
     
-    DIContext.Var<IApiEditor> m_ApiEditor;
-    DIContext.Var<ObjectRepository> m_Repository;
-    DIContext.Var<ReferenceSubSceneManager> m_ReferenceSubSceneManager;
+    DiContext.Var<IApiEditor> m_ApiEditor;
+    DiContext.Var<ObjectRepository> m_Repository;
+    DiContext.Var<ReferenceSubSceneManager> m_ReferenceSubSceneManager;
     
     
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -54,31 +54,9 @@ public class TestSpawnFloor : MonoBehaviour
 
     private void Start()
     {
-        m_BtnSave.onClick.AddListener(Save);
-        m_BtnLoad.onClick.AddListener(Load);
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         StartBatle();
         //AddNewFloor();
-    }
-
-    private void Load()
-    {
-        var manager = new SaveManager((SavedContext)"Test");
-        manager.Load();
-    }    
-    private void Save()
-    {
-        var manager = new SaveManager((SavedContext)"Test");
-        manager.Save();
-    }
-
-    private readonly struct SavedContext: ISavedContext
-    {
-        private readonly string m_Name;
-        public string Name => m_Name;
-        public SavedContext(string name) => m_Name = name;
-
-        public static implicit operator SavedContext(string name) => new SavedContext(name);
     }
 
     private async void AddNewFloor()

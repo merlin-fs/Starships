@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Collections;
@@ -14,7 +15,7 @@ namespace Game.Model.Worlds
     {
         public partial struct Layers
         {
-            private static readonly Dictionary<TypeIndex, LayerInfo> m_Layers = new Dictionary<TypeIndex, LayerInfo>();
+            private static readonly Dictionary<TypeIndex, InternalLayerInfo> m_Layers = new Dictionary<TypeIndex, InternalLayerInfo>();
 
             public static void AddLayer<T>(Entity entity, IDefineableContext context)
                 where T : unmanaged, ILayer
@@ -22,7 +23,7 @@ namespace Game.Model.Worlds
                 var type = typeof(T);
                 var idx = TypeManager.GetTypeIndex(type);
                 if (!m_Layers.ContainsKey(idx))
-                    m_Layers.Add(idx, new LayerInfo(type, new DefaultValidator()));
+                    m_Layers.Add(idx, new InternalLayerInfo(type, idx, new DefaultValidator()));
                 context.AddBuffer<T>(entity);
             }
             
@@ -38,7 +39,7 @@ namespace Game.Model.Worlds
                 var type = typeof(T);
                 var idx = TypeManager.GetTypeIndex(type);
                 if (!m_Layers.ContainsKey(idx))
-                    m_Layers.Add(idx, new LayerInfo(type, new TV()));
+                    m_Layers.Add(idx, new InternalLayerInfo(type, idx, new TV()));
                 context.AddBuffer<T>(entity);
             }
 
@@ -48,9 +49,11 @@ namespace Game.Model.Worlds
                 var type = typeof(T);
                 var idx = TypeManager.GetTypeIndex(type);
                 if (!m_Layers.ContainsKey(idx))
-                    m_Layers.Add(idx, new LayerInfo(type, validator));
+                    m_Layers.Add(idx, new InternalLayerInfo(type, idx, validator));
                 context.AddBuffer<T>(entity);
             }
+
+            public static IEnumerable<LayerInfo> Values => m_Layers.Values.Select(iter => iter.LayerInfo);
             
             public static void Init(ref SystemState systemState, Aspect aspect)
             {
@@ -66,7 +69,7 @@ namespace Game.Model.Worlds
 
             public static void SetObject(Aspect aspect, TypeIndex layerType, int2 pos, Entity entity)
             {
-                if (!m_Layers.TryGetValue(layerType, out LayerInfo info))
+                if (!m_Layers.TryGetValue(layerType, out InternalLayerInfo info))
                     throw new ArgumentException("Can`t find layer", TypeManager.GetTypeInfo(layerType).Type.FullName);
                 
                 info.SetObject(aspect, pos, entity);
@@ -75,14 +78,14 @@ namespace Game.Model.Worlds
             public static bool TryGetObject(Aspect aspect, TypeIndex layerType, int2 pos, out Entity entity)
             {
                 entity = Entity.Null;
-                if (!m_Layers.TryGetValue(layerType, out LayerInfo info)) return false;
+                if (!m_Layers.TryGetValue(layerType, out InternalLayerInfo info)) return false;
                 entity = info.GetObject(aspect, pos);
                 return entity != Entity.Null;
             }
 
             public static Entity GetObject(Aspect aspect, TypeIndex layerType, int2 pos)
             {
-                if (!m_Layers.TryGetValue(layerType, out LayerInfo info))
+                if (!m_Layers.TryGetValue(layerType, out InternalLayerInfo info))
                     throw new ArgumentException("Can`t find layer", TypeManager.GetTypeInfo(layerType).Type.FullName);
                 return info.GetObject(aspect, pos);
             }
@@ -91,24 +94,42 @@ namespace Game.Model.Worlds
             {
                 public bool CanPlace(Aspect aspect, int2 pos, Entity entity) => true;
             }
+
+            public readonly struct LayerInfo
+            {
+                public Type Type { get; }
+                public Type SelfType { get; }
+                public TypeIndex TypeIndex { get; }
+
+                internal LayerInfo(Type type, Type selfType, TypeIndex typeIndex)
+                {
+                    Type = type;
+                    SelfType = selfType;
+                    TypeIndex = typeIndex;
+                }
+            }
             
-            private readonly struct LayerInfo
+            private readonly struct InternalLayerInfo
             {
                 delegate void DInit(ref SystemState systemState, Aspect aspect);
                 delegate void DUpdate(ref SystemState systemState);
                 delegate Entity DGetObject(Aspect aspect, int2 pos);
                 delegate void DSetObject(Aspect aspect, int2 pos, Entity entity);
+                
+                public LayerInfo LayerInfo => m_LayerInfo;
 
                 private readonly DInit m_Init;
                 private readonly DUpdate m_Update;
                 private readonly DGetObject m_GetObject;
                 private readonly DSetObject m_SetObject;
                 private readonly ILayerValidator m_Validator;
+                private readonly LayerInfo m_LayerInfo;
                 
-                public LayerInfo(Type type, ILayerValidator validator)
+                public InternalLayerInfo(Type type, TypeIndex idx, ILayerValidator validator)
                 {
                     m_Validator = validator;
                     Type genericType = typeof(Layer<>).MakeGenericType(type);
+                    m_LayerInfo = new LayerInfo(genericType, type, idx);
                     m_Init = genericType.GetDelegate<DInit>(nameof(Layer<Prototype>.Init), ReflectionHelper.STATIC);
                     m_Update = genericType.GetDelegate<DUpdate>(nameof(Layer<Prototype>.Update), ReflectionHelper.STATIC);
                     m_GetObject = genericType.GetDelegate<DGetObject>(nameof(Layer<Prototype>.GetObject), ReflectionHelper.STATIC);

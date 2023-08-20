@@ -1,4 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/RuntimeEditor/UI/Styles/Defaults.uss?fileID=7433441132597879392&amp;guid=c9d86378d0aad5c489ad0841fac2cc41&amp;type=3#Defaults" />
-    <ui:VisualElement name="main" picking-mode="Ignore" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); flex-direction: row-reverse; flex-wrap: wrap-reverse; justify-content: flex-start; align-items: stretch;" />
+    <ui:VisualElement name="main" picking-mode="Ignore" style="flex-grow: 1; flex-shrink: 0;">
+        <ui:VisualElement name="left_area" picking-mode="Ignore" style="align-items: stretch; justify-content: flex-start; width: 100%; height: 100%; flex-direction: row-reverse; flex-wrap: nowrap;" />
+        <ui:VisualElement name="bottom_area" picking-mode="Ignore" style="align-items: stretch; justify-content: flex-end; align-self: flex-start; width: 100%; height: 100%; flex-direction: column; flex-wrap: nowrap;" />
+    </ui:VisualElement>
 </ui:UXML>

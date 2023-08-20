@@ -16,36 +16,29 @@ namespace Game.Core.Spawns
         partial struct LoadingSystem : ISystem
         {
             private EntityQuery m_Query;
-            private BufferLookup<StatView> m_ViewsLookup;
-
             public void OnCreate(ref SystemState state)
             {
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAll<Load, Component>()
                     .Build();
-
-                m_ViewsLookup = state.GetBufferLookup<StatView>();
                 state.RequireForUpdate(m_Query);
             }
 
             public void OnUpdate(ref SystemState state)
             {
-                m_ViewsLookup.Update(ref state);
                 var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
                 var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
 
                 state.Dependency = new SpawnJob
                 {
-                    ViewsLookup = m_ViewsLookup, Writer = ecb.AsParallelWriter(),
+                    Writer = ecb.AsParallelWriter(),
                 }.ScheduleParallel(m_Query, state.Dependency);
             }
 
             partial struct SpawnJob : IJobEntity
             {
-                private DIContext.Var<ObjectRepository> m_Repository;
+                private DiContext.Var<ObjectRepository> m_Repository;
                 public EntityCommandBuffer.ParallelWriter Writer;
-                [NativeDisableParallelForRestriction] 
-                public BufferLookup<StatView> ViewsLookup;
 
                 void Execute([EntityIndexInQuery] int idx, in Entity entity, in Load spawn,
                     in DynamicBuffer<Component> components)
@@ -65,15 +58,7 @@ namespace Game.Core.Spawns
                         if (component != null)
                             Writer.AddComponent(idx, inst, component, type);
                     }
-
                     Writer.AddComponent<Tag>(idx, inst);
-                    if (ViewsLookup.HasBuffer(entity))
-                    {
-                        var views = ViewsLookup[entity];
-                        var buff = Writer.AddBuffer<StatView>(idx, inst);
-                        buff.CopyFrom(views);
-                    }
-
                     foreach (var iter in components)
                         Writer.AddComponent(idx, inst, iter.ComponentType);
 

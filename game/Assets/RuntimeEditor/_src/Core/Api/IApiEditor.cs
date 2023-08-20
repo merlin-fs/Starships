@@ -1,18 +1,7 @@
 using System;
 using Common.Defs;
 using Game.Core.Events;
-using Game.Model;
-
 using Unity.Entities;
-
-namespace Game.Core
-{
-    public interface IKernel
-    {
-        void SendEvent(EventBase e);
-        void InvokeCallbacks(EventBase evt, PropagationPhase propagationPhase);
-    }
-}
 
 namespace Buildings
 {

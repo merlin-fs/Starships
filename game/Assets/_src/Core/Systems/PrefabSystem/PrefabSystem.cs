@@ -7,6 +7,8 @@ using Unity.Burst;
 using Unity.Jobs;
 using Common.Defs;
 using Common.Core;
+
+using Game.Core.Events;
 using Game.Core.Repositories;
 using Game.Model.Units;
 
@@ -20,9 +22,10 @@ namespace Game.Core.Prefabs
             private EntityQuery m_QueryEnvironments;
             private EntityQuery m_QueryObjects;
 
-            static private bool m_Done;
-
+            readonly static DiContext.Var<ObjectRepository> m_ObjectRepository;
+            readonly static DiContext.Var<IEventSender> m_Sender;
             static ConcurrentDictionary<Entity, IDefineableContext> m_Contexts;
+            static private bool m_Done;
 
             public Task<bool> IsDone()
             {
@@ -55,6 +58,7 @@ namespace Game.Core.Prefabs
                 if (m_QueryEnvironments.IsEmpty && m_QueryObjects.IsEmpty) return;
                 
                 m_Done = false;
+                m_Sender.Value.SendEvent(EventRepository.GetPooled(m_ObjectRepository.Value, EventRepository.Enum.Loading));
                 var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
 
                 var environmentsHandle = new EnvironmentsJob
@@ -81,6 +85,7 @@ namespace Game.Core.Prefabs
                 public void Execute()
                 {
                     m_Contexts.Clear();
+                    m_Sender.Value.SendEvent(EventRepository.GetPooled(m_ObjectRepository.Value, EventRepository.Enum.Done));
                     m_Done = true;
                 }
             }
@@ -88,7 +93,7 @@ namespace Game.Core.Prefabs
             partial struct EnvironmentsJob : IJobEntity
             {
                 public EntityCommandBuffer.ParallelWriter Writer;
-                readonly DIContext.Var<ObjectRepository> m_Repository;
+                readonly DiContext.Var<ObjectRepository> m_Repository;
 
                 private void Execute([EntityIndexInQuery] int idx, in Entity entity,
                     in PrefabInfo prefab, in BakedEnvironment environment, in DynamicBuffer<BakedLabel> labels)
@@ -115,7 +120,7 @@ namespace Game.Core.Prefabs
             partial struct ObjectsJob : IJobEntity
             {
                 public EntityCommandBuffer.ParallelWriter Writer;
-                readonly DIContext.Var<ObjectRepository> m_Repository;
+                readonly DiContext.Var<ObjectRepository> m_Repository;
 
                 void Execute([EntityIndexInQuery] int idx, in Entity entity, in PrefabInfo prefab)
                 {

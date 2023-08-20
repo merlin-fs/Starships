@@ -38,7 +38,7 @@ public class TestSpawn : MonoBehaviour
 
     private EntityManager m_EntityManager;
     
-    readonly static DIContext.Var<ReferenceSubSceneManager> m_ReferenceSubSceneManager;
+    readonly static DiContext.Var<ReferenceSubSceneManager> m_ReferenceSubSceneManager;
 
     private readonly struct SavedContext: ISavedContext
     {
