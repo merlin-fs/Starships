@@ -58,6 +58,7 @@ namespace Common.Core
         #region MonoBehaviour
         protected virtual void Awake()
         {
+            InitializeBinds();
             if (Current == this) return;
             Build();
         }
@@ -67,10 +68,18 @@ namespace Common.Core
             Push(this);
             OnBind();
             InitVars();
+        }
 
+        private void InitializeBinds()
+        {
             foreach (var iter in GetComponents<IInjectionInitable>())
             {
                 iter.Init(this);
+            }
+            foreach (var iter in m_Container.Objects)
+            {
+                if (iter is IInjectionInitable init)
+                    init.Init(this);
             }
         }
         
@@ -135,6 +144,7 @@ namespace Common.Core
             }
             #endregion
 
+            public IEnumerable<object> Objects => m_Instances.Values;
             public IEnumerable<Type> Instances => m_Instances.Keys.Select(x => x.Obj);
 
             struct ContainerType

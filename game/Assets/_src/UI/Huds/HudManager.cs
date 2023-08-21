@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+
+using Common.Core;
 
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -7,50 +10,87 @@ using UnityEngine.UIElements;
 
 namespace Game.UI.Huds
 {
-    public class HudManager
+    public abstract partial class Hud
     {
-        private readonly UIDocument m_UIDocument;
-        private readonly Dictionary<Type, HudConfig> m_Configs = new Dictionary<Type, HudConfig>();
-        public Camera WorldCamera { get; }
-
-        public HudManager(UIDocument uiDocument, Camera worldCamera)
+        public class Manager: IInjectionInitable
         {
-            m_UIDocument = uiDocument;
-            WorldCamera = worldCamera;
-            LoadConfigs();
-        }
+            private readonly UIDocument m_UIDocument;
+            private readonly Dictionary<Type, HudConfig> m_Configs = new Dictionary<Type, HudConfig>();
+            private VisualElement Root => m_UIDocument.rootVisualElement;
+            public Camera WorldCamera { get; }
 
-        public T GetHud<T>()
-            where T : IHud
-        {
-            var config = m_Configs[typeof(T)];
-            var hud = (T)Activator.CreateInstance(config.Hud);
-            var element = config.Template.Instantiate();
-            foreach (var style in config.Styles)
+            private readonly ConcurrentQueue<Command> m_InstallCommands = new ConcurrentQueue<Command>();
+            private readonly ConcurrentQueue<Command> m_RemoveCommands = new ConcurrentQueue<Command>();
+            private class Command
             {
-                element.styleSheets.Add(style);
+                public HudConfig Config;
+                public Hud Hud;
             }
-            m_UIDocument.rootVisualElement.Add(element);
-            hud.Initialize(this, element);
-            return hud;
-        }
-
-        private async void LoadConfigs()
-        {
-            await Addressables.LoadAssetsAsync<HudConfig>("Huds", null).Task
-                .ContinueWith(task =>
+            
+            void IInjectionInitable.Init(IDiContext context)
+            {
+                //Install
+                Root.schedule.Execute(() =>
                 {
-                    foreach (var iter in task.Result)
+                    if (!m_InstallCommands.TryDequeue(out var cmd)) return;
+                    var element = cmd.Config.Template.Instantiate();
+                    foreach (var style in cmd.Config.Styles)
                     {
-                        m_Configs.Add(iter.Hud, iter);
+                        element.styleSheets.Add(style);
                     }
+                    cmd.Hud.Configure(element);
+                    Root.Add(element);
+                }).When(() => !m_InstallCommands.IsEmpty).EveryFrame();
+
+                //Remove
+                Root.schedule.Execute(() =>
+                {
+                    if (!m_RemoveCommands.TryDequeue(out var cmd)) return;
+                    Root.Remove(cmd.Hud.Element);
+                }).When(() => !m_RemoveCommands.IsEmpty).EveryFrame();
+            }
+
+            public Manager(UIDocument uiDocument, Camera worldCamera)
+            {
+                m_UIDocument = uiDocument;
+                WorldCamera = worldCamera;
+                LoadConfigs();
+            }
+
+            public T GetHud<T>()
+                where T : Hud
+            {
+                var config = m_Configs[typeof(T)];
+                var hud = (T)Activator.CreateInstance(config.Hud);
+                hud.Initialize(this);
+                m_InstallCommands.Enqueue(new Command 
+                {
+                    Config = config,
+                    Hud = hud,
                 });
-        }
-        
-        public void ReleaseHud<T>(T hud)
-            where T : IHud
-        {
-            //hud.parent.Remove(hud);
+                return hud;
+            }
+
+            public void ReleaseHud<T>(T hud)
+                where T : Hud
+            {
+                m_RemoveCommands.Enqueue(new Command 
+                {
+                    Hud = hud,
+                });
+            }
+
+            private async void LoadConfigs()
+            {
+                await Addressables.LoadAssetsAsync<HudConfig>("Huds", null).Task
+                    .ContinueWith(task =>
+                    {
+                        foreach (var iter in task.Result)
+                        {
+                            m_Configs.Add(iter.Hud, iter);
+                        }
+                    });
+            }
         }
     }
 }

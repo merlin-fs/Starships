@@ -10,6 +10,7 @@ using Game.Core.Spawns;
 using Game.Model;
 using Game.Model.Worlds;
 using Game.Core.Saves;
+using Game.Model.Stats;
 
 namespace Buildings
 {
@@ -88,7 +89,7 @@ namespace Buildings
             public void Cancel()
             {
                 var ecb = GetBuffer();
-                ecb.DestroyEntity(Entity);
+                ecb.AddComponent<DeadTag>(Entity);
             }
         }
     }

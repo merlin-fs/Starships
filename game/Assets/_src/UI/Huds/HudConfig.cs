@@ -7,7 +7,7 @@ namespace Game.UI.Huds
 {
     public class HudConfig : ScriptableObject
     {
-        [SelectType(typeof(IHud))]
+        [SelectType(typeof(Hud))]
         [SerializeField] private string hud;
         [SerializeField] private VisualTreeAsset template;
         [SerializeField] private StyleSheet[] styles;

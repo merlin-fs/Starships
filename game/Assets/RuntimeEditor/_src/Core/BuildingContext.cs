@@ -36,7 +36,7 @@ namespace Buildings
             Bind<ReferenceSubSceneManager>(new ReferenceSubSceneManager());
 
             var doc = GetComponent<UIDocument>();
-            Bind<HudManager>(new HudManager(doc, worldCamera));
+            Bind<Hud.Manager>(new Hud.Manager(doc, worldCamera));
         }
     }
 }

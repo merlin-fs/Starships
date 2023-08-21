@@ -41,14 +41,19 @@ namespace Game.Views.Stats
         {
             if (!m_QueryInstall.IsEmpty)
             {
+                state.Dependency = new InstallJob
+                {
+                    Writer = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>()
+                        .CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+                }.ScheduleParallel(m_QueryInstall, state.Dependency);
+                /*
                 using var entities = m_QueryInstall.ToEntityArray(Allocator.Temp);
-                var writer = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>()
-                    .CreateCommandBuffer(state.WorldUnmanaged);
                 foreach (var entity in entities)
                 {
                     var view = new StatView(EnumHandle.FromEnum(Global.Stats.Health));
                     writer.AddComponent(entity, view);
                 }
+                */
             }
 
             if (!m_QueryUpdate.IsEmpty)
@@ -72,6 +77,16 @@ namespace Game.Views.Stats
             }
         }
 
+        partial struct InstallJob : IJobEntity
+        {
+            public EntityCommandBuffer.ParallelWriter Writer;
+            void Execute([EntityIndexInQuery] int idx, in Entity entity)
+            {
+                var view = new StatView(EnumHandle.FromEnum(Global.Stats.Health));
+                Writer.AddComponent(idx, entity, view);
+            }
+        }
+        
         partial struct UpdateJob : IJobEntity
         {
             void Execute(ref StatView view, StatAspect stats, in LocalTransform transform)

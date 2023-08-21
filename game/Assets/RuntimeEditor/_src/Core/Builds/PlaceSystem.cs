@@ -8,6 +8,7 @@ using Unity.Transforms;
 
 using Common.Core;
 using Game;
+using Game.Model.Stats;
 using Game.Model.Worlds;
 
 using Plane = UnityEngine.Plane;
@@ -37,6 +38,7 @@ namespace Buildings.Environments
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Map.Transform, Map.Placement>()
                 .WithAllRW<LocalTransform, SelectBuildingTag>()
+                .WithNone<DeadTag>()
                 .Build();
 
             m_Ground = new Plane(Vector3.up, Vector3.zero);
@@ -91,7 +93,7 @@ namespace Buildings.Environments
                 if (IsCancel)
                 {
                     Aspect.SetObject(placement.Value.Layer, move.Position, Entity.Null);
-                    Writer.DestroyEntity(idx, entity);
+                    Writer.AddComponent<DeadTag>(idx, entity);
                     m_ApiHandler.Value.OnDestroy(entity);
                 }
                 else if (Ground.Raycast(Ray, out float position))

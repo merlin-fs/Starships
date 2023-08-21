@@ -1,54 +1,33 @@
 using System;
 using Unity.Mathematics;
+
 using UnityEngine;
 using UnityEngine.UIElements;
-using Common.Core;
 
 namespace Game.UI.Huds
 {
-    public abstract class Hud : IHud
-    {
-        protected HudManager HudManager { get; private set; }
-        protected VisualElement Element { get; private set; }
-        public abstract void SetPosition(float3 position);
-        public virtual void Initialize(HudManager hudManager, VisualElement element)
-        {
-            HudManager = hudManager;
-            Element = element;
-        }
-    }
-
     public class HudHealth : Hud
     {
         private float3 m_Position;
+        private float m_Value;
         private ProgressBar m_Progress;
 
-        public override void Initialize(HudManager hudManager, VisualElement element)
+        protected override void Configure(VisualElement element)
         {
-            base.Initialize(hudManager, element);
+            base.Configure(element);
             m_Progress = element.Q<ProgressBar>("progress");
+            m_Progress.highValue = 1f;
             m_Progress.style.position = Position.Absolute;
-        }
-        public override void SetPosition(float3 position)
-        {
-            float scale = 1 + HudManager.WorldCamera.transform.localPosition.z / 200;
-            position.y += 1.1f; 
-            Vector2 newPosition = RuntimePanelUtils.CameraTransformWorldToPanel(m_Progress.panel, position, HudManager.WorldCamera);
-            
-            
-            newPosition.x = (newPosition.x - m_Progress.layout.width / 2);
-            m_Progress.transform.scale = new Vector3(scale, scale, scale);
-            //newPosition.y *= scale;
-            m_Progress.transform.position = newPosition;
+            m_Progress.schedule.Execute(() =>
+            {
+                m_Progress.value = m_Value;
+                SetPosition(m_Position, m_Progress);
+            }).When(() => Time.frameCount % 3 == 0).EveryFrame();
         }
 
-        public IVisualElementScheduledItem UpdatePositionSchedule()
+        public void Update(float3 position, float value)
         {
-            return m_Progress.schedule.Execute(() => SetPosition(m_Position));
-        } 
-            
-        public void UpdatePositionSchedule(float3 position)
-        {
+            m_Value = value;
             m_Position = position;
         }
     }
