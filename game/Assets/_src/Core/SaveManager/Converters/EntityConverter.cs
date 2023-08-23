@@ -70,7 +70,7 @@ namespace Game.Core.Saves.Converters
                     move.Rotation = transform.Rotation;
                     data = move;
                 }
-                writer.WritePropertyName(iter.TypeIndex.ToString());
+                writer.WritePropertyName(type.FullName);
                 serializer.Serialize(writer, data, type);
             }
             writer.WriteEndObject();

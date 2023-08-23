@@ -23,6 +23,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - defs
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 61dc8c4c83f983047a05e9244bb4dc2e
+    m_Address: Assets/_configs/Units/PA_Warior.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - defs
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ed21bb125e95a2b41a3ef0fc04dd10bd, type: 2}
   m_SchemaSet:

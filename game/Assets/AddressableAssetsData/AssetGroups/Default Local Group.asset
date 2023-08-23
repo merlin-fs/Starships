@@ -101,6 +101,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - animation
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cfce931a825466040991a25486ef1f9c
+    m_Address: Assets/_prefabs/Unit/PA_Warior/Animation/PA_Warior.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - animation
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ed21bb125e95a2b41a3ef0fc04dd10bd, type: 2}
   m_SchemaSet:

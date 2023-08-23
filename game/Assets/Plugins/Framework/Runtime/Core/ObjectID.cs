@@ -54,7 +54,7 @@ namespace Common.Core
             return !left.Equals(right);
         }
 
-        public static implicit operator ObjectID(string value) => new ObjectID(value);
+        public static implicit operator ObjectID(string value) => ObjectID.Create(value);
 
         public override int GetHashCode()
         {

@@ -17,7 +17,8 @@ namespace Game.Core.Animations
 
                 buffer.Add(new Animation.Trigger
                 {
-                    Action = EnumHandle.FromEnum(Target.Action.Find),
+                    //Action = EnumHandle.FromEnum(Target.Action.Find),
+                    Action = EnumHandle.FromEnum(Move.Action.Init),
                     ClipID = authoring.ClipID,
                 });
             }

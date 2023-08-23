@@ -1,6 +1,4 @@
 using System;
-using System.Threading;
-
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Transforms;

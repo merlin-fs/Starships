@@ -8,6 +8,8 @@ using Unity.Entities;
 using Unity.Collections;
 using Newtonsoft.Json.Linq;
 
+using UnityEngine;
+
 namespace Game.Core.Spawns
 {
     public partial struct Spawn
@@ -16,8 +18,10 @@ namespace Game.Core.Spawns
         partial struct LoadingSystem : ISystem
         {
             private EntityQuery m_Query;
+            private static string m_PrefabType;
             public void OnCreate(ref SystemState state)
             {
+                m_PrefabType = typeof(PrefabInfo).FullName;
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAll<Load, Component>()
                     .Build();
@@ -43,8 +47,7 @@ namespace Game.Core.Spawns
                 void Execute([EntityIndexInQuery] int idx, in Entity entity, in Load spawn,
                     in DynamicBuffer<Component> components)
                 {
-                    var prefabIndex = TypeManager.GetTypeIndex<PrefabInfo>();
-                    var configId = spawn.Data.Value.Value<string>(prefabIndex.ToString());
+                    var configId = spawn.Data.Value.Value<string>(m_PrefabType);
                     var config = m_Repository.Value.FindByID(configId);
 
                     var inst = Writer.Instantiate(idx, config.Prefab);

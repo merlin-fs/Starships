@@ -29,6 +29,7 @@ namespace Game.UI.Huds
             
             void IInjectionInitable.Init(IDiContext context)
             {
+                if (!m_UIDocument) return;
                 //Install
                 Root.schedule.Execute(() =>
                 {

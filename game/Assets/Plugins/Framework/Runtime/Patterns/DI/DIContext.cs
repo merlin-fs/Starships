@@ -50,6 +50,7 @@ namespace Common.Core
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void Initialize()
         {
+            if (!m_Init) return;
             m_Init.Build();
         }
         void ISerializationCallbackReceiver.OnBeforeSerialize() {}

@@ -4933,3 +4933,85 @@ MonoBehaviour:
               w: 3862111842
           IdentifierType: 1
         GenerationType: 4
+  - ID:
+      m_ID:
+        utf8LengthInBytes: 9
+        bytes:
+          offset0000:
+            byte0000: 80
+            byte0001: 65
+            byte0002: 95
+            byte0003: 87
+            byte0004: 97
+            byte0005: 114
+            byte0006: 105
+            byte0007: 111
+            byte0008: 114
+            byte0009: 0
+            byte0010: 0
+            byte0011: 0
+            byte0012: 0
+            byte0013: 0
+            byte0014: 0
+            byte0015: 0
+          offset0016:
+            byte0000: 0
+            byte0001: 0
+            byte0002: 0
+            byte0003: 0
+            byte0004: 0
+            byte0005: 0
+            byte0006: 0
+            byte0007: 0
+            byte0008: 0
+            byte0009: 0
+            byte0010: 0
+            byte0011: 0
+            byte0012: 0
+            byte0013: 0
+            byte0014: 0
+            byte0015: 0
+          offset0032:
+            byte0000: 0
+            byte0001: 0
+            byte0002: 0
+            byte0003: 0
+            byte0004: 0
+            byte0005: 0
+            byte0006: 0
+            byte0007: 0
+            byte0008: 0
+            byte0009: 0
+            byte0010: 0
+            byte0011: 0
+            byte0012: 0
+            byte0013: 0
+            byte0014: 0
+            byte0015: 0
+          byte0048: 0
+          byte0049: 0
+          byte0050: 0
+          byte0051: 0
+          byte0052: 0
+          byte0053: 0
+          byte0054: 0
+          byte0055: 0
+          byte0056: 0
+          byte0057: 0
+          byte0058: 0
+          byte0059: 0
+          byte0060: 0
+          byte0061: 0
+    Reference:
+      Id:
+        GlobalId:
+          SceneObjectIdentifier0: 0
+          SceneObjectIdentifier1: 0
+          AssetGUID:
+            Value:
+              x: 2848972257
+              y: 1331396642
+              z: 222682501
+              w: 3862111842
+          IdentifierType: 1
+        GenerationType: 4

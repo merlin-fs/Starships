@@ -3,10 +3,13 @@ using Unity.Collections;
 using UnityEngine;
 using Unity.Entities;
 
+using UnityEngine.Serialization;
+
 namespace Game.Core.Animations
 {
     public class AnimatorAuthoring : MonoBehaviour
     {
+        [SerializeField] private Transform root = null;
         public class _baker : Baker<AnimatorAuthoring>
         {
             public override void Bake(AnimatorAuthoring authoring)
@@ -28,25 +31,42 @@ namespace Game.Core.Animations
                 foreach (var iter in authoring.transform.GetComponentsInChildren<Transform>())
                 {
                     var bone = GetEntity(iter, TransformUsageFlags.Dynamic);
+                    var path = iter.GetPath(authoring.root);
                     var name = (root == bone)
                         ? EntityAnimatorConfig.ROOT_NAME
-                        : iter.name;
+                        : path;
 
-                    this.AppendToBuffer(root, new AnimationBakingBone 
-                    {
-                        Entity = bone,
-                        BoneID = Animator.StringToHash(name), 
-                    });
+                    //if (iter.name == "PA_WarriorRoot")
+                    //    continue;
+                    
+                    var data = new AnimationBakingBone {Entity = bone, BoneID = Animator.StringToHash(name),};
+                    FixedStringMethods.CopyFromTruncated(ref data.Name, iter.name);
+                    this.AppendToBuffer(root, data);
                 }
             }
         }
     }
+
+    static class Ext
+    {
+        public static string GetPath(this Transform current, Transform root) {
+            if (current.parent == root || current.parent == null)
+                return current.name;
+            return current.parent.GetPath(root) + "/" + current.name;
+        }        
+    } 
     
     [TemporaryBakingType]
     internal struct AnimationBakingBone: IBufferElementData
     {
         public Entity Entity;
         public int BoneID;
+        public FixedString64Bytes Name;
+    }
+
+    internal struct TestBone: IComponentData
+    {
+        public FixedString64Bytes Name;
     }
     
     [BurstCompile]
@@ -87,8 +107,10 @@ namespace Game.Core.Animations
             private void Execute([EntityIndexInQuery] int idx, in Entity entity, 
                 in DynamicBuffer<AnimationBakingBone> buffer)
             {
+                
                 foreach (var iter in buffer)
                 {
+                    Writer.AddComponent(idx, iter.Entity, new TestBone {Name = iter.Name});
                     Writer.AddComponent(idx, iter.Entity, new Animation.Bone 
                     {
                         Animator = entity,

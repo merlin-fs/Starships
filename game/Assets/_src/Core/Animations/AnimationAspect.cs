@@ -37,7 +37,7 @@ namespace Game.Core.Animations
                 m_CurrentClip.ValueRW.Data.Elapsed = 0;
                 m_CurrentClip.ValueRW.Data.Duration = config.GetClip(clipId).Length;
                 m_CurrentClip.ValueRW.Data.Speed = 1f;//clip.Speed;
-                m_CurrentClip.ValueRW.Data.Loop = config.GetClip(clipId).Loop;
+                m_CurrentClip.ValueRW.Data.Loop = config.GetClip(clipId).Loop || loop;
                 m_Player.ValueRW.Playing = true;
                 m_Player.ValueRW.InTransition = false;
             }

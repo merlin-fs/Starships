@@ -99,7 +99,7 @@ namespace Game.Core.Animations
             var curve = curves[threadId];
             if (curve.w != null)
             {
-                value = new quaternion(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.x.Evaluate(t), curve.w.Evaluate(t));
+                value = new quaternion(curve.x.Evaluate(t), curve.y.Evaluate(t), curve.z.Evaluate(t), curve.w.Evaluate(t));
             }
             else{
                 var rotate = new float3(math.radians(curve.x.Evaluate(t)), math.radians(curve.y.Evaluate(t)), math.radians(curve.z.Evaluate(t)));
@@ -147,7 +147,6 @@ namespace Game.Core.Animations
 #if UNITY_EDITOR         
         [SerializeField] private AnimatorController m_AnimatorController;
 #endif        
-
         private readonly Dictionary<ObjectID, EntityClip> m_Clips = new Dictionary<ObjectID, EntityClip>();
 
         public EntityClip GetClip(ObjectID id)
@@ -188,7 +187,6 @@ namespace Game.Core.Animations
             m_Items = new AnimatorItem[]{};
             if (!m_AnimatorController) return;
 
-            
             m_ClipItems = m_AnimatorController.animationClips
                 .Select(iter => new AnimatorClipItem 
                 {
@@ -208,6 +206,7 @@ namespace Game.Core.Animations
                         ID = iter.name,
                         Curve = AnimationUtility.GetEditorCurve(iter, item),
                         PropertyName = item.propertyName,
+                        Path = item.path,
                         HashCode = UnityEngine.Animator.StringToHash(string.IsNullOrEmpty(item.path) ? ROOT_NAME : item.path),
                     });
                 m_Items = m_Items.Union(curves).ToArray();
@@ -234,6 +233,7 @@ namespace Game.Core.Animations
             public AnimationCurve Curve;
             public string PropertyName;
             public int HashCode;
+            public string Path;
         }
     }
 }
