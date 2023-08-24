@@ -1,11 +1,8 @@
 ﻿using System;
 using Unity.Entities;
 using Unity.Properties;
-using Unity.Serialization;
 using Common.Defs;
-
 using Game.Core;
-using Game.Core.Saves;
 
 namespace Game.Model.Logics
 {
@@ -27,7 +24,7 @@ namespace Game.Model.Logics
         public Logic(RefLink<LogicDef> refLink)
         {
             m_RefLink = refLink;
-            m_Active = true;
+            m_Active = false;
             m_Work = false;
             m_WaitNewGoal = false;
             m_WaitChangeWorld = false;
@@ -41,7 +38,7 @@ namespace Game.Model.Logics
         #region IDefineableCallback
         void IDefineableCallback.AddComponentData(Entity entity, IDefineableContext context)
         {
-            context.AddBuffer<EnumHandle>(entity);
+            context.AddBuffer<Plan>(entity);
             var goals = context.AddBuffer<Goal>(entity);
             foreach (var iter in Def.Goals)
                 goals.Add(iter);

@@ -44,6 +44,7 @@ namespace Game.Core.Prefabs
 
                 var self = GetEntityWithoutDependency();
                 AddBuffer<PrefabBaking>(self);
+                
                 foreach (var iter in authoring.m_PrefabsGroup.SelectMany(p => p.entries))
                 {
                     if (iter.MainAsset is GameObjectConfig config)
@@ -74,7 +75,6 @@ namespace Game.Core.Prefabs
                     ConfigID = id,
                     Root = root,
                 });
-
                 m_SubScene.Add(id, m_SceneReference);
             }
 
@@ -106,7 +106,7 @@ namespace Game.Core.Prefabs
         public Entity Root;
         public ObjectID ConfigID;
     }
-    
+
     [BurstCompile]
     [WorldSystemFilter(WorldSystemFilterFlags.BakingSystem)]
     public partial struct PrefabBakingSystem : ISystem
@@ -145,8 +145,11 @@ namespace Game.Core.Prefabs
             private void Execute([EntityIndexInQuery] int idx, in Entity entity, 
                 in DynamicBuffer<PrefabBaking> buffer)
             {
+                using var roots = new NativeHashSet<Entity>(buffer.Length, Allocator.TempJob);
+                
                 foreach (var iter in buffer)
                 {
+                    roots.Add(iter.Root);
                     Writer.AddComponent(idx, iter.Entity, new PrefabInfo()
                     {
                         ConfigID = iter.ConfigID,
@@ -154,6 +157,15 @@ namespace Game.Core.Prefabs
                     });
                     Writer.AddComponent<PrefabInfo.BakedTag>(idx, iter.Entity);
                     Writer.AddComponent(idx, iter.Entity, new Root { Value = iter.Root });
+                }
+
+                foreach (var iter in roots)
+                    Writer.AddBuffer<ChildEntity>(idx, iter);
+
+                foreach (var iter in buffer)
+                {
+                    if (iter.Root != iter.Entity)
+                        Writer.AppendToBuffer(idx, iter.Root, new ChildEntity { Value = iter.Entity });
                 }
             }
         }

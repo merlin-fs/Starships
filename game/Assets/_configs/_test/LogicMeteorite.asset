@@ -13,15 +13,17 @@ MonoBehaviour:
   m_Name: LogicMeteorite
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 0}
-  m_LogicInst:
-    rid: 7383091081461891073
-  m_Parts:
-  - Game.Model.Logics.FindUnitTarget
-  - Game.Model.Logics.MoveOfTarget
-  - Game.Model.Logics.Destroy
-  - Game.Model.Logics.LogicPartUnit
+  Logic:
+    logicInst:
+      rid: 1895243015992377347
+    slices:
+    - rid: 1895243015992377351
   references:
     version: 2
     RefIds:
-    - rid: 7383091081461891073
+    - rid: 1895243015992377347
       type: {class: LogicMeteorite, ns: Game.Model.Logics, asm: Assembly-CSharp}
+      data: 
+    - rid: 1895243015992377351
+      type: {class: Destroy, ns: Game.Model.Logics, asm: Assembly-CSharp}
+      data: 

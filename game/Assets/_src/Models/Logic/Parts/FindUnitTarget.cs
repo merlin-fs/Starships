@@ -6,6 +6,7 @@ namespace Game.Model.Logics
 {
     using Stats;
 
+    /*!!!slice
     [UpdateInGroup(typeof(GamePartLogicSystemGroup))]
     public partial struct FindUnitTarget : Logic.IPartLogic
     {
@@ -54,6 +55,7 @@ namespace Game.Model.Logics
             }
         }
     }
+    */
 }
 
 /*

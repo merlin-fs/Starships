@@ -7,4 +7,9 @@ namespace Game.Model
     {
         public Entity Value;
     }
+
+    public struct ChildEntity: IBufferElementData
+    {
+        public Entity Value;
+    }
 }

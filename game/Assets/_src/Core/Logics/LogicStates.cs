@@ -17,5 +17,11 @@ namespace Game.Model.Logics
         {
             public bool Value;
         }
+
+        public struct Plan : IBufferElementData
+        {
+            public EnumHandle Value;
+            public static implicit operator Plan(EnumHandle value) => new Plan { Value = value }; 
+        }
     }
 }

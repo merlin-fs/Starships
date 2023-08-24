@@ -40,7 +40,7 @@ namespace Game.Model.Weapons
         public Target Target { get => m_Target.ValueRO; set => m_Target.ValueRW = value; }
 
         [CreateProperty]
-        public uint SoughtTeams => m_Target.ValueRO.SoughtTeams;
+        public uint SearchTeams => m_Target.ValueRO.SearchTeams;
 
         public Bullet Bullet => m_Bullet.ValueRO;
         public Stat Stat<T>(T stat) where T: struct, IConvertible => m_Stats.GetRO(stat);

@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fda3921befda75f4db9464bb228d635d, type: 3}
-  m_Name: LogicUnit
+  m_Name: LogicPA_Warior
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 0}
   Logic:
     logicInst:
-      rid: 1895243015992377348
+      rid: 1895243038519984129
     slices:
     - rid: 1895243015992377352
     - rid: 1895243038519984128
   references:
     version: 2
     RefIds:
-    - rid: 1895243015992377348
-      type: {class: LogicUnit, ns: Game.Model.Logics, asm: Assembly-CSharp}
-      data: 
     - rid: 1895243015992377352
       type: {class: Destroy, ns: Game.Model.Logics, asm: Assembly-CSharp}
       data: 
     - rid: 1895243038519984128
       type: {class: UnitActivateWeapon, ns: Game.Model.Logics, asm: Assembly-CSharp}
+      data: 
+    - rid: 1895243038519984129
+      type: {class: LogicPA_Warior, ns: Game.Model.Logics, asm: Assembly-CSharp}
       data: 

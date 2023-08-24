@@ -10,6 +10,7 @@ namespace Game.Model.Logics
     using Weapons;
     using Stats;
 
+    /*!!!slice
     [UpdateInGroup(typeof(GamePartLogicSystemGroup))]
     public partial struct LogicPartWeaponBomb : Logic.IPartLogic
     {
@@ -67,4 +68,5 @@ namespace Game.Model.Logics
             }
         }
     }
+    */
 }

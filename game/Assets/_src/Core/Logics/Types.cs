@@ -3,16 +3,45 @@
 using Game.Core;
 
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 
 namespace Game.Model.Logics
 {
     public partial struct Logic
     {
-        public interface IPartLogic : ISystem
+        public interface ISlice
         {
+            bool IsConditionHit(ref SliceContext context);
+            void Execute(ref SliceContext context);
         }
 
+        public unsafe readonly ref struct SliceContext
+        {
+            private readonly void* m_Logic;
+            private readonly void* m_Lookup;
+            private readonly void* m_Writer;
+            private readonly int m_Index;
+            private readonly void* m_Children;
+            
+
+            public ref Aspect Logic => ref UnsafeUtility.AsRef<Aspect>(m_Logic);
+            public ref Aspect.Lookup Lookup => ref UnsafeUtility.AsRef<Aspect.Lookup>(m_Lookup);
+            public ref EntityCommandBuffer.ParallelWriter Writer => ref UnsafeUtility.AsRef<EntityCommandBuffer.ParallelWriter>(m_Writer);
+            public int Index => m_Index;
+            public ref BufferLookup<ChildEntity> Children => ref UnsafeUtility.AsRef<BufferLookup<ChildEntity>>(m_Children);
+            
+            public SliceContext(int idx, ref Aspect logic, ref Aspect.Lookup lookup, ref BufferLookup<ChildEntity> children,
+                ref EntityCommandBuffer.ParallelWriter writer)
+            {
+                m_Logic = UnsafeUtility.AddressOf(ref logic);
+                m_Lookup = UnsafeUtility.AddressOf(ref lookup);
+                m_Writer = UnsafeUtility.AddressOf(ref writer);
+                m_Children = UnsafeUtility.AddressOf(ref children);
+                m_Index = idx;
+            }
+        }
+        
         public interface ILogic
         {
             void Init(LogicDef def);

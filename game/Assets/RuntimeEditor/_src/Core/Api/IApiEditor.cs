@@ -11,6 +11,8 @@ namespace Buildings
         IEventHandler Events { get; }
         void AddEnvironment(IConfig config);
         bool TryGetPlaceHolder(Entity entity, out IPlaceHolder holder);
+
+        void SetLogicActive(bool value);
     }
 
     public interface IApiEditorHandler

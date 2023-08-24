@@ -10,6 +10,7 @@ using Game.Core.Spawns;
 using Game.Model;
 using Game.Model.Worlds;
 using Game.Core.Saves;
+using Game.Model.Logics;
 using Game.Model.Stats;
 
 namespace Buildings
@@ -47,6 +48,13 @@ namespace Buildings
             });
         }
 
+        public void SetLogicActive(bool value)
+        {
+            var manager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            var system = World.DefaultGameObjectInjectionWorld.Unmanaged.GetUnsafeSystemRef<Logic.System>(manager.World.GetExistingSystem<Logic.System>());
+            system.Activate(value);
+        }
+        
         private static EntityCommandBuffer GetBuffer()
         {
             var manager = World.DefaultGameObjectInjectionWorld.EntityManager;

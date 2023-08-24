@@ -16,10 +16,10 @@ namespace Game.Model.Logics
             [CreateProperty] private bool Valid => IsValid;
             [CreateProperty] private bool Active => IsActive;
             [CreateProperty] private bool Work => IsWork;
-            [CreateProperty] private bool WaitNewGoal => IsWaitNewGoal;
+            //[CreateProperty] private bool WaitNewGoal => IsWaitNewGoal;
             [CreateProperty] private bool WaitChangeWorld => IsWaitChangeWorld;
             [CreateProperty] private string Action => m_Logic.ValueRO.m_Action.ToString();
-            [CreateProperty] private List<EnumHandle> Plan => m_Plan.AsNativeArray().ToArray().ToList();
+            [CreateProperty] private List<Plan> Plan => m_Plan.AsNativeArray().ToArray().ToList();
             [CreateProperty] private List<Goal> Goal => m_Goals.AsNativeArray().ToArray().ToList();
             private struct WorldStatesDebug
             {
@@ -37,7 +37,7 @@ namespace Game.Model.Logics
             private readonly Entity m_Self;
             private readonly RefRO<Root> m_Root;
             private readonly RefRW<Logic> m_Logic;
-            private readonly DynamicBuffer<EnumHandle> m_Plan;
+            private readonly DynamicBuffer<Plan> m_Plan;
             private readonly DynamicBuffer<WorldState> m_WorldStates;
             private readonly DynamicBuffer<Goal> m_Goals;
             public Entity Self => m_Self;
@@ -45,7 +45,7 @@ namespace Game.Model.Logics
             public Entity Root => m_Root.ValueRO.Value;
             public LogicDef Def => m_Logic.ValueRO.Def;
             public bool IsWork => m_Logic.ValueRO.m_Work;
-            public bool IsWaitNewGoal => m_Logic.ValueRO.m_WaitNewGoal;
+            //public bool IsWaitNewGoal => m_Logic.ValueRO.m_WaitNewGoal;
             public bool IsWaitChangeWorld => m_Logic.ValueRO.m_WaitChangeWorld;
             public bool IsValid => m_Logic.ValueRO.Def.IsValid;
             public bool IsActive => m_Logic.ValueRO.m_Active;
@@ -58,11 +58,17 @@ namespace Game.Model.Logics
                 //UnityEngine.Debug.Log($"{Self} [Logic] check: work-{IsWork}, action-{m_Logic.ValueRO.Action}");
                 if (IsWork && IsAction)
                 {
-                    if (Def.TryGetAction(m_Logic.ValueRO.m_Action, out GoapAction action) && !action.CanTransition(m_WorldStates, Def))
+                    if (Def.TryGetAction(m_Logic.ValueRO.m_Action, out GoapAction action) && 
+                        !action.CanTransition(m_WorldStates, Def))
                         SetFailed();
                 }
             }
 
+            public void SetActive(bool value)
+            {
+                m_Logic.ValueRW.m_Active = value;
+            }
+            
             public bool IsCurrentAction<T>(T action)
                 where T: struct, IConvertible
             {
@@ -123,7 +129,7 @@ namespace Game.Model.Logics
                 return result;
             }
 
-            public void SetPlan(NativeArray<EnumHandle> plan)
+            public void SetPlan(NativeArray<Plan> plan)
             {
 #if LOGIC_DEBUG
                 UnityEngine.Debug.Log($"{Self} [Logic] new plan - {string.Join(", ", plan.ToArray().Select(i => $"{i}"))}");
@@ -175,6 +181,11 @@ namespace Game.Model.Logics
 #endif
             }
 
+            public void ExecuteCodeLogic(ref SliceContext context)
+            {
+                Def.ExecuteCodeLogic(ref context);
+            }
+
             //TODO: Доделать на стороне StateMachine
             public void SetEvent<T>(T value)
                 where T: struct, IConvertible
@@ -194,7 +205,7 @@ namespace Game.Model.Logics
                 }
             }
             
-            public EnumHandle GetNextState()
+            public Plan GetNextState()
             {
                 var next = m_Plan.Length > 0
                     ? m_Plan[^1]

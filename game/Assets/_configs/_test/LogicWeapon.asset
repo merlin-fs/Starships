@@ -13,11 +13,17 @@ MonoBehaviour:
   m_Name: LogicWeapon
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 0}
-  m_LogicInst:
-    rid: 7383091081461891072
-  m_Parts: []
+  Logic:
+    logicInst:
+      rid: 1895243015992377349
+    slices:
+    - rid: 1895243015992377353
   references:
     version: 2
     RefIds:
-    - rid: 7383091081461891072
+    - rid: 1895243015992377349
       type: {class: LogicWeapon, ns: Game.Model.Logics, asm: Assembly-CSharp}
+      data: 
+    - rid: 1895243015992377353
+      type: {class: Destroy, ns: Game.Model.Logics, asm: Assembly-CSharp}
+      data: 

@@ -1,55 +1,130 @@
 using System;
-
-using Game.Core;
-
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
+using Game.Core;
 
 namespace Game.Model.Logics
 {
-    [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderLast = true)]
-    [UpdateAfter(typeof(Logic.System))]
-    public partial class GamePartLogicSystemGroup : ComponentSystemGroup { }
-
-
     public partial struct Logic
     {
         [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderFirst = true)]
-        public partial class System : SystemBase
+        public partial struct System : ISystem
         {
-            EntityQuery m_Query;
-            protected override void OnCreate()
+            private EntityQuery m_Query;
+            private Aspect.Lookup m_LookupLogicAspect;
+            private BufferLookup<ChildEntity> m_LookupChildEntity;
+
+            private NativeQueue<Data> m_Queue;
+            private struct Data : IComponentData
+            {
+                public Cmd Command;
+                
+                public enum Cmd
+                {
+                    Activate,
+                    Deactivate,
+                }
+            }
+            
+            public void OnCreate(ref SystemState state)
             {
                 PlanFinder.Init();
                 m_Query = SystemAPI.QueryBuilder()
-                    .WithAspect<Logic.Aspect>()
+                    .WithAspect<Aspect>()
                     .Build();
                 
                 m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<WorldState>());
-                RequireForUpdate(m_Query);
+                
+                m_LookupLogicAspect = new Aspect.Lookup(ref state);
+                m_LookupChildEntity = state.GetBufferLookup<ChildEntity>(true);
+                m_Queue = new NativeQueue<Data>(Allocator.Persistent);
+                state.RequireForUpdate(m_Query);
             }
 
-            protected override void OnDestroy()
+            public void Activate(bool value)
             {
+                m_Queue.Enqueue(new Data(){Command = value ? Data.Cmd.Activate : Data.Cmd.Deactivate});
+            }
+
+            public void OnDestroy(ref SystemState state)
+            {
+                m_Queue.Dispose();
                 PlanFinder.Dispose();
-                base.OnDestroy();
+            }
+
+            private void CheckCommands(ref SystemState state)
+            {
+                if (m_Queue.Count <= 0) return;
+                
+                state.Dependency = new ActivateJob()
+                {
+                    LookupLogicAspect = m_LookupLogicAspect,
+                    Active = m_Queue.Dequeue().Command == Data.Cmd.Activate,
+                    
+                }.ScheduleParallel(m_Query, state.Dependency);
+            }
+
+            partial struct ActivateJob : IJobEntity
+            {
+                [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
+                public Aspect.Lookup LookupLogicAspect;
+
+                public bool Active;
+
+                private void Execute([EntityIndexInQuery] int idx, Entity entity)
+                {
+                    var logic = LookupLogicAspect[entity];
+                    logic.SetActive(Active);
+                }
+            }
+
+
+            public void OnUpdate(ref SystemState state)
+            {
+                m_LookupLogicAspect.Update(ref state);
+                CheckCommands(ref state);
+                m_LookupChildEntity.Update(ref state);
+                var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+                
+                state.Dependency = new StateMachineJob()
+                {
+                    Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+                    LookupLogicAspect = m_LookupLogicAspect,
+                    LookupChildEntity = m_LookupChildEntity,
+                    
+                }.ScheduleParallel(m_Query, state.Dependency);
             }
 
             partial struct StateMachineJob : IJobEntity
             {
                 [NativeSetThreadIndex]
                 int m_ThreadIndex;
+                public EntityCommandBuffer.ParallelWriter Writer;
+                
+                [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
+                public Aspect.Lookup LookupLogicAspect;
+                [ReadOnly]
+                public BufferLookup<ChildEntity> LookupChildEntity;
 
-                public void Execute(Logic.Aspect logic)
+                private void ExecuteSlice(int idx, ref Aspect logic)
                 {
+                    if (!logic.IsAction) return;
+                    var context = new SliceContext(idx, ref logic, ref LookupLogicAspect, ref LookupChildEntity, ref Writer); 
+                    logic.ExecuteCodeLogic(ref context);
+                }
+                
+                private void Execute([EntityIndexInQuery] int idx, Entity entity)
+                {
+                    var logic = LookupLogicAspect[entity];
                     if (!logic.IsValid) return;
                     if (!logic.IsActive) return;
                     
-                    if (logic.IsWaitNewGoal || logic.IsWaitChangeWorld)
+                    if (/*logic.IsWaitNewGoal ||*/ logic.IsWaitChangeWorld)
                         return;
 
                     logic.CheckCurrentAction();
+                    ExecuteSlice(idx, ref logic);
 
                     if (logic.IsWork)
                         return;
@@ -58,6 +133,8 @@ namespace Game.Model.Logics
                     {
                         if (logic.GetNextGoal(out Goal goal))
                         {
+                            if (logic.HasWorldState(goal.State, goal.Value)) return;
+                            
                             var plan = PlanFinder.Execute(m_ThreadIndex, logic, goal, Allocator.TempJob);
                             if (plan.IsCreated && plan.Length > 0)
                             {
@@ -81,21 +158,14 @@ namespace Game.Model.Logics
                     if (!logic.IsAction || (logic.IsAction && logic.IsActionSuccess()))
                     {
                         var next = logic.GetNextState();
-                        logic.SetAction(next);
+                        logic.SetAction(next.Value);
+                        ExecuteSlice(idx, ref logic);
                     }
                     else
                     {
                         logic.SetFailed();
                     }
                 }
-            }
-
-            protected override void OnUpdate()
-            {
-                var selectJob = new StateMachineJob()
-                {
-                };
-                Dependency = selectJob.ScheduleParallel(m_Query, Dependency);
             }
         }
     }

@@ -14,11 +14,7 @@
                     <ui:Button text="Save" parse-escape-sequences="true" display-tooltip-when-elided="true" name="save" style="min-width: 125px;" />
                     <ui:Button text="Load" parse-escape-sequences="true" display-tooltip-when-elided="true" name="load" style="min-width: 125px;" />
                 </ui:VisualElement>
-                <ui:Toggle label="Toggle" name="Toggle" />
-                <ui:RadioButton label="Toggle" value="false" style="display: flex;" />
-                <ui:RadioButton label="Radio Button" value="false" />
-                <ui:RadioButton label="Radio Button" value="false" />
-                <ui:RadioButton label="Radio Button" value="false" style="display: none;" />
+                <ui:Toggle label="Activate" name="activate" style="height: 48px;" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

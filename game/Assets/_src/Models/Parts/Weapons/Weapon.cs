@@ -35,7 +35,6 @@ namespace Game.Model.Weapons
         #region IDefineableCallback
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
-            //context.SetName(entity, GetType().Name);
             context.AddComponentData(entity, new Target());
             Count = Def.ClipSize;
         }

@@ -16,6 +16,7 @@ namespace Game.Model.Weapons
         public partial struct WeaponSystem : ISystem
         {
             private EntityQuery m_Query;
+            private ComponentLookup<Team> m_LookupTeams;
 
             public void OnCreate(ref SystemState state)
             {
@@ -25,6 +26,7 @@ namespace Game.Model.Weapons
                     .Build();
                 m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
                 m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Weapon>());
+                m_LookupTeams = state.GetComponentLookup<Team>(true);
                 state.RequireForUpdate(m_Query);
             }
 
@@ -32,24 +34,33 @@ namespace Game.Model.Weapons
             {
                 var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
                 //var system = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>();
-                
+                m_LookupTeams.Update(ref state);
                 state.Dependency = new SystemJob()
                 {
                     Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
                     Delta = SystemAPI.Time.DeltaTime,
+                    LookupTeams = m_LookupTeams,
                 }.ScheduleParallel(m_Query, state.Dependency);
-                
-                //state.Dependency.Complete();
-                //system.AddJobHandleForProducer(state.Dependency);
             }
 
             partial struct SystemJob : IJobEntity
             {
                 public float Delta;
                 public EntityCommandBuffer.ParallelWriter Writer;
+                [ReadOnly] public ComponentLookup<Team> LookupTeams;
 
                 void Execute([EntityIndexInQuery] int idx, WeaponAspect weapon, Logic.Aspect logic)
                 {
+                    if (logic.IsCurrentAction(Target.Action.Find))
+                    {
+                        //UnityEngine.Debug.Log($"{logic.Self} [Logic part] FindOfWeaponTarget set teams {weapon.Unit}");
+                        var target = weapon.Target;
+                        target.SearchTeams = LookupTeams[weapon.Root].EnemyTeams;
+                        target.Radius = weapon.Stat(Stats.Range).Value;
+                        weapon.Target = target;
+                        return;
+                    }
+
                     if (logic.IsCurrentAction(Action.Reload))
                     {
                         weapon.Time += Delta;

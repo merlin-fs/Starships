@@ -11,14 +11,14 @@ namespace Game.Model.Logics
     {
         public partial struct PlanFinder
         {
-            public static NativeArray<EnumHandle> Execute(int threadIdx, Logic.Aspect logic, Goal goal, 
+            public static NativeArray<Plan> Execute(int threadIdx, Logic.Aspect logic, Goal goal, 
                 AllocatorManager.AllocatorHandle allocator)
             {
                 var path = Search(threadIdx, logic, goal, allocator);
                 return path;
             }
 
-            private unsafe static NativeArray<EnumHandle> Search(int threadIdx, Logic.Aspect logic,
+            private unsafe static NativeArray<Plan> Search(int threadIdx, Logic.Aspect logic,
                 Goal goal, AllocatorManager.AllocatorHandle allocator)
             {
                 InitFinder(threadIdx);
@@ -44,7 +44,7 @@ namespace Game.Model.Logics
                         IdentifySuccessors(threadIdx, node, logic);
                     }
 
-                    return new NativeList<EnumHandle>(1, Allocator.Persistent).AsArray();
+                    return new NativeList<Plan>(1, Allocator.Persistent).AsArray();
                 }
                 finally
                 {
@@ -92,16 +92,16 @@ namespace Game.Model.Logics
                 }
             }
 
-            private static NativeArray<EnumHandle> ShortestPath(int threadIdx, EnumHandle v, AllocatorManager.AllocatorHandle allocator)
+            private static NativeArray<Plan> ShortestPath(int threadIdx, EnumHandle v, AllocatorManager.AllocatorHandle allocator)
             {
                 var hierarchy = GetHierarchy(threadIdx);
-                var path = new NativeList<EnumHandle>(hierarchy.Count, Allocator.Persistent);
+                var path = new NativeList<Plan>(hierarchy.Count, Allocator.Persistent);
                 while (!v.Equals(EnumHandle.Null))
                 {
                     if (!hierarchy.TryGetValue(v, out EnumHandle test))
                     {
                         path.Dispose();
-                        return new NativeList<EnumHandle>(1, Allocator.Persistent).AsArray();
+                        return new NativeList<Plan>(1, Allocator.Persistent).AsArray();
                     }
                     else
                     {

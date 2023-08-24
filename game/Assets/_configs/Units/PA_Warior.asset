@@ -27,8 +27,8 @@ MonoBehaviour:
     Speed:
       rid: 129887630149025792
     Health:
-      rid: 129887630149025793
-  Logic: {fileID: 11400000, guid: 2ac2c23307fe53948afc1ee504e6e244, type: 2}
+      rid: 1895243042062073856
+  Logic: {fileID: 11400000, guid: 4c740ab6c3ea60e45bab9b23a6d6c9c9, type: 2}
   Team:
     m_SelfTeam:
       Value: 2
@@ -41,7 +41,8 @@ MonoBehaviour:
       type: {class: StaticValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
         Value: 1
-    - rid: 129887630149025793
-      type: {class: StaticValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
+    - rid: 1895243042062073856
+      type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
-        Value: 5
+        Min: 10
+        Max: 200

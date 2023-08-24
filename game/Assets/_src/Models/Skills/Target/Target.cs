@@ -3,6 +3,7 @@ using System;
 using Game.Core;
 
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 namespace Game.Model
@@ -12,14 +13,20 @@ namespace Game.Model
     public partial struct Target : IComponentData, IStateData
     {
         public Entity Value;
-        public LocalTransform Transform;
+        public LocalToWorld Transform;
         public float Radius;
-        public uint SoughtTeams;
+        public uint SearchTeams;
 
         [EnumHandle]
         public enum Action
         {
             Find,
+        }
+
+        public enum Params
+        {
+            Radius,
+            SearchTeams,
         }
 
         [EnumHandle]
