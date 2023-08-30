@@ -24,12 +24,21 @@ namespace Game.Model
         public quaternion Rotation;
         public float Speed;
 
+        public struct Query: IComponentData
+        {
+            public int2 Target;
+            public uint SearchTeams;
+        }
+
         [EnumHandle]
         public enum Action
         {
             Init,
             MoveToTarget,
             MoveToPosition,
+            
+            FindPath,
+            MoveToPoint,
         }
 
         [EnumHandle]
@@ -37,6 +46,7 @@ namespace Game.Model
         {
             Init,
             MoveDone,
+            PathFound,
         }
     }
 }

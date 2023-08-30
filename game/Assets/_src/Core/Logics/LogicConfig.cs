@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Entities;
 using Common.Defs;
+using Game.Core.Defs;
+using static Game.Model.Logics.Logic;
 
 namespace Game.Model.Logics
 {
-    using Core.Defs;
-    using static Game.Model.Logics.Logic;
-
     [CreateAssetMenu(fileName = "Logic", menuName = "Configs/Logic")]
     public class LogicConfig : GameObjectConfig
     {

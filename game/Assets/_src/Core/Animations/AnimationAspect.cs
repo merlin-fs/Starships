@@ -27,9 +27,10 @@ namespace Game.Core.Animations
             private readonly RefRW<NextClip> m_NextClip;
 
             public bool Playing => m_Player.ValueRO.Playing;
-
             public void Play(ObjectID clipId, bool loop)
             {
+                if (m_Player.ValueRO.Disable) return;
+                
                 if (m_CurrentClip.ValueRO.Data.ClipID == clipId && m_Player.ValueRO.Playing) return;
                 m_CurrentClip.ValueRW.Data.ClipID = clipId;
                 var config = Consts.Repository.FindByID<EntityAnimatorConfig>(m_Player.ValueRO.AnimatorID);
@@ -40,6 +41,11 @@ namespace Game.Core.Animations
                 m_CurrentClip.ValueRW.Data.Loop = config.GetClip(clipId).Loop || loop;
                 m_Player.ValueRW.Playing = true;
                 m_Player.ValueRW.InTransition = false;
+            }
+
+            public void Stop()
+            {
+                m_Player.ValueRW.Playing = false;
             }
             
             public void SetPosition(int threadId, int boneId, ref float3 value)

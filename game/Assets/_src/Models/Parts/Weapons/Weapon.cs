@@ -36,6 +36,7 @@ namespace Game.Model.Weapons
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
             context.AddComponentData(entity, new Target());
+            context.AddComponentData(entity, new Target.Query());
             Count = Def.ClipSize;
         }
         public void RemoveComponentData(Entity entity, IDefineableContext context) { }
@@ -47,8 +48,7 @@ namespace Game.Model.Weapons
         [EnumHandle]
         public enum Action
         {
-            Init,
-            Shooting,
+            Attack,
             Shoot,
             Reload,
             Sleep,
@@ -58,8 +58,8 @@ namespace Game.Model.Weapons
         public enum State
         {
             Active,
-            NoAmmo,
             HasAmo,
+            Shooting,
         }
 
         /// <summary>

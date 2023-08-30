@@ -15,9 +15,7 @@ namespace Game.Model
     {
         private readonly RefLink<Def> m_RefLink;
 
-        [CreateProperty]
         public uint SelfTeam => m_RefLink.Value.SelfTeam;
-        [CreateProperty]
         public uint EnemyTeams => m_RefLink.Value.EnemyTeams;
 
         public Team(RefLink<Def> refLink)
@@ -28,6 +26,7 @@ namespace Game.Model
         public void AddComponentData(Entity entity, IDefineableContext context)
         {
             context.AddComponentData(entity, new Target());
+            context.AddComponentData(entity, new Target.Query());
         }
 
         public void RemoveComponentData(Entity entity, IDefineableContext context) { }

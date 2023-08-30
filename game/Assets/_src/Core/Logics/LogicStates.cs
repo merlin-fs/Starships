@@ -13,6 +13,8 @@ namespace Game.Model.Logics
     {
         public interface IStateData { }
 
+        public struct InitTag : IComponentData{}
+        
         public struct WorldState : IBufferElementData
         {
             public bool Value;

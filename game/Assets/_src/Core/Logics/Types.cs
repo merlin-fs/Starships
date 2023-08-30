@@ -10,13 +10,12 @@ namespace Game.Model.Logics
 {
     public partial struct Logic
     {
-        public interface ISlice
+        public interface ITrigger
         {
-            bool IsConditionHit(ref SliceContext context);
-            void Execute(ref SliceContext context);
+            void Execute(ref LogicContext context);
         }
 
-        public unsafe readonly ref struct SliceContext
+        public unsafe readonly ref struct LogicContext
         {
             private readonly void* m_Logic;
             private readonly void* m_Lookup;
@@ -31,7 +30,7 @@ namespace Game.Model.Logics
             public int Index => m_Index;
             public ref BufferLookup<ChildEntity> Children => ref UnsafeUtility.AsRef<BufferLookup<ChildEntity>>(m_Children);
             
-            public SliceContext(int idx, ref Aspect logic, ref Aspect.Lookup lookup, ref BufferLookup<ChildEntity> children,
+            public LogicContext(int idx, ref Aspect logic, ref Aspect.Lookup lookup, ref BufferLookup<ChildEntity> children,
                 ref EntityCommandBuffer.ParallelWriter writer)
             {
                 m_Logic = UnsafeUtility.AddressOf(ref logic);

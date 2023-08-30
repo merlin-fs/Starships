@@ -35,13 +35,11 @@ namespace Game.Model
             public void OnUpdate(ref SystemState state)
             {
                 var entities = m_Query.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle handle);
-                var job = new Job()
+                state.Dependency = new Job
                 {
                     Entities = entities,
-                };
-                state.Dependency = job.ScheduleParallel(m_QueryTargets, handle);
+                }.ScheduleParallel(m_QueryTargets, handle);
                 entities.Dispose(state.Dependency);
-                state.Dependency.Complete();
             }
 
             partial struct Job : IJobEntity

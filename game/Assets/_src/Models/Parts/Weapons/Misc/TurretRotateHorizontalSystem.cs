@@ -45,10 +45,11 @@ namespace Game.Model.Weapons
             public WorldTransform WorldTransform;
             public void Execute(WeaponAspect weapon, Logic.Aspect logic)
             {
-                if (logic.IsCurrentAction(Weapon.Action.Shooting) && weapon.Target.Value != Entity.Null)
+                if (logic.IsCurrentAction(Weapon.Action.Attack) && weapon.Target.Value != Entity.Null)
                 {
                     var transform = WorldTransform.GetToWorldRefRW(weapon.Self).ValueRO;
-                    var direction = weapon.Target.Transform.Position;
+                    var targetTransform = WorldTransform.GetToWorldRefRW(weapon.Target.Value).ValueRO;
+                    var direction = targetTransform.Position;
                     //var direction = WorldTransform.ToWorld(weapon.Target.Value)
                     //direction = transform.TransformPointWorldToParent(direction) - transform.LocalPosition;
                     direction = direction - transform.Position;

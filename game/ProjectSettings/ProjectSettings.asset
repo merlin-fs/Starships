@@ -792,7 +792,7 @@ PlayerSettings:
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Standalone: UNITY_DOTS_DEBUG
+    Standalone: _LOGIC_DEBUG
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:

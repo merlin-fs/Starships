@@ -16,7 +16,8 @@ namespace Game.Model.Weapons
         private readonly Entity m_Self;
         readonly RefRO<Root> m_Root;
         readonly RefRW<Weapon> m_Weapon;
-        readonly RefRW<Target> m_Target;
+        readonly RefRO<Target> m_Target;
+        readonly RefRO<Target.Query> m_TargetQuery;
         [Optional] readonly RefRO<Bullet> m_Bullet;
         [ReadOnly] readonly DynamicBuffer<Stat> m_Stats;
         public Entity Self => m_Self;
@@ -37,10 +38,9 @@ namespace Game.Model.Weapons
         public Entity Root => m_Root.ValueRO.Value;
 
         [CreateProperty]
-        public Target Target { get => m_Target.ValueRO; set => m_Target.ValueRW = value; }
-
+        public Target Target { get => m_Target.ValueRO; }
         [CreateProperty]
-        public uint SearchTeams => m_Target.ValueRO.SearchTeams;
+        public Target.Query TargetQuery { get => m_TargetQuery.ValueRO; }
 
         public Bullet Bullet => m_Bullet.ValueRO;
         public Stat Stat<T>(T stat) where T: struct, IConvertible => m_Stats.GetRO(stat);

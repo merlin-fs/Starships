@@ -213,7 +213,7 @@ GameObject:
   - component: {fileID: 8076659835732265027}
   - component: {fileID: 8106466544565352287}
   - component: {fileID: 3174668482774357291}
-  - component: {fileID: 5715044931982545493}
+  - component: {fileID: 7734877472877125254}
   m_Layer: 0
   m_Name: GatelingGun_L3_BaseRotation
   m_TagString: Untagged
@@ -296,7 +296,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   root: {fileID: 4144936528890730}
---- !u!114 &5715044931982545493
+  disable: 1
+--- !u!114 &7734877472877125254
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -308,6 +309,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e6c529b975ff4f46a952edf6f6a6027, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Logic: {fileID: 0}
   ClipID: PauseRotate
 --- !u!1 &1158759922637424
 GameObject:
@@ -1017,6 +1019,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4575810401582574}
+  - component: {fileID: 1973328404799027353}
+  - component: {fileID: 3565785126953824248}
+  - component: {fileID: 6615611469517624660}
   m_Layer: 0
   m_Name: GatelingGun_L3_Barrel
   m_TagString: Untagged
@@ -1042,6 +1047,55 @@ Transform:
   - {fileID: 4734397232454746}
   m_Father: {fileID: 4856386421184550}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &1973328404799027353
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1753762991467116}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: a391ab5e5c659794783c7b6c1a0a7f88, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &3565785126953824248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1753762991467116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f0f6d86a2336714697ece77025afd73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  root: {fileID: 4575810401582574}
+  disable: 0
+--- !u!114 &6615611469517624660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1753762991467116}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e6c529b975ff4f46a952edf6f6a6027, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Logic: {fileID: 1157879558086612}
+  ClipID: BarrelRotation
 --- !u!1 &1807267876682150
 GameObject:
   m_ObjectHideFlags: 0

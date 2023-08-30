@@ -10,6 +10,8 @@ namespace Game.Core.Animations
     public class AnimatorAuthoring : MonoBehaviour
     {
         [SerializeField] private Transform root = null;
+        [SerializeField] private bool disable;
+        
         public class _baker : Baker<AnimatorAuthoring>
         {
             public override void Bake(AnimatorAuthoring authoring)
@@ -24,6 +26,7 @@ namespace Game.Core.Animations
                 {
                     AnimatorID = authoring.GetComponent<Animator>().runtimeAnimatorController.name,
                     Playing = false,
+                    Disable = authoring.disable,
                     InTransition = false,
                     SpeedMultiplier = 1f,
                 });

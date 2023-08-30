@@ -3,8 +3,6 @@ using Unity.Entities;
 using Unity.Collections;
 using Common.Defs;
 
-using Game.Core;
-
 namespace Game.Model.Weapons
 {
     using Stats;
@@ -51,14 +49,15 @@ namespace Game.Model.Weapons
 
                 void Execute([EntityIndexInQuery] int idx, WeaponAspect weapon, Logic.Aspect logic)
                 {
-                    if (logic.IsCurrentAction(Target.Action.Find))
+                    if (logic.IsCurrentAction(Global.Action.Init))
                     {
-                        //UnityEngine.Debug.Log($"{logic.Self} [Logic part] FindOfWeaponTarget set teams {weapon.Unit}");
-                        var target = weapon.Target;
-                        target.SearchTeams = LookupTeams[weapon.Root].EnemyTeams;
-                        target.Radius = weapon.Stat(Stats.Range).Value;
-                        weapon.Target = target;
-                        return;
+                        UnityEngine.Debug.Log($"{weapon.Self} [Weapon] init");
+                        var team = LookupTeams[weapon.Root];
+                        var query = new Target.Query {
+                            Radius = weapon.Stat(Stats.Range).Value, 
+                            SearchTeams = team.EnemyTeams,
+                        };
+                        Writer.SetComponent(idx, weapon.Self, query);
                     }
 
                     if (logic.IsCurrentAction(Action.Reload))
@@ -69,34 +68,29 @@ namespace Game.Model.Weapons
                         weapon.Time = 0;
 
                         //TODO: нужно перенести получение кол. патронов...
-                        if (!logic.HasWorldState(State.HasAmo, true)) return;
+                        //if (!logic.HasWorldState(State.HasAmo, true)) return;
                             
                         var count = (int)weapon.Stat(Stats.ClipSize).Value;
-                        logic.SetWorldState(State.NoAmmo, !weapon.Reload(new WriterContext(Writer, idx), count));
+                        logic.SetWorldState(State.HasAmo, weapon.Reload(new WriterContext(Writer, idx), count));
                     }
 
-                    if (logic.IsCurrentAction(Action.Shooting))
+                    if (logic.IsCurrentAction(Action.Attack))
                     {
                         weapon.Time += Delta;
-                        if (weapon.Time >= weapon.Stat(Stats.Rate).Value)
-                        {
-                            //TODO: Доделать на стороне StateMachine
-                            logic.SetAction(EnumHandle.FromEnum(Action.Shoot));
-                            weapon.Time = 0;
-                            weapon.Shot();
-                            if (weapon.Count == 0)
-                            {
-                                logic.SetWorldState(State.NoAmmo, true);
-                                logic.SetWorldState(Target.State.Dead, false);
-                            }
-                        }
+                        if (!(weapon.Time >= weapon.Stat(Stats.Rate).Value)) return;
+                        
+                        logic.SetWorldState(State.Shooting, true);
+                        weapon.Time = 0;
+                        weapon.Shot();
+                        
+                        if (weapon.Count != 0) return;
+                        logic.SetWorldState(State.HasAmo, false);
                         return;
                     }
 
                     if (logic.IsCurrentAction(Action.Shoot))
                     {
-                        //TODO: Доделать на стороне StateMachine
-                        logic.SetAction(EnumHandle.FromEnum(Action.Shooting));
+                        logic.SetWorldState(State.Shooting, false);
                         return;
                     }
 

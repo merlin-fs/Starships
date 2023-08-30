@@ -15,6 +15,7 @@ namespace Game.Model.Stats
         [EnumHandle]
         public enum Action
         {
+            Init,
             Destroy,
         }
         

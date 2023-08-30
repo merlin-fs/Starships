@@ -1,24 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using Unity.Entities;
+using Unity.Mathematics;
+using UnityEngine;
+
 using Common.Defs;
 
 using Game.Core;
+using Game.Model.Logics;
+using Game.Model.Stats;
 using Game.Model.Worlds;
-
-using Unity.Entities;
-using Unity.Mathematics;
-
-using UnityEngine;
 
 namespace Game.Model.Units
 {
-    using Weapons;
-    using Stats;
-    using System.Collections.Generic;
-    using Game.Core.Defs;
-    using static Game.Model.Logics.Logic;
-
     [Serializable]
-    public struct Unit : IUnit, IDefinable, IComponentData, IDefineableCallback, IStateData
+    public partial struct Unit : IUnit, IDefinable, IComponentData, IDefineableCallback, Logic.IStateData
     {
         public RefLink<UnitDef> RefLink { get; }
 
@@ -38,14 +34,14 @@ namespace Game.Model.Units
         [EnumHandle]
         public enum Action
         {
-            ActiveWeapons,
+            Attack,
         }
 
         [EnumHandle]
         public enum State
         {
             Stop,
-            WeaponsActive,
+            WeaponInRange,
         }
 
         [EnumHandle]

@@ -37,14 +37,16 @@ namespace Game.Model.Logics
                     var queue = GetQueue(threadIdx);
 
                     queue.Push(root);
+                    var store = root.Handle; 
                     while (queue.Pop(out Node node))
                     {
+                        store = node.Handle;
                         if (node.Goals.Count == 0)
                             return ShortestPath(threadIdx, node.Handle, allocator);
                         IdentifySuccessors(threadIdx, node, logic);
                     }
-
-                    return new NativeList<Plan>(1, Allocator.Persistent).AsArray();
+                    return ShortestPath(threadIdx, store, allocator);
+                    //return new NativeList<Plan>(1, Allocator.Persistent).AsArray();
                 }
                 finally
                 {
@@ -58,9 +60,11 @@ namespace Game.Model.Logics
                 var queue = GetQueue(threadIdx);
                 var hierarchy = GetHierarchy(threadIdx);
 
-                foreach (var iter in node.Goals)
+                using var goals = node.Goals.GetKeyValueArrays(Allocator.Temp);
+                for (int i = 0; i < goals.Length; i++)
+                //foreach (var iter in goals)
                 {
-                    foreach (var pt in logic.Def.GetActionsFromGoal(GoalHandle.FromHandle(iter.Key, iter.Value)))
+                    foreach (var pt in logic.Def.GetActionsFromGoal(GoalHandle.FromHandle(goals.Keys[i], goals.Values[i])))
                     {
                         logic.Def.TryGetAction(pt, out GoapAction action);
                         if (!costs.TryGetValue(action.Handle, out Node next))
@@ -68,6 +72,8 @@ namespace Game.Model.Logics
                             next = new Node(action.Handle, action.Cost);
                             costs.Add(action.Handle, next);
                         }
+                        else 
+                            continue;
                         next.Goals.Clear();
 
                         foreach (var nextGoal in action.GetPreconditions().GetReadOnly())
@@ -76,7 +82,7 @@ namespace Game.Model.Logics
 
                         foreach (var nextGoal in node.Goals)
                         {
-                            if (iter.Key == nextGoal.Key && iter.Value == nextGoal.Value)
+                            if (goals.Keys[i] == nextGoal.Key && goals.Values[i] == nextGoal.Value)
                                 continue;
                             if (!logic.HasWorldState(nextGoal.Key, nextGoal.Value))
                                 if (!next.Goals.ContainsKey(nextGoal.Key))

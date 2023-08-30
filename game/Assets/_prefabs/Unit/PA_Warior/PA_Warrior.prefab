@@ -128,6 +128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e6c529b975ff4f46a952edf6f6a6027, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Logic: {fileID: 0}
   ClipID: PA_WarriorForward_Clip
 --- !u!114 &4413052697696034842
 MonoBehaviour:
@@ -142,6 +143,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   root: {fileID: 1501588879875936836}
+  disable: 1
 --- !u!4 &1501588879875936836 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: cc633396b5f95da4b916357a5508ee4f,

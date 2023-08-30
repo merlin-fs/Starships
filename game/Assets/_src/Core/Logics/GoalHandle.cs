@@ -15,6 +15,13 @@ namespace Game.Model.Logics
             return new GoalHandle(handle, HashCode.Combine(handle, value));
         }
 
+        public static GoalHandle FromEnum<T>(T state, bool value)
+            where T : struct, IConvertible
+        {
+            var handle = EnumHandle.FromEnum(state);
+            return FromHandle(handle, value);
+        }
+
         private GoalHandle(EnumHandle handle, int id)
         {
             m_Handle = handle;

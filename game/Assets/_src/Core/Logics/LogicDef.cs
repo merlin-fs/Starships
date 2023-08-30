@@ -15,8 +15,9 @@ namespace Game.Model.Logics
             //TODO: временное поле, будет заменено на конфиг
             [SerializeReference, ReferenceSelect(typeof(ILogic))]
             private ILogic logicInst;
-
+            
             public bool IsValid => m_Actions.Count > 0;
+            public  EnumHandle InitializeAction { get; private set; }
 
             public void Init()
             {
@@ -39,6 +40,12 @@ namespace Game.Model.Logics
                     }
                 }
                 InitInst();
+            }
+
+            public void SetInitializeAction<T>(T value)
+                where T : struct, IConvertible
+            {
+                InitializeAction = EnumHandle.FromEnum(value);
             }
 
             private void InitInst()

@@ -11,18 +11,16 @@ namespace Game.Model.Logics
     {
         public void Init(LogicDef logic)
         {
-            logic.SetInitializeState(Weapon.State.NoAmmo, true);
-            logic.SetInitializeState(Weapon.State.HasAmo, true);
-            logic.SetInitializeState(Weapon.State.Active, false);
-
+            logic.SetInitializeAction(Global.Action.Init);
+                
             logic.AddAction(Weapon.Action.Reload)
-                .AddPreconditions(Weapon.State.HasAmo, true)
-                .AddEffect(Weapon.State.NoAmmo, false)
+                .AddPreconditions(Weapon.State.HasAmo, false)
+                .AddEffect(Weapon.State.HasAmo, true)
                 .Cost(1);
 
-            logic.AddAction(Weapon.Action.Shooting)
+            logic.AddAction(Weapon.Action.Attack)
                 .AddPreconditions(Weapon.State.Active, true)
-                .AddPreconditions(Weapon.State.NoAmmo, false)
+                .AddPreconditions(Weapon.State.HasAmo, true)
                 .AddEffect(Target.State.Dead, true)
                 .Cost(4);
 
@@ -30,7 +28,6 @@ namespace Game.Model.Logics
                 .AddPreconditions(Global.State.Dead, false)
                 .Cost(0);
 
-            logic.EnqueueGoal(Weapon.State.NoAmmo, false);
             logic.EnqueueGoalRepeat(Target.State.Dead, true);
         }
     }

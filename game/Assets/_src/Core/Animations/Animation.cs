@@ -11,6 +11,7 @@ namespace Game.Core.Animations
     {
         public ObjectID AnimatorID;
         public bool Playing;
+        public bool Disable;
         public bool InTransition;
         
         public float TransitionDuration;
@@ -30,6 +31,7 @@ namespace Game.Core.Animations
 
         public struct Trigger : IBufferElementData
         {
+            public Entity LogicEntity;
             public EnumHandle Action;
             public ObjectID ClipID;
 

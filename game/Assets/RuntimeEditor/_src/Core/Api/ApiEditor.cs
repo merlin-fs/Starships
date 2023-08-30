@@ -51,7 +51,7 @@ namespace Buildings
         public void SetLogicActive(bool value)
         {
             var manager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            var system = World.DefaultGameObjectInjectionWorld.Unmanaged.GetUnsafeSystemRef<Logic.System>(manager.World.GetExistingSystem<Logic.System>());
+            var system = World.DefaultGameObjectInjectionWorld.Unmanaged.GetUnsafeSystemRef<Logic.Aspect.System>(manager.World.GetExistingSystem<Logic.Aspect.System>());
             system.Activate(value);
         }
         

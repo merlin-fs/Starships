@@ -26,6 +26,7 @@ namespace Game.Model.Units
             base.Configurate(prefab, context);
             Value.AddComponentData(prefab, context);
             Team.AddComponentData(prefab, context);
+            
             if (Logic is IConfig config)
                 config.Configurate(prefab, context);
         }

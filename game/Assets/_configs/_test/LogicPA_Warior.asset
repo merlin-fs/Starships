@@ -15,19 +15,10 @@ MonoBehaviour:
   PrefabObject: {fileID: 0}
   Logic:
     logicInst:
-      rid: 1895243038519984129
-    slices:
-    - rid: 1895243015992377352
-    - rid: 1895243038519984128
+      rid: 1895243158586654720
   references:
     version: 2
     RefIds:
-    - rid: 1895243015992377352
-      type: {class: Destroy, ns: Game.Model.Logics, asm: Assembly-CSharp}
-      data: 
-    - rid: 1895243038519984128
-      type: {class: UnitActivateWeapon, ns: Game.Model.Logics, asm: Assembly-CSharp}
-      data: 
-    - rid: 1895243038519984129
+    - rid: 1895243158586654720
       type: {class: LogicPA_Warior, ns: Game.Model.Logics, asm: Assembly-CSharp}
       data: 

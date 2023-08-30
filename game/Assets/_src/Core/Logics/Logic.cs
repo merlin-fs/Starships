@@ -20,15 +20,19 @@ namespace Game.Model.Logics
         private bool m_Work;
         private bool m_WaitNewGoal;
         private bool m_WaitChangeWorld;
+        private bool m_Event;
+        private GoalHandle m_ChangedWorld;
         
         public Logic(RefLink<LogicDef> refLink)
         {
             m_RefLink = refLink;
             m_Active = false;
-            m_Work = false;
+            m_Event = false;
+            m_Work = true;
             m_WaitNewGoal = false;
             m_WaitChangeWorld = false;
-            m_Action = EnumHandle.Null;
+            m_ChangedWorld = GoalHandle.Null;
+            m_Action = refLink.Value.InitializeAction;
         }
 
         private readonly bool IsCurrentAction(EnumHandle action)
@@ -38,6 +42,7 @@ namespace Game.Model.Logics
         #region IDefineableCallback
         void IDefineableCallback.AddComponentData(Entity entity, IDefineableContext context)
         {
+            context.AddComponentData(entity, new InitTag());
             context.AddBuffer<Plan>(entity);
             var goals = context.AddBuffer<Goal>(entity);
             foreach (var iter in Def.Goals)

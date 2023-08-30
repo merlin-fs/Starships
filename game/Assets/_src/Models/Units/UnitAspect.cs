@@ -22,11 +22,12 @@ namespace Game.Model.Units
 
         #region DesignTime
 #if UNITY_EDITOR
-
+        /*
         [CreateProperty]
         public readonly string TeamName => GlobalTeamsConfig.Instance.GetName(new TeamValue { Value = m_Team.ValueRO.SelfTeam });
         [CreateProperty]
         public readonly string[] EnemyName => GlobalTeamsConfig.Instance.GetNames(new TeamValue { Value = m_Team.ValueRO.EnemyTeams });
+        */
 #endif
         #endregion
     }

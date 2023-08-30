@@ -16,7 +16,7 @@ namespace Game.Model.Logics
             private Map<GoalHandle, EnumHandle> m_Effects = new Map<GoalHandle, EnumHandle>(10, Allocator.Persistent, true);
             private Dictionary<EnumHandle, WorldActionData> m_StateMapping = new Dictionary<EnumHandle, WorldActionData>(10);
             private List<Goal> m_Goal = new List<Goal>();
-
+           
             ~LogicDef()
             {
                 m_Effects.Dispose();
@@ -24,6 +24,7 @@ namespace Game.Model.Logics
 
             public Dictionary<EnumHandle, WorldActionData> StateMapping => m_StateMapping;
             public IEnumerable<Goal> Goals => m_Goal.Reverse<Goal>();
+
             public ConfigAction AddAction<T>(T value)
                 where T: struct, IConvertible
             {
