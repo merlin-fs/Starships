@@ -10,12 +10,12 @@ namespace Game.Model.Logics
 
     public class LogicPA_Warior: ILogic
     {
-        public void Init(LogicDef logic)
+        public void Initialize(LogicDef logic)
         {
-            logic.SetInitializeAction(Global.Action.Init);
+            logic.Initialize(Global.Action.Init);
             
-            logic.SetInitializeState(Move.State.Init, true);
-            logic.SetInitializeState(Unit.State.WeaponInRange, false);
+            logic.SetState(Move.State.Init, true);
+            logic.SetState(Unit.State.WeaponInRange, false);
 
             /*
             logic.AddAction(Move.Action.Init)

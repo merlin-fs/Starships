@@ -162,7 +162,7 @@ namespace Game.Core.Animations
             m_Clips.Add(id, clip);
         }
 
-        void IInitiated.Init()
+        void IInitiated.Initialize()
         {
             BuildHash();
         }

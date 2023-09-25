@@ -41,14 +41,14 @@ namespace Game.Core.Spawns
 
             partial struct SpawnJob : IJobEntity
             {
-                private DiContext.Var<ObjectRepository> m_Repository;
+                private ObjectRepository Repository => Inject<ObjectRepository>.Value;
                 public EntityCommandBuffer.ParallelWriter Writer;
 
                 void Execute([EntityIndexInQuery] int idx, in Entity entity, in Load spawn,
                     in DynamicBuffer<Component> components)
                 {
                     var configId = spawn.Data.Value.Value<string>(m_PrefabType);
-                    var config = m_Repository.Value.FindByID(configId);
+                    var config = Repository.FindByID(configId);
 
                     var inst = Writer.Instantiate(idx, config.Prefab);
 

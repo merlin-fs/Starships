@@ -24,7 +24,7 @@ namespace Game.Core.Animations
     {
         public static int ArrayLength;
 
-        public static void Init()
+        public static void Initialize()
         {
             ArrayLength = Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount + 2;
         }

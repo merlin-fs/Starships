@@ -7,10 +7,11 @@ namespace Game.Model.Logics
     using static Game.Model.Logics.Logic;
     public class LogicWeapon: ILogic
     {
-        public void Init(LogicDef logic)
+        public void Initialize(LogicDef logic)
         {
-            logic.SetInitializeAction(Global.Action.Init);
-            logic.AddTriggerState<Weapon.WeaponInRange>(GoalHandle.FromEnum(Target.State.Found, true));
+            logic.Initialize(Global.Action.Init);
+            logic.CustomAction<Weapon, Weapon.WeaponInRange>()
+                .AfterChangeState(Target.State.Found, true);
             
             logic.AddAction(Target.Action.Find)
                 .AddPreconditions(Target.State.Found, false)

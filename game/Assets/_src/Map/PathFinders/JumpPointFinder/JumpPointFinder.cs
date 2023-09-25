@@ -18,7 +18,7 @@ namespace Game.Model.Worlds
         {
             private static JumpPointFinder[] m_Finders;
 
-            public static void Init()
+            public static void Initialize()
             {
                 var cpus = Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount + 2;
                 m_Finders = new JumpPointFinder[cpus];

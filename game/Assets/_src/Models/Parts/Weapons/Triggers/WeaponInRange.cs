@@ -6,11 +6,11 @@ namespace Game.Model.Weapons
 {
     public partial struct Weapon
     {
-        public struct WeaponInRange : Logic.ITrigger
+        public struct WeaponInRange : Logic.IAction<Context>
         {
-            public void Execute(ref Logic.LogicContext context)
+            public void Execute(ref Context context)
             {
-                var unitLogic = context.Lookup[context.Logic.Root];
+                var unitLogic = context.LogicLookup[context.Logic.Root];
                 unitLogic.SetWorldState(Unit.State.WeaponInRange, true);
             }
         }

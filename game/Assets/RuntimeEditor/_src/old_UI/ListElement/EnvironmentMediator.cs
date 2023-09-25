@@ -6,6 +6,9 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Common.Defs;
 using Buildings;
+
+using Common.Core;
+
 using Unity.Entities;
 using Game.Core.Repositories;
 using Game.Core.Prefabs;
@@ -21,10 +24,10 @@ namespace Game.UI.Elements
 
         private readonly EnvironmentList m_List = new EnvironmentList();
 
-        BuildingContext.Var<IApiEditor> m_ApiEditor;
-        BuildingContext.Var<ObjectRepository> m_Repository;
+        private IApiEditor ApiEditor => Inject<IApiEditor>.Value;
+        private ObjectRepository Repository => Inject<ObjectRepository>.Value;
         
-        private List<string> Items => m_Repository.Value.Labels.ToList();
+        private List<string> Items => Repository.Labels.ToList();
         private TemplateContainer m_Popup;
         private ListView m_ListView;
         private IConfig m_CurrentConfig;
@@ -65,9 +68,9 @@ namespace Game.UI.Elements
         {
             UIManager.HidePopups();
             m_CurrentConfig = config;
-            if (m_ApiEditor.Value.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
+            if (ApiEditor.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
                 holder.Cancel();
-            m_ApiEditor.Value.AddEnvironment(config);
+            ApiEditor.AddEnvironment(config);
         }
 
         protected override async void OnInitialize(VisualElement root)
@@ -116,7 +119,7 @@ namespace Game.UI.Elements
                 m_ListView.itemsSource = list;
             };
 
-            m_ApiEditor.Value.Events.RegisterCallback<EventPlace>(evt =>
+            ApiEditor.Events.RegisterCallback<EventPlace>(evt =>
             {
                 switch (evt.Value)
                 {
@@ -129,7 +132,7 @@ namespace Game.UI.Elements
                         break;
                     case EventPlace.State.Apply:
                         m_CurrentEntity = Entity.Null;
-                        m_ApiEditor.Value.AddEnvironment(m_CurrentConfig);
+                        ApiEditor.AddEnvironment(m_CurrentConfig);
                         break;
                 }
             });

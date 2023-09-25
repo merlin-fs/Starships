@@ -11,7 +11,6 @@ namespace Game.Model.Logics
         [CreateProperty] private string Action => m_Action.ToString();
         [CreateProperty] private bool Work => m_Work;
         [CreateProperty] private bool WaitNewGoal => m_WaitNewGoal;
-        [CreateProperty] private bool WaitChangeWorld => m_WaitChangeWorld;
 
         private readonly RefLink<LogicDef> m_RefLink;
         private LogicDef Def => m_RefLink.Value;
@@ -21,7 +20,6 @@ namespace Game.Model.Logics
         private bool m_WaitNewGoal;
         private bool m_WaitChangeWorld;
         private bool m_Event;
-        private GoalHandle m_ChangedWorld;
         
         public Logic(RefLink<LogicDef> refLink)
         {
@@ -31,7 +29,6 @@ namespace Game.Model.Logics
             m_Work = true;
             m_WaitNewGoal = false;
             m_WaitChangeWorld = false;
-            m_ChangedWorld = GoalHandle.Null;
             m_Action = refLink.Value.InitializeAction;
         }
 
@@ -44,6 +41,7 @@ namespace Game.Model.Logics
         {
             context.AddComponentData(entity, new InitTag());
             context.AddBuffer<Plan>(entity);
+            context.AddBuffer<WorldChanged>(entity);
             var goals = context.AddBuffer<Goal>(entity);
             foreach (var iter in Def.Goals)
                 goals.Add(iter);

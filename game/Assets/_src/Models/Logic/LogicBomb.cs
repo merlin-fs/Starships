@@ -9,9 +9,9 @@ namespace Game.Model.Logics
     
     public class LogicBomb: ILogic
     {
-        public void Init(LogicDef logic)
+        public void Initialize(LogicDef logic)
         {
-            logic.SetInitializeAction(Global.Action.Init);
+            logic.Initialize(Global.Action.Init);
                 
             logic.AddAction(Weapon.Action.Reload)
                 .AddPreconditions(Weapon.State.HasAmo, false)

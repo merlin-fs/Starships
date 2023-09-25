@@ -38,7 +38,7 @@ public class TestSpawn : MonoBehaviour
 
     private EntityManager m_EntityManager;
     
-    readonly static DiContext.Var<ReferenceSubSceneManager> m_ReferenceSubSceneManager;
+    private ReferenceSubSceneManager ReferenceSubSceneManager => Inject<ReferenceSubSceneManager>.Value;
 
     private readonly struct SavedContext: ISavedContext
     {
@@ -141,8 +141,8 @@ public class TestSpawn : MonoBehaviour
         */
         
         var list = await Task.WhenAll(RepositoryLoadSystem.LoadObjects(), RepositoryLoadSystem.LoadAnimations());
-        await m_ReferenceSubSceneManager.Value.LoadAsync();
-        m_ReferenceSubSceneManager.Value.LoadSubScenes(m_EntityManager.WorldUnmanaged, list.SelectMany(iter => iter).Select(iter => iter.ID));
+        await ReferenceSubSceneManager.LoadAsync();
+        ReferenceSubSceneManager.LoadSubScenes(m_EntityManager.WorldUnmanaged, list.SelectMany(iter => iter).Select(iter => iter.ID));
         
         StartBatle();
     }

@@ -12,14 +12,10 @@ namespace Game.Core.Animations
 {
     public partial struct Animation
     {
-        private static class Consts
-        {
-            private static readonly DiContext.Var<AnimationRepository> m_AnimationRepository;
-            public static AnimationRepository Repository => m_AnimationRepository.Value;
-        }
-
         public readonly partial struct Aspect : IAspect
         {
+            private static AnimationRepository Repository => Inject<AnimationRepository>.Value;
+
             private readonly Entity m_Self;
 
             private readonly RefRW<Animation> m_Player;
@@ -33,7 +29,7 @@ namespace Game.Core.Animations
                 
                 if (m_CurrentClip.ValueRO.Data.ClipID == clipId && m_Player.ValueRO.Playing) return;
                 m_CurrentClip.ValueRW.Data.ClipID = clipId;
-                var config = Consts.Repository.FindByID<EntityAnimatorConfig>(m_Player.ValueRO.AnimatorID);
+                var config = Repository.FindByID<EntityAnimatorConfig>(m_Player.ValueRO.AnimatorID);
 
                 m_CurrentClip.ValueRW.Data.Elapsed = 0;
                 m_CurrentClip.ValueRW.Data.Duration = config.GetClip(clipId).Length;
@@ -50,7 +46,7 @@ namespace Game.Core.Animations
             
             public void SetPosition(int threadId, int boneId, ref float3 value)
             {
-                var config = Consts.Repository.FindByID<EntityAnimatorConfig>(m_Player.ValueRO.AnimatorID);
+                var config = Repository.FindByID<EntityAnimatorConfig>(m_Player.ValueRO.AnimatorID);
                 var clipData = m_CurrentClip.ValueRO.Data;
                 var clip = config.GetClip(clipData.ClipID);
                 clip.SetPosition(threadId, boneId, clipData.Elapsed, ref value);
@@ -58,7 +54,7 @@ namespace Game.Core.Animations
 
             public void SetRotation(int threadId, int boneId, ref quaternion value)
             {
-                var config = Consts.Repository.FindByID<EntityAnimatorConfig>(m_Player.ValueRO.AnimatorID);
+                var config = Repository.FindByID<EntityAnimatorConfig>(m_Player.ValueRO.AnimatorID);
                 var clipData = m_CurrentClip.ValueRO.Data;
                 var clip = config.GetClip(clipData.ClipID);
                 clip.SetRotation(threadId, boneId, clipData.Elapsed, ref value);

@@ -3,6 +3,8 @@ using Unity.Entities;
 using Unity.Collections;
 using Common.Defs;
 
+using Unity.Collections.LowLevel.Unsafe;
+
 namespace Game.Model.Weapons
 {
     using Stats;
@@ -10,8 +12,8 @@ namespace Game.Model.Weapons
 
     public partial struct Weapon
     {
-        [UpdateInGroup(typeof(GameLogicSystemGroup))]
-        public partial struct WeaponSystem : ISystem
+        [UpdateInGroup(typeof(GameLogicObjectSystemGroup))]
+        public partial struct System : ISystem
         {
             private EntityQuery m_Query;
             private ComponentLookup<Team> m_LookupTeams;
@@ -98,6 +100,96 @@ namespace Game.Model.Weapons
                     {
                         logic.SetWorldState(Global.State.Dead, true);
                     }
+                }
+            }
+        }
+
+        [UpdateInGroup(typeof(GameLogicBeforeActionSystemGroup))]
+        public partial struct BeforeActionSystem : ISystem
+        {
+            private EntityQuery m_Query;
+            private Logic.Aspect.Lookup m_LookupLogicAspect;
+
+            public void OnCreate(ref SystemState state)
+            {
+                m_Query = SystemAPI.QueryBuilder()
+                    .WithAspect<WeaponAspect>()
+                    .WithAspect<Logic.Aspect>()
+                    .Build();
+                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
+                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Weapon>());
+                state.RequireForUpdate(m_Query);
+                m_LookupLogicAspect = new Logic.Aspect.Lookup(ref state);
+            }
+
+            public void OnUpdate(ref SystemState state)
+            {
+                m_LookupLogicAspect.Update(ref state);
+                var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+                state.Dependency = new SystemJob()
+                {
+                    Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+                    Delta = SystemAPI.Time.DeltaTime,
+                    LookupLogicAspect = m_LookupLogicAspect,
+                }.ScheduleParallel(m_Query, state.Dependency);
+            }
+            
+            partial struct SystemJob : IJobEntity
+            {
+                public float Delta;
+                public EntityCommandBuffer.ParallelWriter Writer;
+                [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
+                public Logic.Aspect.Lookup LookupLogicAspect;
+
+                void Execute([EntityIndexInQuery] int idx, WeaponAspect weapon)
+                {
+                    LookupLogicAspect[weapon.Self]
+                        .ExecuteBeforeAction(new Context(idx, ref LookupLogicAspect, ref weapon));
+                }
+            }
+        }
+        
+        [UpdateInGroup(typeof(GameLogicAfterActionSystemGroup))]
+        public partial struct AfterActionSystem : ISystem
+        {
+            private EntityQuery m_Query;
+            private Logic.Aspect.Lookup m_LookupLogicAspect;
+
+            public void OnCreate(ref SystemState state)
+            {
+                m_Query = SystemAPI.QueryBuilder()
+                    .WithAspect<WeaponAspect>()
+                    .WithAspect<Logic.Aspect>()
+                    .Build();
+                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
+                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Weapon>());
+                state.RequireForUpdate(m_Query);
+                m_LookupLogicAspect = new Logic.Aspect.Lookup(ref state);
+            }
+
+            public void OnUpdate(ref SystemState state)
+            {
+                m_LookupLogicAspect.Update(ref state);
+                var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+                state.Dependency = new SystemJob()
+                {
+                    Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+                    Delta = SystemAPI.Time.DeltaTime,
+                    LookupLogicAspect = m_LookupLogicAspect,
+                }.ScheduleParallel(m_Query, state.Dependency);
+            }
+            
+            partial struct SystemJob : IJobEntity
+            {
+                public float Delta;
+                public EntityCommandBuffer.ParallelWriter Writer;
+                [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
+                public Logic.Aspect.Lookup LookupLogicAspect;
+
+                void Execute([EntityIndexInQuery] int idx, WeaponAspect weapon)
+                {
+                    LookupLogicAspect[weapon.Self]
+                        .ExecuteAfterChangeState(new Context(idx, ref LookupLogicAspect, ref weapon));
                 }
             }
         }

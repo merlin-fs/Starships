@@ -21,11 +21,10 @@ namespace Game.Core.Prefabs
         {
             private EntityQuery m_QueryEnvironments;
             private EntityQuery m_QueryObjects;
-
-            readonly static DiContext.Var<ObjectRepository> m_ObjectRepository;
-            readonly static DiContext.Var<IEventSender> m_Sender;
             static ConcurrentDictionary<Entity, IDefineableContext> m_Contexts;
             static private bool m_Done;
+            private static ObjectRepository ObjectRepository => Inject<ObjectRepository>.Value;
+            private static IEventSender Sender => Inject<IEventSender>.Value;
 
             public Task<bool> IsDone()
             {
@@ -58,7 +57,7 @@ namespace Game.Core.Prefabs
                 if (m_QueryEnvironments.IsEmpty && m_QueryObjects.IsEmpty) return;
                 
                 m_Done = false;
-                m_Sender.Value.SendEvent(EventRepository.GetPooled(m_ObjectRepository.Value, EventRepository.Enum.Loading));
+                Sender.SendEvent(EventRepository.GetPooled(ObjectRepository, EventRepository.Enum.Loading));
                 var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
 
                 var environmentsHandle = new EnvironmentsJob
@@ -85,7 +84,7 @@ namespace Game.Core.Prefabs
                 public void Execute()
                 {
                     m_Contexts.Clear();
-                    m_Sender.Value.SendEvent(EventRepository.GetPooled(m_ObjectRepository.Value, EventRepository.Enum.Done));
+                    Sender.SendEvent(EventRepository.GetPooled(ObjectRepository, EventRepository.Enum.Done));
                     m_Done = true;
                 }
             }
@@ -93,7 +92,7 @@ namespace Game.Core.Prefabs
             partial struct EnvironmentsJob : IJobEntity
             {
                 public EntityCommandBuffer.ParallelWriter Writer;
-                readonly DiContext.Var<ObjectRepository> m_Repository;
+                private static ObjectRepository Repository => Inject<ObjectRepository>.Value;
 
                 private void Execute([EntityIndexInQuery] int idx, in Entity entity,
                     in PrefabInfo prefab, in BakedEnvironment environment, in DynamicBuffer<BakedLabel> labels)
@@ -113,14 +112,14 @@ namespace Game.Core.Prefabs
                     def.AddComponentData(entity, context);
 
                     context.SetName(entity, prefab.ConfigID.ToString());
-                    m_Repository.Value.Insert(prefab.ConfigID, config, localLabels.ToArray());
+                    Repository.Insert(prefab.ConfigID, config, localLabels.ToArray());
                 }
             }
 
             partial struct ObjectsJob : IJobEntity
             {
                 public EntityCommandBuffer.ParallelWriter Writer;
-                readonly DiContext.Var<ObjectRepository> m_Repository;
+                private static ObjectRepository Repository => Inject<ObjectRepository>.Value;
 
                 void Execute([EntityIndexInQuery] int idx, in Entity entity, in PrefabInfo prefab)
                 {
@@ -129,7 +128,7 @@ namespace Game.Core.Prefabs
                         context = new WriterContext(Writer, idx);
                         m_Contexts.TryAdd(entity, context);
                     }
-                    var config = m_Repository.Value.FindByID(prefab.ConfigID);
+                    var config = Repository.FindByID(prefab.ConfigID);
                     
                     context.SetName(entity, prefab.ConfigID.ToString());
                     config.Configurate(entity, context);

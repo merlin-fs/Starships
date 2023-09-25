@@ -19,7 +19,7 @@ namespace Game.Model.Logics
             public bool IsValid => m_Actions.Count > 0;
             public  EnumHandle InitializeAction { get; private set; }
 
-            public void Init()
+            public void Initialize()
             {
                 m_StateMapping.Clear();
                 m_Actions.Clear();
@@ -42,7 +42,7 @@ namespace Game.Model.Logics
                 InitInst();
             }
 
-            public void SetInitializeAction<T>(T value)
+            public void Initialize<T>(T value)
                 where T : struct, IConvertible
             {
                 InitializeAction = EnumHandle.FromEnum(value);
@@ -50,7 +50,7 @@ namespace Game.Model.Logics
 
             private void InitInst()
             {
-                logicInst?.Init(this);
+                logicInst?.Initialize(this);
             }
         }
     }

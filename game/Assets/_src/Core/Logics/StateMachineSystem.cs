@@ -1,8 +1,12 @@
 using System;
+using System.Linq;
+
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Game.Core;
+
+using Unity.Jobs;
 
 namespace Game.Model.Logics
 {
@@ -10,16 +14,17 @@ namespace Game.Model.Logics
     {
         public readonly partial struct Aspect
         {
-
             [UpdateInGroup(typeof(GameLogicInitSystemGroup), OrderFirst = true)]
             public partial struct System : ISystem
             {
                 private EntityQuery m_Query;
                 private Aspect.Lookup m_LookupLogicAspect;
-                private BufferLookup<ChildEntity> m_LookupChildEntity;
 
                 private NativeQueue<Data> m_Queue;
 
+                private static int m_UpdateCount;
+                public static int UpdateCount => m_UpdateCount; 
+                
                 private struct Data : IComponentData
                 {
                     public Cmd Command;
@@ -33,7 +38,8 @@ namespace Game.Model.Logics
 
                 public void OnCreate(ref SystemState state)
                 {
-                    PlanFinder.Init();
+                    m_UpdateCount = 0;
+                    PlanFinder.Initialize();
                     m_Query = SystemAPI.QueryBuilder()
                         .WithAspect<Aspect>()
                         .Build();
@@ -41,7 +47,7 @@ namespace Game.Model.Logics
                     m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<WorldState>());
 
                     m_LookupLogicAspect = new Aspect.Lookup(ref state);
-                    m_LookupChildEntity = state.GetBufferLookup<ChildEntity>(true);
+                    
                     m_Queue = new NativeQueue<Data>(Allocator.Persistent);
                     state.RequireForUpdate(m_Query);
                 }
@@ -85,15 +91,15 @@ namespace Game.Model.Logics
 
                 public void OnUpdate(ref SystemState state)
                 {
+                    m_UpdateCount++;
                     m_LookupLogicAspect.Update(ref state);
                     CheckCommands(ref state);
-                    m_LookupChildEntity.Update(ref state);
+                    
                     var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
 
                     state.Dependency = new StateMachineJob() {
                         Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
                         LookupLogicAspect = m_LookupLogicAspect,
-                        LookupChildEntity = m_LookupChildEntity,
                     }.ScheduleParallel(m_Query, state.Dependency);
                 }
 
@@ -105,8 +111,6 @@ namespace Game.Model.Logics
                     [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
                     public Aspect.Lookup LookupLogicAspect;
 
-                    [ReadOnly] public BufferLookup<ChildEntity> LookupChildEntity;
-
                     private void Execute([EntityIndexInQuery] int idx, Entity entity)
                     {
                         var logic = LookupLogicAspect[entity];
@@ -115,12 +119,6 @@ namespace Game.Model.Logics
 
                         if ( /*logic.IsWaitNewGoal ||*/ logic.IsWaitChangeWorld)
                             return;
-
-                        if (logic.IsChangedWorld)
-                        {
-                            var context = new LogicContext(idx, ref logic, ref LookupLogicAspect, ref LookupChildEntity, ref Writer);
-                            logic.ExecuteTriggersState(ref context);
-                        }
 
                         logic.CheckCurrentAction();
 
@@ -161,8 +159,6 @@ namespace Game.Model.Logics
                         {
                             var next = logic.GetNextState();
                             logic.SetAction(next.Value);
-                            var context = new LogicContext(idx, ref logic, ref LookupLogicAspect, ref LookupChildEntity, ref Writer);
-                            logic.ExecuteTriggersAction(ref context);
                         }
                         else
                         {
@@ -177,10 +173,15 @@ namespace Game.Model.Logics
             public partial struct EndLogicSystem : ISystem
             {
                 private EntityQuery m_Query;
+                private EntityQuery m_QueryInit;
 
                 public void OnCreate(ref SystemState state)
                 {
                     m_Query = SystemAPI.QueryBuilder()
+                        .WithAspect<Aspect>()
+                        .Build();
+
+                    m_QueryInit = SystemAPI.QueryBuilder()
                         .WithAspect<Aspect>()
                         .WithAll<InitTag>()
                         .Build();
@@ -190,23 +191,36 @@ namespace Game.Model.Logics
                 public void OnUpdate(ref SystemState state)
                 {
                     var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-                    var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
-                    state.Dependency = new SystemJob
+                    
+                    state.Dependency = new ChangeInitDoneJob
                     {
                         Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+                    }.ScheduleParallel(m_QueryInit, state.Dependency);
+                    
+                    state.Dependency = new ChangeWorldDoneJob
+                    {
                     }.ScheduleParallel(m_Query, state.Dependency);
                 }
 
-                partial struct SystemJob : IJobEntity
+                partial struct ChangeInitDoneJob : IJobEntity
                 {
                     public EntityCommandBuffer.ParallelWriter Writer;
-
                     private void Execute([EntityIndexInQuery] int idx, Aspect logic)
                     {
                         if (!logic.IsCurrentAction(logic.Def.InitializeAction)) return;
 
-                        logic.SetFailed();
+                        logic.m_Logic.ValueRW.m_Action = EnumHandle.Null;
+                        logic.m_Logic.ValueRW.m_Work = false;
                         Writer.RemoveComponent<InitTag>(idx, logic.Self);
+                    }
+                }
+
+                partial struct ChangeWorldDoneJob : IJobEntity
+                {
+                    private void Execute(Aspect logic)
+                    {
+                        if (!logic.IsChangedWorld) return;
+                        logic.m_WorldChanged.Clear();
                     }
                 }
             }

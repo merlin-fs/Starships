@@ -27,7 +27,8 @@ namespace Buildings.Environments
         EntityQuery m_Query;
         EntityQuery m_QueryMap;
         Plane m_Ground;
-        DiContext.Var<Config> m_Config;
+        
+        private static Config Config => Inject<Config>.Value;
 
         public void OnCreate(ref SystemState state)
         {
@@ -51,7 +52,7 @@ namespace Buildings.Environments
             if (!Camera.main)
                 return;
 
-            var input = m_Config.Value.MoveAction.ReadValue<Vector2>();
+            var input = Config.MoveAction.ReadValue<Vector2>();
             var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
             var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
 
@@ -61,10 +62,10 @@ namespace Buildings.Environments
             state.Dependency = new SystemJob()
             {
                 Aspect = aspect,
-                IsPlace = m_Config.Value.PlaceAction.triggered,
-                IsCancel = m_Config.Value.CancelAction.triggered,
-                IsRotateX = m_Config.Value.RorateXAction.triggered,
-                IsRotateY = m_Config.Value.RorateYAction.triggered,
+                IsPlace = Config.PlaceAction.triggered,
+                IsCancel = Config.CancelAction.triggered,
+                IsRotateX = Config.RorateXAction.triggered,
+                IsRotateY = Config.RorateYAction.triggered,
                 Writer = ecb.AsParallelWriter(),
                 Ground = m_Ground,
                 Ray = Camera.main.ScreenPointToRay(input),
@@ -75,7 +76,7 @@ namespace Buildings.Environments
 
         partial struct SystemJob : IJobEntity
         {
-            private readonly DiContext.Var<IApiEditorHandler> m_ApiHandler;
+            private IApiEditorHandler ApiHandler => Inject<IApiEditorHandler>.Value;
             [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
             public Map.Aspect Aspect;
 
@@ -94,7 +95,7 @@ namespace Buildings.Environments
                 {
                     Aspect.SetObject(placement.Value.Layer, move.Position, Entity.Null);
                     Writer.AddComponent<DeadTag>(idx, entity);
-                    m_ApiHandler.Value.OnDestroy(entity);
+                    ApiHandler.OnDestroy(entity);
                 }
                 else if (Ground.Raycast(Ray, out float position))
                 {
@@ -140,7 +141,7 @@ namespace Buildings.Environments
                     
                     Writer.SetComponent(idx, entity, newMove);
                     Writer.RemoveComponent<SelectBuildingTag>(idx, entity);
-                    m_ApiHandler.Value.OnPlace(entity);
+                    ApiHandler.OnPlace(entity);
                 }
             }
 

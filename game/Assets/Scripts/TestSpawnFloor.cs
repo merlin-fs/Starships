@@ -24,7 +24,7 @@ public class TestSpawnFloorStatic
 {
     static TestSpawnFloorStatic()
     {
-        Game.Core.Animations.Animation.Init();
+        Game.Core.Animations.Animation.Initialize();
         Game.Core.EnumHandle.Manager.Initialize();
     }
 }
@@ -37,15 +37,15 @@ public class TestSpawnFloor : MonoBehaviour
     
     private EntityManager m_EntityManager;
     
-    DiContext.Var<IApiEditor> m_ApiEditor;
-    DiContext.Var<ObjectRepository> m_Repository;
-    DiContext.Var<ReferenceSubSceneManager> m_ReferenceSubSceneManager;
+    private IApiEditor ApiEditor => Inject<IApiEditor>.Value;
+    private ObjectRepository Repository => Inject<ObjectRepository>.Value;
+    private ReferenceSubSceneManager ReferenceSubSceneManager => Inject<ReferenceSubSceneManager>.Value;
     
     
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
     {
-        Game.Core.Animations.Animation.Init();
+        Game.Core.Animations.Animation.Initialize();
         Game.Core.EnumHandle.Manager.Initialize();
 #if UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP_RUNTIME_WORLD
         DefaultWorldInitialization.Initialize("Default World", false);
@@ -64,8 +64,8 @@ public class TestSpawnFloor : MonoBehaviour
         var system = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabInfo.System>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabInfo.System>());
         //var system = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabEnvironmentSystem>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabEnvironmentSystem>());
         await system.IsDone();
-        var config = m_Repository.Value.FindByID("Deck_Wall_snaps002");
-        m_ApiEditor.Value.AddEnvironment(config);
+        var config = Repository.FindByID("Deck_Wall_snaps002");
+        ApiEditor.AddEnvironment(config);
         /*
         var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
             .CreateCommandBuffer();
@@ -80,9 +80,9 @@ public class TestSpawnFloor : MonoBehaviour
     private async void StartBatle()
     {
         var list = await Task.WhenAll(RepositoryLoadSystem.LoadObjects(), RepositoryLoadSystem.LoadAnimations());
-        await m_ReferenceSubSceneManager.Value.LoadAsync();
+        await ReferenceSubSceneManager.LoadAsync();
         var ids = list.SelectMany(iter => iter).Select(iter => iter.ID);
-        m_ReferenceSubSceneManager.Value.LoadSubScenes(m_EntityManager.WorldUnmanaged, ids);
+        ReferenceSubSceneManager.LoadSubScenes(m_EntityManager.WorldUnmanaged, ids);
         
         await RepositoryLoadSystem.LoadObjects();
         await RepositoryLoadSystem.LoadAnimations();

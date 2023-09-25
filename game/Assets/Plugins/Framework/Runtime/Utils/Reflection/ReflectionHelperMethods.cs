@@ -11,7 +11,7 @@ namespace System.Reflection
             where T : Delegate
         {
             var method = self.GetMethod(methodName, bindingAttr);
-            return (T)method.CreateDelegate(typeof(T));
+            return (T)method?.CreateDelegate(typeof(T));
         }
     }
 }

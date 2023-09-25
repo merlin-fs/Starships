@@ -12,8 +12,7 @@ namespace Game.UI.Elements
         [SerializeField] private StyleSheet style;
         [SerializeField] private string caption;
 
-        private readonly DiContext.Var<IUIManager> m_Manager;
-        public IUIManager UIManager => m_Manager.Value;
+        protected static IUIManager UIManager => Inject<IUIManager>.Value;
 
         protected VisualElement m_Parent;
         protected VisualElement m_Element;

@@ -12,10 +12,10 @@ namespace Game.Model.Logics
         [Serializable]
         public partial class LogicDef : IDef<Logic>
         {
-            private Dictionary<EnumHandle, ConfigAction> m_Actions = new Dictionary<EnumHandle, ConfigAction>();
-            private Map<GoalHandle, EnumHandle> m_Effects = new Map<GoalHandle, EnumHandle>(10, Allocator.Persistent, true);
-            private Dictionary<EnumHandle, WorldActionData> m_StateMapping = new Dictionary<EnumHandle, WorldActionData>(10);
-            private List<Goal> m_Goal = new List<Goal>();
+            private Dictionary<EnumHandle, ConfigAction> m_Actions = new ();
+            private Map<GoalHandle, EnumHandle> m_Effects = new (10, Allocator.Persistent, true);
+            private Dictionary<EnumHandle, WorldActionData> m_StateMapping = new (10);
+            private List<Goal> m_Goal = new ();
            
             ~LogicDef()
             {
@@ -72,7 +72,7 @@ namespace Game.Model.Logics
                 return false;
             }
 
-            public void SetInitializeState<T>(T state, bool value)
+            public void SetState<T>(T state, bool value)
                 where T: struct, IConvertible
             {
                 var handle = EnumHandle.FromEnum(state);

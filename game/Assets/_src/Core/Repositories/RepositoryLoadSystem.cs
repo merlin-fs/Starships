@@ -11,38 +11,36 @@ namespace Game.Core.Repositories
 {
     public partial struct RepositoryLoadSystem
     {
-        readonly static DiContext.Var<ObjectRepository> m_ObjectRepository;
-        readonly static DiContext.Var<AnimationRepository> m_AnimationRepository;
-        readonly static DiContext.Var<IEventSender> m_Sender;
+        private static ObjectRepository ObjectRepository => Inject<ObjectRepository>.Value;
+        private static AnimationRepository AnimationRepository => Inject<AnimationRepository>.Value;
+        private static IEventSender Sender => Inject<IEventSender>.Value;
 
         public static Task<IList<IIdentifiable<ObjectID>>> LoadObjects()
         {
-            m_Sender.Value.SendEvent(EventRepository.GetPooled(m_ObjectRepository.Value, EventRepository.Enum.Loading));
-            var repository = m_ObjectRepository.Value; 
+            Sender.SendEvent(EventRepository.GetPooled(ObjectRepository, EventRepository.Enum.Loading));
             return Addressables.LoadAssetsAsync<IIdentifiable<ObjectID>>("defs", null)
                 .Task
                 .ContinueWith(task =>
                 {
-                    repository.Insert(task.Result.Cast<IConfig>(), "defs");
-                    m_Sender.Value.SendEvent(EventRepository.GetPooled(m_ObjectRepository.Value, EventRepository.Enum.Done));
+                    ObjectRepository.Insert(task.Result.Cast<IConfig>(), "defs");
+                    Sender.SendEvent(EventRepository.GetPooled(ObjectRepository, EventRepository.Enum.Done));
                     return task.Result;
                 });
         }
 
         public static Task<IList<IIdentifiable<ObjectID>>> LoadAnimations()
         {
-            m_Sender.Value.SendEvent(EventRepository.GetPooled(m_AnimationRepository.Value, EventRepository.Enum.Loading));
-            var repository = m_AnimationRepository.Value; 
+            Sender.SendEvent(EventRepository.GetPooled(AnimationRepository, EventRepository.Enum.Loading));
             return Addressables.LoadAssetsAsync<IIdentifiable<ObjectID>>("animation", null)
                 .Task
                 .ContinueWith(task =>
                 {
-                    repository.Insert(task.Result, (iter) =>
+                    AnimationRepository.Insert(task.Result, (iter) =>
                     {
                         if (iter is IInitiated initiated)
-                            initiated.Init();
+                            initiated.Initialize();
                     });
-                    m_Sender.Value.SendEvent(EventRepository.GetPooled(m_AnimationRepository.Value, EventRepository.Enum.Done));
+                    Sender.SendEvent(EventRepository.GetPooled(AnimationRepository, EventRepository.Enum.Done));
                     return task.Result;
                 });
         }

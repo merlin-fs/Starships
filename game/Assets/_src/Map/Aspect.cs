@@ -1,12 +1,6 @@
 using System;
-using System.Reflection;
-using Common.Core;
 using Unity.Entities;
 using Unity.Mathematics;
-
-using static Game.Model.Logics.Logic;
-using static Game.Model.Worlds.Map;
-using static UnityEngine.EventSystems.EventTrigger;
 
 namespace Game.Model.Worlds
 {
@@ -23,7 +17,7 @@ namespace Game.Model.Worlds
             public void Init(ref SystemState systemState, Aspect aspect)
             {
                 m_Data.ValueRW.Size = m_Data.ValueRO.Define.Size;
-                Layers.Init(ref systemState, aspect);
+                Layers.Initialize(ref systemState, aspect);
             }
 
             public void SetObject<T>(int2 pos, Entity entity)

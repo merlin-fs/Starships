@@ -24,10 +24,9 @@ namespace Game.Model
         public quaternion Rotation;
         public float Speed;
 
-        public struct Query: IComponentData
+        public struct Target: IComponentData
         {
-            public int2 Target;
-            public uint SearchTeams;
+            public int2 Value;
         }
 
         [EnumHandle]

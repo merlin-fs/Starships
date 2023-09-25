@@ -20,6 +20,11 @@ namespace Game.Model.Logics
             public bool Value;
         }
 
+        public struct WorldChanged : IBufferElementData
+        {
+            public GoalHandle Value;
+        }
+
         public struct Plan : IBufferElementData
         {
             public EnumHandle Value;

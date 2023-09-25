@@ -23,11 +23,11 @@ namespace Game.Model.Stats
 
         partial struct PrepareStatsJob : IJobEntity
         {
-            readonly DiContext.Var<ObjectRepository> m_Repository;
+            private static ObjectRepository Repository => Inject<ObjectRepository>.Value;
 
             void Execute(in DynamicBuffer<PrepareStat> configs, ref DynamicBuffer<Stat> stats)
             {
-                var repo = m_Repository.Value;
+                var repo = Repository;
                 foreach (var iter in configs)
                 {
                     var config = repo.FindByID(iter.ConfigID);

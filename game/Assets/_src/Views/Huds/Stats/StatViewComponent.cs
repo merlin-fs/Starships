@@ -20,7 +20,7 @@ namespace Game.Views.Stats
 {
     public struct StatView : IComponentData, IStatViewComponent
     {
-        private readonly DiContext.Var<Hud.Manager> m_HudManager;
+        private static Hud.Manager HudManager => Inject<Hud.Manager>.Value;
         private RefLink<HudHealth> m_Hud;
         private HudHealth Hud => m_Hud.Value;
         private readonly EnumHandle m_StatID;
@@ -28,7 +28,7 @@ namespace Game.Views.Stats
         public StatView(EnumHandle statID)
         {
             m_StatID = statID;
-            m_Hud = RefLink<HudHealth>.From(m_HudManager.Value.GetHud<HudHealth>());
+            m_Hud = RefLink<HudHealth>.From(HudManager.GetHud<HudHealth>());
         }
         public void Update(in StatAspect stat, in LocalTransform transform)
         {
@@ -37,7 +37,7 @@ namespace Game.Views.Stats
         
         public void Dispose()
         {
-            m_HudManager.Value.ReleaseHud(Hud);
+            HudManager.ReleaseHud(Hud);
             RefLink<HudHealth>.Free(m_Hud);
         }
     }

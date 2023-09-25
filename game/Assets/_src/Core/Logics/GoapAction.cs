@@ -54,12 +54,12 @@ namespace Game.Model.Logics
                 foreach (var iter in m_Preconditions.GetReadOnly())
                 {
                     var index = def.StateMapping[iter.Key].Index;
-                    if (states[index].Value != iter.Value)
-                    {
-                        //UnityEngine.Debug.Log($"[Logic] CanTransition failed - {iter.Key} - \"{!iter.Value}\"");
-                        return false;
-                    }
-                        
+                    if (states[index].Value == iter.Value) continue;
+#if LOGIC_DEBUG                
+                    UnityEngine.Debug.Log($"[Logic] CanTransition failed - {iter.Key} - \"{!iter.Value}\"");
+#endif
+                    return false;
+
                 }
                 return true;
             }

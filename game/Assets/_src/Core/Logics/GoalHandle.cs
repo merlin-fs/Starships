@@ -7,12 +7,14 @@ namespace Game.Model.Logics
     {
         private readonly EnumHandle m_Handle;
         private readonly int m_ID;
+        private readonly bool m_Value;
+        public bool Value => m_Value;
 
-        public static GoalHandle Null { get; } = new GoalHandle(EnumHandle.Null, 0);
+        public static GoalHandle Null { get; } = new GoalHandle(EnumHandle.Null, 0, false);
 
         public static GoalHandle FromHandle(EnumHandle handle, bool value)
         {
-            return new GoalHandle(handle, HashCode.Combine(handle, value));
+            return new GoalHandle(handle, HashCode.Combine(handle, value), value);
         }
 
         public static GoalHandle FromEnum<T>(T state, bool value)
@@ -22,15 +24,16 @@ namespace Game.Model.Logics
             return FromHandle(handle, value);
         }
 
-        private GoalHandle(EnumHandle handle, int id)
+        private GoalHandle(EnumHandle handle, int id, bool value)
         {
             m_Handle = handle;
             m_ID = id;
+            m_Value = value;
         }
 
         public override string ToString()
         {
-            return m_Handle.ToString();
+            return $"{m_Handle} => {m_Value}";
         }
 
         public bool Equals(GoalHandle other)

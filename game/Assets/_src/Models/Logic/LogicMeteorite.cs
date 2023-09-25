@@ -10,11 +10,11 @@ namespace Game.Model.Logics
 
     public class LogicMeteorite: ILogic
     {
-        public void Init(LogicDef logic)
+        public void Initialize(LogicDef logic)
         {
-            logic.SetInitializeAction(Global.Action.Init);
+            logic.Initialize(Global.Action.Init);
             
-            logic.SetInitializeState(Move.State.Init, false);
+            logic.SetState(Move.State.Init, false);
 
             logic.AddAction(Move.Action.Init)
                 .AddPreconditions(Move.State.Init, false)

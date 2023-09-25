@@ -34,6 +34,7 @@ namespace Game.Model.Units
         [EnumHandle]
         public enum Action
         {
+            WeaponsActivate,
             Attack,
         }
 

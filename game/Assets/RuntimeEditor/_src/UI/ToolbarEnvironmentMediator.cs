@@ -24,9 +24,9 @@ namespace Game.UI
     {
         [SerializeField] private UIDocument document;
 
-        readonly static DiContext.Var<ObjectRepository> m_Repository;
-        readonly static DiContext.Var<IEventHandler> m_Handler;
-        readonly static DiContext.Var<IApiEditor> m_ApiEditor;
+        private static ObjectRepository Repository => Inject<ObjectRepository>.Value;
+        private static IEventHandler Handler => Inject<IEventHandler>.Value;
+        private static IApiEditor ApiEditor => Inject<IApiEditor>.Value;
         
         private VisualElement m_Content;
         private ListView m_ListView;
@@ -37,7 +37,7 @@ namespace Game.UI
         
         private void Awake()
         {
-            m_Handler.Value.RegisterCallback<EventRepository>(OnEventRepository);
+            Handler.RegisterCallback<EventRepository>(OnEventRepository);
             m_Content = document.rootVisualElement.Q<VisualElement>("environment");
             m_ListView = document.rootVisualElement.Q<ListView>("object_list");
             BindItems();
@@ -58,7 +58,7 @@ namespace Game.UI
                 ChoseItem(obj);
             };
             
-            m_ApiEditor.Value.Events.RegisterCallback<EventPlace>(evt =>
+            ApiEditor.Events.RegisterCallback<EventPlace>(evt =>
             {
                 switch (evt.Value)
                 {
@@ -70,7 +70,7 @@ namespace Game.UI
                         break;
                     case EventPlace.State.Apply:
                         m_CurrentEntity = Entity.Null;
-                        m_ApiEditor.Value.AddEnvironment(m_CurrentConfig);
+                        ApiEditor.AddEnvironment(m_CurrentConfig);
                         break;
                 }
             });
@@ -80,19 +80,19 @@ namespace Game.UI
         {
             m_ListView.style.display = DisplayStyle.None;
             m_CurrentConfig = config;
-            if (m_ApiEditor.Value.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
+            if (ApiEditor.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
                 holder.Cancel();
-            m_ApiEditor.Value.AddEnvironment(config);
+            ApiEditor.AddEnvironment(config);
         }
 
         private void OnDestroy()
         {
-            m_Handler.Value.UnregisterCallback<EventRepository>(OnEventRepository);
+            Handler.UnregisterCallback<EventRepository>(OnEventRepository);
         }
 
         private void OnEventRepository(EventRepository evt)
         {
-            if (evt.Repository != m_Repository.Value || evt.State != EventRepository.Enum.Done) return;
+            if (evt.Repository != Repository || evt.State != EventRepository.Enum.Done) return;
             BuildList();
         }
 
@@ -114,7 +114,7 @@ namespace Game.UI
         private void ShowListObject(TypeIndex typeIndex)
         {
             m_ListView.Clear();
-            m_CurrentList = m_Repository.Value.Find(iter =>
+            m_CurrentList = Repository.Find(iter =>
             {
                 if (iter.Entity.Prefab == Entity.Null) return false;
                 var manager = World.DefaultGameObjectInjectionWorld.EntityManager;

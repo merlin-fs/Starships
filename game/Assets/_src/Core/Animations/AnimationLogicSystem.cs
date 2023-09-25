@@ -54,7 +54,7 @@ namespace Game.Core.Animations
                         logic = LookupLogicAspect[iter.LogicEntity];
                         if (logic.IsCurrentAction(iter.Action))
                         {
-                            UnityEngine.Debug.Log($"{entity} [Animation] action: {logic.Action}, clip: {iter.ClipID}");
+                            //UnityEngine.Debug.Log($"{entity} [Animation] action: {logic.Action}, clip: {iter.ClipID}");
                             play = true;
                             animation.Play(iter.ClipID, true);
                         }

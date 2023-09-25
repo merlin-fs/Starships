@@ -19,7 +19,6 @@ namespace Game.Core
             private static readonly object m_Look = new object();
 
             public static EnumHandle GetHandle<T>(T value)
-                where T : struct, IConvertible
             {
                 return SharedEnumHandle<T>.Get(UnsafeUtility.As<T, int>(ref value));
             }

@@ -19,7 +19,7 @@ namespace Game.Model.Logics
             private static SortedNativeQueue<Node> GetQueue(int threadIdx) => m_Queue[threadIdx];
             private static NativeHashMap<EnumHandle, EnumHandle> GetHierarchy(int threadIdx) => m_Hierarchy[threadIdx];
 
-            public static void Init()
+            public static void Initialize()
             {
                 var cpus = Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount + 2;
                 m_Costs = new NativeHashMap<EnumHandle, Node>[cpus];

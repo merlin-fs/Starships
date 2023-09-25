@@ -7,7 +7,7 @@ namespace Game.UI
 {
     public class LogicActivate : MonoBehaviour
     {
-        readonly static DiContext.Var<IApiEditor> m_ApiEditor;
+        private static IApiEditor ApiEditor => Inject<IApiEditor>.Value;
         
         [SerializeField] private UIDocument document;
 
@@ -16,7 +16,7 @@ namespace Game.UI
             var btn = document.rootVisualElement.Q<Toggle>("activate");
             btn.RegisterValueChangedCallback(e =>
             {
-                m_ApiEditor.Value.SetLogicActive(e.newValue);
+                ApiEditor.SetLogicActive(e.newValue);
             });
         }
     }

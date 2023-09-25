@@ -18,9 +18,7 @@ namespace Game.UI.Elements
         
         private VisualElement m_Element;
         public VisualElement VisualElement => m_Element;
-
-        private DiContext.Var<IUIManager> m_Manager;
-        public IUIManager UIManager => m_Manager.Value;
+        public IUIManager UIManager => Inject<IUIManager>.Value;
 
         private void OnClick()
         {

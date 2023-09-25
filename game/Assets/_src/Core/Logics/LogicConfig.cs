@@ -19,7 +19,7 @@ namespace Game.Model.Logics
         public override void OnAfterDeserialize()
         {
             base.OnAfterDeserialize();
-            Logic.Init();
+            Logic.Initialize();
         }
     }
 }

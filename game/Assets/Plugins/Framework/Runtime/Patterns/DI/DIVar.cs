@@ -1,34 +1,28 @@
-using System;
 using System.Reflection;
 
 namespace Common.Core
 {
+    public struct Inject<T>
+    {
+        public static T Value { get; private set; }
+
+        internal static void Initialize(IDiContext context)
+        {
+            Value = context.Get<T>();
+        }
+    }
+    
     public partial class DiContext
     {
-        public struct Var<T>
-        {
-            private static T m_Value;
-            
-            public T Value => m_Value;
-
-            internal static void Initialize(IDiContext context)
-            {
-                m_Value = context.Get<T>();
-            }
-        }
-
         private delegate void InitMethod(IDiContext context);
-        
         private void InitVars()
         {
-            var type = typeof(Var<>);
+            var type = typeof(Inject<>);
             foreach (var iter in m_Container.Instances)
             {
                 var target = type.MakeGenericType(iter);
-                var method = target.GetMethod(nameof(Var<int>.Initialize), BindingFlags.NonPublic | BindingFlags.Static);
-                var dlg = (InitMethod)method.CreateDelegate(typeof(InitMethod));
-
-                dlg.Invoke(this);
+                var dlg = target.GetDelegate<InitMethod>(nameof(Inject<int>.Initialize), BindingFlags.NonPublic | BindingFlags.Static);
+                dlg?.Invoke(this);
             }
         }
     }

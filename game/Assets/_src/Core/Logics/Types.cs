@@ -1,28 +1,38 @@
 ﻿using System;
-
 using Game.Core;
-
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.Entities;
 
 namespace Game.Model.Logics
 {
     public partial struct Logic
     {
-        public interface ITrigger
+        public interface IAction {}
+
+        public interface IAction<T> : IAction
+            where T : ILogicContext
         {
-            void Execute(ref LogicContext context);
+            void Execute(ref T context);
         }
 
-        public unsafe readonly ref struct LogicContext
+        public interface ILogicContext
+        {
+            CustomHandle LogicHandle { get; }
+        }
+        
+        public interface ILogicContext<TLogic>: ILogicContext
+            where TLogic : IStateData
+        {
+            Aspect Logic { get; }
+        }
+        
+        /*
+        public unsafe readonly struct LogicContext: ILogicContext<Logic>
         {
             private readonly void* m_Logic;
             private readonly void* m_Lookup;
             private readonly void* m_Writer;
             private readonly int m_Index;
             private readonly void* m_Children;
-            
 
             public ref Aspect Logic => ref UnsafeUtility.AsRef<Aspect>(m_Logic);
             public ref Aspect.Lookup Lookup => ref UnsafeUtility.AsRef<Aspect.Lookup>(m_Lookup);
@@ -40,10 +50,11 @@ namespace Game.Model.Logics
                 m_Index = idx;
             }
         }
+        */
         
         public interface ILogic
         {
-            void Init(LogicDef def);
+            void Initialize(LogicDef def);
         }
 
         public struct States: IDisposable

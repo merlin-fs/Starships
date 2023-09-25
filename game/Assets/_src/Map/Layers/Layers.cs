@@ -55,7 +55,7 @@ namespace Game.Model.Worlds
 
             public static IEnumerable<LayerInfo> Values => m_Layers.Values.Select(iter => iter.LayerInfo);
             
-            public static void Init(ref SystemState systemState, Aspect aspect)
+            public static void Initialize(ref SystemState systemState, Aspect aspect)
             {
                 foreach (var iter in m_Layers.Values)
                     iter.Init(ref systemState, aspect);

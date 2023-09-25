@@ -24,7 +24,7 @@ public class TestGoapPlan : MonoBehaviour
     void Start()
     {
         m_Button.onClick.AddListener(OnClick);
-        PlanFinder.Init();
+        PlanFinder.Initialize();
         FillDic();
         FillMap();
     }

@@ -11,12 +11,11 @@ namespace Game.UI.Elements
     {
         public string BindName => "Environment";
         public event Action<IEnumerable<IConfig>> OnUpdateList;
-
-        readonly DiContext.Var<ObjectRepository> m_Repository;
-
+        private ObjectRepository Repository => Inject<ObjectRepository>.Value;
+        
         public void ChoseGroup(string value)
         {
-            var items = m_Repository.Value.Find((item) => item.Labels.Contains(value));
+            var items = Repository.Find((item) => item.Labels.Contains(value));
             OnUpdateList?.Invoke(items);
         }
     }

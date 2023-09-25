@@ -25,7 +25,7 @@ namespace Game.Core.Events
 
         public static long TypeId => typeof(T).GetHashCode();
 
-        private void Init()
+        private void Initialize()
         {
             m_RefCount = 0;
         }
@@ -33,7 +33,7 @@ namespace Game.Core.Events
         protected static T GetPooled()
         {
             T val = s_Pool.Get();
-            val.Init();
+            val.Initialize();
             //val.pooled = true;
             val.Acquire();
             return val;
@@ -53,7 +53,7 @@ namespace Game.Core.Events
         {
             //if (evt.pooled)
             {
-                evt.Init();
+                evt.Initialize();
                 s_Pool.Release(evt);
                 //evt.pooled = false;
             }

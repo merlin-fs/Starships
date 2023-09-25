@@ -6,6 +6,8 @@ using Unity.Entities;
 using Unity.Properties;
 using Game.Core;
 
+using Unity.Collections.LowLevel.Unsafe;
+
 namespace Game.Model.Logics
 {
     public partial struct Logic
@@ -41,6 +43,7 @@ namespace Game.Model.Logics
             private readonly DynamicBuffer<Plan> m_Plan;
             private readonly DynamicBuffer<WorldState> m_WorldStates;
             private readonly DynamicBuffer<Goal> m_Goals;
+            private readonly DynamicBuffer<WorldChanged> m_WorldChanged;
             public Entity Self => m_Self;
             public string SelfName => World.DefaultGameObjectInjectionWorld.EntityManager.GetName(m_Self);
             public Entity Root => m_Root.ValueRO.Value;
@@ -50,8 +53,7 @@ namespace Game.Model.Logics
             public bool IsValid => m_Logic.ValueRO.Def.IsValid;
             public bool IsActive => m_Logic.ValueRO.m_Active;
             public bool IsAction => m_Logic.ValueRO.m_Action != EnumHandle.Null;
-
-            private bool IsChangedWorld => m_Logic.ValueRO.m_ChangedWorld != GoalHandle.Null;
+            private bool IsChangedWorld => m_WorldChanged.Length > 0;
             private bool IsWaitChangeWorld => m_Logic.ValueRO.m_WaitChangeWorld;
             private bool HasPlan => m_Plan.Length > 0;
 
@@ -69,24 +71,26 @@ namespace Game.Model.Logics
             public void SetWorldState<T>(T worldState, bool value)
                 where T: struct, IConvertible
             {
+
                 var state = EnumHandle.FromEnum(worldState);
                 var index = m_Logic.ValueRO.Def.StateMapping[state].Index;
                 if (m_WorldStates.ElementAt(index).Value != value)
                 {
                     m_WorldStates.ElementAt(index).Value = value;
-#if LOGIC_DEBUG                    
-                    UnityEngine.Debug.Log($"{Self},{SelfName} [Logic] change world: {state} - {value}");
+                    var changes = new WorldChanged {Value = GoalHandle.FromHandle(state, value)};
+                    m_WorldChanged.Add(changes);
+#if LOGIC_DEBUG
+                    UnityEngine.Debug.Log($"{Self}({SelfName}) {System.UpdateCount} [Logic] change world: {state} - {value}");
 #endif
                 }
                 if (Def.TryGetAction(m_Logic.ValueRO.m_Action, out GoapAction action) && action.GetGoalTools().LeadsToGoal(state))
                 {
 #if LOGIC_DEBUG                    
-                    UnityEngine.Debug.Log($"{Self} [Logic] {Action} - done");
+                    UnityEngine.Debug.Log($"{Self}({SelfName}) {System.UpdateCount} [Logic] {Action} - done");
 #endif
                     m_Logic.ValueRW.m_Work = false;
                 }
                 m_Logic.ValueRW.m_WaitChangeWorld = false;
-                m_Logic.ValueRW.m_ChangedWorld = GoalHandle.FromHandle(state, value);
             }
             
             public bool HasWorldState<T>(T worldState, bool value)
@@ -117,7 +121,7 @@ namespace Game.Model.Logics
                     m_Logic.ValueRW.m_Work = false;
                     m_Logic.ValueRW.m_Event = true;
 #if LOGIC_DEBUG                
-                    UnityEngine.Debug.Log($"{Self},{SelfName} [Logic] new event \"{Action}\"");
+                    UnityEngine.Debug.Log($"{Self}({SelfName}) {System.UpdateCount} [Logic] new event \"{Action}\"");
 #endif
                 }
             }
@@ -140,16 +144,23 @@ namespace Game.Model.Logics
                     SetFailed();
             }
 
-            private void ExecuteTriggersState(ref LogicContext context)
+            public void ExecuteBeforeAction<TContext>(TContext context)
+                where TContext: unmanaged, ILogicContext
             {
-                var state = m_Logic.ValueRO.m_ChangedWorld;
-                m_Logic.ValueRW.m_ChangedWorld = GoalHandle.Null;
-                Def.ExecuteTriggersState(ref context, state);
+                if (!IsAction) return;
+                
+                Def.ExecuteBeforeAction(ref context, m_Logic.ValueRO.m_Action);
             }
 
-            private void ExecuteTriggersAction(ref LogicContext context)
+            public void ExecuteAfterChangeState<TContext>(TContext context)
+                where TContext: unmanaged, ILogicContext
             {
-                Def.ExecuteTriggersAction(ref context, m_Logic.ValueRO.m_Action);
+                if (!IsChangedWorld) return;
+
+                foreach (var iter in m_WorldChanged)
+                {
+                    Def.ExecuteAfterChangeState(ref context, iter.Value);
+                }
             }
 
             private bool GetNextGoal(out Goal goal)
@@ -168,7 +179,7 @@ namespace Game.Model.Logics
             private void SetPlan(NativeArray<Plan> plan)
             {
 #if LOGIC_DEBUG
-                UnityEngine.Debug.Log($"{Self} [Logic] new plan - {string.Join(" > ", plan.ToArray().Reverse().Select(i => $"{i.Value.ToString()}"))}");
+                UnityEngine.Debug.Log($"{Self}({SelfName}) {System.UpdateCount} [Logic] new plan - {string.Join(" > ", plan.ToArray().Reverse().Select(i => $"{i.Value.ToString()}"))}");
 #endif
                 m_Plan.CopyFrom(plan);
             }
@@ -181,16 +192,17 @@ namespace Game.Model.Logics
             private void SetFailed()
             {
 #if LOGIC_DEBUG                
-                UnityEngine.Debug.Log($"{Self},{SelfName} [Logic] {Action} - Failed");
+                UnityEngine.Debug.Log($"{Self}({SelfName}) {System.UpdateCount} [Logic] {Action} - Failed");
 #endif
                 m_Logic.ValueRW.m_Action = EnumHandle.Null;
                 m_Logic.ValueRW.m_Work = false;
+                m_Plan.Clear();
             }
 
             private void SetWaitChangeWorld()
             {
 #if LOGIC_DEBUG                
-                UnityEngine.Debug.Log($"{Self},{SelfName} [Logic] no plan. Wait change world");
+                UnityEngine.Debug.Log($"{Self}({SelfName}) {System.UpdateCount} [Logic] no plan. Wait change world");
 #endif
                 m_Logic.ValueRW.m_WaitChangeWorld = true;
             }
@@ -198,7 +210,7 @@ namespace Game.Model.Logics
             private void SetWaitNewGoal()
             {
 #if LOGIC_DEBUG                
-                UnityEngine.Debug.Log($"{Self},{SelfName} [Logic] LogicFinish - no goals");
+                UnityEngine.Debug.Log($"{Self}({SelfName}) {System.UpdateCount} [Logic] LogicFinish - no goals");
 #endif
                 m_Logic.ValueRW.m_Action = EnumHandle.Null;
                 m_Logic.ValueRW.m_WaitNewGoal = true;
@@ -213,7 +225,7 @@ namespace Game.Model.Logics
                     SetFailed();
                 }
 #if LOGIC_DEBUG                
-                UnityEngine.Debug.Log($"{Self},{SelfName} [Logic] new action \"{Action}\"");
+                UnityEngine.Debug.Log($"{Self}({SelfName}) {System.UpdateCount} [Logic] new action \"{Action}\"");
 #endif
             }
 

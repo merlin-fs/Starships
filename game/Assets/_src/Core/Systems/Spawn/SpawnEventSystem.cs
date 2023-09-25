@@ -25,11 +25,11 @@ namespace Game.Core.Spawns
 
             partial struct SystemJob : IJobEntity
             {
-                private DiContext.Var<IApiEditorHandler> m_ApiHandler;
+                private IApiEditorHandler ApiHandler => Inject<IApiEditorHandler>.Value;
 
                 void Execute(in Entity entity)
                 {
-                    m_ApiHandler.Value.OnSpawn(entity);
+                    ApiHandler.OnSpawn(entity);
                 }
             }
 

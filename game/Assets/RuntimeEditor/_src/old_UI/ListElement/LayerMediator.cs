@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using UnityEngine.UIElements;
 using Common.Defs;
 using Buildings;
+
+using Common.Core;
+
 using Unity.Entities;
 using Game.Model.Worlds;
 
@@ -16,7 +19,7 @@ namespace Game.UI.Elements
 
         private readonly EnvironmentList m_List = new EnvironmentList();
 
-        BuildingContext.Var<IApiEditor> m_ApiEditor;
+        private IApiEditor ApiEditor => Inject<IApiEditor>.Value;
         private List<string> Items => Map.Layers.Values.Select(iter => iter.Type.Name).ToList();
         private TemplateContainer m_Popup;
         private ListView m_ListView;
@@ -68,9 +71,9 @@ namespace Game.UI.Elements
         {
             UIManager.HidePopups();
             m_CurrentConfig = config;
-            if (m_ApiEditor.Value.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
+            if (ApiEditor.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
                 holder.Cancel();
-            m_ApiEditor.Value.AddEnvironment(config);
+            ApiEditor.AddEnvironment(config);
         }
 
         protected override void OnInitialize(VisualElement root)
