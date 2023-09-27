@@ -1,5 +1,7 @@
 using System;
 
+using Buildings.Environments;
+
 using Game.Model.Worlds;
 
 using Unity.Collections;
@@ -15,7 +17,7 @@ namespace Game.Model
     public partial struct Move
     {
         [UpdateInGroup(typeof(GameLogicSystemGroup))]
-        public partial struct MoveSystem : ISystem
+        public partial struct System : ISystem
         {
             private EntityQuery m_Query;
             private EntityQuery m_QueryMap;
@@ -26,6 +28,8 @@ namespace Game.Model
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAspect<Logic.Aspect>()
                     .WithAspect<Aspect>()
+                    .WithAll<Move>()
+                    .WithNone<SelectBuildingTag>()
                     .Build();
 
                 m_QueryMap = SystemAPI.QueryBuilder()
@@ -43,7 +47,7 @@ namespace Game.Model
             public void OnUpdate(ref SystemState state)
             {
                 var map = SystemAPI.GetAspect<Map.Aspect>(m_QueryMap.GetSingletonEntity());
-                
+                Map.Layers.Update(ref state);
                 var job = new MoveJob()
                 {
                     Delta = SystemAPI.Time.DeltaTime,
@@ -73,17 +77,40 @@ namespace Game.Model
 
                     if (logic.IsCurrentAction(Action.FindPath))
                     {
-                        //logic.
-                        //data.
-                        //Map.Path.
-                        //Map.GetCells()
-                        //Map.PathFinder.Execute(m_ThreadIndex, null, MapAspect.Value, logic.Self, )
+                        //UnityEngine.Debug.Log($"{logic.Self} [Move] FindPath {data.Position}, speed {data.Speed}");
+                        var mapAspect = MapAspect;
+                        var path = Map.PathFinder.Execute(m_ThreadIndex, (Map.Data map, Entity entity, int2? source, int2 target)=>
+                            {
+                                var passable = map.Passable(target);
+                                if (!passable) return -1;
+                                
+                                passable &= mapAspect.GetObject<Map.Layers.Structure>(target) == Entity.Null;
+                                passable &= mapAspect.GetObject<Map.Layers.Door>(target) == Entity.Null;
+                                
+                                return passable ? 1 : -1;
+                            }, 
+                            MapAspect.Value, logic.Self, aspect.Transform.Position, aspect.Target);
+                        
+                        var success = aspect.SetPath(path, MapAspect.Value);
+                        data.Position = aspect.LocalTransformRO.Position; 
+                        data.Rotation = aspect.LocalTransformRO.Rotation;
+                        data.Travel = 0;
+                        
+                        logic.SetWorldState(State.PathFound, success);
+                        return;
+                    }
+
+                    if (logic.IsCurrentAction(Action.MoveToPoint))
+                    {
+                        //UnityEngine.Debug.Log($"{logic.Self} [Move] MoveToPoint {data.Position}, speed {data.Speed}");
+                        if (MoveToPoint(Delta, ref data, aspect))
+                            logic.SetWorldState(State.MoveDone, true);
                         return;
                     }
 
                     if (logic.IsCurrentAction(Action.MoveToTarget) || logic.IsCurrentAction(Action.MoveToPosition))
                     {
-                        //UnityEngine.Debug.Log($"[{logic.Self}] move to target {data.Position}, speed {data.Speed}, pos {transform.WorldPosition}");
+                        //UnityEngine.Debug.Log($"{logic.Self} [Move] MoveToTarget {data.Position}, speed {data.Speed}");
                         float3 direction = data.Position - aspect.LocalTransformRO.Position;
                         var dt = math.distancesq(aspect.LocalTransformRO.Position, data.Position);
                         if (dt < 0.1f)

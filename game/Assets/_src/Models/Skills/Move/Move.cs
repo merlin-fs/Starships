@@ -1,15 +1,13 @@
 using System;
-
-using Game.Core;
-using Game.Core.Saves;
-
 using Unity.Entities;
 using Unity.Mathematics;
 
+using Game.Core;
+using Game.Core.Saves;
+using static Game.Model.Logics.Logic;
+
 namespace Game.Model
 {
-    using static Game.Model.Logics.Logic;
-
     public interface IMoveArguments
     {
         float3 Position { get; }
@@ -23,6 +21,7 @@ namespace Game.Model
         public float3 Position;
         public quaternion Rotation;
         public float Speed;
+        public float Travel;
 
         public struct Target: IComponentData
         {

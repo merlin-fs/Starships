@@ -59,8 +59,8 @@ namespace Game.Core.Animations
                             animation.Play(iter.ClipID, true);
                         }
                     }
-                    if (!play && logic.IsAction)
-                        animation.Stop();
+                    //if (!play && logic.IsAction)
+                    //    animation.Stop();
                 }
             }
         }

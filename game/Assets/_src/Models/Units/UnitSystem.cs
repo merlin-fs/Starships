@@ -127,7 +127,7 @@ namespace Game.Model.Units
                 {
                     LookupLogicAspect[aspect.Self]
                         .ExecuteBeforeAction(new Context(idx, ref LookupLogicAspect, ref aspect,
-                            ref LookupMapTransform, ref LookupChildEntity));
+                            ref LookupMapTransform, ref LookupChildEntity, ref Writer));
                 }
             }
         }
@@ -183,7 +183,7 @@ namespace Game.Model.Units
                 {
                     LookupLogicAspect[aspect.Self]
                         .ExecuteAfterChangeState(new Context(idx, ref LookupLogicAspect, ref aspect, 
-                            ref LookupMapTransform, ref LookupChildEntity));
+                            ref LookupMapTransform, ref LookupChildEntity, ref Writer));
                 }
             }
         }

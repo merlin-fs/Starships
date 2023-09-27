@@ -13,6 +13,9 @@ namespace Game.Model.Units
             {
                 var pos = context.LookupMapTransform[context.Aspect.Target.Value].Position;
                 pos = Map.GetCells(pos, 5, null).RandomElement();
+                context.Writer.AddComponent(context.SortKey, context.Aspect.Self, new Move.Target {Value = pos});
+                var speed = context.Aspect.Stat(Unit.Stats.Speed).Value;
+                context.Writer.AddComponent(context.SortKey, context.Aspect.Self, new Move {Speed = speed});
             }
         }
     }

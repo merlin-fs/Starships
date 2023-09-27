@@ -6,6 +6,7 @@ using Unity.Collections;
 using Unity.Transforms;
 using Game;
 using Game.Core.Saves;
+using Game.Core.Spawns;
 using Game.Model.Worlds;
 
 namespace Buildings.Environments
@@ -26,6 +27,7 @@ namespace Buildings.Environments
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Map.Placement>()
                 .WithAllRW<Map.Transform, LocalTransform>()
+                .WithAny<SelectBuildingTag, Spawn.Tag>()
                 .Build();
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Map.Transform>());

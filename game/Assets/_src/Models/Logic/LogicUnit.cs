@@ -1,11 +1,10 @@
 using System;
 using Game.Model.Stats;
 using Game.Model.Units;
+using static Game.Model.Logics.Logic;
 
 namespace Game.Model.Logics
 {
-    using static Game.Model.Logics.Logic;
-
     public class LogicUnit: ILogic
     {
         public void Initialize(LogicDef logic)

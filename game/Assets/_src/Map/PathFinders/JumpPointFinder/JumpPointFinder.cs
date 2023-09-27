@@ -12,7 +12,7 @@ namespace Game.Model.Worlds
     {
         public delegate float HeuristicDelegate(int iDx, int iDy);
 
-        public delegate double GetCostTile(Entity entity, int2? source, int2 target);
+        public delegate double GetCostTile(Data map, Entity entity, int2? source, int2 target);
 
         public struct PathFinder
         {
@@ -23,7 +23,7 @@ namespace Game.Model.Worlds
                 var cpus = Unity.Jobs.LowLevel.Unsafe.JobsUtility.JobWorkerCount + 2;
                 m_Finders = new JumpPointFinder[cpus];
                 for (int i = 0; i < m_Finders.Length; i++)
-                    m_Finders[i] = new JumpPointFinder();
+                    m_Finders[i] = new JumpPointFinder(JumpPointFinder.HeuristicMode.EUCLIDEAN);
             }
 
             public static void Dispose()
@@ -52,7 +52,7 @@ namespace Game.Model.Worlds
             private SortedNativeQueue<Node> m_Queue;
             private NativeParallelHashMap<int2, bool> m_WalkableCache;
 
-            public JumpPointFinder(GetCostTile getCostTile, Data map, HeuristicMode iMode = HeuristicMode.EUCLIDEAN)
+            public JumpPointFinder(HeuristicMode iMode = HeuristicMode.EUCLIDEAN)
             {
                 m_Entity = default;
                 m_EndNode = default;
@@ -154,7 +154,7 @@ namespace Game.Model.Worlds
 
                     IdentifySuccessors(node);
                 }
-                return new NativeArray<int2>(1, Allocator.TempJob);
+                return new NativeArray<int2>(1, Allocator.Temp);
             }
             
             public struct Node : IEquatable<Node>
@@ -216,7 +216,7 @@ namespace Game.Model.Worlds
                     };
                     path.Add(m_StartNode);
                     path.Reverse();
-                    return path.ToArray(Allocator.TempJob);
+                    return path.ToArray(Allocator.Temp);
                 }
                 finally 
                 { 
@@ -229,7 +229,7 @@ namespace Game.Model.Worlds
                 var pt = new int2(x, y);
                 if (!m_WalkableCache.TryGetValue(pt, out bool result))
                 {
-                    var weight = m_GetCostTile(m_Entity, null, pt);
+                    var weight = m_GetCostTile(m_Map, m_Entity, null, pt);
                     result = weight > 0;
                     m_WalkableCache.Add(pt, result);
                 }

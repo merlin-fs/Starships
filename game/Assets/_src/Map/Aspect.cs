@@ -42,7 +42,7 @@ namespace Game.Model.Worlds
                 return Layers.TryGetObject(this, layerType, pos, out entity);
             }
             
-            public Entity GetObject<T>(int2 pos, Entity entity)
+            public Entity GetObject<T>(int2 pos)
                 where T: Layers.ILayer
             {
                 return Layers.GetObject(this, TypeManager.GetTypeIndex(typeof(T)), pos);
