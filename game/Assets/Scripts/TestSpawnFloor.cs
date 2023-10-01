@@ -87,7 +87,6 @@ public class TestSpawnFloor : MonoBehaviour
         await RepositoryLoadSystem.LoadObjects();
         await RepositoryLoadSystem.LoadAnimations();
         
-    
         var prefabSystem = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabInfo.System>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabInfo.System>());
         await prefabSystem.IsDone();
 

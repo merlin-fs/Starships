@@ -38,6 +38,8 @@ namespace Game.UI
         private void Awake()
         {
             Handler.RegisterCallback<EventRepository>(OnEventRepository);
+            Handler.RegisterCallback<EventMap>(OnEventMap);
+            
             m_Content = document.rootVisualElement.Q<VisualElement>("environment");
             m_ListView = document.rootVisualElement.Q<ListView>("object_list");
             BindItems();
@@ -88,6 +90,7 @@ namespace Game.UI
         private void OnDestroy()
         {
             Handler.UnregisterCallback<EventRepository>(OnEventRepository);
+            Handler.UnregisterCallback<EventMap>(OnEventMap);
         }
 
         private void OnEventRepository(EventRepository evt)
@@ -96,6 +99,11 @@ namespace Game.UI
             BuildList();
         }
 
+        private void OnEventMap(EventMap evt)
+        {
+            BuildList();
+        }
+        
         private void BuildList()
         {
             m_Content.Clear();

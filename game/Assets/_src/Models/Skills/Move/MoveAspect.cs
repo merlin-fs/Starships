@@ -1,10 +1,14 @@
 using System;
 using Game.Model.Worlds;
 
+using ProjectDawn.Navigation;
+
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+
+using UnityEngine.AI;
 
 namespace Game.Model
 {
@@ -21,7 +25,11 @@ namespace Game.Model
             private readonly RefRW<Map.Path.Info> m_PathInfo;
             private readonly DynamicBuffer<Map.Path.Points> m_PathPoints;
             private readonly DynamicBuffer<Map.Path.Times> m_PathTimes;
+            private readonly RefRW<AgentBody> m_AgentBody;
+            private readonly RefRW<AgentSteering> m_AgentSteering;
 
+            public AgentBody Agent => m_AgentBody.ValueRO;
+            public AgentSteering AgentSteering => m_AgentSteering.ValueRO;
             public int2 Target { get => m_Target.ValueRO.Value; set => m_Target.ValueRW.Value = value; }
             public Map.Transform Transform => m_MapTransform.ValueRO;
             public ref readonly LocalTransform LocalTransformRO => ref m_LocalTransform.ValueRO;
@@ -29,8 +37,31 @@ namespace Game.Model
             public ref readonly Map.Path.Info PathInfo => ref m_PathInfo.ValueRO; 
             public DynamicBuffer<Map.Path.Points> PathPoints => m_PathPoints;
             public DynamicBuffer<Map.Path.Times> PathTimes => m_PathTimes;
+
+            public bool SetTarget(float3 value, float speed)
+            {
+                m_AgentBody.ValueRW.Destination = value;
+                m_AgentBody.ValueRW.IsStopped = false;
+                m_AgentSteering.ValueRW.Speed = speed;
+                return true;
+            }
+            
+            
             public bool SetPath(NativeArray<int2> path, Map.Data map)
             {
+                var src = new NavMeshBuildSource() 
+                {
+                    shape = NavMeshBuildSourceShape.Box,
+                    //transform = 
+                };
+                //new NavMeshSourceData()
+                //NavMeshSourceData
+                //NavMesh.AddLink(
+                //NavMeshBuilder.CollectSources(null, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
+                //NavMeshBuildSource
+                //NavMeshCollectGeometry.RenderMeshes
+                //NavMeshBuilder.BuildNavMeshData()
+
                 if (path.Length < 2) return false;
                 
                 m_PathPoints.ResizeUninitialized(path.Length);

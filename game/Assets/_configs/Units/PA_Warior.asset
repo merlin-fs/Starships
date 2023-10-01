@@ -40,7 +40,7 @@ MonoBehaviour:
     - rid: 129887630149025792
       type: {class: StaticValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
-        Value: 0.1
+        Value: 1
     - rid: 1895243042062073856
       type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:

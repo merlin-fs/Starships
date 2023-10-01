@@ -77,6 +77,8 @@ namespace Game.Model
 
                     if (logic.IsCurrentAction(Action.FindPath))
                     {
+                        aspect.SetTarget(MapAspect.Value.MapToWord(aspect.Target), data.Speed);
+                        /*
                         //UnityEngine.Debug.Log($"{logic.Self} [Move] FindPath {data.Position}, speed {data.Speed}");
                         var mapAspect = MapAspect;
                         var path = Map.PathFinder.Execute(m_ThreadIndex, (Map.Data map, Entity entity, int2? source, int2 target)=>
@@ -95,15 +97,16 @@ namespace Game.Model
                         data.Position = aspect.LocalTransformRO.Position; 
                         data.Rotation = aspect.LocalTransformRO.Rotation;
                         data.Travel = 0;
+                        */
                         
-                        logic.SetWorldState(State.PathFound, success);
+                        logic.SetWorldState(State.PathFound, true);
                         return;
                     }
 
                     if (logic.IsCurrentAction(Action.MoveToPoint))
                     {
                         //UnityEngine.Debug.Log($"{logic.Self} [Move] MoveToPoint {data.Position}, speed {data.Speed}");
-                        if (MoveToPoint(Delta, ref data, aspect))
+                        if (aspect.Agent.IsStopped)
                             logic.SetWorldState(State.MoveDone, true);
                         return;
                     }

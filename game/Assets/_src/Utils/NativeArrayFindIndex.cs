@@ -1,9 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-
 using Unity.Collections.LowLevel.Unsafe;
-
-using UnityEngine;
 
 namespace Unity.Collections
 {
@@ -13,7 +8,7 @@ namespace Unity.Collections
         int Compare(ref T x, ref T y);
     }
     
-    public static class ArrayFindIndex
+    public static partial class NativeCollections
     {
         public unsafe static int Find<T, U>(this NativeArray<T> array, ref T value, U comp)
             where T : unmanaged

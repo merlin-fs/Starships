@@ -1,4 +1,9 @@
 using System;
+
+using Common.Core;
+
+using Game.Core.Events;
+
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -8,6 +13,8 @@ namespace Game.Model.Worlds
     {
         public readonly partial struct Aspect: IAspect 
         {
+            private static IEventSender Sender => Inject<IEventSender>.Value;
+            
             private readonly Entity m_Self;
 
             readonly RefRW<Data> m_Data;
@@ -18,6 +25,8 @@ namespace Game.Model.Worlds
             {
                 m_Data.ValueRW.Size = m_Data.ValueRO.Define.Size;
                 Layers.Initialize(ref systemState, aspect);
+                systemState.EntityManager.AddComponent<NavMeshBuildTag>(Self);
+                Sender.SendEvent(EventMap.GetPooled(m_Self, EventMap.EventType.Initialize));
             }
 
             public void SetObject<T>(int2 pos, Entity entity)

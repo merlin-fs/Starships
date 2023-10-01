@@ -15,5 +15,5 @@ MonoBehaviour:
   PrefabObject: {fileID: 0}
   Value:
     DamageType: {fileID: 11400000, guid: 431d085ae3ec85644b3dfc1f3cdc2a1c, type: 2}
-    Multiplier: 1
+    Multiplier: 0.01
     Range: 1

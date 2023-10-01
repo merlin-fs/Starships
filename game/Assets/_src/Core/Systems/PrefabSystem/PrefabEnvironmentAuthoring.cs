@@ -9,6 +9,8 @@ using Common.Core;
 using Game.Model;
 using Game.Model.Worlds;
 
+using UnityEngine.AI;
+
 namespace Game.Core.Prefabs
 {
     public class PrefabEnvironmentAuthoring : MonoBehaviour
@@ -34,8 +36,21 @@ namespace Game.Core.Prefabs
                 var fs = new FixedString128Bytes();
                 fs.Append(TypeManager.GetTypeInfo(TypeManager.GetTypeIndex(Type.GetType(authoring.m_Layer)))
                     .DebugTypeName);
-                AddComponent(entity,
-                    new PrefabInfo.BakedEnvironment {Size = authoring.m_Size, Pivot = -authoring.m_Pivot / 2, Layer = fs,});
+                AddComponent(entity, new PrefabInfo.BakedEnvironment {Size = authoring.m_Size, Pivot = -authoring.m_Pivot / 2, Layer = fs,});
+
+                if (authoring.TryGetComponent<BoxCollider>(out var collider))
+                {
+                    //transform = float4x4.TRS(ltw.Position, ltw.Rotation, new(1f, 1f, 1f)),
+                    //var center = collider.transform.TransformPoint(collider.center);
+                    var scale = collider.transform.lossyScale;
+                    var data = new Map.NavMeshSourceData {
+                        Shape = NavMeshBuildSourceShape.Box,
+                        Transform = float4x4.TRS(collider.center, collider.transform.rotation, Vector3.one),
+                        Size = new Vector3(collider.size.x * Mathf.Abs(scale.x), collider.size.y * Mathf.Abs(scale.y),
+                            collider.size.z * Mathf.Abs(scale.z)),
+                    };
+                    AddComponent(entity, data);
+                }
 
                 AddBuffer<PrefabInfo.BakedLabel>(entity);
                 foreach (var iter in authoring.Labels)
