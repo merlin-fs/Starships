@@ -27,11 +27,8 @@ namespace Game.Model.Units
         {
             context.AddComponentData(entity, new Map.Placement(RefLink<Map.IPlacement>.Copy(RefLink)));
             context.AddComponentData(entity, new Map.Transform());
-            context.AddComponentData(entity, new Map.Path.Info());
-            context.AddComponentData(entity, new Move.Target());
+            context.AddComponentData(entity, new Map.Target());
             context.AddComponentData(entity, new Move());
-            context.AddBuffer<Map.Path.Points>(entity);
-            context.AddBuffer<Map.Path.Times>(entity);
         }
 
         public void RemoveComponentData(Entity entity, IDefineableContext context) { }

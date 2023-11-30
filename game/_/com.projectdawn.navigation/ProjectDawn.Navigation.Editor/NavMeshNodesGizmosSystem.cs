@@ -57,7 +57,9 @@ namespace ProjectDawn.Navigation.Editor
                     if (Navmesh.GetEdgesAndNeighbors(polygons[i], vertices.Reinterpret<UnityEngine.Vector3>(), neighbours, indices, out int numVertices, out int numNeighbours))
                     {
                         var progress = polygons.Length > 1 ? (float) i / (polygons.Length - 1) : 1;
-                        var color = UnityEngine.Color.Lerp(new UnityEngine.Color(0f, 0.75f, 1f, 0.15f), new UnityEngine.Color(0f, 0.75f, 1f, 0.35f), progress);
+                        //var color = UnityEngine.Color.Lerp(new UnityEngine.Color(0f, 0.75f, 1f, 0.15f), new UnityEngine.Color(0f, 0.75f, 1f, 0.35f), progress);
+                        var color = UnityEngine.Color.Lerp(new UnityEngine.Color(0f, 0.75f, 1f, 1f), new UnityEngine.Color(0f, 0.75f, 1f, 1f), progress);
+                        
                         Gizmos.DrawAAConvexPolygon(vertices.GetSubArray(0, numVertices), color, true);
                     }
                 }

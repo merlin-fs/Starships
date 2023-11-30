@@ -65,7 +65,7 @@ namespace Game.Core.Spawns
                     foreach (var iter in components)
                         Writer.AddComponent(idx, inst, iter.ComponentType);
 
-                    Writer.AddComponent<ProjectDawn.Navigation.DrawGizmos>(idx, inst);
+                    //!!!Writer.AddComponent<ProjectDawn.Navigation.DrawGizmos>(idx, inst);
                     Writer.DestroyEntity(idx, entity);
                 }
             }

@@ -112,10 +112,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 5470527002388426223}
-    - targetCorrespondingSourceObject: {fileID: 100000, guid: cc633396b5f95da4b916357a5508ee4f,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 136203523813260728}
   m_SourcePrefab: {fileID: 100100000, guid: cc633396b5f95da4b916357a5508ee4f, type: 3}
 --- !u!1 &1501588879875575396 stripped
 GameObject:
@@ -202,7 +198,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fed5c6dd07c7d6e4f857b420fa8f559a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Radius: 3
+  Radius: 0.8
   Height: 0.5
 --- !u!114 &5470527002388426223
 MonoBehaviour:
@@ -223,24 +219,6 @@ MonoBehaviour:
     x: 3
     y: 3
     z: 3
---- !u!114 &136203523813260728
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1501588879875575396}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0344116cd75eaaf488b894904a1649d9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Radius: 12
-  Angle: 230
-  MaxAngle: 96
-  Mode: 3
-  BlockedStop: 0
-  UseWalls: 0
 --- !u!4 &1501588879875936836 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: cc633396b5f95da4b916357a5508ee4f,

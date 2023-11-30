@@ -27,6 +27,11 @@ namespace Game.Model.Worlds
             public float2 Rorate;
         }
         
+        public struct Target: IComponentData
+        {
+            public int2 Value;
+        }
+        
         public readonly struct Placement: IComponentData
         {
             private readonly RefLink<IPlacement> m_RefLink;

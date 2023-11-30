@@ -7,6 +7,7 @@ namespace Game.Model
     {
         private static float3 UP = new float3(0f, 1f, 0f);
         
+        /*
         public static bool MoveToPoint(float delta, ref Move moving, Aspect aspect)
         {
             if (moving.Travel >= 1f)
@@ -35,5 +36,6 @@ namespace Game.Model
             aspect.LocalTransformRW = transform;
             return false;
         }
+        */
     }
 }

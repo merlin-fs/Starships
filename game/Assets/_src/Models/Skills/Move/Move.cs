@@ -23,11 +23,6 @@ namespace Game.Model
         public float Speed;
         public float Travel;
 
-        public struct Target: IComponentData
-        {
-            public int2 Value;
-        }
-
         [EnumHandle]
         public enum Action
         {

@@ -28,7 +28,7 @@ namespace Game.Model
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAspect<Logic.Aspect>()
                     .WithAspect<Aspect>()
-                    .WithAll<Move>()
+                    .WithAll<Move, LocalTransform>()
                     .WithNone<SelectBuildingTag>()
                     .Build();
 
@@ -64,20 +64,20 @@ namespace Game.Model
 
                 public float Delta;
 
-                private void Execute(ref Move data, Aspect aspect, Logic.Aspect logic)
+                private void Execute(ref Move data, ref LocalTransform transform, Aspect aspect, Logic.Aspect logic)
                 {
                     if (logic.IsCurrentAction(Action.Init))
                     {
                         UnityEngine.Debug.Log($"{logic.Self} [Move] init {data.Position}, speed {data.Speed}");
-                        aspect.LocalTransformRW.Position = data.Position;
-                        aspect.LocalTransformRW = aspect.LocalTransformRW.Rotate(data.Rotation);
+                        transform.Position = data.Position;
+                        transform = transform.Rotate(data.Rotation);
                         logic.SetWorldState(State.Init, true);
                         return;
                     }
 
                     if (logic.IsCurrentAction(Action.FindPath))
                     {
-                        aspect.SetTarget(MapAspect.Value.MapToWord(aspect.Target), data.Speed);
+                        //aspect.SetTarget(MapAspect.Value.MapToWord(aspect.Target), data.Speed);
                         /*
                         //UnityEngine.Debug.Log($"{logic.Self} [Move] FindPath {data.Position}, speed {data.Speed}");
                         var mapAspect = MapAspect;
@@ -106,16 +106,16 @@ namespace Game.Model
                     if (logic.IsCurrentAction(Action.MoveToPoint))
                     {
                         //UnityEngine.Debug.Log($"{logic.Self} [Move] MoveToPoint {data.Position}, speed {data.Speed}");
-                        if (aspect.Agent.IsStopped)
-                            logic.SetWorldState(State.MoveDone, true);
+                        //if (aspect.Agent.IsStopped)
+                        //logic.SetWorldState(State.MoveDone, true);
                         return;
                     }
 
                     if (logic.IsCurrentAction(Action.MoveToTarget) || logic.IsCurrentAction(Action.MoveToPosition))
                     {
                         //UnityEngine.Debug.Log($"{logic.Self} [Move] MoveToTarget {data.Position}, speed {data.Speed}");
-                        float3 direction = data.Position - aspect.LocalTransformRO.Position;
-                        var dt = math.distancesq(aspect.LocalTransformRO.Position, data.Position);
+                        float3 direction = data.Position - transform.Position;
+                        var dt = math.distancesq(transform.Position, data.Position);
                         if (dt < 0.1f)
                         {
                             //UnityEngine.Debug.Log($"[{logic.Self}] move done {transform.WorldPosition}, target{data.Position}, dot {dt}");
@@ -123,8 +123,8 @@ namespace Game.Model
                         }
                         
                         var lookRotation = quaternion.LookRotationSafe(direction, math.up());
-                        aspect.LocalTransformRW.Rotation = lookRotation;
-                        aspect.LocalTransformRW.Position += math.normalize(direction) * Delta * data.Speed;
+                        transform.Rotation = lookRotation;
+                        transform.Position += math.normalize(direction) * Delta * data.Speed;
                         return;
                     }
                 }
