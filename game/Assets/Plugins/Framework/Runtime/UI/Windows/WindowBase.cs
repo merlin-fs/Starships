@@ -21,7 +21,8 @@ namespace Common.UI.Windows
 		where T : Window<T, M>
 		where M : IViewModel
 	{
-
+        private static IWindowManager WindowManager => Inject<IWindowManager>.Value;
+        
         IViewModel IView.DataSource => DataSource;
 		GameObject IView.GameObject => gameObject;
         public M DataSource { get; private set; }
@@ -55,7 +56,7 @@ namespace Common.UI.Windows
 			string path = attr?.Path ?? type.Name;
 			GameObject prefab = Resources.Load(path) as GameObject;
 
-			GameObject go = WindowManager.Instance.Instantiate(prefab);
+			GameObject go = WindowManager.Instantiate(prefab);
 			T me = (T)go.GetComponent(type);
 			Window window = go.GetComponent<Window>();
 			window.OnWindowClose += me.OnWindowClose;

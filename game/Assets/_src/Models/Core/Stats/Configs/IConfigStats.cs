@@ -13,6 +13,6 @@ namespace Game.Core.Defs
 
     public interface IConfigStats
     {
-        void Configurate(DynamicBuffer<Stat> stats);
+        void Configure(DynamicBuffer<Stat> stats);
     }
 }

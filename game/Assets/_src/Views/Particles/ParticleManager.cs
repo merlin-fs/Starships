@@ -1,25 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Pool;
-using Common.Singletons;
 
 namespace Game.Views
 {
-    public class ParticleManager: MonoSingleton<ParticleManager>
+    public class ParticleManager : MonoBehaviour
     {
-        public static ParticleManager Instance => Inst;
+        [SerializeField] private int m_DefaultCapacity = 10;
+        [SerializeField] private int m_MaxPoolSize = 15;
 
-        [SerializeField]
-        private int m_DefaultCapacity = 10;
-        [SerializeField]
-        private int m_MaxPoolSize = 15;
-
-        private Dictionary<Unity.Entities.Hash128, ObjectsPoolAsync<PooledObject>> m_Pool = new Dictionary<Unity.Entities.Hash128, ObjectsPoolAsync<PooledObject>>();
+        private Dictionary<Unity.Entities.Hash128, ObjectsPoolAsync<PooledObject>> m_Pool = new();
 
         private class PooledObject
         {
@@ -51,12 +45,6 @@ namespace Game.Views
             }
             system.Play(true);
         }
-
-        protected override void Awake()
-        {
-            base.Awake();
-        }
-
 
         private void Release(PooledObject obj)
         {

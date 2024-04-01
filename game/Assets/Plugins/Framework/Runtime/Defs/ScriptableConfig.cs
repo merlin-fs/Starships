@@ -31,12 +31,12 @@ namespace Common.Defs
 
         public Entity Prefab => m_Prefab;
 
-        void IConfig.Configurate(Entity root, IDefineableContext context)
+        void IConfig.Configure(Entity root, IDefinableContext context)
         {
             m_Prefab = root;
-            Configurate(root, context);
+            Configure(root, context);
         }
 
-        protected abstract void Configurate(Entity entity, IDefineableContext context);
+        protected abstract void Configure(Entity entity, IDefinableContext context);
     }
 }

@@ -9,7 +9,7 @@ namespace Game.Model.Worlds
 {
     public partial struct Map
     {
-        public partial struct Data : IComponentData, IDefinable, IDefineableCallback
+        public partial struct Data : IComponentData, IDefinable, IDefinableCallback
         {
             private readonly RefLink<Def> m_RefLink;
             public Def Define => m_RefLink.Value;
@@ -27,11 +27,11 @@ namespace Game.Model.Worlds
             }
 
             #region IDefineableCallback
-            public void AddComponentData(Entity entity, IDefineableContext context)
+            public void AddComponentData(Entity entity, IDefinableContext context)
             {
             }
 
-            public void RemoveComponentData(Entity entity, IDefineableContext context) { }
+            public void RemoveComponentData(Entity entity, IDefinableContext context) { }
             #endregion
 
             [Serializable]

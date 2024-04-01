@@ -6,7 +6,7 @@ using Game.Core;
 
 namespace Game.Model.Logics
 {
-    public partial struct Logic : IComponentData, IDefinable, IDefineableCallback
+    public partial struct Logic : IComponentData, IDefinable, IDefinableCallback
     {
         [CreateProperty] private string Action => m_Action.ToString();
         [CreateProperty] private bool Work => m_Work;
@@ -37,7 +37,7 @@ namespace Game.Model.Logics
             return m_Active && EnumHandle.Equals(m_Action, action);
         }
         #region IDefineableCallback
-        void IDefineableCallback.AddComponentData(Entity entity, IDefineableContext context)
+        void IDefinableCallback.AddComponentData(Entity entity, IDefinableContext context)
         {
             context.AddComponentData(entity, new InitTag());
             context.AddBuffer<Plan>(entity);
@@ -54,7 +54,7 @@ namespace Game.Model.Logics
             }
         }
 
-        void IDefineableCallback.RemoveComponentData(Entity entity, IDefineableContext context)
+        void IDefinableCallback.RemoveComponentData(Entity entity, IDefinableContext context)
         {
 
         }

@@ -9,7 +9,7 @@ using Unity.Mathematics;
 namespace Game.Model.Units
 {
     [Serializable]
-    public struct Structure : IUnit, IDefinable, IComponentData, IDefineableCallback
+    public struct Structure : IUnit, IDefinable, IComponentData, IDefinableCallback
     {
         [Serializable]
         public class StructureDef : IDef<Structure>, Map.IPlacement
@@ -27,12 +27,12 @@ namespace Game.Model.Units
             RefLink = config;
         }
 
-        public void AddComponentData(Entity entity, IDefineableContext context)
+        public void AddComponentData(Entity entity, IDefinableContext context)
         {
             context.AddComponentData(entity, new Map.Placement(RefLink<Map.IPlacement>.Copy(RefLink)));
             context.AddComponentData(entity, new Map.Transform());
         }
 
-        public void RemoveComponentData(Entity entity, IDefineableContext context){}
+        public void RemoveComponentData(Entity entity, IDefinableContext context){}
     }
 }

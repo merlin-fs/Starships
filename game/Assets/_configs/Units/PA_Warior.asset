@@ -15,14 +15,14 @@ MonoBehaviour:
   PrefabObject: {fileID: 1501588879875575396, guid: 374e576ef521a2e4095704e548b3fda4,
     type: 3}
   Value:
-    m_Size:
+    size:
       x: 1
       y: 1
-    m_Pivot:
+    pivot:
       x: 0
       y: 0
       z: 0
-    m_Layer: Game.Model.Worlds.Map+Layers+UserObject
+    layer: Game.Model.Worlds.Map+Layers+UserObject
     Parts: []
     Speed:
       rid: 129887630149025792
@@ -44,5 +44,5 @@ MonoBehaviour:
     - rid: 1895243042062073856
       type: {class: RandomValue, ns: Game.Model.Stats, asm: Assembly-CSharp}
       data:
-        Min: 10
-        Max: 200
+        Min: 2
+        Max: 5

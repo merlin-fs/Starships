@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace Common.Defs
 {
@@ -7,9 +8,13 @@ namespace Common.Defs
     {
         private GCHandle m_RefHandle;
         public T Value => (T)m_RefHandle.Target;
-        public RefLink(GCHandle handle) => m_RefHandle = handle;
-        public static RefLink<T> Copy<TT>(RefLink<TT> link) => new RefLink<T>(link.m_RefHandle);
-        public static RefLink<T> From(T value) => new RefLink<T>(GCHandle.Alloc(value, GCHandleType.Pinned));
+        private RefLink(GCHandle handle) => m_RefHandle = handle;
+        public static RefLink<T> Copy<TT>(RefLink<TT> link) => new(link.m_RefHandle);
+        public unsafe static RefLink<T> From(T value)
+        {
+            UnsafeUtility.PinGCObjectAndGetAddress(value, out var gsHandle);
+            return new RefLink<T>(GCHandle.FromIntPtr(new IntPtr((void*)gsHandle)));
+        }
         public static void Free(RefLink<T> value) => value.m_RefHandle.Free();
     }
 }

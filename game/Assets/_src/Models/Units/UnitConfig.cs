@@ -21,19 +21,19 @@ namespace Game.Model.Units
         public LogicConfig Logic;
         public Team.Def Team = new Team.Def();
 
-        protected override void Configurate(Entity prefab, IDefineableContext context)
+        protected override void Configure(Entity prefab, IDefinableContext context)
         {
-            base.Configurate(prefab, context);
+            base.Configure(prefab, context);
             Value.AddComponentData(prefab, context);
             Team.AddComponentData(prefab, context);
             
             if (Logic is IConfig config)
-                config.Configurate(prefab, context);
+                config.Configure(prefab, context);
         }
 
         IEnumerable<ChildConfig> IConfigContainer.Childs => Value.Parts;
 
-        void IConfigStats.Configurate(DynamicBuffer<Stat> stats)
+        void IConfigStats.Configure(DynamicBuffer<Stat> stats)
         {
             stats.AddStat(Global.Stats.Health, Value.Health.Value);
             stats.AddStat(Unit.Stats.Speed, Value.Speed.Value);

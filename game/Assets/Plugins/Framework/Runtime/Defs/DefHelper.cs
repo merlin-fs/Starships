@@ -1,76 +1,74 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Unity.Collections;
+using System.Threading;
+
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 
 namespace Common.Defs
 {
-    class DefHelper<T> where T : unmanaged, IDefinable, IComponentData
-    {
-        private Delegate m_Constructor;
-        private ConcurrentDictionary<GCHandle, object> _objects = new ConcurrentDictionary<GCHandle, object>();
-        private Type m_DefType;
-
-        public DefHelper(IDef<T> def)
-        {
-            m_DefType = typeof(RefLink<>).MakeGenericType(def.GetType());
-            var param = Expression.Parameter(m_DefType, "val");
-            var lambda = Expression.Lambda(Expression.New(typeof(T).GetConstructor(new[] {m_DefType}), param), param);
-            m_Constructor = lambda.Compile();
-        }
-
-        public T Create(ref IDef<T> def)
-        {
-            var handle = GCHandle.Alloc(def, GCHandleType.Pinned);
-            if (!_objects.TryGetValue(handle, out var linkDef))
-            {
-                linkDef = Activator.CreateInstance(m_DefType, handle);
-                _objects.TryAdd(handle, linkDef);
-            }
-            else 
-                handle.Free();
-            return (T)m_Constructor.DynamicInvoke(linkDef);
-        }
-    }
-
     public static class DefHelper
     {
-        private static ConcurrentDictionary<Type, object> m_Helpers = new ConcurrentDictionary<Type, object>();
+        private static readonly ConcurrentDictionary<object, ConstructorDefinable> m_Defs = new();
 
-        public static void AddComponentData<T>(this IDef<T> self, Entity entity, IDefineableContext context)
+        private record ConstructorDefinable
+        {
+            private readonly Delegate m_MakeDefinable;
+            private readonly object m_Link;
+
+            public ConstructorDefinable(Delegate makeDefinable, object link)
+            {
+                m_MakeDefinable = makeDefinable;
+                m_Link = link;
+            }
+
+            public T CreateDefinable<T>()
+                where T : unmanaged, IDefinable, IComponentData
+            {
+                return (T)m_MakeDefinable.DynamicInvoke(m_Link);
+            }
+        }
+        
+        public static void AddComponentData<T>(this IDef<T> self, Entity entity, IDefinableContext context)
             where T : unmanaged, IDefinable, IComponentData
         {
-            var helper = GetHelper(self);
-            var data = helper.Create(ref self);
-            if (data is IDefineableCallback callback)
+            var data = GetConstructorDefinable(self).CreateDefinable<T>();
+            if (data is IDefinableCallback callback)
                 callback.AddComponentData(entity, context);
             context.AddComponentData(entity, data);
         }
 
-        public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, T data, IDefineableContext context)
+        private static ConstructorDefinable GetConstructorDefinable<T>(IDef<T> self)
             where T : unmanaged, IDefinable, IComponentData
         {
-            if (data is IDefineableCallback callback)
+            if (m_Defs.TryGetValue(self, out var rec)) return rec;
+
+            var defType = typeof(RefLink<>).MakeGenericType(self.GetType());
+            var link = defType
+                .GetMethod("From", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)!
+                .Invoke(null, new object[] {self});
+
+            var param = Expression.Parameter(defType, "val");
+            var lambda =
+                Expression.Lambda(
+                    Expression.New(
+                        typeof(T).GetConstructor(new[] {defType}) ?? throw new InvalidOperationException(), param),
+                    param);
+            var makeDefinable = lambda.Compile();
+            rec = new ConstructorDefinable(makeDefinable, link);
+            m_Defs.TryAdd(self, rec);
+            return rec;
+        }
+        
+        public static void RemoveComponentData<T>(this IDef<T> self, Entity entity, T data, IDefinableContext context)
+            where T : unmanaged, IDefinable, IComponentData
+        {
+            if (data is IDefinableCallback callback)
                 callback.RemoveComponentData(entity, context);
             context.RemoveComponent<T>(entity);
-        }
-
-        private static DefHelper<T> GetHelper<T>(IDef<T> def)
-            where T : unmanaged, IDefinable, IComponentData
-        {
-            var type = def.GetType();
-            if (!m_Helpers.TryGetValue(type, out var helper))
-            {
-                helper = new DefHelper<T>(def);
-                m_Helpers.TryAdd(type, helper);
-            }
-            return (DefHelper<T>)helper;
         }
     }
 }

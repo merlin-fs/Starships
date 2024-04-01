@@ -1,9 +1,6 @@
 using System;
-
 using Buildings.Environments;
-
 using Game.Model.Worlds;
-
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -28,7 +25,7 @@ namespace Game.Model
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAspect<Logic.Aspect>()
                     .WithAspect<Aspect>()
-                    .WithAll<Move, LocalTransform>()
+                    .WithAll<LocalTransform>()
                     .WithNone<SelectBuildingTag>()
                     .Build();
 
@@ -64,13 +61,13 @@ namespace Game.Model
 
                 public float Delta;
 
-                private void Execute(ref Move data, ref LocalTransform transform, Aspect aspect, Logic.Aspect logic)
+                private void Execute(ref LocalTransform transform, Aspect aspect, Logic.Aspect logic)
                 {
                     if (logic.IsCurrentAction(Action.Init))
                     {
-                        UnityEngine.Debug.Log($"{logic.Self} [Move] init {data.Position}, speed {data.Speed}");
-                        transform.Position = data.Position;
-                        transform = transform.Rotate(data.Rotation);
+                        UnityEngine.Debug.Log($"{logic.Self} [Move] init {aspect.Move.Position}, speed {aspect.Move.Speed}");
+                        transform.Position = aspect.Move.Position;
+                        transform = transform.Rotate(aspect.Move.Rotation);
                         logic.SetWorldState(State.Init, true);
                         return;
                     }
@@ -114,8 +111,8 @@ namespace Game.Model
                     if (logic.IsCurrentAction(Action.MoveToTarget) || logic.IsCurrentAction(Action.MoveToPosition))
                     {
                         //UnityEngine.Debug.Log($"{logic.Self} [Move] MoveToTarget {data.Position}, speed {data.Speed}");
-                        float3 direction = data.Position - transform.Position;
-                        var dt = math.distancesq(transform.Position, data.Position);
+                        float3 direction = aspect.Move.Position - transform.Position;
+                        var dt = math.distancesq(transform.Position, aspect.Move.Position);
                         if (dt < 0.1f)
                         {
                             //UnityEngine.Debug.Log($"[{logic.Self}] move done {transform.WorldPosition}, target{data.Position}, dot {dt}");
@@ -124,7 +121,7 @@ namespace Game.Model
                         
                         var lookRotation = quaternion.LookRotationSafe(direction, math.up());
                         transform.Rotation = lookRotation;
-                        transform.Position += math.normalize(direction) * Delta * data.Speed;
+                        transform.Position += math.normalize(direction) * Delta * aspect.Move.Speed;
                         return;
                     }
                 }

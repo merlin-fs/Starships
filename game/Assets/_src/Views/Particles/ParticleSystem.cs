@@ -1,5 +1,8 @@
 using System;
 using System.Threading;
+
+using Common.Core;
+
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Collections;
@@ -13,6 +16,7 @@ namespace Game.Views
     {
         private EntityQuery m_Query;
         private WorldTransform m_LookupTransforms;
+        private static ParticleManager ParticleManager => Inject<ParticleManager>.Value;
 
         public void OnCreate(ref SystemState state)
         {
@@ -54,7 +58,7 @@ namespace Game.Views
 #endif
                         UnityMainThread.Context.Post(obj =>
                         {
-                            ParticleManager.Instance.Play(iter, transform);
+                            ParticleManager.Play(iter, transform);
                         }, null);
                     }
                 }

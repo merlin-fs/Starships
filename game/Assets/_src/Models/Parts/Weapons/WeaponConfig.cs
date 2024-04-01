@@ -20,17 +20,17 @@ namespace Game.Model.Weapons
         public Weapon.WeaponDef Value = new Weapon.WeaponDef();
         public LogicConfig Logic;
 
-        protected override void Configurate(Entity prefab, IDefineableContext context)
+        protected override void Configure(Entity prefab, IDefinableContext context)
         {
-            base.Configurate(prefab, context);
+            base.Configure(prefab, context);
             Value.AddComponentData(prefab, context);
             if (Logic is IConfig config)
-                config.Configurate(prefab, context);
+                config.Configure(prefab, context);
         }
 
         IEnumerable<ChildConfig> IConfigContainer.Childs => Parts;
 
-        void IConfigStats.Configurate(DynamicBuffer<Stat> stats)
+        void IConfigStats.Configure(DynamicBuffer<Stat> stats)
         {
             stats.AddStat(Global.Stats.Health, Value.Health);
             stats.AddStat(Weapon.Stats.Rate, Value.Rate);

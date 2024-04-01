@@ -99,6 +99,7 @@ public class TestSpawnFloor : MonoBehaviour
 
         var entity = m_EntityManager.CreateSingleton<Map.Data>();
         var context = new EntityManagerContext(m_EntityManager);
+        //DefHelper.AddComponentData<Map.Data>(ref def, entity, context);
         def.AddComponentData(entity, context);
         
         Map.Layers.AddLayer<Map.Layers.Door>(entity, context);

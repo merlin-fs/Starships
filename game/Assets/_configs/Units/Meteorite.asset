@@ -15,6 +15,14 @@ MonoBehaviour:
   PrefabObject: {fileID: 1214454638534738304, guid: 1688c5823dca4a64a9c7e123bb1dee5b,
     type: 3}
   Value:
+    size:
+      x: 1
+      y: 1
+    pivot:
+      x: 0
+      y: 0
+      z: 0
+    layer: Game.Model.Worlds.Map+Layers+UserObject
     Parts:
     - Child: {fileID: 11400000, guid: d1923d49bbd41c64abecd1d6199aaf7d, type: 2}
       PrefabObject: {fileID: 3758233817938580044, guid: 1688c5823dca4a64a9c7e123bb1dee5b,

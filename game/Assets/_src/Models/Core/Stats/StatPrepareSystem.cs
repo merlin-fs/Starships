@@ -33,7 +33,7 @@ namespace Game.Model.Stats
                     var config = repo.FindByID(iter.ConfigID);
                     if (config is IConfigStats statConfig)
                     {
-                        statConfig.Configurate(stats);
+                        statConfig.Configure(stats);
                     }
                 }
             }

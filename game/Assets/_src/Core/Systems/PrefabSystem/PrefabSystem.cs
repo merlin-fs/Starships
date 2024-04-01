@@ -21,7 +21,7 @@ namespace Game.Core.Prefabs
         {
             private EntityQuery m_QueryEnvironments;
             private EntityQuery m_QueryObjects;
-            static ConcurrentDictionary<Entity, IDefineableContext> m_Contexts;
+            static ConcurrentDictionary<Entity, IDefinableContext> m_Contexts;
             static private bool m_Done;
             private static ObjectRepository ObjectRepository => Inject<ObjectRepository>.Value;
             private static IEventSender Sender => Inject<IEventSender>.Value;
@@ -38,7 +38,7 @@ namespace Game.Core.Prefabs
 
             public void OnCreate(ref SystemState state)
             {
-                m_Contexts = new ConcurrentDictionary<Entity, IDefineableContext>();
+                m_Contexts = new ConcurrentDictionary<Entity, IDefinableContext>();
                 m_QueryEnvironments = SystemAPI.QueryBuilder()
                     .WithAll<PrefabInfo, BakedTag, BakedEnvironment, BakedLabel>()
                     .WithOptions(EntityQueryOptions.IncludePrefab)
@@ -123,7 +123,7 @@ namespace Game.Core.Prefabs
 
                 void Execute([EntityIndexInQuery] int idx, in Entity entity, in PrefabInfo prefab)
                 {
-                    if (!m_Contexts.TryGetValue(entity, out IDefineableContext context))
+                    if (!m_Contexts.TryGetValue(entity, out IDefinableContext context))
                     {
                         context = new WriterContext(Writer, idx);
                         m_Contexts.TryAdd(entity, context);
@@ -131,7 +131,7 @@ namespace Game.Core.Prefabs
                     var config = Repository.FindByID(prefab.ConfigID);
                     
                     context.SetName(entity, prefab.ConfigID.ToString());
-                    config.Configurate(entity, context);
+                    config.Configure(entity, context);
                 }
             }
         }

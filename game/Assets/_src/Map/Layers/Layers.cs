@@ -17,7 +17,7 @@ namespace Game.Model.Worlds
         {
             private static readonly Dictionary<TypeIndex, InternalLayerInfo> m_Layers = new Dictionary<TypeIndex, InternalLayerInfo>();
 
-            public static void AddLayer<T>(Entity entity, IDefineableContext context)
+            public static void AddLayer<T>(Entity entity, IDefinableContext context)
                 where T : unmanaged, ILayer
             {
                 var type = typeof(T);
@@ -32,7 +32,7 @@ namespace Game.Model.Worlds
             //как вариант, объявит интерфасе ILayerValidator<T> where T : ILayer
             //и через Reflection устанавливать при добавлении слоя (будет возможность добавлять несколько валидаторов)
             
-            public static void AddLayer<T, TV>(Entity entity, IDefineableContext context)
+            public static void AddLayer<T, TV>(Entity entity, IDefinableContext context)
                 where T : unmanaged, ILayer
                 where TV : ILayerValidator, new()
             {
@@ -43,7 +43,7 @@ namespace Game.Model.Worlds
                 context.AddBuffer<T>(entity);
             }
 
-            private static void AddLayer<T>(Entity entity, ILayerValidator validator, IDefineableContext context)
+            private static void AddLayer<T>(Entity entity, ILayerValidator validator, IDefinableContext context)
                 where T : unmanaged, ILayer
             {
                 var type = typeof(T);

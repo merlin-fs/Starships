@@ -19,7 +19,7 @@ namespace Common.Defs
             m_Prefab = prefab;
         }
 
-        void IConfig.Configurate(Entity root, IDefineableContext context)
+        void IConfig.Configure(Entity root, IDefinableContext context)
         {
             m_Prefab = root;
         }

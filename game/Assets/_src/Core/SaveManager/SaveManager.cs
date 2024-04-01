@@ -254,7 +254,7 @@ namespace Game.Core.Saves
             //Parallel.For(0, data.Count, i =>
             {
                 var entity = entities[i];
-                var link = new RefLink<JToken>(GCHandle.Alloc(data[i], GCHandleType.Pinned));
+                var link = RefLink<JToken>.From(data[i]);
                 ecb.AppendToBuffer<Spawn.Component>(i, entity, ComponentType.ReadOnly<SavedTag>());
                 ecb.SetComponent(i, entity, new Spawn.Load
                 {

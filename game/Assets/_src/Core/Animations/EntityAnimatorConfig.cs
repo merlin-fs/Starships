@@ -169,6 +169,7 @@ namespace Game.Core.Animations
         
         void BuildHash()
         {
+            m_Clips.Clear();
             foreach (var iter in m_ClipItems)
                 AddClip(iter.ID, iter.Length, iter.Loop);
             

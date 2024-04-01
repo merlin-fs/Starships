@@ -11,7 +11,7 @@ using Game.Model.Logics;
 namespace Game.Model
 {
     [Serializable]
-    public struct Team : IComponentData, IDefinable, IDefineableCallback
+    public struct Team : IComponentData, IDefinable, IDefinableCallback
     {
         private readonly RefLink<Def> m_RefLink;
 
@@ -23,13 +23,13 @@ namespace Game.Model
             m_RefLink = refLink;
         }
         #region IDefineableCallback
-        public void AddComponentData(Entity entity, IDefineableContext context)
+        public void AddComponentData(Entity entity, IDefinableContext context)
         {
             context.AddComponentData(entity, new Target());
             context.AddComponentData(entity, new Target.Query());
         }
 
-        public void RemoveComponentData(Entity entity, IDefineableContext context) { }
+        public void RemoveComponentData(Entity entity, IDefinableContext context) { }
         #endregion
 
 

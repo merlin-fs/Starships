@@ -4,6 +4,7 @@ using Game.Core.Events;
 using Game.Core.Repositories;
 using Game.UI;
 using Game.UI.Huds;
+using Game.Views;
 
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -18,6 +19,7 @@ namespace Buildings
         [SerializeField] private Config config;
         [SerializeField] private UIDocument rootUI;
         [SerializeField] private Camera worldCamera;
+        [SerializeField] private ParticleManager particleManager;
 
         protected override void OnBind()
         {
@@ -34,7 +36,7 @@ namespace Buildings
             Bind<AnimationRepository>(new AnimationRepository());
 
             Bind<ReferenceSubSceneManager>(new ReferenceSubSceneManager());
-
+            Bind<ParticleManager>(particleManager);
             var doc = GetComponent<UIDocument>();
             Bind<Hud.Manager>(new Hud.Manager(doc, worldCamera));
         }

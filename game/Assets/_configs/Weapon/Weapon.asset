@@ -16,7 +16,7 @@ MonoBehaviour:
     type: 3}
   Parts: []
   Value:
-    Bullet: {fileID: 11400000, guid: c94f740253ba24c4db17d250612946be, type: 2}
+    Bullet: {fileID: 11400000, guid: 66f7d6355df69d84b9218c301788a517, type: 2}
     Health: 50000
     Range: 25
     DamageValue: 1

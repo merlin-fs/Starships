@@ -5,7 +5,7 @@ using Unity.Entities;
 
 namespace Common.Defs
 {
-    public class EntityManagerContext: IDefineableContext
+    public class EntityManagerContext: IDefinableContext
     {
         private EntityManager m_Manager;
         private HashSet<BuffKey> m_Buffs;
@@ -81,7 +81,7 @@ namespace Common.Defs
         }
     }
 
-    public class CommandBufferContext : IDefineableContext
+    public class CommandBufferContext : IDefinableContext
     {
         private EntityCommandBuffer m_Manager;
         private HashSet<BuffKey> m_Buffs;
@@ -156,7 +156,7 @@ namespace Common.Defs
         }
     }
 
-    public class WriterContext : IDefineableContext
+    public class WriterContext : IDefinableContext
     {
         private EntityCommandBuffer.ParallelWriter m_Manager;
         private readonly int m_SortKey;

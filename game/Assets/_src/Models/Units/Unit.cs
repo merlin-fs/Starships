@@ -11,10 +11,12 @@ using Game.Model.Logics;
 using Game.Model.Stats;
 using Game.Model.Worlds;
 
+using UnityEngine.Serialization;
+
 namespace Game.Model.Units
 {
     [Serializable]
-    public partial struct Unit : IUnit, IDefinable, IComponentData, IDefineableCallback, Logic.IStateData
+    public partial struct Unit : IUnit, IDefinable, IComponentData, IDefinableCallback, Logic.IStateData
     {
         public RefLink<UnitDef> RefLink { get; }
 
@@ -22,8 +24,9 @@ namespace Game.Model.Units
         {
             RefLink = config;
         }
+        
         #region IDefineableCallback
-        public void AddComponentData(Entity entity, IDefineableContext context)
+        public void AddComponentData(Entity entity, IDefinableContext context)
         {
             context.AddComponentData(entity, new Map.Placement(RefLink<Map.IPlacement>.Copy(RefLink)));
             context.AddComponentData(entity, new Map.Transform());
@@ -31,7 +34,7 @@ namespace Game.Model.Units
             context.AddComponentData(entity, new Move());
         }
 
-        public void RemoveComponentData(Entity entity, IDefineableContext context) { }
+        public void RemoveComponentData(Entity entity, IDefinableContext context) { }
         #endregion
         
         [EnumHandle]
@@ -57,14 +60,13 @@ namespace Game.Model.Units
         [Serializable]
         public class UnitDef : IDef<Unit>, Map.IPlacement
         {
-            [SerializeField] int2 m_Size = new int2(1, 1);
-            [SerializeField] float3 m_Pivot = new float3(0, 0f, 0f);
-            [SerializeField, SelectType(typeof(Map.Layers.ILayer))]
-            string m_Layer;
+            [SerializeField] int2 size = new int2(1, 1);
+            [SerializeField] float3 pivot = new float3(0, 0f, 0f);
+            [SerializeField, SelectType(typeof(Map.Layers.ILayer))] string layer;
             #region Map.IPlacement
-            int2 Map.IPlacement.Size => m_Size;
-            float3 Map.IPlacement.Pivot => m_Pivot;
-            TypeIndex Map.IPlacement.Layer => TypeManager.GetTypeIndex(Type.GetType(m_Layer));
+            int2 Map.IPlacement.Size => size;
+            float3 Map.IPlacement.Pivot => pivot;
+            TypeIndex Map.IPlacement.Layer => TypeManager.GetTypeIndex(Type.GetType(layer));
             #endregion
             public List<ChildConfig> Parts = new List<ChildConfig>();
 

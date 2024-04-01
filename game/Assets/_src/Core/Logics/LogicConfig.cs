@@ -10,9 +10,9 @@ namespace Game.Model.Logics
     public class LogicConfig : GameObjectConfig
     {
         public LogicDef Logic = new LogicDef();
-        protected override void Configurate(Entity prefab, IDefineableContext context)
+        protected override void Configure(Entity prefab, IDefinableContext context)
         {
-            base.Configurate(prefab, context);
+            base.Configure(prefab, context);
             Logic.AddComponentData(prefab, context);
         }
 

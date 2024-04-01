@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using Unity.Burst;
 
+using UnityEngine;
+
 namespace Game.Core
 {
     public readonly partial struct CustomHandle
@@ -52,7 +54,14 @@ namespace Game.Core
                 var stringId = $"{type.FullName}";
                 var handle = new CustomHandle(stringId.GetHashCode());
                 SharedCustomHandle.Set(type, handle);
-                m_Names.Add(handle, name);
+                try
+                {
+                    m_Names.Add(handle, name);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"[Game.Core.CustomHandle] {stringId} : {e}");
+                }
             }
 
             private static readonly Dictionary<CustomHandle, string> m_Names = new ();

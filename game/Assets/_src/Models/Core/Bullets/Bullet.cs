@@ -9,7 +9,7 @@ namespace Game.Model.Weapons
     using Stats;
 
     [Serializable]
-    public struct Bullet: IModifier, IDefinable, IComponentData, IDefineableCallback
+    public struct Bullet: IModifier, IDefinable, IComponentData, IDefinableCallback
     {
         private readonly RefLink<BulletDef> m_Config;
 
@@ -44,12 +44,12 @@ namespace Game.Model.Weapons
         }
         #endregion
         #region IDefineableCallback
-        void IDefineableCallback.AddComponentData(Entity entity, IDefineableContext context)
+        void IDefinableCallback.AddComponentData(Entity entity, IDefinableContext context)
         {
             Attach(entity);
         }
 
-        void IDefineableCallback.RemoveComponentData(Entity entity, IDefineableContext context)
+        void IDefinableCallback.RemoveComponentData(Entity entity, IDefinableContext context)
         {
             Dettach(entity);
         }

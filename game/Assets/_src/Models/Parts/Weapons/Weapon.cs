@@ -14,7 +14,7 @@ namespace Game.Model.Weapons
     /// Реализация оружия
     /// </summary>
     [Serializable, Saved]
-    public partial struct Weapon: IPart, IDefinable, IComponentData, IDefineableCallback, IStateData
+    public partial struct Weapon: IPart, IDefinable, IComponentData, IDefinableCallback, IStateData
     {
         private readonly RefLink<WeaponDef> m_RefLink;
         public WeaponDef Def => m_RefLink.Value;
@@ -33,13 +33,13 @@ namespace Game.Model.Weapons
             BulletID = m_RefLink.Value.Bullet.ID;
         }
         #region IDefineableCallback
-        public void AddComponentData(Entity entity, IDefineableContext context)
+        public void AddComponentData(Entity entity, IDefinableContext context)
         {
             context.AddComponentData(entity, new Target());
             context.AddComponentData(entity, new Target.Query());
             Count = Def.ClipSize;
         }
-        public void RemoveComponentData(Entity entity, IDefineableContext context) { }
+        public void RemoveComponentData(Entity entity, IDefinableContext context) { }
         #endregion
 
         /// <summary>

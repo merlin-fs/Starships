@@ -61,7 +61,7 @@ namespace Game.Model.Weapons
             Damage.Apply(Root, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value);
         }
 
-        public bool Reload(IDefineableContext context, int count)
+        public bool Reload(IDefinableContext context, int count)
         {
             UnityEngine.Debug.Log($"{Self} [Weapon] reload");
             if (m_Bullet.IsValid)
@@ -72,7 +72,7 @@ namespace Game.Model.Weapons
             if (bulletConfig == null)
                 return false;
 
-            bulletConfig.Configurate(m_Self, context);
+            bulletConfig.Configure(m_Self, context);
             m_Weapon.ValueRW.Count = count;
             return count > 0;
         }

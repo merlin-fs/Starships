@@ -7,7 +7,13 @@ namespace Common.Defs
 {
     public interface IDefinable { }
 
-    public interface IDefineableContext
+    public record GetterDef<T>(Func<T> Getter)
+        where T : IDef
+    {
+        public Func<T> Getter { get; } = Getter;
+    }
+
+    public interface IDefinableContext
     {
         DynamicBuffer<T> AddBuffer<T>(Entity entity) where T : unmanaged, IBufferElementData;
         void AppendToBuffer<T>(Entity entity, T data) where T : unmanaged, IBufferElementData;
@@ -17,9 +23,9 @@ namespace Common.Defs
         Entity CreateEntity();
     }
     
-    public interface IDefineableCallback
+    public interface IDefinableCallback
     {
-        void AddComponentData(Entity entity, IDefineableContext context);
-        void RemoveComponentData(Entity entity, IDefineableContext context);
+        void AddComponentData(Entity entity, IDefinableContext context);
+        void RemoveComponentData(Entity entity, IDefinableContext context);
     }
 }

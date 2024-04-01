@@ -1,3 +1,5 @@
+using Common.Core;
+
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -10,20 +12,16 @@ namespace Common.UI.Windows
 
 	public class WindowExitHandler : MonoBehaviour, IWindowExitHandler
 	{
+        private static IWindowExitHandlerPool Pool => Inject<WindowExitHandlerPool>.Value;
+        
 		private void Awake()
 		{
-			IWindowExitHandlerPool pool = WindowExitHandlerPool.Instance;
-
-			if (pool != null)
-				pool.Push(this);
+            Pool.Push(this);
 		}
 
 		private void OnDestroy()
 		{
-			IWindowExitHandlerPool pool = WindowExitHandlerPool.Instance;
-
-			if (pool != null)
-				pool.Pop(this);
+            Pool.Pop(this);
 		}
 
 		void IWindowExitHandler.SendClose()

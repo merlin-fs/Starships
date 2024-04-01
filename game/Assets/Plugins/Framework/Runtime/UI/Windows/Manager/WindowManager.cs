@@ -22,10 +22,8 @@ namespace Common.UI.Windows
 		Transform Transform { get; }
 	}
 
-	public partial class WindowManager : MonoSingleton<WindowManager>, IWindowManager
+	public partial class WindowManager : MonoBehaviour, IWindowManager
 	{
-		public static IWindowManager Instance => Inst;
-
 		[SerializeField]
 		private float m_InteractiveAnimateTime = 0.2f;
 
