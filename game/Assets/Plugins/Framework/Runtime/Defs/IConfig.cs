@@ -7,6 +7,6 @@ namespace Common.Defs
     public interface IConfig: IIdentifiable<ObjectID>
     {
         Entity Prefab { get; }
-        void Configurate(Entity root, IDefineableContext context);
+        void Configure(Entity root, IDefinableContext context);
     }
 }

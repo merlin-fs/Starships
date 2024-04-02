@@ -1,49 +1,52 @@
 using System;
+
+using Unity.Collections;
 using Unity.Entities;
     
 namespace Game.Model.Stats
 {
     using Logics;
 
-    [UpdateInGroup(typeof(GameEndSystemGroup))]
+    //[UpdateInGroup(typeof(GameEndSystemGroup))]
+    [UpdateInGroup(typeof(GameLogicSystemGroup))]
     public partial struct HealthSystem : ISystem
     {
-        EntityQuery m_Query;
+        private EntityQuery m_Query;
+        private Logic.Aspect.Lookup m_LookupLogicAspect;
 
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<Stat>()
-                .WithAspect<Logic.Aspect>()
                 .Build();
-            //m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Stat>());
+            m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Stat>());
             state.RequireForUpdate(m_Query);
+            m_LookupLogicAspect = new Logic.Aspect.Lookup(ref state);
         }
-
-        public void OnDestroy(ref SystemState state) { }
 
         public void OnUpdate(ref SystemState state)
         {
-            //var system = state.World.GetOrCreateSystemManaged<GameLogicEndCommandBufferSystem>();
-            //var ecb = system.CreateCommandBuffer();
-            var job = new SystemJob()
+            m_LookupLogicAspect.Update(ref state);
+            state.Dependency = new SystemJob()
             {
-            };
-            state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
-            state.Dependency.Complete();
+                LookupLogicAspect = m_LookupLogicAspect,
+            }.ScheduleParallel(m_Query, state.Dependency);
         }
 
         partial struct SystemJob : IJobEntity
         {
-            public void Execute(in DynamicBuffer<Stat> stats, ref Logic.Aspect logic)
+            [NativeDisableParallelForRestriction]
+            public Logic.Aspect.Lookup LookupLogicAspect;
+
+            void Execute(in Entity entity, in DynamicBuffer<Stat> stats)
             {
+                var logic = LookupLogicAspect[entity];
                 if (logic.IsCurrentAction(Global.Action.Destroy))
                     return;
-                if (stats.TryGetStat(Global.Stat.Health, out Stat health) && health.Value <= 0)
-                {
-                    UnityEngine.Debug.Log($"{logic.Self}, {logic.SelfName} [Health system] set Destroy");
-                    logic.SetEvent(Global.Action.Destroy);
-                }
+                if (!stats.TryGetStat(Global.Stats.Health, out Stat health) || (health.Value > 0)) return;
+                
+                UnityEngine.Debug.Log($"{logic.Self}, {logic.SelfName} [Health system] set Destroy");
+                logic.SetEvent(Global.Action.Destroy);
             }
         }
     }

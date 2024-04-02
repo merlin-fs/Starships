@@ -1,4 +1,7 @@
 using System;
+
+using JetBrains.Annotations;
+
 using Unity.Collections;
 using Unity.Mathematics;
 
@@ -6,7 +9,7 @@ namespace Game.Model.Worlds
 {
     public partial struct Map
     {
-        public static NativeParallelHashSet<int2> GetCells(int2 center, int radius, Func<int2, bool> isPassable)
+        public static NativeParallelHashSet<int2> GetCells(int2 center, int radius, [CanBeNull] Func<int2, bool> isPassable)
         {
             var set = new NativeParallelHashSet<int2>(radius * 8, Allocator.Temp);
             int idx;

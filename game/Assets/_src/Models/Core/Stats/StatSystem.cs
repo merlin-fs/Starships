@@ -13,7 +13,6 @@ namespace Game.Model.Stats
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAspect<StatAspect>()
-                .WithOptions(EntityQueryOptions.FilterWriteGroup)
                 .Build();
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Modifier>());
@@ -24,7 +23,7 @@ namespace Game.Model.Stats
         {
             public float Delta;
 
-            public void Execute([WithChangeFilter(typeof(Modifier))] ref StatAspect stats)
+            private void Execute(StatAspect stats)
             {
                 stats.Estimation(Delta);
             }
@@ -32,12 +31,10 @@ namespace Game.Model.Stats
 
         public void OnUpdate(ref SystemState state)
         {
-            var job = new SystemJob()
+            state.Dependency = new SystemJob()
             {
                 Delta = SystemAPI.Time.DeltaTime,
-            };
-            state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
-            state.Dependency.Complete();
+            }.ScheduleParallel(m_Query, state.Dependency);
         }
     }
 }

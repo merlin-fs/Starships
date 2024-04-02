@@ -2,8 +2,8 @@ using System;
 
 namespace Common.Core
 {
-    public interface IInitable
+    public interface IInitiated
     {
-        void Init();
+        void Initialize();
     }
 }

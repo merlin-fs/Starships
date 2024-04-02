@@ -21,7 +21,7 @@ namespace Game.Model.Weapons
         {
             m_Query = SystemAPI.QueryBuilder()
                 .WithAspect<WeaponAspect>()
-                .WithAspectRO<Logic.Aspect>()
+                .WithAspect<Logic.Aspect>()
                 .Build();
             state.RequireForUpdate(m_Query);
             m_WorldTransform = state.GetWorldTransformLookup(false);
@@ -43,12 +43,13 @@ namespace Game.Model.Weapons
         {
             public float Delta;
             public WorldTransform WorldTransform;
-            public void Execute(ref WeaponAspect weapon, in Logic.Aspect logic, in Parent parent)
+            public void Execute(WeaponAspect weapon, Logic.Aspect logic)
             {
-                if (logic.IsCurrentAction(Weapon.Action.Shooting) && weapon.Target.Value != Entity.Null)
+                if (logic.IsCurrentAction(Weapon.Action.Attack) && weapon.Target.Value != Entity.Null)
                 {
                     var transform = WorldTransform.GetToWorldRefRW(weapon.Self).ValueRO;
-                    var direction = weapon.Target.Transform.Position;
+                    var targetTransform = WorldTransform.GetToWorldRefRW(weapon.Target.Value).ValueRO;
+                    var direction = targetTransform.Position;
                     //var direction = WorldTransform.ToWorld(weapon.Target.Value)
                     //direction = transform.TransformPointWorldToParent(direction) - transform.LocalPosition;
                     direction = direction - transform.Position;

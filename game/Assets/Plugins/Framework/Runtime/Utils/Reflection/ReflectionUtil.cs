@@ -1,10 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Globalization;
 using System.Linq;
+using System.Collections.Generic;
+using System.Reflection.Emit;
+using Unity.Transforms;
 
-namespace System.Reflection
+namespace System.Reflection.Ext
 {
     public static class ReflectionUtil
     {
@@ -599,6 +599,17 @@ namespace System.Reflection
         }
         #endregion
         #region Helpers
+
+        public static Type NewType(Type prototype, string name)
+        {
+            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(prototype.Assembly.GetName(), AssemblyBuilderAccess.Run);
+            ModuleBuilder mb = assemblyBuilder.DefineDynamicModule(prototype.Module.Name);
+            TypeBuilder tb = mb.DefineType($"{prototype.Name}.{name}", 
+                TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.SequentialLayout | TypeAttributes.Serializable,
+                null, new Type[] { prototype });//, parent
+
+            return tb.CreateType();
+        }
 
         public static string ToGenericTypeString(this Type t)
         {

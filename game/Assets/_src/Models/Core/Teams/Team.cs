@@ -1,6 +1,9 @@
 using System;
 using Unity.Entities;
 using Common.Defs;
+
+using Game.Core.Saves;
+
 using UnityEngine;
 using Unity.Properties;
 using Game.Model.Logics;
@@ -8,26 +11,25 @@ using Game.Model.Logics;
 namespace Game.Model
 {
     [Serializable]
-    public struct Team : IComponentData, IDefinable, IDefineableCallback
+    public struct Team : IComponentData, IDefinable, IDefinableCallback
     {
-        private readonly Def<Def> m_Def;
+        private readonly RefLink<Def> m_RefLink;
 
-        [CreateProperty]
-        public uint SelfTeam => m_Def.Value.SelfTeam;
-        [CreateProperty]
-        public uint EnemyTeams => m_Def.Value.EnemyTeams;
+        public uint SelfTeam => m_RefLink.Value.SelfTeam;
+        public uint EnemyTeams => m_RefLink.Value.EnemyTeams;
 
-        public Team(Def<Def> def)
+        public Team(RefLink<Def> refLink)
         {
-            m_Def = def;
+            m_RefLink = refLink;
         }
         #region IDefineableCallback
-        public void AddComponentData(Entity entity, IDefineableContext context)
+        public void AddComponentData(Entity entity, IDefinableContext context)
         {
             context.AddComponentData(entity, new Target());
+            context.AddComponentData(entity, new Target.Query());
         }
 
-        public void RemoveComponentData(Entity entity, IDefineableContext context) { }
+        public void RemoveComponentData(Entity entity, IDefinableContext context) { }
         #endregion
 
 

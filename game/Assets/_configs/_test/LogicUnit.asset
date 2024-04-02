@@ -13,13 +13,12 @@ MonoBehaviour:
   m_Name: LogicUnit
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 0}
-  m_LogicInst:
-    rid: 7383091129893257217
-  m_Parts:
-  - Game.Model.Logics.Destroy
-  - Game.Model.Logics.LogicPartUnit
+  Logic:
+    logicInst:
+      rid: 1895243158586654724
   references:
     version: 2
     RefIds:
-    - rid: 7383091129893257217
+    - rid: 1895243158586654724
       type: {class: LogicUnit, ns: Game.Model.Logics, asm: Assembly-CSharp}
+      data: 

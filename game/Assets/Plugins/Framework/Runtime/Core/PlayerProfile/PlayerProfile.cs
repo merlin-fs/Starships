@@ -25,21 +25,21 @@ namespace Common.Core.Profiles
 
         public int SaveVersion { get => m_SaveVersion; set => m_SaveVersion = value; }
 
-        public bool IsConfigurated { get; private set; }
+        public bool IsConfigured { get; private set; }
         #endregion
 
 
-        private void StartConfigurate()
+        private void StartConfigure()
         {
-            IsConfigurated = false;
+            IsConfigured = false;
 
         }
 
-        partial void Configurate();
+        partial void Configure();
 
-        private void FinishConfigurate()
+        private void FinishConfigure()
         {
-            IsConfigurated = true;
+            IsConfigured = true;
         }
 
         #region internal
@@ -72,14 +72,14 @@ namespace Common.Core.Profiles
 
             Instance = savedProfile ?? new PlayerProfile();
 
-            Instance.StartConfigurate();
+            Instance.StartConfigure();
             try
             {
-                Instance.Configurate();
+                Instance.Configure();
             }
             finally
             {
-                Instance.FinishConfigurate();
+                Instance.FinishConfigure();
             }
         }
         #endregion

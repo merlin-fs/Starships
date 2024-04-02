@@ -4,28 +4,29 @@ using System.Linq;
 
 namespace Common.Repositories
 {
-    public interface IReadonlyRepository<TID, TEntity>
+    public interface IEntityAttributes<T>
     {
-        IEnumerable<TEntity> Find(
-            Func<TEntity, bool> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null);
+        T Entity { get; }
+    }
 
+    public interface IReadonlyRepository<TID, TEntity, TAttr>
+        where TAttr : IEntityAttributes<TEntity>
+    {
+        IEnumerable<TEntity> Find(Func<TAttr, bool> filter = null, Func<IQueryable<TAttr>, IOrderedQueryable<TAttr>> orderBy = null);
         TEntity FindByID(TID id);
         T FindByID<T>(TID id) where T : TEntity;
     }
 
-    public interface IRepository<TID, TEntity>: IReadonlyRepository<TID, TEntity>
+    public interface IRepository<TID, TEntity, TAttr>: IReadonlyRepository<TID, TEntity, TAttr>
+        where TAttr : IEntityAttributes<TEntity>
     {
-        void Insert(params TEntity[] entities);
-        void Insert(IEnumerable<TEntity> entities);
+        void Insert(IEnumerable<TAttr> entities, Action<TEntity> callback = null);
 
-        void Update(params TEntity[] entities);
-        void Update(IEnumerable<TEntity> entities);
+        void Update(IEnumerable<TAttr> entities);
 
-        void Remove(params TEntity[] entities);
-        void Remove(IEnumerable<TEntity> entities);
+        void Remove(IEnumerable<TAttr> entities, Action<TEntity> callback = null);
 
-        TEntity[] Remove(params TID[] ids);
+        IEnumerable<TEntity> Remove(IEnumerable<TID> ids, Action<TEntity> callback = null);
     }
 }
 

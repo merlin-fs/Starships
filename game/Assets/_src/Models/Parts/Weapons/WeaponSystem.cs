@@ -3,6 +3,8 @@ using Unity.Entities;
 using Unity.Collections;
 using Common.Defs;
 
+using Unity.Collections.LowLevel.Unsafe;
+
 namespace Game.Model.Weapons
 {
     using Stats;
@@ -10,11 +12,11 @@ namespace Game.Model.Weapons
 
     public partial struct Weapon
     {
-        [UpdateInGroup(typeof(GameLogicSystemGroup))]
-        public partial struct WeaponSystem : ISystem
+        [UpdateInGroup(typeof(GameLogicObjectSystemGroup))]
+        public partial struct System : ISystem
         {
-            EntityQuery m_Query;
-            ComponentLookup<Team> m_LookupTeams;
+            private EntityQuery m_Query;
+            private ComponentLookup<Team> m_LookupTeams;
 
             public void OnCreate(ref SystemState state)
             {
@@ -22,74 +24,75 @@ namespace Game.Model.Weapons
                     .WithAspect<WeaponAspect>()
                     .WithAspect<Logic.Aspect>()
                     .Build();
+                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
+                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Weapon>());
+                m_LookupTeams = state.GetComponentLookup<Team>(true);
                 state.RequireForUpdate(m_Query);
-                m_LookupTeams = state.GetComponentLookup<Team>(false);
             }
-
-            public void OnDestroy(ref SystemState state) { }
 
             public void OnUpdate(ref SystemState state)
             {
+                var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+                //var system = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>();
                 m_LookupTeams.Update(ref state);
-                var ecb = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>().CreateCommandBuffer();
-                var job = new SystemJob()
+                state.Dependency = new SystemJob()
                 {
-                    Teams = m_LookupTeams,
-                    Writer = ecb.AsParallelWriter(),
+                    Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
                     Delta = SystemAPI.Time.DeltaTime,
-                };
-                state.Dependency = job.ScheduleParallel(m_Query, state.Dependency);
-                state.Dependency.Complete();
+                    LookupTeams = m_LookupTeams,
+                }.ScheduleParallel(m_Query, state.Dependency);
             }
 
             partial struct SystemJob : IJobEntity
             {
                 public float Delta;
-                [ReadOnly] public ComponentLookup<Team> Teams;
                 public EntityCommandBuffer.ParallelWriter Writer;
+                [ReadOnly] public ComponentLookup<Team> LookupTeams;
 
-                public void Execute([EntityIndexInQuery] int idx, ref WeaponAspect weapon, ref Logic.Aspect logic)
+                void Execute([EntityIndexInQuery] int idx, WeaponAspect weapon, Logic.Aspect logic)
                 {
+                    if (logic.IsCurrentAction(Global.Action.Init))
+                    {
+                        UnityEngine.Debug.Log($"{weapon.Self} [Weapon] init");
+                        var team = LookupTeams[weapon.Root];
+                        var query = new Target.Query {
+                            Radius = weapon.Stat(Stats.Range).Value, 
+                            SearchTeams = team.EnemyTeams,
+                        };
+                        Writer.SetComponent(idx, weapon.Self, query);
+                    }
 
                     if (logic.IsCurrentAction(Action.Reload))
                     {
                         weapon.Time += Delta;
-                        if (weapon.Time >= weapon.Stat(Stats.ReloadTime).Value)
-                        {
-                            weapon.Time = 0;
+                        if (!(weapon.Time >= weapon.Stat(Stats.ReloadTime).Value)) return;
+                        
+                        weapon.Time = 0;
 
-                            //TODO: нужно перенести получение кол. патронов...
-                            if (logic.HasWorldState(State.HasAmo, true))
-                            {
-                                var count = (int)weapon.Stat(Stats.ClipSize).Value;
-                                logic.SetWorldState(State.NoAmmo,
-                                    !weapon.Reload(new DefExt.WriterContext(Writer, idx), count));
-                            }
-                        }
+                        //TODO: нужно перенести получение кол. патронов...
+                        //if (!logic.HasWorldState(State.HasAmo, true)) return;
+                            
+                        var count = (int)weapon.Stat(Stats.ClipSize).Value;
+                        logic.SetWorldState(State.HasAmo, weapon.Reload(new WriterContext(Writer, idx), count));
                     }
 
-                    if (logic.IsCurrentAction(Action.Shooting))
+                    if (logic.IsCurrentAction(Action.Attack))
                     {
                         weapon.Time += Delta;
-                        if (weapon.Time >= weapon.Stat(Stats.Rate).Value)
-                        {
-                            //TODO: Доделать на стороне StateMachine
-                            logic.SetAction(LogicHandle.FromEnum(Action.Shoot));
-                            weapon.Time = 0;
-                            weapon.Shot();
-                            if (weapon.Count == 0)
-                            {
-                                logic.SetWorldState(State.NoAmmo, true);
-                                logic.SetWorldState(Target.State.Dead, false);
-                            }
-                        }
+                        if (!(weapon.Time >= weapon.Stat(Stats.Rate).Value)) return;
+                        
+                        logic.SetWorldState(State.Shooting, true);
+                        weapon.Time = 0;
+                        weapon.Shot();
+                        
+                        if (weapon.Count != 0) return;
+                        logic.SetWorldState(State.HasAmo, false);
                         return;
                     }
 
                     if (logic.IsCurrentAction(Action.Shoot))
                     {
-                        //TODO: Доделать на стороне StateMachine
-                        logic.SetAction(LogicHandle.FromEnum(Action.Shooting));
+                        logic.SetWorldState(State.Shooting, false);
                         return;
                     }
 
@@ -97,6 +100,96 @@ namespace Game.Model.Weapons
                     {
                         logic.SetWorldState(Global.State.Dead, true);
                     }
+                }
+            }
+        }
+
+        [UpdateInGroup(typeof(GameLogicBeforeActionSystemGroup))]
+        public partial struct BeforeActionSystem : ISystem
+        {
+            private EntityQuery m_Query;
+            private Logic.Aspect.Lookup m_LookupLogicAspect;
+
+            public void OnCreate(ref SystemState state)
+            {
+                m_Query = SystemAPI.QueryBuilder()
+                    .WithAspect<WeaponAspect>()
+                    .WithAspect<Logic.Aspect>()
+                    .Build();
+                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
+                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Weapon>());
+                state.RequireForUpdate(m_Query);
+                m_LookupLogicAspect = new Logic.Aspect.Lookup(ref state);
+            }
+
+            public void OnUpdate(ref SystemState state)
+            {
+                m_LookupLogicAspect.Update(ref state);
+                var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+                state.Dependency = new SystemJob()
+                {
+                    Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+                    Delta = SystemAPI.Time.DeltaTime,
+                    LookupLogicAspect = m_LookupLogicAspect,
+                }.ScheduleParallel(m_Query, state.Dependency);
+            }
+            
+            partial struct SystemJob : IJobEntity
+            {
+                public float Delta;
+                public EntityCommandBuffer.ParallelWriter Writer;
+                [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
+                public Logic.Aspect.Lookup LookupLogicAspect;
+
+                void Execute([EntityIndexInQuery] int idx, WeaponAspect weapon)
+                {
+                    LookupLogicAspect[weapon.Self]
+                        .ExecuteBeforeAction(new Context(idx, ref LookupLogicAspect, ref weapon));
+                }
+            }
+        }
+        
+        [UpdateInGroup(typeof(GameLogicAfterActionSystemGroup))]
+        public partial struct AfterActionSystem : ISystem
+        {
+            private EntityQuery m_Query;
+            private Logic.Aspect.Lookup m_LookupLogicAspect;
+
+            public void OnCreate(ref SystemState state)
+            {
+                m_Query = SystemAPI.QueryBuilder()
+                    .WithAspect<WeaponAspect>()
+                    .WithAspect<Logic.Aspect>()
+                    .Build();
+                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
+                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Weapon>());
+                state.RequireForUpdate(m_Query);
+                m_LookupLogicAspect = new Logic.Aspect.Lookup(ref state);
+            }
+
+            public void OnUpdate(ref SystemState state)
+            {
+                m_LookupLogicAspect.Update(ref state);
+                var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+                state.Dependency = new SystemJob()
+                {
+                    Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+                    Delta = SystemAPI.Time.DeltaTime,
+                    LookupLogicAspect = m_LookupLogicAspect,
+                }.ScheduleParallel(m_Query, state.Dependency);
+            }
+            
+            partial struct SystemJob : IJobEntity
+            {
+                public float Delta;
+                public EntityCommandBuffer.ParallelWriter Writer;
+                [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
+                public Logic.Aspect.Lookup LookupLogicAspect;
+
+                void Execute([EntityIndexInQuery] int idx, WeaponAspect weapon)
+                {
+                    LookupLogicAspect[weapon.Self]
+                        .ExecuteAfterChangeState(new Context(idx, ref LookupLogicAspect, ref weapon));
                 }
             }
         }

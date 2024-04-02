@@ -8,7 +8,9 @@ namespace Common.UI.Windows
 
 	public partial class Window
 	{
-		IAnimation m_Anim;
+        private static IWindowManager WindowManager => Inject<IWindowManager>.Value;
+
+        IAnimation m_Anim;
 
 		private struct InitData
         {
@@ -92,20 +94,18 @@ namespace Common.UI.Windows
 			OnWindowClose += onWindowClose;
 			DoCloseWindow();
 		}
-
-		IWindowManager Manager => WindowManager.Instance;
-
-		protected override void Awake()
+        
+        protected override void Awake()
 		{
 			m_Anim = transform.GetComponent<IAnimation>();
 			if (m_Anim == null)
-				m_Anim = Manager.WindowAnimatorDefault;
+				m_Anim = WindowManager.WindowAnimatorDefault;
 		}
 
 		protected override void Start()
         {
 			gameObject.SetActive(false);
-			Manager.RegisterWindow(this);
+            WindowManager.RegisterWindow(this);
 		}
 
 		private void DoCloseWindow()
@@ -113,7 +113,7 @@ namespace Common.UI.Windows
 			if (m_IsCallCloseWindow)
 				return;
 			m_IsCallCloseWindow = true;
-			Manager.UnregisterWindow(this);
+            WindowManager.UnregisterWindow(this);
 		}
 	}
 }

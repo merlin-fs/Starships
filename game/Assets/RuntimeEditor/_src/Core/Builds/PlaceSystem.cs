@@ -5,34 +5,30 @@ using Unity.Mathematics;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Collections;
 using Unity.Transforms;
-using Unity.Burst;
-using Game;
-using Game.Model.Worlds;
-using Game.Core.Events;
-using Common.Defs;
-using Game.Core.Repositories;
+
 using Common.Core;
+using Game;
+using Game.Model.Stats;
+using Game.Model.Worlds;
+
+using Plane = UnityEngine.Plane;
+using Ray = UnityEngine.Ray;
 
 namespace Buildings.Environments
 {
-    public readonly struct SelectBuildingTag: IComponentData { }
-
-    public struct BuildingSize: IComponentData 
+    public struct SelectBuildingTag : IComponentData
     {
-        public int2 Size;
+        public Map.Transform Move;
     }
-
-    [UpdateInGroup(typeof(GameLogicSystemGroup))]
-    partial struct PlaceSystemSystem : ISystem
+    
+    [UpdateInGroup(typeof(GameSpawnSystemGroup))]
+    partial struct PlaceSystem : ISystem
     {
         EntityQuery m_Query;
         EntityQuery m_QueryMap;
         Plane m_Ground;
-
-        ComponentLookup<LocalTransform> m_LookupTransform;
-
-
-        BuildingContext.Var<Config> m_Config;
+        
+        private static Config Config => Inject<Config>.Value;
 
         public void OnCreate(ref SystemState state)
         {
@@ -41,42 +37,38 @@ namespace Buildings.Environments
                 .Build();
 
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<SelectBuildingTag>()
-                .WithAll<BuildingSize>()
-                .WithAllRW<LocalTransform>()
+                .WithAll<Map.Transform, Map.Placement>()
+                .WithAllRW<LocalTransform, SelectBuildingTag>()
+                .WithNone<DeadTag>()
                 .Build();
 
-            m_LookupTransform = state.GetComponentLookup<LocalTransform>(false);
             m_Ground = new Plane(Vector3.up, Vector3.zero);
             state.RequireForUpdate(m_Query);
         }
 
-        //[BurstDiscard]
+
         public void OnUpdate(ref SystemState state)
         {
             if (!Camera.main)
                 return;
 
-            m_LookupTransform.Update(ref state);
-            var input = m_Config.Value.MoveAction.ReadValue<Vector2>();
-            var map = SystemAPI.GetAspectRW<Map.Aspect>(m_QueryMap.GetSingletonEntity());
-            Ray ray = Camera.main.ScreenPointToRay(input);
-            
+            var input = Config.MoveAction.ReadValue<Vector2>();
             var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
             var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
 
-            var IsPlace = m_Config.Value.PlaceAction.IsPressed();
-            var IsCancel = m_Config.Value.CancelAction.IsPressed();
+            var aspect = SystemAPI.GetAspect<Map.Aspect>(m_QueryMap.GetSingletonEntity());
+            Map.Layers.Update(ref state);
 
             state.Dependency = new SystemJob()
             {
-                //LookupTransform = m_LookupTransform,
-                IsPlace = IsPlace,
-                IsCancel = IsCancel,
+                Aspect = aspect,
+                IsPlace = Config.PlaceAction.triggered,
+                IsCancel = Config.CancelAction.triggered,
+                IsRotateX = Config.RorateXAction.triggered,
+                IsRotateY = Config.RorateYAction.triggered,
                 Writer = ecb.AsParallelWriter(),
-                Map = map,
                 Ground = m_Ground,
-                Ray = ray,
+                Ray = Camera.main.ScreenPointToRay(input),
             }
             .ScheduleParallel(m_Query, state.Dependency);
             state.Dependency.Complete();
@@ -84,65 +76,83 @@ namespace Buildings.Environments
 
         partial struct SystemJob : IJobEntity
         {
+            private IApiEditorHandler ApiHandler => Inject<IApiEditorHandler>.Value;
             [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
-            public Map.Aspect Map;
-            
-            //[NativeDisableParallelForRestriction, NativeDisableContainerSafetyRestriction]
-            //public ComponentLookup<LocalTransform> LookupTransform;
+            public Map.Aspect Aspect;
 
             public EntityCommandBuffer.ParallelWriter Writer;
-
             public Plane Ground;
             public Ray Ray;
-
             public bool IsPlace;
             public bool IsCancel;
-            
-            private BuildingContext.Var<IEventSender> m_EventSender;
-            private BuildingContext.Var<IApiEditor> m_ApiEditor;
+            public bool IsRotateX;
+            public bool IsRotateY;
 
-            public void Execute([EntityIndexInQuery] int idx, in Entity entity, in BuildingSize bilding)//, LocalTransform transform
+            public void Execute([EntityIndexInQuery] int idx, in Entity entity, in Map.Transform move,
+                ref SelectBuildingTag selected, in Map.Placement placement, ref LocalTransform transform)
             {
                 if (IsCancel)
                 {
-                    Writer.DestroyEntity(idx, entity);
-                    m_EventSender.Value.SendEvent(PlaceEvent.GetPooled(PlaceEvent.eState.Cancel));
+                    Aspect.SetObject(placement.Value.Layer, move.Position, Entity.Null);
+                    Writer.AddComponent<DeadTag>(idx, entity);
+                    ApiHandler.OnDestroy(entity);
                 }
                 else if (Ground.Raycast(Ray, out float position))
                 {
-                    Vector3 worldPosition = Ray.GetPoint(position);
-
-                    int2 pos = Map.Value.WordToMap(worldPosition) + Map.Value.Size / 2;
-                    bool passable = Map.Value.Passable(pos);
-                    var newPos = Map.Value.MapToWord(pos);
-                    if (!passable) return;
-
-                    //var transform = LookupTransform.GetRefRW(entity, false);
-                    ///transform.ValueRW.Position = newPos;
-
-                    passable &= !IsPlaceTaken(Map, pos, bilding.Size);
-                    //flyingBuilding.SetTransparent(passable);
-
-                    if (passable && IsPlace)
+                    var newMove = selected.Move;
+                    if (IsRotateX)
                     {
-                        Map.SetObject(pos, entity);
-                        Writer.RemoveComponent<SelectBuildingTag>(idx, entity);
-                        //PlaceFlyingBuilding(x, y);
-                        UnityEngine.Debug.Log($"{entity} Raycast {worldPosition}, {newPos}, {pos}");
-                        //EventSender.Value.SendEvent(PlaceEvent.GetPooled(PlaceEvent.eState.Apply));
-                        var config = Repositories.Instance.GetRepo("Floor").FindByID(ObjectID.Create("Deck_Ceiling_01_snaps002"));
-                        m_ApiEditor.Value.AddEnvironment(config);
+                        newMove.Rorate.x += 45;
+                        if (newMove.Rorate.x >= 360)
+                            newMove.Rorate.x = 0;
                     }
+
+                    if (IsRotateY)
+                    {
+                        newMove.Rorate.y += 180;
+                        if (newMove.Rorate.y >= 360)
+                            newMove.Rorate.y = 0;
+                    }
+
+                    Vector3 worldPosition = Ray.GetPoint(position);
+                    
+                    int2 pos = Aspect.Value.WordToMap(worldPosition) + Aspect.Value.Size / 2;
+                    bool passable = Aspect.Value.Passable(pos);
+                    if (!passable) return;
+                    newMove.Position = pos;
+                    
+                    var newPos = Aspect.Value.MapToWord(pos);
+                    var pivot = placement.Value.Pivot;
+
+                    transform.Rotation = quaternion.identity;
+                    transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(newMove.Rorate.y)));
+                    transform.Rotation = math.mul(transform.Rotation, quaternion.RotateY(math.radians(newMove.Rorate.x)));
+                    transform.Position = newPos + math.mul(transform.Rotation, pivot);
+
+                    passable &= !IsPlaceTaken(Aspect, placement.Value.Layer, pos, placement.Value.Size, entity);
+                    selected.Move = newMove; 
+
+                    if (IsPlace && !passable)
+                    {
+                        Debug.LogError($"Position {pos} in {placement.Value.Layer} layer is already occupied");
+                    }
+
+                    if (!passable || !IsPlace) return;
+                    
+                    Writer.SetComponent(idx, entity, newMove);
+                    Writer.RemoveComponent<SelectBuildingTag>(idx, entity);
+                    ApiHandler.OnPlace(entity);
                 }
             }
 
-            private bool IsPlaceTaken(Map.Aspect Map, int2 pos, int2 size)
+            private bool IsPlaceTaken(Map.Aspect aspect, TypeIndex layer, int2 pos, int2 size, Entity entity)
             {
                 for (int i = 0, x = pos.x; i < size.x; i++, x++)
                 {
                     for (int j = 0, y = pos.y; j < size.y; j++, y++)
                     {
-                        if (Map.GetObject(x, y) != Entity.Null)
+                        var target = aspect.GetObject(layer, new int2(x, y)); 
+                        if (target != Entity.Null && target != entity)
                             return true;
                     }
                 }

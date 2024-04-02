@@ -3,22 +3,23 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using Common.Defs;
+using Game.UI;
 
 namespace Game.Model.Worlds
 {
     public partial struct Map
     {
-        public partial struct Data : IComponentData, IDefinable, IDefineableCallback
+        public partial struct Data : IComponentData, IDefinable, IDefinableCallback
         {
-            private readonly Def<Def> m_Def;
-            public Def Define => m_Def.Value;
+            private readonly RefLink<Def> m_RefLink;
+            public Def Define => m_RefLink.Value;
 
             public int2 Size;
             public ViewDataStruct ViewData;
 
-            public Data(Def<Def> def)
+            public Data(RefLink<Def> refLink)
             {
-                m_Def = def;
+                m_RefLink = refLink;
                 Size = default;
                 ViewData = default;
                 ViewData.WorldToLocalMatrix = float4x4.identity / 1.5f;
@@ -26,12 +27,11 @@ namespace Game.Model.Worlds
             }
 
             #region IDefineableCallback
-            public void AddComponentData(Entity entity, IDefineableContext context)
+            public void AddComponentData(Entity entity, IDefinableContext context)
             {
-                context.AddBuffer<Layers.Floor>(entity);
             }
 
-            public void RemoveComponentData(Entity entity, IDefineableContext context) { }
+            public void RemoveComponentData(Entity entity, IDefinableContext context) { }
             #endregion
 
             [Serializable]

@@ -1,26 +1,32 @@
 ﻿using System;
+
+using Game.Core;
+
 using Unity.Entities;
 
 namespace Game.Model.Stats
 {
-    using static Game.Model.Logics.Logic;
+    using static Logics.Logic;
 
     public struct DeadTag: IComponentData { }
-    //public struct WaitDeadTag : IComponentData { }
 
     public struct Global : IStateData
     {
+        [EnumHandle]
         public enum Action
         {
+            Init,
             Destroy,
         }
-
+        
+        [EnumHandle]
         public enum State
         {
             Dead,
         }
 
-        public enum Stat
+        [EnumHandle]
+        public enum Stats
         {
             Health,
         }

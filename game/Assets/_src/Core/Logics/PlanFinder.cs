@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+
+using Game.Core;
+
 using Unity.Collections;
 
 namespace Game.Model.Logics
@@ -8,20 +11,20 @@ namespace Game.Model.Logics
     {
         public partial struct PlanFinder
         {
-            public static NativeArray<LogicHandle> Execute(int threadIdx, Logic.Aspect logic, Goal goal, 
+            public static NativeArray<Plan> Execute(int threadIdx, Logic.Aspect logic, Goal goal, 
                 AllocatorManager.AllocatorHandle allocator)
             {
                 var path = Search(threadIdx, logic, goal, allocator);
                 return path;
             }
 
-            private unsafe static NativeArray<LogicHandle> Search(int threadIdx, Logic.Aspect logic,
+            private unsafe static NativeArray<Plan> Search(int threadIdx, Logic.Aspect logic,
                 Goal goal, AllocatorManager.AllocatorHandle allocator)
             {
                 InitFinder(threadIdx);
                 try
                 {
-                    var root = new Node(LogicHandle.Null, 0)
+                    var root = new Node(EnumHandle.Null, 0)
                     {
                         HeuristicCost = 0.0f
                     };
@@ -30,18 +33,20 @@ namespace Game.Model.Logics
                         root.Goals.Add(goal.State, goal.Value);
 
                     var costs = GetCosts(threadIdx);
-                    costs.Add(LogicHandle.Null, root);
+                    costs.Add(EnumHandle.Null, root);
                     var queue = GetQueue(threadIdx);
 
                     queue.Push(root);
+                    var store = root.Handle; 
                     while (queue.Pop(out Node node))
                     {
+                        store = node.Handle;
                         if (node.Goals.Count == 0)
                             return ShortestPath(threadIdx, node.Handle, allocator);
                         IdentifySuccessors(threadIdx, node, logic);
                     }
-
-                    return new NativeList<LogicHandle>(1, Allocator.Persistent).AsArray();
+                    return ShortestPath(threadIdx, store, allocator);
+                    //return new NativeList<Plan>(1, Allocator.Persistent).AsArray();
                 }
                 finally
                 {
@@ -55,9 +60,11 @@ namespace Game.Model.Logics
                 var queue = GetQueue(threadIdx);
                 var hierarchy = GetHierarchy(threadIdx);
 
-                foreach (var iter in node.Goals)
+                using var goals = node.Goals.GetKeyValueArrays(Allocator.Temp);
+                for (int i = 0; i < goals.Length; i++)
+                //foreach (var iter in goals)
                 {
-                    foreach (var pt in logic.Def.GetActionsFromGoal(GoalHandle.FromHandle(iter.Key, iter.Value)))
+                    foreach (var pt in logic.Def.GetActionsFromGoal(GoalHandle.FromHandle(goals.Keys[i], goals.Values[i])))
                     {
                         logic.Def.TryGetAction(pt, out GoapAction action);
                         if (!costs.TryGetValue(action.Handle, out Node next))
@@ -65,6 +72,8 @@ namespace Game.Model.Logics
                             next = new Node(action.Handle, action.Cost);
                             costs.Add(action.Handle, next);
                         }
+                        else 
+                            continue;
                         next.Goals.Clear();
 
                         foreach (var nextGoal in action.GetPreconditions().GetReadOnly())
@@ -73,7 +82,7 @@ namespace Game.Model.Logics
 
                         foreach (var nextGoal in node.Goals)
                         {
-                            if (iter.Key == nextGoal.Key && iter.Value == nextGoal.Value)
+                            if (goals.Keys[i] == nextGoal.Key && goals.Values[i] == nextGoal.Value)
                                 continue;
                             if (!logic.HasWorldState(nextGoal.Key, nextGoal.Value))
                                 if (!next.Goals.ContainsKey(nextGoal.Key))
@@ -89,16 +98,16 @@ namespace Game.Model.Logics
                 }
             }
 
-            private static NativeArray<LogicHandle> ShortestPath(int threadIdx, LogicHandle v, AllocatorManager.AllocatorHandle allocator)
+            private static NativeArray<Plan> ShortestPath(int threadIdx, EnumHandle v, AllocatorManager.AllocatorHandle allocator)
             {
                 var hierarchy = GetHierarchy(threadIdx);
-                var path = new NativeList<LogicHandle>(hierarchy.Count, Allocator.Persistent);
-                while (!v.Equals(LogicHandle.Null))
+                var path = new NativeList<Plan>(hierarchy.Count, Allocator.Persistent);
+                while (!v.Equals(EnumHandle.Null))
                 {
-                    if (!hierarchy.TryGetValue(v, out LogicHandle test))
+                    if (!hierarchy.TryGetValue(v, out EnumHandle test))
                     {
                         path.Dispose();
-                        return new NativeList<LogicHandle>(1, Allocator.Persistent).AsArray();
+                        return new NativeList<Plan>(1, Allocator.Persistent).AsArray();
                     }
                     else
                     {
@@ -120,13 +129,13 @@ namespace Game.Model.Logics
             {
                 public float? HeuristicCost { get; set; }
                 public float Cost { get; }
-                public LogicHandle Handle { get; }
+                public EnumHandle Handle { get; }
 
-                public NativeHashMap<LogicHandle, bool> Goals { get; }
+                public NativeHashMap<EnumHandle, bool> Goals { get; }
 
-                public Node(LogicHandle source, float cost)
+                public Node(EnumHandle source, float cost)
                 {
-                    Goals = new NativeHashMap<LogicHandle, bool>(5, Allocator.TempJob);
+                    Goals = new NativeHashMap<EnumHandle, bool>(5, Allocator.TempJob);
                     Handle = source;
                     HeuristicCost = null;
                     Cost = cost;

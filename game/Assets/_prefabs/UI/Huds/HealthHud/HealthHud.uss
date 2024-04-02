@@ -1,0 +1,35 @@
+.unity-progress-bar__title-container {
+    display: none;
+}
+
+.unity-progress-bar {
+    flex-grow: 1;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.unity-progress-bar__container {
+    min-height: auto;
+    flex-grow: 1;
+    max-height: none;
+}
+
+.unity-progress-bar__background {
+    background-image: url('project://database/Assets/_art/UI/Bar%20Off%201.png?fileID=2800000&guid=c9bc65a77a3318e48976b4e9c6b753e8&type=3#Bar Off 1');
+    border-left-width: 0;
+    border-right-width: 0;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    flex-grow: 1;
+}
+
+.unity-progress-bar__progress {
+    background-image: url('project://database/Assets/_art/UI/Bar%20Off%201.png?fileID=2800000&guid=c9bc65a77a3318e48976b4e9c6b753e8&type=3#Bar Off 1');
+    -unity-background-image-tint-color: rgb(255, 0, 48);
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}

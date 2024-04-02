@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Entities;
+using Common.Core;
 
 namespace Game.Model.Stats
 {
@@ -20,19 +21,19 @@ namespace Game.Model.Stats
             state.RequireForUpdate(m_Query);
         }
 
-        public void OnDestroy(ref SystemState state) { }
-
         partial struct PrepareStatsJob : IJobEntity
         {
+            private static ObjectRepository Repository => Inject<ObjectRepository>.Value;
+
             void Execute(in DynamicBuffer<PrepareStat> configs, ref DynamicBuffer<Stat> stats)
             {
-                var repo = Repositories.Instance.ConfigsAsync().Result;
+                var repo = Repository;
                 foreach (var iter in configs)
                 {
                     var config = repo.FindByID(iter.ConfigID);
                     if (config is IConfigStats statConfig)
                     {
-                        statConfig.Configurate(stats);
+                        statConfig.Configure(stats);
                     }
                 }
             }
@@ -46,7 +47,7 @@ namespace Game.Model.Stats
             {
             }.ScheduleParallel(m_Query, state.Dependency);
 
-            ecb.RemoveComponent<PrepareStat>(m_Query);
+            ecb.RemoveComponent<PrepareStat>(m_Query, EntityQueryCaptureMode.AtPlayback);
         }
     }
 }

@@ -1,20 +1,20 @@
 using System.Collections.Generic;
+
+using Common.Core;
+
 using UnityEngine;
 
 namespace Common.UI.Windows
 {
-	using Singletons;
-
 	public interface IWindowExitHandlerPool
 	{
 		void Push(IWindowExitHandler window);
 		void Pop(IWindowExitHandler window);
 	}
 
-	public class WindowExitHandlerPool : MonoSingleton<WindowExitHandlerPool>, IWindowExitHandlerPool
+	public class WindowExitHandlerPool : IWindowExitHandlerPool
 	{
-		public static IWindowExitHandlerPool Instance => Inst;
-
+		private static IWindowManager WindowManager => Inject<IWindowManager>.Value;
 		List<IWindowExitHandler> m_WidowStack = new List<IWindowExitHandler>();
 
 		protected virtual void OnTryTerminate() { }
@@ -28,7 +28,7 @@ namespace Common.UI.Windows
 				m_WidowStack[m_WidowStack.Count - 1].SendClose();
 			else
 			{
-				if (WindowManager.Instance.IsBusy())
+				if (WindowManager.IsBusy())
 					return;
 
 				OnTryTerminate();

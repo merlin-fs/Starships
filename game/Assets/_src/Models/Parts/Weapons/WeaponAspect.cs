@@ -3,10 +3,11 @@ using Unity.Entities;
 using Unity.Properties;
 using Unity.Collections;
 using Common.Defs;
-using Unity.Transforms;
 
 namespace Game.Model.Weapons
 {
+    using Common.Core;
+
     using Core.Repositories;
     using Stats;
 
@@ -15,7 +16,8 @@ namespace Game.Model.Weapons
         private readonly Entity m_Self;
         readonly RefRO<Root> m_Root;
         readonly RefRW<Weapon> m_Weapon;
-        readonly RefRW<Target> m_Target;
+        readonly RefRO<Target> m_Target;
+        readonly RefRO<Target.Query> m_TargetQuery;
         [Optional] readonly RefRO<Bullet> m_Bullet;
         [ReadOnly] readonly DynamicBuffer<Stat> m_Stats;
         public Entity Self => m_Self;
@@ -36,13 +38,14 @@ namespace Game.Model.Weapons
         public Entity Root => m_Root.ValueRO.Value;
 
         [CreateProperty]
-        public Target Target { get => m_Target.ValueRO; set => m_Target.ValueRW = value; }
-
+        public Target Target { get => m_Target.ValueRO; }
         [CreateProperty]
-        public uint SoughtTeams => m_Target.ValueRO.SoughtTeams;
+        public Target.Query TargetQuery { get => m_TargetQuery.ValueRO; }
 
         public Bullet Bullet => m_Bullet.ValueRO;
-        public Stat Stat(Enum stat) => m_Stats.GetRO(stat);
+        public Stat Stat<T>(T stat) where T: struct, IConvertible => m_Stats.GetRO(stat);
+        
+        private static ObjectRepository ObjectRepository => Inject<ObjectRepository>.Value;
 
         public float Time
         {
@@ -58,19 +61,18 @@ namespace Game.Model.Weapons
             Damage.Apply(Root, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value);
         }
 
-        public bool Reload(IDefineableContext context, int count)
+        public bool Reload(IDefinableContext context, int count)
         {
             UnityEngine.Debug.Log($"{Self} [Weapon] reload");
             if (m_Bullet.IsValid)
-                m_Bullet.ValueRO.Def.RemoveComponentData(m_Self, context, m_Bullet.ValueRO);
+                m_Bullet.ValueRO.Def.RemoveComponentData(m_Self, m_Bullet.ValueRO, context);
 
-            var bulletConfig = Repositories.Instance.ConfigsAsync().Result
-                .FindByID(m_Weapon.ValueRO.BulletID);
+            var bulletConfig = ObjectRepository.FindByID(m_Weapon.ValueRO.BulletID);
 
             if (bulletConfig == null)
                 return false;
 
-            bulletConfig.Configurate(m_Self, context);
+            bulletConfig.Configure(m_Self, context);
             m_Weapon.ValueRW.Count = count;
             return count > 0;
         }

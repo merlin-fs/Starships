@@ -1,4 +1,9 @@
 using System;
+
+using Common.Core;
+
+using Game.Core.Events;
+
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -8,34 +13,55 @@ namespace Game.Model.Worlds
     {
         public readonly partial struct Aspect: IAspect 
         {
+            private static IEventSender Sender => Inject<IEventSender>.Value;
+            
             private readonly Entity m_Self;
+
             readonly RefRW<Data> m_Data;
-            readonly DynamicBuffer<Layers.Floor> m_Floor;
             public Entity Self => m_Self;
             public Data Value => m_Data.ValueRO;
 
-            public DynamicBuffer<Layers.Floor> Floor => m_Floor;
-
-            public void SetObject(int2 pos, Entity entity)
-            {
-                m_Floor.ElementAt(Value.At(pos)).Entity = entity;
-            }
-
-            public Entity GetObject(int2 pos)
-            {
-                return m_Floor[Value.At(pos)].Entity;
-            }
-
-            public Entity GetObject(int x, int y)
-            {
-                return m_Floor[Value.At(new int2(x, y))].Entity;
-            }
-
-            public void Init()
+            public void Init(ref SystemState systemState, Aspect aspect)
             {
                 m_Data.ValueRW.Size = m_Data.ValueRO.Define.Size;
-                m_Floor.Resize(m_Data.ValueRO.Length, Unity.Collections.NativeArrayOptions.ClearMemory);
+                Layers.Initialize(ref systemState, aspect);
+                systemState.EntityManager.AddComponent<NavMeshBuildTag>(Self);
+                Sender.SendEvent(EventMap.GetPooled(m_Self, EventMap.EventType.Initialize));
             }
+
+            public void SetObject<T>(int2 pos, Entity entity)
+                where T: Layers.ILayer
+            {
+                Layers.SetObject(this, TypeManager.GetTypeIndex(typeof(T)), pos, entity);
+            }
+            
+            public void SetObject(TypeIndex layerType, int2 pos, Entity entity)
+            {
+                Layers.SetObject(this, layerType, pos, entity);
+            }
+
+            public bool TryGetObject<T>(int2 pos, out Entity entity)
+                where T: Layers.ILayer
+            {
+                return Layers.TryGetObject(this, TypeManager.GetTypeIndex(typeof(T)), pos, out entity);
+            }
+            
+            public bool TryGetObject(TypeIndex layerType, int2 pos, out Entity entity)
+            {
+                return Layers.TryGetObject(this, layerType, pos, out entity);
+            }
+            
+            public Entity GetObject<T>(int2 pos)
+                where T: Layers.ILayer
+            {
+                return Layers.GetObject(this, TypeManager.GetTypeIndex(typeof(T)), pos);
+            }
+
+            public Entity GetObject(TypeIndex layerType, int2 pos)
+            {
+                return Layers.GetObject(this, layerType, pos);
+            }
+
         }
     }
 }

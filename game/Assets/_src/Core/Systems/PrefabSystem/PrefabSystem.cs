@@ -1,86 +1,137 @@
 using System;
+using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using System.Linq;
 using Unity.Entities;
 using Unity.Burst;
+using Unity.Jobs;
 using Common.Defs;
-using System.Threading.Tasks;
+using Common.Core;
+
+using Game.Core.Events;
+using Game.Core.Repositories;
+using Game.Model.Units;
 
 namespace Game.Core.Prefabs
 {
-
-    using Repositories;
-
-    [UpdateInGroup(typeof(GameSpawnSystemGroup))]
-    partial class PrefabSystem : SystemBase
+    public partial struct PrefabInfo
     {
-        static PrefabSystem Instance { get; set; }
-
-        EntityQuery m_Query;
-        
-        private bool m_Done;
-
-        ConcurrentDictionary<Entity, IDefineableContext> m_Contexts = new ConcurrentDictionary<Entity, IDefineableContext>();
-
-
-        public Task<bool> IsDone()
+        [UpdateInGroup(typeof(GameSpawnSystemGroup))]
+        public partial struct System : ISystem
         {
-            return Task.Run(() =>
+            private EntityQuery m_QueryEnvironments;
+            private EntityQuery m_QueryObjects;
+            static ConcurrentDictionary<Entity, IDefinableContext> m_Contexts;
+            static private bool m_Done;
+            private static ObjectRepository ObjectRepository => Inject<ObjectRepository>.Value;
+            private static IEventSender Sender => Inject<IEventSender>.Value;
+
+            public Task<bool> IsDone()
             {
-                while (!m_Done)
-                    Task.Yield();
-                return m_Done;
-            });
-        }
-
-        protected override void OnCreate()
-        {
-            Instance = this;
-            base.OnCreate();
-
-            m_Query = SystemAPI.QueryBuilder()
-                .WithAll<BakedPrefabData>()
-                .WithOptions(EntityQueryOptions.IncludePrefab)
-                .Build();
-
-            RequireForUpdate(m_Query);
-        }
-
-
-        [BurstDiscard]
-        protected async override void OnUpdate()
-        {
-            m_Done = false;
-            await Repositories.Instance.ConfigsAsync();
-
-            var system = World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>();
-            var ecb = system.CreateCommandBuffer();
-            Dependency = new PrefabJob()
-            {
-                Writer = ecb.AsParallelWriter(),
-            }.ScheduleParallel(m_Query, Dependency);
-            Dependency.Complete();
-            m_Contexts.Clear();
-
-            ecb.RemoveComponent<BakedPrefabData>(m_Query);
-            m_Done = true;
-        }
-
-        partial struct PrefabJob : IJobEntity
-        {
-            public EntityCommandBuffer.ParallelWriter Writer;
-
-            void Execute([EntityIndexInQuery] int idx, in Entity entity, in DynamicBuffer<BakedPrefabData> bakeds)
-            {
-                if (!Instance.m_Contexts.TryGetValue(entity, out IDefineableContext context))
+                return Task.Run(() =>
                 {
-                    context = new DefExt.WriterContext(Writer, idx);
-                    Instance.m_Contexts.TryAdd(entity, context);
+                    while (!m_Done)
+                        Task.Yield();
+                    return m_Done;
+                });
+            }
+
+            public void OnCreate(ref SystemState state)
+            {
+                m_Contexts = new ConcurrentDictionary<Entity, IDefinableContext>();
+                m_QueryEnvironments = SystemAPI.QueryBuilder()
+                    .WithAll<PrefabInfo, BakedTag, BakedEnvironment, BakedLabel>()
+                    .WithOptions(EntityQueryOptions.IncludePrefab)
+                    .Build();
+
+                m_QueryObjects = SystemAPI.QueryBuilder()
+                    .WithAll<PrefabInfo, BakedTag>()
+                    .WithNone<BakedEnvironment>()
+                    .WithOptions(EntityQueryOptions.IncludePrefab)
+                    .Build();
+            }
+
+            [BurstDiscard]
+            public void OnUpdate(ref SystemState state)
+            {
+                if (m_QueryEnvironments.IsEmpty && m_QueryObjects.IsEmpty) return;
+                
+                m_Done = false;
+                Sender.SendEvent(EventRepository.GetPooled(ObjectRepository, EventRepository.Enum.Loading));
+                var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
+
+                var environmentsHandle = new EnvironmentsJob
+                {
+                    Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+                }.ScheduleParallel(m_QueryEnvironments, new JobHandle());
+
+                var objectsHandle = new ObjectsJob
+                {
+                    Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
+                }.ScheduleParallel(m_QueryObjects, new JobHandle());
+                state.Dependency = JobHandle.CombineDependencies(environmentsHandle, objectsHandle);
+                
+                new DoneJob().Schedule(state.Dependency);
+
+                var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
+                ecb.RemoveComponent<BakedTag>(m_QueryEnvironments, EntityQueryCaptureMode.AtPlayback);
+                ecb.RemoveComponent<BakedEnvironment>(m_QueryEnvironments, EntityQueryCaptureMode.AtPlayback);
+                ecb.RemoveComponent<BakedTag>(m_QueryObjects, EntityQueryCaptureMode.AtPlayback);
+            }
+
+            struct DoneJob : IJob
+            {
+                public void Execute()
+                {
+                    m_Contexts.Clear();
+                    Sender.SendEvent(EventRepository.GetPooled(ObjectRepository, EventRepository.Enum.Done));
+                    m_Done = true;
                 }
+            }
 
-                foreach (var iter in bakeds)
+            partial struct EnvironmentsJob : IJobEntity
+            {
+                public EntityCommandBuffer.ParallelWriter Writer;
+                private static ObjectRepository Repository => Inject<ObjectRepository>.Value;
+
+                private void Execute([EntityIndexInQuery] int idx, in Entity entity,
+                    in PrefabInfo prefab, in BakedEnvironment environment, in DynamicBuffer<BakedLabel> labels)
                 {
-                    var config = Repositories.Instance.ConfigsAsync().Result.FindByID(iter.ConfigID);
-                    config.Configurate(entity, context);
+                    var localLabels = labels.AsNativeArray()
+                        .ToArray()
+                        .Select(i => i.Label.ToString());
+
+                    var def = new Structure.StructureDef 
+                    {
+                        Size = environment.Size,
+                        Pivot = environment.Pivot,
+                        Layer = TypeManager.GetTypeIndex(Type.GetType(environment.Layer.Value)),
+                    };
+                    var config = new StructureConfig(prefab.ConfigID, entity, def);
+                    var context = new WriterContext(Writer, idx);
+                    def.AddComponentData(entity, context);
+
+                    context.SetName(entity, prefab.ConfigID.ToString());
+                    Repository.Insert(prefab.ConfigID, config, localLabels.ToArray());
+                }
+            }
+
+            partial struct ObjectsJob : IJobEntity
+            {
+                public EntityCommandBuffer.ParallelWriter Writer;
+                private static ObjectRepository Repository => Inject<ObjectRepository>.Value;
+
+                void Execute([EntityIndexInQuery] int idx, in Entity entity, in PrefabInfo prefab)
+                {
+                    if (!m_Contexts.TryGetValue(entity, out IDefinableContext context))
+                    {
+                        context = new WriterContext(Writer, idx);
+                        m_Contexts.TryAdd(entity, context);
+                    }
+                    var config = Repository.FindByID(prefab.ConfigID);
+                    
+                    context.SetName(entity, prefab.ConfigID.ToString());
+                    config.Configure(entity, context);
                 }
             }
         }

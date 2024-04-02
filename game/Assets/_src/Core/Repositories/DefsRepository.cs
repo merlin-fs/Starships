@@ -3,30 +3,47 @@ using System.Linq;
 using System.Collections.Generic;
 using Common.Core;
 using Common.Repositories;
+using Unity.Entities;
 using Common.Defs;
 
 namespace Game.Core.Repositories
 {
-    public class DefsRepository<T> : IReadonlyRepository<ObjectID, T>
-        where T : IIdentifiable<ObjectID>
+    public class DefsRepository<TObject> : IReadonlyRepository<ObjectID, TObject, DefsRepository<TObject>.Attribute>
+        where TObject : IIdentifiable<ObjectID>
     {
-        public DictionaryRepository<ObjectID, T> Repo { get; } = new DictionaryRepository<ObjectID, T>();
+        public class Attribute : IEntityAttributes<TObject>
+        {
+            public TObject Entity { get; }
+            public HashSet<string> Labels { get; }
+
+            public Attribute(TObject entity, string[] labels)
+            {
+                Entity = entity;
+                Labels = labels != null 
+                    ? new HashSet<string>(labels) 
+                    : new HashSet<string>();
+            }
+        }
+
+        protected readonly DictionaryRepository<ObjectID, TObject, Attribute> m_Repo = new DictionaryRepository<ObjectID, TObject, Attribute>();
 
         #region IReadonlyRepository
-        IEnumerable<T> IReadonlyRepository<ObjectID, T>.Find(
-            Func<T, bool> filter,
-            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy)
+        public IEnumerable<TObject> Find(
+            Func<Attribute, bool> filter = null,
+            Func<IQueryable<Attribute>, IOrderedQueryable<Attribute>> orderBy = null)
         {
-            return Repo.Find(filter, orderBy);
+            return m_Repo.Find(filter, orderBy);
         }
 
-        T IReadonlyRepository<ObjectID, T>.FindByID(ObjectID id)
+        public TObject FindByID(ObjectID id)
         {
-            return Repo.FindByID(id);
+            return m_Repo.FindByID(id);
         }
-        newT IReadonlyRepository<ObjectID, T>.FindByID<newT>(ObjectID id)
+
+        public T FindByID<T>(ObjectID id)
+            where T : TObject
         {
-            return Repo.FindByID<newT>(id);
+            return m_Repo.FindByID<T>(id);
         }
         #endregion
     }

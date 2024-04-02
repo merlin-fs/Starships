@@ -5,7 +5,7 @@ namespace Common.Core.Loading
 {
     public interface ILoadingManager : IInjectionInitable
     {
-        IDIContext Context { get; }
+        IDiContext Context { get; }
         SynchronizationContext SynchronizationContext { get; }
         IProgress Progress { get; }
         string Text { get; set; }

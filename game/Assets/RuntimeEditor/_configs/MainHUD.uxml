@@ -1,5 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <ui:VisualElement style="flex-grow: 0; background-color: rgba(0, 0, 0, 0); align-items: flex-end; flex-direction: row-reverse;">
-        <Game.UI.Elements.FpsLabel tabindex="-1" name="FpsLabel" />
+        <Game.UI.Elements.FpsLabel tabindex="-1" name="FpsLabel" text="dfdfd" style="margin-right: 11%; font-size: 36px; color: rgb(255, 255, 255);" />
     </ui:VisualElement>
 </ui:UXML>

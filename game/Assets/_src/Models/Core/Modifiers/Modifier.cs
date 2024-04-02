@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+
+using Game.Core;
+using Game.Core.Saves;
+
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -10,44 +14,45 @@ using UnityEngine;
 
 namespace Game.Model.Stats
 {
-    [Serializable]
-    [WriteGroup(typeof(Stat))]
+    [Serializable, Saved]
     public unsafe struct Modifier : IBufferElementData, IEquatable<Modifier>
     {
         private static readonly MethodInfo m_Method = typeof(IModifier).GetMethod(nameof(IModifier.Estimation));
 
         public bool Active;
-        [HideInInspector]
-        public int StatID;
-        [HideInInspector]
+        
+        [CreateProperty] private string ID => m_StatID.ToString();
+        private EnumHandle m_StatID;
         public TypeIndex TypeIndex;
-#if DEBUG
-        [CreateProperty]
-        public string StatName => StatID != 0 ? Stats.Stat.GetName(StatID) : "null";
-#endif
+
         //[NativeDisableUnsafePtrRestriction]
         private readonly ulong m_ModifierPtr;
         [HideInInspector]
         public ulong UID => (ulong)m_ModifierPtr;
 
-        private Modifier(void* ptr, Enum stat)
+        private Modifier(void* ptr, EnumHandle stat)
         {
-            StatID = new int2(stat.GetType().GetHashCode(), stat.GetHashCode()).GetHashCode();
+            m_StatID = stat;
             m_ModifierPtr = (ulong)ptr;
             Active = true;
             TypeIndex = 0;
         }
 
+        public bool HasStat(Stat stat)
+        {
+            return stat == m_StatID;
+        }
         bool IEquatable<Modifier>.Equals(Modifier other)
         {
             return (m_ModifierPtr == other.m_ModifierPtr);
         }
 
-        public static Modifier Create<T>(ref T modifier, Enum stat)
+        public static Modifier Create<T, S>(ref T modifier, S stat)
             where T : struct, IModifier
+            where S : struct, IConvertible
         {
             UnsafeUtility.PinGCObjectAndGetAddress(modifier, out ulong handle);
-            return new Modifier((void*)handle, stat)
+            return new Modifier((void*)handle, EnumHandle.FromEnum(stat))
             {
                 TypeIndex = TypeManager.GetTypeIndex<T>(),
             };
@@ -66,8 +71,9 @@ namespace Game.Model.Stats
             obj.Estimation(entity, ref stat, delta);
         }
 
-        public static ulong AddModifierAsync<T>(Entity entity, ref T modifier, Enum statType)
+        public static ulong AddModifierAsync<T, S>(Entity entity, ref T modifier, S statType)
             where T : struct, IModifier
+            where S : struct, IConvertible
         {
             return ModifiersSystem.Instance.AddModifier(entity, ref modifier, statType);
         }
@@ -81,7 +87,7 @@ namespace Game.Model.Stats
         {
             stat.Reset();
             foreach (var item in items)
-                if (item.Active && item.StatID == stat.StatID)
+                if (item.Active && item.HasStat(stat))
                 {
                     item.Estimation(entity, ref stat, delta);
                 }

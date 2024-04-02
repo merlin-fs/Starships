@@ -39,12 +39,12 @@ namespace Game.Model.Weapons
 
                 m_QueryTargets = SystemAPI.QueryBuilder()
                     .WithNone<DeadTag>()
-                    .WithAspectRO<StatAspect>()
+                    .WithAspect<StatAspect>()
                     .Build();
 
                 m_LookupDead = state.GetComponentLookup<DeadTag>(true);
                 m_LookupTransforms = state.GetComponentLookup<LocalTransform>(true);
-                m_LookupStatAspect = new StatAspect.Lookup(ref state, false);
+                m_LookupStatAspect = new StatAspect.Lookup(ref state);
             }
 
             public unsafe void OnUpdate(ref SystemState state)
@@ -68,7 +68,7 @@ namespace Game.Model.Weapons
                 };
                 state.Dependency = job.ScheduleParallel(m_Query, jobHandle);
                 state.Dependency.Complete();
-                ecb.DestroyEntity(m_Query);
+                ecb.DestroyEntity(m_Query, EntityQueryCaptureMode.AtPlayback);
                 entities.Dispose(state.Dependency);
             }
 

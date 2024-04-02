@@ -13,12 +13,13 @@ GameObject:
   - component: {fileID: 23875714301229984}
   - component: {fileID: 64233459900976272}
   - component: {fileID: -1770035882468724839}
+  - component: {fileID: 8133208725058402272}
   m_Layer: 0
   m_Name: Gen_Wall_DoorFrame_01_snaps002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 8
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &4705015151585486
 Transform:
@@ -27,13 +28,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1756070019896396}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &33999553411801558
 MeshFilter:
@@ -123,3 +124,29 @@ MonoBehaviour:
   m_Size:
     x: 0
     y: 0
+  m_Pivot:
+    x: 1.5
+    y: 0.0625
+    z: 1.5
+  m_Layer: Game.Model.Worlds.Map+Layers+Structure
+--- !u!65 &8133208725058402272
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756070019896396}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.0001144, y: 4, z: 0.8750143}
+  m_Center: {x: 1.5, y: 2, z: 0}

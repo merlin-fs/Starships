@@ -1,36 +1,29 @@
 using System;
+using System.Threading;
 using System.Linq;
 using UnityEngine;
 using System.Collections.Generic;
 
+using UnityEngine.SceneManagement;
+
 namespace Common.Core
 {
-    public interface IDIContext
+    public interface IDiContext
     {
         T Get<T>(object id = null);
         bool TryGet<T>(out T value, object id = null);
-        IDIContext NewContext(Action<DIBindContext> onBind);
-        void RemoveContext(ref IDIContext context);
     }
 
-    public abstract class DIBindContext
+    public abstract partial class DiContext : MonoBehaviour, IDiContext, ISerializationCallbackReceiver
     {
-        public abstract void Bind<T>(T instance, object id = null);
-    }
+        private static DiContext Current { get; set; }
 
-    public abstract partial class DIContext : MonoBehaviour, IDIContext
-    {
-        [SerializeField]
-        private bool m_IsRoot = false;
-
-        private static IDIContext m_Root;
-
-        public static IDIContext Root => m_Root;
-
-        private static readonly HashSet<IDIContext> m_Containers = new HashSet<IDIContext>();
+        private static readonly HashSet<IDiContext> m_Containers = new HashSet<IDiContext>();
 
         private readonly DIContextContainer m_Container = new DIContextContainer();
 
+        private static DiContext m_Init;
+        
         #region IDIContext
         public T Get<T>(object id)
         {
@@ -39,7 +32,7 @@ namespace Common.Core
 
             foreach (var iter in m_Containers)
             {
-                if (iter == (IDIContext)this)
+                if (iter == (IDiContext)this)
                     continue;
 
                 if (iter.TryGet<T>(out value, id))
@@ -52,58 +45,62 @@ namespace Common.Core
         {
             return m_Container.TryGet<T>(out value, id);
         }
-
-        public IDIContext NewContext(Action<DIBindContext> onBind)
-        {
-            return new DIContextRuntime(this, onBind);
-        }
-
-        public void RemoveContext(ref IDIContext context)
-        {
-            if (context is DIBindContext)
-            {
-                Pop(context);
-                context = null;
-            }
-        }
-
         #endregion
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void Initialize()
+        {
+            if (!m_Init) return;
+            m_Init.Build();
+        }
+        void ISerializationCallbackReceiver.OnBeforeSerialize() {}
+        void ISerializationCallbackReceiver.OnAfterDeserialize() => m_Init = this;
+        
+        #region MonoBehaviour
         protected virtual void Awake()
         {
-            if (m_IsRoot) 
-            {
-                if (m_Root != null)
-                    (m_Root as DIContext).m_IsRoot = false;
-                m_Root = this;
-            }
+            InitializeBinds();
+            if (Current == this) return;
+            Build();
+        }
+
+        private void Build()
+        {
             Push(this);
             OnBind();
             InitVars();
+        }
 
+        private void InitializeBinds()
+        {
             foreach (var iter in GetComponents<IInjectionInitable>())
             {
                 iter.Init(this);
             }
+            foreach (var iter in m_Container.Objects)
+            {
+                if (iter is IInjectionInitable init)
+                    init.Init(this);
+            }
         }
-
+        
         protected virtual void OnDestroy()
         {
-            if (m_IsRoot)
-                m_Root = null;
             Pop(this);
         }
-
+        #endregion
         protected abstract void OnBind();
 
-        private void Push(IDIContext context)
+        private void Push(IDiContext context)
         {
             m_Containers.Add(context);
+            Current = context as DiContext;
         }
 
-        private void Pop(IDIContext context)
+        private void Pop(IDiContext context)
         { 
-            m_Containers.Remove(context); 
+            m_Containers.Remove(context);
+            Current = m_Containers.LastOrDefault() as DiContext;
         }
 
         protected void Bind<T>(T instance, object id = null)
@@ -111,7 +108,7 @@ namespace Common.Core
             m_Container.Bind<T>(instance, id);
         }
 
-        private class DIContextContainer : IDIContextContainer
+        private partial class DIContextContainer : IDIContextContainer
         {
             private readonly Dictionary<ContainerType, object> m_Instances = new Dictionary<ContainerType, object>();
 
@@ -146,9 +143,9 @@ namespace Common.Core
                 ContainerType t = new ContainerType(type, id);
                 return m_Instances.TryGetValue(t, out value);
             }
-
             #endregion
 
+            public IEnumerable<object> Objects => m_Instances.Values;
             public IEnumerable<Type> Instances => m_Instances.Keys.Select(x => x.Obj);
 
             struct ContainerType
@@ -175,55 +172,5 @@ namespace Common.Core
                 }
             }
         }
-
-        private class DIContextRuntime : DIBindContext, IDIContext
-        {
-            private readonly DIContext m_Root;
-
-            private readonly IDIContextContainer m_Container = new DIContextContainer();
-
-
-            public IDIContext NewContext(Action<DIBindContext> onBind)
-            {
-                return m_Root.NewContext(onBind);
-            }
-
-            public void RemoveContext(ref IDIContext context)
-            {
-                m_Root.RemoveContext(ref context);
-            }
-
-            public DIContextRuntime(DIContext root, Action<DIBindContext> onBind)
-            {
-                m_Root = root;
-                m_Root.Push(this);
-                onBind.Invoke(this);
-            }
-
-            public void Remove()
-            {
-                m_Root.Pop(this);
-            }
-
-            #region IDIContext
-            public T Get<T>(object id)
-            {
-                if (m_Container.TryGet<T>(out T value, id))
-                    return value;
-                return m_Root.Get<T>(id);
-            }
-
-            public bool TryGet<T>(out T value, object id)
-            {
-                return m_Container.TryGet<T>(out value, id);
-            }
-            #endregion
-
-            public override void Bind<T>(T instance, object id = null)
-            {
-                m_Container.Bind<T>(instance, id);
-            }
-        }
-
     }
 }

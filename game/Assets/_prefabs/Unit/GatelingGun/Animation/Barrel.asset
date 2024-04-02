@@ -1,0 +1,386 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b54a776890066474e802cf8cedfff6b9, type: 3}
+  m_Name: Barrel
+  m_EditorClassIdentifier: 
+  m_ClipItems:
+  - ID:
+      m_ID:
+        utf8LengthInBytes: 14
+        bytes:
+          offset0000:
+            byte0000: 66
+            byte0001: 97
+            byte0002: 114
+            byte0003: 114
+            byte0004: 101
+            byte0005: 108
+            byte0006: 82
+            byte0007: 111
+            byte0008: 116
+            byte0009: 97
+            byte0010: 116
+            byte0011: 105
+            byte0012: 111
+            byte0013: 110
+            byte0014: 0
+            byte0015: 0
+          offset0016:
+            byte0000: 0
+            byte0001: 0
+            byte0002: 0
+            byte0003: 0
+            byte0004: 0
+            byte0005: 0
+            byte0006: 0
+            byte0007: 0
+            byte0008: 0
+            byte0009: 0
+            byte0010: 0
+            byte0011: 0
+            byte0012: 0
+            byte0013: 0
+            byte0014: 0
+            byte0015: 0
+          offset0032:
+            byte0000: 0
+            byte0001: 0
+            byte0002: 0
+            byte0003: 0
+            byte0004: 0
+            byte0005: 0
+            byte0006: 0
+            byte0007: 0
+            byte0008: 0
+            byte0009: 0
+            byte0010: 0
+            byte0011: 0
+            byte0012: 0
+            byte0013: 0
+            byte0014: 0
+            byte0015: 0
+          byte0048: 0
+          byte0049: 0
+          byte0050: 0
+          byte0051: 0
+          byte0052: 0
+          byte0053: 0
+          byte0054: 0
+          byte0055: 0
+          byte0056: 0
+          byte0057: 0
+          byte0058: 0
+          byte0059: 0
+          byte0060: 0
+          byte0061: 0
+    Length: 1
+    Loop: 1
+  m_Items:
+  - ID:
+      m_ID:
+        utf8LengthInBytes: 14
+        bytes:
+          offset0000:
+            byte0000: 66
+            byte0001: 97
+            byte0002: 114
+            byte0003: 114
+            byte0004: 101
+            byte0005: 108
+            byte0006: 82
+            byte0007: 111
+            byte0008: 116
+            byte0009: 97
+            byte0010: 116
+            byte0011: 105
+            byte0012: 111
+            byte0013: 110
+            byte0014: 0
+            byte0015: 0
+          offset0016:
+            byte0000: 0
+            byte0001: 0
+            byte0002: 0
+            byte0003: 0
+            byte0004: 0
+            byte0005: 0
+            byte0006: 0
+            byte0007: 0
+            byte0008: 0
+            byte0009: 0
+            byte0010: 0
+            byte0011: 0
+            byte0012: 0
+            byte0013: 0
+            byte0014: 0
+            byte0015: 0
+          offset0032:
+            byte0000: 0
+            byte0001: 0
+            byte0002: 0
+            byte0003: 0
+            byte0004: 0
+            byte0005: 0
+            byte0006: 0
+            byte0007: 0
+            byte0008: 0
+            byte0009: 0
+            byte0010: 0
+            byte0011: 0
+            byte0012: 0
+            byte0013: 0
+            byte0014: 0
+            byte0015: 0
+          byte0048: 0
+          byte0049: 0
+          byte0050: 0
+          byte0051: 0
+          byte0052: 0
+          byte0053: 0
+          byte0054: 0
+          byte0055: 0
+          byte0056: 0
+          byte0057: 0
+          byte0058: 0
+          byte0059: 0
+          byte0060: 0
+          byte0061: 0
+    Curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    PropertyName: localEulerAnglesRaw.x
+    HashCode: 1598108657
+    Path: 
+  - ID:
+      m_ID:
+        utf8LengthInBytes: 14
+        bytes:
+          offset0000:
+            byte0000: 66
+            byte0001: 97
+            byte0002: 114
+            byte0003: 114
+            byte0004: 101
+            byte0005: 108
+            byte0006: 82
+            byte0007: 111
+            byte0008: 116
+            byte0009: 97
+            byte0010: 116
+            byte0011: 105
+            byte0012: 111
+            byte0013: 110
+            byte0014: 0
+            byte0015: 0
+          offset0016:
+            byte0000: 0
+            byte0001: 0
+            byte0002: 0
+            byte0003: 0
+            byte0004: 0
+            byte0005: 0
+            byte0006: 0
+            byte0007: 0
+            byte0008: 0
+            byte0009: 0
+            byte0010: 0
+            byte0011: 0
+            byte0012: 0
+            byte0013: 0
+            byte0014: 0
+            byte0015: 0
+          offset0032:
+            byte0000: 0
+            byte0001: 0
+            byte0002: 0
+            byte0003: 0
+            byte0004: 0
+            byte0005: 0
+            byte0006: 0
+            byte0007: 0
+            byte0008: 0
+            byte0009: 0
+            byte0010: 0
+            byte0011: 0
+            byte0012: 0
+            byte0013: 0
+            byte0014: 0
+            byte0015: 0
+          byte0048: 0
+          byte0049: 0
+          byte0050: 0
+          byte0051: 0
+          byte0052: 0
+          byte0053: 0
+          byte0054: 0
+          byte0055: 0
+          byte0056: 0
+          byte0057: 0
+          byte0058: 0
+          byte0059: 0
+          byte0060: 0
+          byte0061: 0
+    Curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 136
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    PropertyName: localEulerAnglesRaw.y
+    HashCode: 1598108657
+    Path: 
+  - ID:
+      m_ID:
+        utf8LengthInBytes: 14
+        bytes:
+          offset0000:
+            byte0000: 66
+            byte0001: 97
+            byte0002: 114
+            byte0003: 114
+            byte0004: 101
+            byte0005: 108
+            byte0006: 82
+            byte0007: 111
+            byte0008: 116
+            byte0009: 97
+            byte0010: 116
+            byte0011: 105
+            byte0012: 111
+            byte0013: 110
+            byte0014: 0
+            byte0015: 0
+          offset0016:
+            byte0000: 0
+            byte0001: 0
+            byte0002: 0
+            byte0003: 0
+            byte0004: 0
+            byte0005: 0
+            byte0006: 0
+            byte0007: 0
+            byte0008: 0
+            byte0009: 0
+            byte0010: 0
+            byte0011: 0
+            byte0012: 0
+            byte0013: 0
+            byte0014: 0
+            byte0015: 0
+          offset0032:
+            byte0000: 0
+            byte0001: 0
+            byte0002: 0
+            byte0003: 0
+            byte0004: 0
+            byte0005: 0
+            byte0006: 0
+            byte0007: 0
+            byte0008: 0
+            byte0009: 0
+            byte0010: 0
+            byte0011: 0
+            byte0012: 0
+            byte0013: 0
+            byte0014: 0
+            byte0015: 0
+          byte0048: 0
+          byte0049: 0
+          byte0050: 0
+          byte0051: 0
+          byte0052: 0
+          byte0053: 0
+          byte0054: 0
+          byte0055: 0
+          byte0056: 0
+          byte0057: 0
+          byte0058: 0
+          byte0059: 0
+          byte0060: 0
+          byte0061: 0
+    Curve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: -65.017334
+        outSlope: -65.017334
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.6373895
+      - serializedVersion: 3
+        time: 0.5
+        value: 180
+        inSlope: 413.19266
+        outSlope: 413.19266
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.10129559
+        outWeight: 0.20921612
+      - serializedVersion: 3
+        time: 1
+        value: 360
+        inSlope: 377.80597
+        outSlope: 377.80597
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.23867536
+        outWeight: 0.33333334
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    PropertyName: localEulerAnglesRaw.z
+    HashCode: 1598108657
+    Path: 
+  m_AnimatorController: {fileID: 9100000, guid: a391ab5e5c659794783c7b6c1a0a7f88,
+    type: 2}

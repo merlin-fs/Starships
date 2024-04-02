@@ -11,6 +11,9 @@ using Game.Model.Units;
 using Game.Core.Prefabs;
 using System.Collections;
 
+using Game.Core.Saves;
+using Game.Core.Spawns;
+
 public class TestSpawnMeteorite : MonoBehaviour
 {
     [SerializeField]
@@ -21,6 +24,9 @@ public class TestSpawnMeteorite : MonoBehaviour
 
     [SerializeField]
     Button m_BtnReload;
+
+    [SerializeField]
+    Button m_BtnSave;
 
     private int m_Current;
 
@@ -59,13 +65,29 @@ public class TestSpawnMeteorite : MonoBehaviour
                 m_Current = m_Count;
                 StartCoroutine(Spawn());
             });
+        
+        m_BtnSave.onClick.AddListener(() =>
+        {
+            var manager = new SaveManager((SavedContext)"Test");
+            manager.Save();
+        });
+    }
+    
+    private readonly struct SavedContext: ISavedContext
+    {
+        public string Name { get; }
+
+        public SavedContext(string name) => Name = name;
+
+        public static implicit operator SavedContext(string name) => new SavedContext(name);
     }
 
     private async void StartSpawn()
     {
-        var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
-        await prefab.IsDone();
-
+        //!!!var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
+        //await prefab.IsDone();
+        
+        //*
         var enemy  = !Enemy.IsValid()
             ? await Enemy.LoadAssetAsync().Task
             : (UnitConfig)Enemy.Asset;
@@ -80,12 +102,14 @@ public class TestSpawnMeteorite : MonoBehaviour
         //var point = RandomBetweenRadius2D(0, 1f) + new Vector3(0, 8, 0);
         var transform = LocalTransform.FromPosition(point);
         var entity = ecb.CreateEntity();
-        ecb.AddComponent(entity, new SpawnTag()
+        ecb.AddBuffer<Spawn.Component>(entity);
+        ecb.AppendToBuffer<Spawn.Component>(entity, ComponentType.ReadOnly<SavedTag>());
+        ecb.AddComponent(entity, new Spawn()
         {
-            Entity = enemy.Prefab,
-            ConfigID = enemy.ID,
-            WorldTransform = transform
+            Prefab = enemy.Prefab,
+            //WorldTransform = transform
         });
+        /**/
     }
 
     IEnumerator Spawn()

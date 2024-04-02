@@ -142,9 +142,9 @@ namespace RTS_Cam
         #region RTSCamera_Methods
         private void CameraUpdate()
         {
-            var pointerOverUI = EventSystem.current.IsPointerOverGameObject();
-            if (pointerOverUI)
-                return;
+            //var pointerOverUI = EventSystem.current.IsPointerOverGameObject();
+            //if (pointerOverUI)
+            //    return;
 
             Move();
             HeightCalculation();

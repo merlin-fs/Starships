@@ -12,9 +12,9 @@ namespace Game.Model.Weapons
     {
         public Bullet.BulletDef Value;
 
-        protected override void Configurate(Entity entity, IDefineableContext context)
+        protected override void Configure(Entity entity, IDefinableContext context)
         {
-            base.Configurate(entity, context);
+            base.Configure(entity, context);
             Value.AddComponentData(entity, context);
         }
     }

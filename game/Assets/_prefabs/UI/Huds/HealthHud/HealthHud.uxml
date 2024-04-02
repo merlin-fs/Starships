@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Assets/_prefabs/UI/Huds/HealthHud/HealthHud.uss?fileID=7433441132597879392&amp;guid=8555f879750dda44aa8227332716a069&amp;type=3#HealthHud" />
+    <ui:ProgressBar value="77.5" title="my-progress" name="progress" style="position: absolute; width: 181px; height: 26px;" />
+</ui:UXML>

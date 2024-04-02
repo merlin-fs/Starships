@@ -2,13 +2,17 @@ using System;
 using Unity.Collections;
 using Unity.Properties;
 
+using UnityEngine;
+
 namespace Common.Core
 {
     [Serializable]
     public struct ObjectID : IEquatable<ObjectID>
     {
+        [SerializeField]
         private FixedString64Bytes m_ID;
-        [CreateProperty]
+     
+        [CreateProperty] 
         private FixedString64Bytes ID => m_ID;
 
         private ObjectID(FixedString64Bytes id)
@@ -34,17 +38,9 @@ namespace Common.Core
 
         public override bool Equals(object obj)
         {
-            int result;
-            if (obj is ObjectID)
-            {
-                ObjectID other = (ObjectID)obj;
-                result = (Equals(other) ? 1 : 0);
-            }
-            else
-            {
-                result = 0;
-            }
-
+            var result = (obj is ObjectID other) 
+                ? Equals(other) ? 1 : 0 
+                : 0;
             return (byte)result != 0;
         }
 
@@ -57,6 +53,8 @@ namespace Common.Core
         {
             return !left.Equals(right);
         }
+
+        public static implicit operator ObjectID(string value) => ObjectID.Create(value);
 
         public override int GetHashCode()
         {

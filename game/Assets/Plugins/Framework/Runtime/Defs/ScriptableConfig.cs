@@ -5,8 +5,6 @@ using Unity.Entities;
 
 namespace Common.Defs
 {
-    using Core;
-
     [Serializable]
     public class ChildConfig
     {
@@ -23,43 +21,22 @@ namespace Common.Defs
         IEnumerable<ChildConfig> Childs { get; }
     }
 
-    public abstract class ScriptableConfig : ScriptableObject, IConfig, IIdentifiable<ObjectID>, ISerializationCallbackReceiver
+    public abstract class ScriptableConfig : ScriptableIdentifiable, IConfig
     {
 #if UNITY_EDITOR
         public GameObject PrefabObject;
         public GameObject GetPrefab() => PrefabObject;
 #endif
-        private ObjectID m_ID;
         private Entity m_Prefab;
 
-        public ObjectID ID => m_ID;
         public Entity Prefab => m_Prefab;
 
-        void IConfig.Configurate(Entity root, IDefineableContext context)
+        void IConfig.Configure(Entity root, IDefinableContext context)
         {
             m_Prefab = root;
-            Configurate(root, context);
+            Configure(root, context);
         }
 
-        protected abstract void Configurate(Entity entity, IDefineableContext context);
-
-        public virtual void OnBeforeSerialize()
-        {
-            m_ID = ObjectID.Create(name);
-        }
-
-        public virtual void OnAfterDeserialize()
-        {
-        }
-
-        private void OnEnable()
-        {
-            m_ID = ObjectID.Create(name);
-        }
-
-        private void OnValidate()
-        {
-            m_ID = ObjectID.Create(name);
-        }
+        protected abstract void Configure(Entity entity, IDefinableContext context);
     }
 }

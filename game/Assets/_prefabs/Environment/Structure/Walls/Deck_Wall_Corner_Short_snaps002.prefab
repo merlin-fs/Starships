@@ -13,12 +13,13 @@ GameObject:
   - component: {fileID: 23668709122299514}
   - component: {fileID: 64172045439593406}
   - component: {fileID: 9183377746136155315}
+  - component: {fileID: 5818724510671704437}
   m_Layer: 0
   m_Name: Deck_Wall_Corner_Short_snaps002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 8
+  m_StaticEditorFlags: 0
   m_IsActive: 1
 --- !u!4 &4945641682218538
 Transform:
@@ -27,13 +28,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1962862798155846}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &33838549656503424
 MeshFilter:
@@ -63,8 +64,8 @@ MeshRenderer:
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8621dfcb3dbf229428e45425021e0875, type: 2}
-  - {fileID: 2100000, guid: 15cb6b096bb78c7479c93c6e26153387, type: 2}
+  - {fileID: 2100000, guid: 1fc15774dc67486439d47af29d0ddb44, type: 2}
+  - {fileID: 2100000, guid: 6e4f1d999a29a394b97bdacb4a96c194, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -123,3 +124,29 @@ MonoBehaviour:
   m_Size:
     x: 2
     y: 2
+  m_Pivot:
+    x: 1.5
+    y: 0.0625
+    z: 1.5
+  m_Layer: Game.Model.Worlds.Map+Layers+Structure
+--- !u!65 &5818724510671704437
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1962862798155846}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.7510676, y: 4, z: 1.7500007}
+  m_Center: {x: 0.6255336, y: 2, z: 0.875}

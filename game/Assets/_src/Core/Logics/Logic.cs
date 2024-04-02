@@ -1,48 +1,60 @@
 ﻿using System;
 using Unity.Entities;
 using Unity.Properties;
-using Unity.Serialization;
 using Common.Defs;
+using Game.Core;
 
 namespace Game.Model.Logics
 {
-    [Serializable]
-    [WriteGroup(typeof(WorldState))] 
-    public partial struct Logic : IComponentData, IDefinable, IDefineableCallback
+    public partial struct Logic : IComponentData, IDefinable, IDefinableCallback
     {
-        [DontSerialize]
-        private readonly Def<LogicDef> m_Def;
-        public LogicDef Def => m_Def.Value;
+        [CreateProperty] private string Action => m_Action.ToString();
+        [CreateProperty] private bool Work => m_Work;
+        [CreateProperty] private bool WaitNewGoal => m_WaitNewGoal;
 
-        public LogicHandle Action;
-        public bool Work;
-        public bool WaitNewGoal;
-        public bool WaitChangeWorld;
-        public Logic(Def<LogicDef> def)
+        private readonly RefLink<LogicDef> m_RefLink;
+        private LogicDef Def => m_RefLink.Value;
+        private EnumHandle m_Action;
+        private bool m_Active;
+        private bool m_Work;
+        private bool m_WaitNewGoal;
+        private bool m_WaitChangeWorld;
+        private bool m_Event;
+        
+        public Logic(RefLink<LogicDef> refLink)
         {
-            m_Def = def;
-            Work = false;
-            WaitNewGoal = false;
-            WaitChangeWorld = false;
-            Action = LogicHandle.Null;
+            m_RefLink = refLink;
+            m_Active = false;
+            m_Event = false;
+            m_Work = true;
+            m_WaitNewGoal = false;
+            m_WaitChangeWorld = false;
+            m_Action = refLink.Value.InitializeAction;
+        }
+
+        private readonly bool IsCurrentAction(EnumHandle action)
+        {
+            return m_Active && EnumHandle.Equals(m_Action, action);
         }
         #region IDefineableCallback
-        void IDefineableCallback.AddComponentData(Entity entity, IDefineableContext context)
+        void IDefinableCallback.AddComponentData(Entity entity, IDefinableContext context)
         {
-            context.AddBuffer<LogicHandle>(entity);
+            context.AddComponentData(entity, new InitTag());
+            context.AddBuffer<Plan>(entity);
+            context.AddBuffer<WorldChanged>(entity);
             var goals = context.AddBuffer<Goal>(entity);
             foreach (var iter in Def.Goals)
                 goals.Add(iter);
 
             var buff = context.AddBuffer<WorldState>(entity);
-            buff.ResizeUninitialized(m_Def.Value.StateMapping.Count);
-            foreach (var iter in m_Def.Value.StateMapping)
+            buff.ResizeUninitialized(m_RefLink.Value.StateMapping.Count);
+            foreach (var iter in m_RefLink.Value.StateMapping)
             {
                 buff[iter.Value.Index] = new WorldState { Value = iter.Value.Initialize, };
             }
         }
 
-        void IDefineableCallback.RemoveComponentData(Entity entity, IDefineableContext context)
+        void IDefinableCallback.RemoveComponentData(Entity entity, IDefinableContext context)
         {
 
         }

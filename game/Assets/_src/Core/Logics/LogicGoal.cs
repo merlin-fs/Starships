@@ -1,5 +1,9 @@
 ﻿using System;
+
+using Game.Core;
+
 using Unity.Entities;
+using Unity.Properties;
 
 namespace Game.Model.Logics
 {
@@ -7,7 +11,8 @@ namespace Game.Model.Logics
     {
         public struct Goal : IBufferElementData
         {
-            public LogicHandle State;
+            [CreateProperty] private string ID => State.ToString();
+            public EnumHandle State;
             public bool Value;
             public bool Repeat;
         }

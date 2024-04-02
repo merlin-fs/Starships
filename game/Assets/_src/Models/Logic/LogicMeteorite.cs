@@ -10,9 +10,11 @@ namespace Game.Model.Logics
 
     public class LogicMeteorite: ILogic
     {
-        public void Init(LogicDef logic)
+        public void Initialize(LogicDef logic)
         {
-            logic.SetInitializeState(Move.State.Init, false);
+            logic.Initialize(Global.Action.Init);
+            
+            logic.SetState(Move.State.Init, false);
 
             logic.AddAction(Move.Action.Init)
                 .AddPreconditions(Move.State.Init, false)
@@ -34,10 +36,10 @@ namespace Game.Model.Logics
                 .AddEffect(Move.State.MoveDone, true)
                 .Cost(10);
 
-            logic.AddAction(Unit.Action.ActiveWeapons)
-                .AddPreconditions(Unit.State.WeaponsActive, false)
+            logic.AddAction(Unit.Action.Attack)
+                .AddPreconditions(Unit.State.WeaponInRange, false)
                 .AddPreconditions(Move.State.MoveDone, true)
-                .AddEffect(Unit.State.WeaponsActive, true)
+                .AddEffect(Unit.State.WeaponInRange, true)
                 .Cost(1);
 
             logic.AddAction(Global.Action.Destroy)
@@ -45,7 +47,7 @@ namespace Game.Model.Logics
                 .Cost(0);
 
             logic.EnqueueGoal(Move.State.Init, true);
-            logic.EnqueueGoal(Unit.State.WeaponsActive, true);
+            logic.EnqueueGoal(Unit.State.WeaponInRange, true);
         }
     }
 }

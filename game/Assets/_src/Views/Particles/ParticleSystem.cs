@@ -1,5 +1,8 @@
 using System;
 using System.Threading;
+
+using Common.Core;
+
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Collections;
@@ -13,12 +16,13 @@ namespace Game.Views
     {
         private EntityQuery m_Query;
         private WorldTransform m_LookupTransforms;
+        private static ParticleManager ParticleManager => Inject<ParticleManager>.Value;
 
         public void OnCreate(ref SystemState state)
         {
             m_Query = SystemAPI.QueryBuilder()
-                .WithAspectRO<Logic.Aspect>()
-                .WithAll<Particle>()
+                .WithAspect<Logic.Aspect>()
+                .WithAll<ParticleTrigger>()
                 .Build();
 
             m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
@@ -41,7 +45,7 @@ namespace Game.Views
             [ReadOnly] 
             public WorldTransform LookupTransforms;
 
-            public void Execute(in Entity entity, in Logic.Aspect logic, in DynamicBuffer<Particle> particles)
+            private void Execute(in Entity entity, Logic.Aspect logic, in DynamicBuffer<ParticleTrigger> particles)
             {
                 foreach(var iter in particles)
                 {
@@ -49,11 +53,12 @@ namespace Game.Views
                     {
                         var localEntity = entity;
                         var transform = LookupTransforms.ToWorld(iter.Target);
-
-                        UnityEngine.Debug.Log($"{entity} [Particle] action {logic.CurrentAction}");
+#if PARTICLE_DEBUG
+                        UnityEngine.Debug.Log($"{entity} [Particle] action {logic.Action}");
+#endif
                         UnityMainThread.Context.Post(obj =>
                         {
-                            ParticleManager.Instance.Play(iter, transform);
+                            ParticleManager.Play(iter, transform);
                         }, null);
                     }
                 }

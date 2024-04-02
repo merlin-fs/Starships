@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: LogicBomb
   m_EditorClassIdentifier: 
   PrefabObject: {fileID: 0}
-  m_LogicInst:
-    rid: 7383091081461891074
-  m_Parts:
-  - Game.Model.Logics.LogicPartWeaponBomb
+  Logic:
+    logicInst:
+      rid: 1895243158586654722
   references:
     version: 2
     RefIds:
-    - rid: 7383091081461891074
+    - rid: 1895243158586654722
       type: {class: LogicBomb, ns: Game.Model.Logics, asm: Assembly-CSharp}
+      data: 

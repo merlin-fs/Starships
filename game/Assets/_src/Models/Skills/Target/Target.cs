@@ -1,24 +1,27 @@
 using System;
 using Unity.Entities;
-using Unity.Transforms;
+using Game.Core;
+using Game.Model.Logics;
 
 namespace Game.Model
 {
-    using static Game.Model.Logics.Logic;
-
-    [Serializable]
-    public partial struct Target : IComponentData, IStateData
+    public partial struct Target : IComponentData, Logic.IStateData
     {
         public Entity Value;
-        public LocalTransform Transform;
-        public float Radius;
-        public uint SoughtTeams;
 
+        public struct Query: IComponentData
+        {
+            public float Radius;
+            public uint SearchTeams;
+        }
+
+        [EnumHandle]
         public enum Action
         {
             Find,
         }
 
+        [EnumHandle]
         public enum State
         {
             Found,

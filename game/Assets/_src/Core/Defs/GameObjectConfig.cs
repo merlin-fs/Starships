@@ -8,10 +8,8 @@ namespace Game.Core.Defs
 {
     public abstract class GameObjectConfig : ScriptableConfig
     {
-        protected override void Configurate(Entity entity, IDefineableContext context)
+        protected override void Configure(Entity entity, IDefinableContext context)
         {
-            context.SetName(entity, ID.ToString());
-
             if (this is IConfigStats stats)
             {
                 var prepare = context.AddBuffer<PrepareStat>(entity);
@@ -21,7 +19,7 @@ namespace Game.Core.Defs
                 context.AddBuffer<Damage.LastDamage>(entity);
                 var buff = context.AddBuffer<Stat>(entity);
 
-                stats.Configurate(buff);
+                stats.Configure(buff);
             }
         }
     }

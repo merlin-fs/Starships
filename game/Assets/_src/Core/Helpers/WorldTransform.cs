@@ -14,8 +14,8 @@ namespace Unity.Transforms
         public LocalTransform Transform(Entity entity) => m_LookupTransforms[entity];
         public LocalToWorld ToWorld(Entity entity) => m_LookupToWorlds[entity];
 
-        public RefRW<LocalTransform> GetTransformRefRW(Entity entity, bool isReadOnly = false) => m_LookupTransforms.GetRefRW(entity, isReadOnly);
-        public RefRW<LocalToWorld> GetToWorldRefRW(Entity entity, bool isReadOnly = false) => m_LookupToWorlds.GetRefRW(entity, isReadOnly);
+        public RefRW<LocalTransform> GetTransformRefRW(Entity entity) => m_LookupTransforms.GetRefRW(entity);
+        public RefRW<LocalToWorld> GetToWorldRefRW(Entity entity) => m_LookupToWorlds.GetRefRW(entity);
         public RefRO<LocalTransform> GetTransformRefRO(Entity entity) => m_LookupTransforms.GetRefRO(entity);
         public RefRO<LocalToWorld> GetToWorldRefRO(Entity entity) => m_LookupToWorlds.GetRefRO(entity);
 

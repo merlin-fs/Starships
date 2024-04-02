@@ -1,54 +1,73 @@
 ﻿using System;
-using Common.Defs;
+using System.Collections.Generic;
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
+
+using Common.Defs;
+
+using Game.Core;
+using Game.Model.Logics;
+using Game.Model.Stats;
+using Game.Model.Worlds;
+
+using UnityEngine.Serialization;
 
 namespace Game.Model.Units
 {
-    using Weapons;
-    using Stats;
-    using System.Collections.Generic;
-    using Game.Core.Defs;
-    using static Game.Model.Logics.Logic;
-
-    /// <summary>
-    /// Реализация юнита (корабля)
-    /// </summary>
     [Serializable]
-    public struct Unit : IUnit, IDefinable, IComponentData, IDefineableCallback, IStateData
+    public partial struct Unit : IUnit, IDefinable, IComponentData, IDefinableCallback, Logic.IStateData
     {
-        public Def<UnitDef> Def { get; }
+        public RefLink<UnitDef> RefLink { get; }
 
-        public Unit(Def<UnitDef> config)
+        public Unit(RefLink<UnitDef> config)
         {
-            Def = config;
+            RefLink = config;
         }
+        
         #region IDefineableCallback
-        public void AddComponentData(Entity entity, IDefineableContext context)
+        public void AddComponentData(Entity entity, IDefinableContext context)
         {
+            context.AddComponentData(entity, new Map.Placement(RefLink<Map.IPlacement>.Copy(RefLink)));
+            context.AddComponentData(entity, new Map.Transform());
+            context.AddComponentData(entity, new Map.Target());
+            context.AddComponentData(entity, new Move());
         }
 
-        public void RemoveComponentData(Entity entity, IDefineableContext context) { }
+        public void RemoveComponentData(Entity entity, IDefinableContext context) { }
         #endregion
+        
+        [EnumHandle]
         public enum Action
         {
-            ActiveWeapons,
+            WeaponsActivate,
+            Attack,
         }
 
+        [EnumHandle]
         public enum State
         {
             Stop,
-            WeaponsActive,
+            WeaponInRange,
         }
 
+        [EnumHandle]
         public enum Stats
         {
             Speed,
         }
 
         [Serializable]
-        public class UnitDef : IDef<Unit>
+        public class UnitDef : IDef<Unit>, Map.IPlacement
         {
+            [SerializeField] int2 size = new int2(1, 1);
+            [SerializeField] float3 pivot = new float3(0, 0f, 0f);
+            [SerializeField, SelectType(typeof(Map.Layers.ILayer))] string layer;
+            #region Map.IPlacement
+            int2 Map.IPlacement.Size => size;
+            float3 Map.IPlacement.Pivot => pivot;
+            TypeIndex Map.IPlacement.Layer => TypeManager.GetTypeIndex(Type.GetType(layer));
+            #endregion
             public List<ChildConfig> Parts = new List<ChildConfig>();
 
             [SerializeReference, ReferenceSelect(typeof(IStatValue))]

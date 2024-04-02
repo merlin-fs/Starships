@@ -12,9 +12,9 @@ namespace Game.Model.Worlds
     {
         public Map.Data.Def Value = new Map.Data.Def();
 
-        protected override void Configurate(Entity prefab, IDefineableContext context)
+        protected override void Configure(Entity prefab, IDefinableContext context)
         {
-            base.Configurate(prefab, context);
+            base.Configure(prefab, context);
             Value.AddComponentData(prefab, context);
         }
     }

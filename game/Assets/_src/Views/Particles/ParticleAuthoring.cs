@@ -1,4 +1,6 @@
 using System;
+
+using Game.Core;
 using Game.Model.Logics;
 using Game.Model.Weapons;
 using Unity.Entities;
@@ -23,11 +25,11 @@ namespace Game.Views
             public unsafe override void Bake(ParticleAuthoring authoring)
             {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
-                var buffer = AddBuffer<Particle>(entity);
+                var buffer = AddBuffer<ParticleTrigger>(entity);
 
-                buffer.Add(new Particle
+                buffer.Add(new ParticleTrigger
                 {
-                    Action = LogicHandle.FromEnum(Weapon.Action.Shoot),
+                    Action = EnumHandle.FromEnum(Weapon.Action.Shoot),
                     VfxID = new Unity.Entities.Hash128(authoring.Vfx.AssetGUID),
                     Target = GetEntity(authoring.Target, TransformUsageFlags.Dynamic),
                     Position = authoring.Position, 

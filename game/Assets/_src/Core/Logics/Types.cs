@@ -1,30 +1,72 @@
 ﻿using System;
+using Game.Core;
 using Unity.Collections;
-using Unity.Entities;
 
 namespace Game.Model.Logics
 {
     public partial struct Logic
     {
-        public interface IPartLogic : ISystem
+        public interface IAction {}
+
+        public interface IAction<T> : IAction
+            where T : ILogicContext
         {
+            void Execute(ref T context);
         }
 
+        public interface ILogicContext
+        {
+            CustomHandle LogicHandle { get; }
+        }
+        
+        public interface ILogicContext<TLogic>: ILogicContext
+            where TLogic : IStateData
+        {
+            Aspect Logic { get; }
+        }
+        
+        /*
+        public unsafe readonly struct LogicContext: ILogicContext<Logic>
+        {
+            private readonly void* m_Logic;
+            private readonly void* m_Lookup;
+            private readonly void* m_Writer;
+            private readonly int m_Index;
+            private readonly void* m_Children;
+
+            public ref Aspect Logic => ref UnsafeUtility.AsRef<Aspect>(m_Logic);
+            public ref Aspect.Lookup Lookup => ref UnsafeUtility.AsRef<Aspect.Lookup>(m_Lookup);
+            public ref EntityCommandBuffer.ParallelWriter Writer => ref UnsafeUtility.AsRef<EntityCommandBuffer.ParallelWriter>(m_Writer);
+            public int Index => m_Index;
+            public ref BufferLookup<ChildEntity> Children => ref UnsafeUtility.AsRef<BufferLookup<ChildEntity>>(m_Children);
+            
+            public LogicContext(int idx, ref Aspect logic, ref Aspect.Lookup lookup, ref BufferLookup<ChildEntity> children,
+                ref EntityCommandBuffer.ParallelWriter writer)
+            {
+                m_Logic = UnsafeUtility.AddressOf(ref logic);
+                m_Lookup = UnsafeUtility.AddressOf(ref lookup);
+                m_Writer = UnsafeUtility.AddressOf(ref writer);
+                m_Children = UnsafeUtility.AddressOf(ref children);
+                m_Index = idx;
+            }
+        }
+        */
+        
         public interface ILogic
         {
-            void Init(LogicDef def);
+            void Initialize(LogicDef def);
         }
 
         public struct States: IDisposable
         {
-            private NativeHashMap<LogicHandle, bool> m_States;
+            private NativeHashMap<EnumHandle, bool> m_States;
 
             public States(AllocatorManager.AllocatorHandle allocator)
             {
-                m_States = new NativeHashMap<LogicHandle, bool>(1, allocator);
+                m_States = new NativeHashMap<EnumHandle, bool>(1, allocator);
             }
 
-            public NativeHashMap<LogicHandle, bool>.ReadOnly GetReadOnly()
+            public NativeHashMap<EnumHandle, bool>.ReadOnly GetReadOnly()
             {
                 return m_States.AsReadOnly();
             }
@@ -52,7 +94,7 @@ namespace Game.Model.Logics
                 return true;
             }
 
-            public bool Has(LogicHandle state, bool value)
+            public bool Has(EnumHandle state, bool value)
             {
                 return m_States.TryGetValue(state, out bool stateValue) && stateValue == value;
             }
@@ -72,18 +114,19 @@ namespace Game.Model.Logics
                 return this;
             }
 
-            public States SetState(Enum state, bool value)
+            public States SetState<T>(T state, bool value)
+                where T: struct, IConvertible
             {
-                return SetState(LogicHandle.FromEnum(state), value);
+                return SetState(EnumHandle.FromEnum(state), value);
             }
 
-            public States SetState(LogicHandle state, bool value)
+            public States SetState(EnumHandle state, bool value)
             {
                 m_States[state] = value;
                 return this;
             }
 
-            public States RemoveState(LogicHandle state)
+            public States RemoveState(EnumHandle state)
             {
                 m_States.Remove(state);
                 return this;
