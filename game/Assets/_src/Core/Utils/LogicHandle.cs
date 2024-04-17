@@ -14,6 +14,11 @@ namespace Game.Core
             return Manager.GetHandle<T>();
         }
 
+        public static CustomHandle FromType(Type type)
+        {
+            return Manager.GetHandle(type);
+        }
+
         public static void Registry(Type type) => Manager.Registry(type); 
         public static void Registry<T>() => Registry(typeof(T));
         private CustomHandle(int id) => m_ID = id;   
