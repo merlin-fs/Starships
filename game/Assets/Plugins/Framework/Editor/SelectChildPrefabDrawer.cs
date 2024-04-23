@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+
+using Common.Defs;
+
 using UnityEditor.Experimental.GraphView;
 using UnityEditor.IMGUI.Controls;
-using Unity.Transforms;
-
 
 namespace UnityEditor.Inspector
 {
@@ -33,11 +34,12 @@ namespace UnityEditor.Inspector
     [CustomPropertyDrawer(typeof(SelectChildPrefabAttribute))]
     public class SelectChildPrefabDrawer : PropertyDrawer
     {
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        public async override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             SelectChildPrefabAttribute attr = (SelectChildPrefabAttribute)attribute;
-            var getPrefab = property.serializedObject.targetObject.GetType().GetMethod("GetPrefab");
-            GameObject prefab = (GameObject)getPrefab?.Invoke(property.serializedObject.targetObject, null);
+            if (property.serializedObject.targetObject is not IViewPrefab componentPrefab) return;
+
+            var prefab = await componentPrefab.GetViewPrefab();
             if (prefab == null)
             {
                 EditorGUI.PropertyField(position, property, label);//typeof(GameObject)

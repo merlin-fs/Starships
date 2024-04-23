@@ -78,8 +78,9 @@ namespace UnityEditor.Inspector
                 //arrayItems.arr
                 for (int i = 0; i < arrayItems.arraySize; i++)
                 {
-                    string name = arrayItems.GetArrayElementAtIndex(i).FindPropertyRelative("Command").managedReferenceFullTypename;
-                    name = name.Remove(0, name.IndexOf(" "));
+                    string name = arrayItems.GetArrayElementAtIndex(i)
+                        .FindPropertyRelative(nameof(LoadingManager.CommandItem.Command)).managedReferenceFullTypename;
+                    //name = name.Remove(0, name.IndexOf(" "));
                     list.Add(name);
                 }
                 return list.ToArray();

@@ -9,36 +9,41 @@ namespace Game.Model.Logics
     {
         public void Initialize(LogicDef logic)
         {
-            logic.Initialize(Global.Action.Init);
-            
+            //logic.Initialize(Global.Action.Init);
+
             logic.SetState(Move.State.Init, true);
             logic.SetState(Unit.State.WeaponInRange, false);
-
-            logic.CustomAction<Unit, Unit.WeaponsActivate>()
-                .BeforeAction(Unit.Action.WeaponsActivate);
+/*
+            logic.Action<Unit.WeaponsActivate>()
+                .AddPreconditions(Unit.State.WeaponInRange, false)
+                .Before();
+            logic.Action<Unit.WeaponsActivate>()
+                .AddPreconditions(Move.State.Init, false)
+                .After();
 
             //logic.AfterAction<Weapon, Weapon.WeaponInRange, Unit.State.WeaponInRange>(true);
             //logic.AddTriggerState<Unit.WeaponsActivate>(GoalHandle.FromEnum(Unit.State.WeaponInRange, true));
             
-
-            logic.AddAction(Move.Action.Init)
+            /*
+            logic.AddTransition(Move.Action.Init)
                 .AddPreconditions(Move.State.Init, false)
                 .AddEffect(Move.State.Init, true)
                 .Cost(0);
+            */
 
-            logic.AddAction(Unit.Action.WeaponsActivate)
+            logic.AddTransition<Unit.WeaponsActivate>()
                 .AddPreconditions(Unit.State.WeaponInRange, false)
                 .AddEffect(Unit.State.WeaponInRange, true)
                 .Cost(0);
 
-            logic.AddAction(Unit.Action.Attack)
+            logic.AddTransition<Unit.Attack>()
                 .AddPreconditions(Unit.State.WeaponInRange, true)
                 .AddPreconditions(Target.State.Found, true)
                 .AddEffect(Target.State.Dead, true)
                 .Cost(1);
             
             
-            logic.AddAction(Global.Action.Destroy)
+            logic.AddTransition<Unit.Destroy>()
                 .AddPreconditions(Global.State.Dead, false)
                 .Cost(0);
 

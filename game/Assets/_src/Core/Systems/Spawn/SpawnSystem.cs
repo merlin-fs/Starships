@@ -1,9 +1,11 @@
 ﻿using System;
-using Unity.Collections.LowLevel.Unsafe;
-using Unity.Transforms;
+
+using Game.Core.Repositories;
+
 using Unity.Entities;
-using Unity.Collections;
-using Game.Model.Worlds;
+
+using Reflex.Attributes;
+using Reflex.Core;
 
 namespace Game.Core.Spawns
 {
@@ -12,25 +14,43 @@ namespace Game.Core.Spawns
         [UpdateInGroup(typeof(GameSpawnSystemGroup))]
         partial struct System : ISystem
         {
-            EntityQuery m_Query;
-            EntityQuery m_QueryMap;
-            ComponentLookup<LocalTransform> m_LookupTransform;
-
+            private EntityQuery m_Query;
+            private static string m_PrefabType;
+            [Inject] private static ObjectRepository m_Repository;
+            [Inject] private static Container m_Container;
+            
             public void OnCreate(ref SystemState state)
             {
-                m_QueryMap = SystemAPI.QueryBuilder()
-                    .WithAspect<Map.Aspect>()
-                    .Build();
-
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAll<Spawn, Component>()
                     .Build();
                 state.RequireForUpdate(m_Query);
-                m_LookupTransform = state.GetComponentLookup<LocalTransform>(true);
             }
 
             public void OnUpdate(ref SystemState state)
             {
+                var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
+                var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
+
+                foreach (var (spawn, entity) in SystemAPI.Query<Spawn>().WithEntityAccess())
+                {
+                    var components = SystemAPI.GetBuffer<Component>(entity);
+                    var config = m_Repository.FindByID(spawn.PrefabID);
+                    if (config == null) throw new ArgumentNullException($"Prefab {spawn.PrefabID} not found");
+
+                    var builder = Spawner.Spawn(config, ecb, m_Container)
+                        .WithView()
+                        .WithComponents(components);
+                        
+                    if (spawn.Data.IsValid)
+                    {
+                        builder.WithData(spawn.Data.Value);
+                        spawn.Data.Free();
+                    }
+                    ecb.DestroyEntity(entity);
+                }
+                
+                /*
                 m_LookupTransform.Update(ref state);
                 var map = SystemAPI.GetAspect<Map.Aspect>(m_QueryMap.GetSingletonEntity());
                 var system = state.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>();
@@ -44,8 +64,10 @@ namespace Game.Core.Spawns
                 //state.Dependency.Complete();
                 var ecb = system.CreateCommandBuffer();
                 ecb.DestroyEntity(m_Query, EntityQueryCaptureMode.AtPlayback);
+                */
             }
 
+            /*
             partial struct SystemJob : IJobEntity
             {
                 [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
@@ -67,6 +89,7 @@ namespace Game.Core.Spawns
                         Writer.AddComponent(idx, inst, iter.ComponentType);
                 }
             }
+            */
         }
     }
 }

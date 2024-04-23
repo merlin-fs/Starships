@@ -29,12 +29,17 @@ scopes = {
 	"last_search.7B5C2356" = ""
 	"OpenInspectorPreview.7B5C2356" = "0"
 	"currentGroup.7B5C2356" = "all"
-	"last_search.5A656512" = "ref=\"Assets/_art/Environment/Structure/Materials/Gray_snaps002 1.mat\""
+	"last_search.5A656512" = "ref=\"Assets/_configs/LoadingConfig.asset\""
 	"OpenInspectorPreview.5A656512" = "0"
 	"currentGroup.5A656512" = null
 	"last_search.62214EDB" = "00fe6fc1ebf8ff240ad5b12ad70ce1c2"
 	"OpenInspectorPreview.62214EDB" = "0"
 	"currentGroup.62214EDB" = "asset"
+	"picker_window_position_offset.075BCD15" = "792;-21,60001;320;550,4"
+	"picker_visibility_flags.075BCD15" = "264"
+	"picker_item_size.075BCD15" = "96"
+	"picker_inspector.075BCD15" = "0"
+	"picker_current_group.075BCD15" = "all"
 }
 providers = {
 	adb = {
@@ -152,8 +157,7 @@ searchItemFavorites = [
 savedSearchesSortOrder = 0
 showSavedSearchPanel = true
 hideTabs = false
-expandedQueries = [
-]
+expandedQueries = [-1765347274 961552606]
 queryBuilder = true
 ignoredProperties = "id;name;classname;imagecontentshash"
 helperWidgetCurrentArea = "all"

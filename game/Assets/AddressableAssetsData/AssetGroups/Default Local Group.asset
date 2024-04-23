@@ -13,105 +13,13 @@ MonoBehaviour:
   m_Name: Default Local Group
   m_EditorClassIdentifier: 
   m_GroupName: Default Local Group
-  m_Data:
-    m_SerializedData: []
-  m_GUID: 3333b7e864e8b2f42b4f7dae17ba3546
+  m_GUID: 3c1e1c06f5e13534f8a20f2686c44996
   m_SerializeEntries:
-  - m_GUID: 66f7d6355df69d84b9218c301788a517
-    m_Address: Assets/_configs/Bullets/Bomb.asset
+  - m_GUID: d919f07055756df41a7caa2aa0b04131
+    m_Address: Assets/_prefabs/UI/Huds/HealthHud/HealthHud.asset
     m_ReadOnly: 0
     m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c94f740253ba24c4db17d250612946be
-    m_Address: Assets/_configs/Bullets/Bullet.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 21081973af1aaee4093d2df5cf68e87e
-    m_Address: Assets/_configs/DamageTypes/Plasma.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c2dfd8214ed0def4396b0b09bb877a3d
-    m_Address: Assets/_configs/DamageTypes/Kinetic explose.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 4ebc84f02e2b6dc42be590d5613f4838
-    m_Address: Assets/_configs/Weapon/Weapon.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: d1923d49bbd41c64abecd1d6199aaf7d
-    m_Address: Assets/_configs/Weapon/WeaponBomb.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 431d085ae3ec85644b3dfc1f3cdc2a1c
-    m_Address: Assets/_configs/DamageTypes/Kinetic.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e50676406152ff04da03a5cf707b2cd9
-    m_Address: Assets/_configs/_test/LogicWeapon.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 2c0f9f416c468de44b7b9787691b4437
-    m_Address: Assets/_prefabs/vfx/Explosion.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - vfx
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 0c03986162166ca4a83d01facd9d7a61
-    m_Address: Assets/_prefabs/vfx/MuzzelFlash_ParticleSystem.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - vfx
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: fc606ceed2aaa994c8093529cdbf7786
-    m_Address: Assets/_configs/Weapon/Misc/TurretRotateHorizontal.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - defs
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 5327b6ebd0f62ac42ababf221f8a44f1
-    m_Address: Assets/_prefabs/Environment/Structure/Doors/Animation/AnimatorDoor.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - animation
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 61512ae7216d1db42835766df4ef04ba
-    m_Address: Assets/_configs/ReferenceSubScene.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - System
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 4c2cc2f3f70596f4faf239e1d98b048d
-    m_Address: Assets/_prefabs/Unit/GatelingGun/Animation/GatelingGun.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - animation
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: cfce931a825466040991a25486ef1f9c
-    m_Address: Assets/_prefabs/Unit/PA_Warior/Animation/PA_Warior.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - animation
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: db8b0006de4587a4dad95f2b1a7122d7
-    m_Address: Assets/_prefabs/Unit/GatelingGun/Animation/Barrel.asset
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - animation
+    - Huds
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ed21bb125e95a2b41a3ef0fc04dd10bd, type: 2}

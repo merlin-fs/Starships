@@ -1,10 +1,11 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Common.Core.Loading
 {
     public interface ILoadingCommand
     {
         float GetProgress();
-        void Exec(ILoadingManager manager, Action<ILoadingCommand> onComplete);
+        Task Execute(ILoadingManager manager);
     }
 }

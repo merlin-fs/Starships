@@ -12,8 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2e41f3957ca1b641952eb890f0f5956, type: 3}
   m_Name: Player
   m_EditorClassIdentifier: 
-  PrefabObject: {fileID: 1979706888108350, guid: bf3b9e24f7f131c479855962a72c5ab1,
-    type: 3}
+  <ReferencePrefab>k__BackingField:
+    m_AssetGUID: bf3b9e24f7f131c479855962a72c5ab1
+    m_SubObjectName: 
+    m_SubObjectGUID: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
   Value:
     size:
       x: 1

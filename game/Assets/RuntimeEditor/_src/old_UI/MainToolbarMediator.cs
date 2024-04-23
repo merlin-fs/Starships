@@ -14,7 +14,7 @@ namespace Game.UI.Elements
         private void Start()
         {
             Initialize();
-            UIManager.Show(Element);
+            //m_UIManager.Show(Element);
         }
 
         protected override void OnInitialize(VisualElement root)
@@ -49,10 +49,12 @@ namespace Game.UI.Elements
 
                 btn.RegisterCallback<ChangeEvent<bool>>(evt =>
                 {
+                    /*
                     if (evt.newValue)
-                        UIManager.Show(children[idx].Element, ShowStyle.Popup);
+                        m_UIManager.Show(children[idx].Element, ShowStyle.Popup);
                     else 
-                        UIManager.Close(children[idx].Element);
+                        m_UIManager.Close(children[idx].Element);
+                        */
                 });
                 
             };

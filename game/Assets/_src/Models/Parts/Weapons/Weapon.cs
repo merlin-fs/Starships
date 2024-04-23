@@ -4,7 +4,7 @@ using Common.Defs;
 using Common.Core;
 
 using Game.Core;
-using Game.Core.Saves;
+using Game.Core.Storages;
 
 namespace Game.Model.Weapons
 {
@@ -13,7 +13,7 @@ namespace Game.Model.Weapons
     /// <summary>
     /// Реализация оружия
     /// </summary>
-    [Serializable, Saved]
+    [Serializable, Storage]
     public partial struct Weapon: IPart, IDefinable, IComponentData, IDefinableCallback, IStateData
     {
         private readonly RefLink<WeaponDef> m_RefLink;
@@ -41,18 +41,6 @@ namespace Game.Model.Weapons
         }
         public void RemoveComponentData(Entity entity, IDefinableContext context) { }
         #endregion
-
-        /// <summary>
-        /// Состояние оружия
-        /// </summary>
-        [EnumHandle]
-        public enum Action
-        {
-            Attack,
-            Shoot,
-            Reload,
-            Sleep,
-        }
 
         [EnumHandle]
         public enum State

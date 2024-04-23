@@ -13,13 +13,6 @@ namespace Game.Model.Stats
     public struct Global : IStateData
     {
         [EnumHandle]
-        public enum Action
-        {
-            Init,
-            Destroy,
-        }
-        
-        [EnumHandle]
         public enum State
         {
             Dead,

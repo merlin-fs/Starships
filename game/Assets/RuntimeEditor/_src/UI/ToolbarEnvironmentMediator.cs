@@ -3,30 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Buildings;
-
-using UnityEngine;
 using UnityEngine.UIElements;
 
-using Common.Core;
 using Common.Defs;
+using Common.UI;
 
-using Game.Core.Events;
 using Game.Core.Repositories;
 using Game.Model.Worlds;
 
-using Unity.Entities;
+using Reflex.Attributes;
 
-using IEventHandler = Game.Core.Events.IEventHandler;
+using Unity.Entities;
 
 namespace Game.UI
 {
-    public class ToolbarEnvironmentMediator : MonoBehaviour
+    public class ToolbarEnvironmentMediator : UIWidget
     {
-        [SerializeField] private UIDocument document;
-
-        private static ObjectRepository Repository => Inject<ObjectRepository>.Value;
-        private static IEventHandler Handler => Inject<IEventHandler>.Value;
-        private static IApiEditor ApiEditor => Inject<IApiEditor>.Value;
+        [Inject] private ObjectRepository m_Repository; 
+        [Inject] private IApiEditor m_ApiEditor;
+        [Inject] private IUIManager m_UIManager;
         
         private VisualElement m_Content;
         private ListView m_ListView;
@@ -35,14 +30,20 @@ namespace Game.UI
         private IConfig m_CurrentConfig;
         private Entity m_CurrentEntity;
         
-        private void Awake()
+        protected override void Bind()
         {
-            Handler.RegisterCallback<EventRepository>(OnEventRepository);
-            Handler.RegisterCallback<EventMap>(OnEventMap);
-            
-            m_Content = document.rootVisualElement.Q<VisualElement>("environment");
-            m_ListView = document.rootVisualElement.Q<ListView>("object_list");
+            m_Content = Document.rootVisualElement.Q<VisualElement>("environment");
+            m_ListView = Document.rootVisualElement.Q<ListView>("object_list");
+            //Document.rootVisualElement?.RegisterCallback<NavigationCancelEvent>(evt => OnCancel());
+            m_Content.RegisterCallback<NavigationCancelEvent>(evt => OnCancel());
+            m_ListView.RegisterCallback<NavigationCancelEvent>(evt => OnCancel());
             BindItems();
+            BuildList();
+        }
+
+        public override IEnumerable<VisualElement> GetElements()
+        {
+            yield return m_Content;
         }
 
         private void BindItems()
@@ -60,7 +61,7 @@ namespace Game.UI
                 ChoseItem(obj);
             };
             
-            ApiEditor.Events.RegisterCallback<EventPlace>(evt =>
+            m_ApiEditor.Events.RegisterCallback<EventPlace>(evt =>
             {
                 switch (evt.Value)
                 {
@@ -72,7 +73,7 @@ namespace Game.UI
                         break;
                     case EventPlace.State.Apply:
                         m_CurrentEntity = Entity.Null;
-                        ApiEditor.AddEnvironment(m_CurrentConfig);
+                        m_ApiEditor.AddEnvironment(m_CurrentConfig);
                         break;
                 }
             });
@@ -82,28 +83,11 @@ namespace Game.UI
         {
             m_ListView.style.display = DisplayStyle.None;
             m_CurrentConfig = config;
-            if (ApiEditor.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
-                holder.Cancel();
-            ApiEditor.AddEnvironment(config);
+            if (m_ApiEditor.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
+                holder.Remove();
+            m_ApiEditor.AddEnvironment(config);
         }
 
-        private void OnDestroy()
-        {
-            Handler.UnregisterCallback<EventRepository>(OnEventRepository);
-            Handler.UnregisterCallback<EventMap>(OnEventMap);
-        }
-
-        private void OnEventRepository(EventRepository evt)
-        {
-            if (evt.Repository != Repository || evt.State != EventRepository.Enum.Done) return;
-            BuildList();
-        }
-
-        private void OnEventMap(EventMap evt)
-        {
-            BuildList();
-        }
-        
         private void BuildList()
         {
             m_Content.Clear();
@@ -119,15 +103,23 @@ namespace Game.UI
             }
         }
 
+        private void OnCancel()
+        {
+            m_UIManager.ShowCancelButton(false);
+            m_ListView.style.display = DisplayStyle.None;
+        }
+            
         private void ShowListObject(TypeIndex typeIndex)
         {
+            m_UIManager.ShowCancelButton(false);
+            m_UIManager.ShowCancelButton(true);
             m_ListView.Clear();
-            m_CurrentList = Repository.Find(iter =>
+            m_CurrentList = m_Repository.Find(iter =>
             {
-                if (iter.Entity.Prefab == Entity.Null) return false;
+                if (iter.Entity.EntityPrefab == Entity.Null) return false;
                 var manager = World.DefaultGameObjectInjectionWorld.EntityManager;
-                if (!manager.HasComponent<Map.Placement>(iter.Entity.Prefab)) return false;
-                var placement = manager.GetComponentData<Map.Placement>(iter.Entity.Prefab);
+                if (!manager.HasComponent<Map.Placement>(iter.Entity.EntityPrefab)) return false;
+                var placement = manager.GetComponentData<Map.Placement>(iter.Entity.EntityPrefab);
                 return placement.Value.Layer == typeIndex;
             }).ToList();
             m_ListView.style.display = DisplayStyle.Flex;

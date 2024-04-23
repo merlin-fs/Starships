@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5443175848801480239}
   - component: {fileID: 2875545194842213595}
   - component: {fileID: 938128894130304460}
+  - component: {fileID: 3480156482279208811}
   m_Layer: 0
   m_Name: Meteorite
   m_TagString: Untagged
@@ -59,6 +60,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -84,6 +88,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3480156482279208811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214454638534738304}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b7ee42a85cdc4b45bef1412877717c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Type: 
 --- !u!1 &3758233817938580044
 GameObject:
   m_ObjectHideFlags: 0
@@ -132,6 +149,7 @@ MonoBehaviour:
   Vfx:
     m_AssetGUID: 2c0f9f416c468de44b7b9787691b4437
     m_SubObjectName: 
+    m_SubObjectGUID: 
     m_SubObjectType: 
     m_EditorAssetChanged: 1
   Position: 1

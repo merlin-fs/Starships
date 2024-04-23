@@ -4,6 +4,8 @@ using Unity.Properties;
 using Unity.Collections;
 using Common.Defs;
 
+using Reflex.Attributes;
+
 namespace Game.Model.Weapons
 {
     using Common.Core;
@@ -44,14 +46,18 @@ namespace Game.Model.Weapons
 
         public Bullet Bullet => m_Bullet.ValueRO;
         public Stat Stat<T>(T stat) where T: struct, IConvertible => m_Stats.GetRO(stat);
-        
-        private static ObjectRepository ObjectRepository => Inject<ObjectRepository>.Value;
+
+        /* Inject
+        [Inject] private static ObjectRepository m_ObjectRepository;
+        */
 
         public float Time
         {
             get => m_Weapon.ValueRO.Time;
-            set => m_Weapon.ValueRW.Time = value;
         }
+
+        public void IncTime(float value) => m_Weapon.ValueRW.Time += value;
+        public void ResetTime() => m_Weapon.ValueRW.Time = 0;
 
         public void Shot()
         {
@@ -67,7 +73,8 @@ namespace Game.Model.Weapons
             if (m_Bullet.IsValid)
                 m_Bullet.ValueRO.Def.RemoveComponentData(m_Self, m_Bullet.ValueRO, context);
 
-            var bulletConfig = ObjectRepository.FindByID(m_Weapon.ValueRO.BulletID);
+            /* Inject
+            var bulletConfig = m_ObjectRepository.FindByID(m_Weapon.ValueRO.BulletID);
 
             if (bulletConfig == null)
                 return false;
@@ -75,6 +82,8 @@ namespace Game.Model.Weapons
             bulletConfig.Configure(m_Self, context);
             m_Weapon.ValueRW.Count = count;
             return count > 0;
+            */
+            return false;
         }
     }
 }

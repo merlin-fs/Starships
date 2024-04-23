@@ -3,6 +3,8 @@ using System.Threading;
 
 using Common.Core;
 
+using Reflex.Attributes;
+
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Collections;
@@ -16,7 +18,7 @@ namespace Game.Views
     {
         private EntityQuery m_Query;
         private WorldTransform m_LookupTransforms;
-        private static ParticleManager ParticleManager => Inject<ParticleManager>.Value;
+        [Inject] private static ParticleManager m_ParticleManager;
 
         public void OnCreate(ref SystemState state)
         {
@@ -58,7 +60,7 @@ namespace Game.Views
 #endif
                         UnityMainThread.Context.Post(obj =>
                         {
-                            ParticleManager.Play(iter, transform);
+                            m_ParticleManager.Play(iter, transform);
                         }, null);
                     }
                 }

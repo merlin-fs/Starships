@@ -3,7 +3,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 
 using Game.Core;
-using Game.Core.Saves;
+using Game.Core.Storages;
+
 using static Game.Model.Logics.Logic;
 
 namespace Game.Model
@@ -15,24 +16,13 @@ namespace Game.Model
         float Speed { get; }
     }
 
-    [Serializable, Saved]
+    [Serializable, Storage]
     public partial struct Move : IComponentData, IStateData
     {
         public float3 Position;
         public quaternion Rotation;
         public float Speed;
         public float Travel;
-
-        [EnumHandle]
-        public enum Action
-        {
-            Init,
-            MoveToTarget,
-            MoveToPosition,
-            
-            FindPath,
-            MoveToPoint,
-        }
 
         [EnumHandle]
         public enum State

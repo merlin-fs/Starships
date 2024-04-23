@@ -38,7 +38,6 @@ namespace Game
         public partial class GameLogicSystemGroup : ComponentSystemGroup { }
 
         [UpdateInGroup(typeof(GameLogicSystemGroup), OrderFirst = true)]
-        [UpdateAfter(typeof(GameLogicBeforeActionSystemGroup))]
         public partial class GameLogicObjectSystemGroup : ComponentSystemGroup { }
 
         [UpdateInGroup(typeof(GameLogicSystemGroup), OrderLast = true)]
@@ -113,13 +112,6 @@ namespace Game
             }
         }
 
-        [UpdateInGroup(typeof(GameLogicSystemGroup), OrderFirst = true)]
-        public partial class GameLogicBeforeActionSystemGroup : ComponentSystemGroup { }
-        
-        [UpdateInGroup(typeof(GameLogicSystemGroup), OrderLast = true)]
-        public partial class GameLogicAfterActionSystemGroup : ComponentSystemGroup { }
-        
-        
         [UpdateInGroup(typeof(GameSystemGroup), OrderLast = true)]
         [UpdateAfter(typeof(GameLogicSystemGroup))]
         public partial class GameLogicEndSystemGroup : ComponentSystemGroup { }

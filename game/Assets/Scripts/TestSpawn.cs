@@ -17,14 +17,7 @@ using System.Threading.Tasks;
 using Common.Core;
 
 using UnityEngine.AddressableAssets;
-using Unity.Transforms;
-using Game.Core.Prefabs;
-using Game.Core.Saves;
 using Game.Core.Spawns;
-
-using Unity.Mathematics;
-using Game.Views.Stats;
-using Game.Model.Stats;
 
 public class TestSpawn : MonoBehaviour
 {
@@ -38,17 +31,6 @@ public class TestSpawn : MonoBehaviour
 
     private EntityManager m_EntityManager;
     
-    private ReferenceSubSceneManager ReferenceSubSceneManager => Inject<ReferenceSubSceneManager>.Value;
-
-    private readonly struct SavedContext: ISavedContext
-    {
-        public string Name { get; }
-
-        private SavedContext(string name) => Name = name;
-
-        public static implicit operator SavedContext(string name) => new SavedContext(name);
-    }
-    
     private void StartBatle()
     {
         //m_EntityManager.WorldUnmanaged.ResolveSystemStateRef()
@@ -58,8 +40,8 @@ public class TestSpawn : MonoBehaviour
         //!!! await prefab.IsDone();
 
         //*
-        var manager = new SaveManager((SavedContext)"Test");
-        manager.Load();
+        //var manager = new SaveManager((SavedContext)"Test");
+        //manager.Load();
         /**/
 
         /*
@@ -109,13 +91,14 @@ public class TestSpawn : MonoBehaviour
     }
 
 
+    /*
     private async void CreateEntities(int count)
     {
         var config = !Enemy.IsValid()
             ? await Enemy.LoadAssetAsync().Task
             : (UnitConfig)Enemy.Asset;
 
-        Debug.Log($"try spawn config: {config.Prefab}");
+        Debug.Log($"try spawn config: {config.EntityPrefab}");
         var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
             .CreateCommandBuffer();
 
@@ -123,27 +106,17 @@ public class TestSpawn : MonoBehaviour
         {
             var entity = ecb.CreateEntity();
             ecb.AddBuffer<Spawn.Component>(entity);
-            ecb.AddComponent(entity, new Spawn() { Prefab = config.Prefab });
+            ecb.AddComponent(entity, new Spawn() { Prefab = config.EntityPrefab });
             ecb.AppendToBuffer<Spawn.Component>(entity, ComponentType.ReadOnly<SavedTag>());
         }
     }
+    */
 
     private async void Start()
     {
         m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         Application.targetFrameRate = 60;
         QualitySettings.vSyncCount = 3;
-        /*
-        var guid = SceneSystem.GetSceneGUID(ref m_EntityManager.WorldUnmanaged.GetExistingSystemState<SceneSystem>(), "Assets/Scenes/SampleScene/New Sub Scene.unity");
-        //var loadParameters = new SceneSystem.LoadParameters { Flags = SceneLoadFlags.LoadAdditive | SceneLoadFlags.NewInstance };
-        var sceneEntity = SceneSystem.LoadSceneAsync(m_EntityManager.WorldUnmanaged, guid);
-        //SceneSystem.LoadPrefabAsync(m_EntityManager.WorldUnmanaged, guid);
-        */
-        
-        var list = await Task.WhenAll(RepositoryLoadSystem.LoadObjects(), RepositoryLoadSystem.LoadAnimations());
-        await ReferenceSubSceneManager.LoadAsync();
-        ReferenceSubSceneManager.LoadSubScenes(m_EntityManager.WorldUnmanaged, list.SelectMany(iter => iter).Select(iter => iter.ID));
-        
         StartBatle();
     }
 

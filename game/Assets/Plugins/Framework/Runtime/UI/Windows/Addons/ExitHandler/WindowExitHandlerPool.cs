@@ -2,6 +2,8 @@ using System.Collections.Generic;
 
 using Common.Core;
 
+using Reflex.Attributes;
+
 using UnityEngine;
 
 namespace Common.UI.Windows
@@ -14,7 +16,7 @@ namespace Common.UI.Windows
 
 	public class WindowExitHandlerPool : IWindowExitHandlerPool
 	{
-		private static IWindowManager WindowManager => Inject<IWindowManager>.Value;
+        [Inject] private IWindowManager m_WindowManager;
 		List<IWindowExitHandler> m_WidowStack = new List<IWindowExitHandler>();
 
 		protected virtual void OnTryTerminate() { }
@@ -28,7 +30,7 @@ namespace Common.UI.Windows
 				m_WidowStack[m_WidowStack.Count - 1].SendClose();
 			else
 			{
-				if (WindowManager.IsBusy())
+				if (m_WindowManager.IsBusy())
 					return;
 
 				OnTryTerminate();

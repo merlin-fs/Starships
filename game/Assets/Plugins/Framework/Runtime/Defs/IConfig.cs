@@ -1,12 +1,21 @@
 using System;
+using System.Threading.Tasks;
+
 using Common.Core;
 using Unity.Entities;
+
+using UnityEngine;
 
 namespace Common.Defs
 {
     public interface IConfig: IIdentifiable<ObjectID>
     {
-        Entity Prefab { get; }
+        Entity EntityPrefab { get; }
         void Configure(Entity root, IDefinableContext context);
+    }
+    
+    public interface IViewPrefab
+    {
+        public Task<GameObject> GetViewPrefab();
     }
 }

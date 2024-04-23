@@ -1,16 +1,13 @@
 using System;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace Common.Core.Loading
 {
-    public interface ILoadingManager : IInjectionInitable
+    public interface ILoadingManager
     {
-        IDiContext Context { get; }
-        SynchronizationContext SynchronizationContext { get; }
         IProgress Progress { get; }
-        string Text { get; set; }
-        bool Complete { get; }
-        void Start();
-        event Action OnLoadComplete;
+        string Text { get; }
+        bool IsComplete { get; }
+        Task Start(Action onLoadComplete = null);
     }
 }

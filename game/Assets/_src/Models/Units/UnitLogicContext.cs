@@ -12,7 +12,7 @@ namespace Game.Model.Units
     {
         public unsafe readonly struct Context: Logic.ILogicContext<Unit>
         {
-            public CustomHandle LogicHandle => CustomHandle.From<Unit>();
+            public LogicHandle LogicHandle => LogicHandle.From<Unit>();
 
             private readonly void* m_LogicLookup;
             private readonly void* m_Aspect;
@@ -26,11 +26,11 @@ namespace Game.Model.Units
             public Aspect Aspect => UnsafeUtility.AsRef<Aspect>(m_Aspect);
             public Logic.Aspect.Lookup LogicLookup => UnsafeUtility.AsRef<Logic.Aspect.Lookup>(m_LogicLookup);
             public BufferLookup<ChildEntity> Children => UnsafeUtility.AsRef<BufferLookup<ChildEntity>>(m_Children);
-            public ComponentLookup<Map.Transform> LookupMapTransform => UnsafeUtility.AsRef<ComponentLookup<Map.Transform>>(m_LookupMapTransform);
+            public ComponentLookup<Map.Move> LookupMapTransform => UnsafeUtility.AsRef<ComponentLookup<Map.Move>>(m_LookupMapTransform);
             public EntityCommandBuffer.ParallelWriter Writer => UnsafeUtility.AsRef<EntityCommandBuffer.ParallelWriter>(m_Writer);
 
             public Context(int idx, ref Logic.Aspect.Lookup logicLookup, ref Aspect aspect, 
-                ref ComponentLookup<Map.Transform> lookupMapTransform, ref BufferLookup<ChildEntity> children, ref EntityCommandBuffer.ParallelWriter writer): 
+                ref ComponentLookup<Map.Move> lookupMapTransform, ref BufferLookup<ChildEntity> children, ref EntityCommandBuffer.ParallelWriter writer): 
                 this(idx, UnsafeUtility.AddressOf(ref logicLookup), UnsafeUtility.AddressOf(ref aspect), 
                     UnsafeUtility.AddressOf(ref lookupMapTransform), UnsafeUtility.AddressOf(ref children), 
                     UnsafeUtility.AddressOf(ref writer))

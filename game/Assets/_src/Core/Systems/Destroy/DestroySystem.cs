@@ -25,8 +25,10 @@ namespace Game.Systems
             public EntityCommandBuffer.ParallelWriter Writer;
             private void Execute([EntityIndexInQuery] int idx, in Entity entity, Logic.Aspect logic)
             {
+                /* logic
                 if (logic.IsCurrentAction(Global.Action.Destroy) && logic.HasWorldState(Global.State.Dead, true))
                     Writer.AddComponent<DeadTag>(idx, entity);
+                    */
             }
         }
 

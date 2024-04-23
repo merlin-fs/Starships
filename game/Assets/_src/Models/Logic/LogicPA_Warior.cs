@@ -19,10 +19,12 @@ namespace Game.Model.Logics
             7. повтор...
             */
         
+            /*
             logic.Initialize(Global.Action.Init);
             
             logic.SetState(Move.State.Init, true);
             logic.SetState(Unit.State.WeaponInRange, false);
+            */
 
             /*
             logic.AddAction(Move.Action.Init)
@@ -31,8 +33,9 @@ namespace Game.Model.Logics
                 .Cost(1);
             */
 
+            /*
             //поиск цели
-            logic.AddAction(Target.Action.Find)
+            logic.AddTransition(Target.Action.Find)
                 .AddPreconditions(Target.State.Found, false)
                 .AddEffect(Target.State.Found, true)
                 .Cost(2);
@@ -41,32 +44,33 @@ namespace Game.Model.Logics
                 .AfterChangeState(Target.State.Found, true);
 
             //поиск пути к выбранной точке
-            logic.AddAction(Move.Action.FindPath)
+            logic.AddTransition(Move.Action.FindPath)
                 .AddPreconditions(Target.State.Found, true)
                 .AddEffect(Move.State.PathFound, true)
                 .Cost(1);
 
             //перемещение к выбранной точке, 
-            logic.AddAction(Move.Action.MoveToPoint)
+            logic.AddTransition(Move.Action.MoveToPoint)
                 .AddPreconditions(Move.State.PathFound, true)
                 .AddPreconditions(Unit.State.WeaponInRange, false)
                 .AddEffect(Move.State.MoveDone, true)
                 .AddEffect(Unit.State.WeaponInRange, true)
                 .Cost(1);
             //атака
-            logic.AddAction(Unit.Action.Attack)
+            logic.AddTransition(Unit.Action.Attack)
                 .AddPreconditions(Move.State.MoveDone, true)
                 .AddPreconditions(Unit.State.WeaponInRange, true)
                 .AddEffect(Target.State.Dead, true)
                 .Cost(1);
 
-            logic.AddAction(Global.Action.Destroy)
+            logic.AddTransition(Global.Action.Destroy)
                 .AddPreconditions(Global.State.Dead, false)
                 .Cost(0);
 
             logic.EnqueueGoal(Move.State.Init, true);
             logic.EnqueueGoal(Unit.State.WeaponInRange, true);
             logic.EnqueueGoalRepeat(Target.State.Dead, true);
+            */
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Game.Model.Units
         public void AddComponentData(Entity entity, IDefinableContext context)
         {
             context.AddComponentData(entity, new Map.Placement(RefLink<Map.IPlacement>.Copy(RefLink)));
-            context.AddComponentData(entity, new Map.Transform());
+            context.AddComponentData(entity, new Map.Move());
             context.AddComponentData(entity, new Map.Target());
             context.AddComponentData(entity, new Move());
         }
@@ -37,13 +37,6 @@ namespace Game.Model.Units
         public void RemoveComponentData(Entity entity, IDefinableContext context) { }
         #endregion
         
-        [EnumHandle]
-        public enum Action
-        {
-            WeaponsActivate,
-            Attack,
-        }
-
         [EnumHandle]
         public enum State
         {

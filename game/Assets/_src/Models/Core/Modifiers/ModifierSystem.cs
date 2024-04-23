@@ -73,7 +73,7 @@ namespace Game.Model.Stats
         struct ModifyJob: IJobParallelFor
         {
             public NativeArray<Item> Items;
-            [NativeDisableParallelForRestriction]
+            [NativeDisableParallelForRestriction, ReadOnly]
             public BufferLookup<Modifier> LookupModifiers;
             
             public void Execute(int index)
@@ -81,6 +81,8 @@ namespace Game.Model.Stats
                 var iter = Items[index];
                 try
                 {
+                    if (!LookupModifiers.HasBuffer(iter.Entity)) return;
+
                     var modifiers = LookupModifiers[iter.Entity];
                     if (iter.UID == 0)
                     {
@@ -101,21 +103,60 @@ namespace Game.Model.Stats
                 }
             }
         }
+        /*
+        struct ModifyJob: IJob
+        {
+            public NativeArray<Item> Items;
+            [NativeDisableParallelForRestriction, ReadOnly]
+            public BufferLookup<Modifier> LookupModifiers;
+
+            public void Execute()
+            {
+                foreach (var iter in Items)
+                {
+                    try
+                    {
+                        if (!LookupModifiers.HasBuffer(iter.Entity)) return;
+
+                        var modifiers = LookupModifiers[iter.Entity];
+                        if (iter.UID == 0)
+                        {
+                            Modifier.AddModifier(iter.Modifier, ref modifiers);
+                        }
+                        else
+                        {
+                            Modifier.DelModifier(iter.UID, ref modifiers);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        if (iter.UID == 0)
+                            UnityEngine.Debug.LogError($"add {iter.Entity}");
+                        else
+                            UnityEngine.Debug.LogError($"del {iter.Entity}");
+                        throw e;
+                    }
+                }
+            }
+        }
+        */
 
         protected override void OnUpdate()
         {
             if (m_Queue.Count == 0)
                 return;
-            m_LookupModifiers.Update(ref CheckedStateRef);
 
             var items = new NativeArray<Item>(m_Queue.ToArray(), Allocator.TempJob);
             m_Queue.Clear();
 
+            m_LookupModifiers.Update(this);
             Dependency = new ModifyJob
             {
                 Items = items,
                 LookupModifiers = m_LookupModifiers,
-            }.Schedule(items.Length, 5, Dependency);
+            }
+            //.Schedule(Dependency);
+            .Schedule(items.Length, 5, Dependency);
             items.Dispose(Dependency);
         }
     }

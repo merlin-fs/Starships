@@ -9,7 +9,6 @@ namespace Game.Model.Units
     using Stats;
     using Logics;
     using Core.Defs;
-    using Core.Saves;
 
     /// <summary>
     /// Конфиг корабля
@@ -24,6 +23,7 @@ namespace Game.Model.Units
         protected override void Configure(Entity prefab, IDefinableContext context)
         {
             base.Configure(prefab, context);
+            context.AddComponentData(prefab, new Root());
             Value.AddComponentData(prefab, context);
             Team.AddComponentData(prefab, context);
             

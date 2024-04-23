@@ -15,6 +15,9 @@ namespace Common.Defs
             UnsafeUtility.PinGCObjectAndGetAddress(value, out var gsHandle);
             return new RefLink<T>(GCHandle.FromIntPtr(new IntPtr((void*)gsHandle)));
         }
-        public static void Free(RefLink<T> value) => value.m_RefHandle.Free();
+
+        public bool IsValid => m_RefHandle.IsAllocated;
+        
+        public void Free() => m_RefHandle.Free();
     }
 }

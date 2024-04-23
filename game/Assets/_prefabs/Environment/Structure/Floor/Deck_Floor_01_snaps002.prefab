@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4632245330311850}
   - component: {fileID: 33423442344103440}
   - component: {fileID: 23142454801657310}
-  - component: {fileID: 4271870447630306192}
+  - component: {fileID: -4037535797353477408}
   m_Layer: 0
   m_Name: Deck_Floor_01_snaps002
   m_TagString: Untagged
@@ -26,13 +26,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1762725362881492}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &33423442344103440
 MeshFilter:
@@ -59,6 +59,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -85,7 +88,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &4271870447630306192
+--- !u!114 &-4037535797353477408
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -100,4 +103,8 @@ MonoBehaviour:
   m_Size:
     x: 1
     y: 1
+  m_Pivot:
+    x: 1.5
+    y: 0.0625
+    z: 1.5
   m_Layer: Game.Model.Worlds.Map+Layers+Floor

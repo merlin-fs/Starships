@@ -24,8 +24,7 @@ namespace Game.Model
                 Map.PathFinder.Initialize();
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAspect<Logic.Aspect>()
-                    .WithAspect<Aspect>()
-                    .WithAll<LocalTransform>()
+                    .WithAll<Move, LocalTransform>()
                     .WithNone<SelectBuildingTag>()
                     .Build();
 
@@ -61,8 +60,9 @@ namespace Game.Model
 
                 public float Delta;
 
-                private void Execute(ref LocalTransform transform, Aspect aspect, Logic.Aspect logic)
+                private void Execute(ref LocalTransform transform, Move move, Logic.Aspect logic)
                 {
+                    /* logic
                     if (logic.IsCurrentAction(Action.Init))
                     {
                         UnityEngine.Debug.Log($"{logic.Self} [Move] init {aspect.Move.Position}, speed {aspect.Move.Speed}");
@@ -94,7 +94,6 @@ namespace Game.Model
                         data.Position = aspect.LocalTransformRO.Position; 
                         data.Rotation = aspect.LocalTransformRO.Rotation;
                         data.Travel = 0;
-                        */
                         
                         logic.SetWorldState(State.PathFound, true);
                         return;
@@ -124,6 +123,7 @@ namespace Game.Model
                         transform.Position += math.normalize(direction) * Delta * aspect.Move.Speed;
                         return;
                     }
+                    */
                 }
             }
         }

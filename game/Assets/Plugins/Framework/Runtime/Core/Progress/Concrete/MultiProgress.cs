@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+
+using Common.Core.Loading;
+
 using UnityEngine;
 
 namespace Common.Core.Progress
@@ -8,28 +11,26 @@ namespace Common.Core.Progress
     public class MultiProgress : IProgressWritable
     {
         private bool m_Done;
-        private Dictionary<object, float> m_Progress = new Dictionary<object, float>();
-        private event IProgress.OnProgressChange m_OnProgressChange;
+        private readonly Dictionary<ILoadingCommand, float> m_Progress = new();
+        private event IProgress.OnProgressChange OnProgressChange;
         private IProgressWritable Self => this;
 
-        public MultiProgress(params object[] objects)
+        public MultiProgress(params ILoadingCommand[] objects)
         {
-            foreach(object iter in objects)
+            foreach(var iter in objects)
                 m_Progress.Add(iter, 0);
         }
 
 
-        public void SetProgress(object obj, float value)
+        public void SetProgress(ILoadingCommand obj, float value)
         {
-            if (m_Progress.TryGetValue(obj, out float objValue))
-            {
-                value = Mathf.Clamp(value, 0, 1);
-                if (objValue != value)
-                {
-                    m_Progress[obj] = value;
-                    m_OnProgressChange?.Invoke(Self.Value);
-                }
-            }
+            if (!m_Progress.TryGetValue(obj, out float objValue)) return;
+            value = Mathf.Clamp(value, 0, 1);
+            if (objValue.CompareTo(value) == 0) return;
+            
+            m_Progress[obj] = value;
+            OnProgressChange?.Invoke(Self.Value);
+            Debug.Log($"Progress: {Self.Value}");
         }
 
         public void SetDone()
@@ -62,8 +63,8 @@ namespace Common.Core.Progress
 
         event IProgress.OnProgressChange IProgress.OnChange
         {
-            add => m_OnProgressChange += value;
-            remove => m_OnProgressChange -= value;
+            add => OnProgressChange += value;
+            remove => OnProgressChange -= value;
         }
         #endregion
     }

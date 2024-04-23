@@ -11,6 +11,8 @@ using Common.Core;
 using Unity.Entities;
 using Game.Model.Worlds;
 
+using Reflex.Attributes;
+
 namespace Game.UI.Elements
 {
     public class LayerMediator: ToolbarMediator
@@ -19,7 +21,7 @@ namespace Game.UI.Elements
 
         private readonly EnvironmentList m_List = new EnvironmentList();
 
-        private IApiEditor ApiEditor => Inject<IApiEditor>.Value;
+        [Inject] private IApiEditor m_ApiEditor;
         private List<string> Items => Map.Layers.Values.Select(iter => iter.Type.Name).ToList();
         private TemplateContainer m_Popup;
         private ListView m_ListView;
@@ -51,10 +53,12 @@ namespace Game.UI.Elements
 
                 btn.RegisterCallback<ChangeEvent<bool>>(evt =>
                 {
+                    /*
                     if (evt.newValue)
                         ShowItem(Items[idx]);
                     else 
-                        UIManager.Close(m_Popup);
+                        m_UIManager.Close(m_Popup);
+                        */
                 });
             };
 
@@ -64,16 +68,16 @@ namespace Game.UI.Elements
         void ShowItem(string label)
         {
             m_List.ChoseGroup(label);
-            UIManager.Show(m_Popup, ShowStyle.Popup);
+            //m_UIManager.Show(m_Popup, ShowStyle.Popup);
         }
 
         private void ChoseItem(IConfig config)
         {
-            UIManager.HidePopups();
+            //m_UIManager.HidePopups();
             m_CurrentConfig = config;
-            if (ApiEditor.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
-                holder.Cancel();
-            ApiEditor.AddEnvironment(config);
+            if (m_ApiEditor.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
+                holder.Remove();
+            m_ApiEditor.AddEnvironment(config);
         }
 
         protected override void OnInitialize(VisualElement root)

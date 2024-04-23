@@ -6,6 +6,8 @@ using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Transforms;
 using Common.Core;
+using Common.Defs;
+
 using Game.Model;
 using Game.Model.Worlds;
 
@@ -13,7 +15,7 @@ using UnityEngine.AI;
 
 namespace Game.Core.Prefabs
 {
-    public class PrefabEnvironmentAuthoring : MonoBehaviour
+    public class PrefabEnvironmentAuthoring : MonoBehaviour, IConfig
     {
         [SerializeField] int2 m_Size;
         [SerializeField] float3 m_Pivot = new float3(1.5f, 0.0625f, 1.5f);
@@ -25,6 +27,17 @@ namespace Game.Core.Prefabs
 
         [NonSerialized] public string[] Labels;
 
+        private Entity m_Prefab;
+        
+        public ObjectID ID => name;
+        public Entity EntityPrefab => m_Prefab;
+
+        public void Configure(Entity root, IDefinableContext context)
+        {
+            m_Prefab = root;
+        }
+
+        /*
         class Baker : Baker<PrefabEnvironmentAuthoring>
         {
             public override void Bake(PrefabEnvironmentAuthoring authoring)
@@ -70,6 +83,7 @@ namespace Game.Core.Prefabs
                 AddComponent(entity, new Root {Value = GetEntity(parent, TransformUsageFlags.Dynamic)});
             }
         }
+        */
 
         private void OnDrawGizmos()
         {

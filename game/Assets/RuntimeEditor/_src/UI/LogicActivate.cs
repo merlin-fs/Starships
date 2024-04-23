@@ -1,23 +1,27 @@
+using System.Collections.Generic;
+
 using Buildings;
-using Common.Core;
-using UnityEngine;
+using Common.UI;
+using Reflex.Attributes;
 using UnityEngine.UIElements;
 
 namespace Game.UI
 {
-    public class LogicActivate : MonoBehaviour
+    public class LogicActivate : UIWidget
     {
-        private static IApiEditor ApiEditor => Inject<IApiEditor>.Value;
-        
-        [SerializeField] private UIDocument document;
-
-        private void Awake()
+        [Inject] private IApiEditor m_ApiEditor;
+        protected override void Bind()
         {
-            var btn = document.rootVisualElement.Q<Toggle>("activate");
-            btn.RegisterValueChangedCallback(e =>
-            {
-                ApiEditor.SetLogicActive(e.newValue);
-            });
+            Document.rootVisualElement.Q<Toggle>("activate")
+                .RegisterValueChangedCallback(e =>
+                {
+                    m_ApiEditor.SetLogicActive(e.newValue);
+                });
+        }
+
+        public override IEnumerable<VisualElement> GetElements()
+        {
+            yield return Document.rootVisualElement.Q<Toggle>("activate");
         }
     }
 }

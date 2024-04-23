@@ -7,27 +7,21 @@ namespace Game.Model.Weapons
 {
     public partial struct Weapon
     {
-        public unsafe readonly struct Context: Logic.ILogicContext<Weapon>
+        public readonly struct Context: Logic.ILogicContext<Weapon>
         {
-            public CustomHandle LogicHandle => CustomHandle.From<Weapon>();
-
-            private readonly void* m_LogicLookup;
-            private readonly void* m_Aspect;
-            private readonly int m_Idx;
+            public LogicHandle LogicHandle => LogicHandle.From<Weapon>();
             public Logic.Aspect Logic => LogicLookup[Aspect.Self];
-            public WeaponAspect Aspect => UnsafeUtility.AsRef<WeaponAspect>(m_Aspect);
-            public ref Logic.Aspect.Lookup LogicLookup => ref UnsafeUtility.AsRef<Logic.Aspect.Lookup>(m_LogicLookup);
+            public Logic.Aspect.Lookup LogicLookup { get; }
+            public int Idx { get; }
+            public WeaponAspect Aspect { get; }
+            public float Delta { get; }
 
-            public Context(int idx, ref Logic.Aspect.Lookup logicLookup, ref WeaponAspect aspect): 
-                this(idx, UnsafeUtility.AddressOf(ref logicLookup), UnsafeUtility.AddressOf(ref aspect))
+            public Context(int idx, ref Logic.Aspect.Lookup logicLookup, ref WeaponAspect aspect, float delta) 
             {
-            }
-
-            private Context(int idx, void* logicLookup, void* aspect)
-            {
-                m_Idx = idx;
-                m_LogicLookup = logicLookup;
-                m_Aspect = aspect;
+                Idx = idx;
+                LogicLookup = logicLookup;
+                Aspect = aspect;
+                Delta = delta;
             }
         }
     }

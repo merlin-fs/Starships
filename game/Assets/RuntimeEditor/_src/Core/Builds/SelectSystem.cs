@@ -11,6 +11,8 @@ using Unity.Collections;
 using Game;
 using Game.Model.Worlds;
 
+using Reflex.Attributes;
+
 using Unity.Jobs;
 
 namespace Buildings.Environments
@@ -22,7 +24,8 @@ namespace Buildings.Environments
         EntityQuery m_Query;
         EntityQuery m_QueryMap;
         Plane m_Ground;
-        private Config Config => Inject<Config>.Value;
+        [Inject] private static Config m_Config;
+        [Inject] private static IApiEditor m_ApiEditor;
 
         public void OnCreate(ref SystemState state)
         {
@@ -41,7 +44,7 @@ namespace Buildings.Environments
             if (m_QueryMap.IsEmpty)
                 return;
 
-            var input = Config.MoveAction.ReadValue<Vector2>();
+            var input = m_Config.MoveAction.ReadValue<Vector2>();
             var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
             var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
 
@@ -51,7 +54,7 @@ namespace Buildings.Environments
             state.Dependency = new SystemJob()
             {
                 Map = aspect,
-                IsPlace = Config.PlaceAction.triggered,
+                IsPlace = m_Config.PlaceAction.triggered,
                 Writer = ecb.AsParallelWriter(),
                 Ground = m_Ground,
                 Ray = Camera.main.ScreenPointToRay(input),
@@ -62,7 +65,6 @@ namespace Buildings.Environments
 
         partial struct SystemJob : IJob
         {
-            private IApiEditor ApiEditor => Inject<IApiEditor>.Value;
             [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
             public Map.Aspect Map;
 
@@ -78,9 +80,9 @@ namespace Buildings.Environments
                 Vector3 worldPosition = Ray.GetPoint(position);
                 int2 pos = Map.Value.WordToMap(worldPosition) + Map.Value.Size / 2;
 
-                if (Map.TryGetObject(ApiEditor.CurrentLayer, pos, out var target))
+                if (Map.TryGetObject(m_ApiEditor.CurrentLayer, pos, out var target))
                 {
-                    Writer.AddComponent(0, target, new SelectBuildingTag {Move = new Map.Transform{ Position = pos }});
+                    Writer.AddComponent(0, target, new SelectBuildingTag {Move = new Map.Move{ Position = pos }});
                 }
             }
         }

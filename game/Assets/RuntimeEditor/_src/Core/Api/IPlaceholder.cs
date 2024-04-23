@@ -6,7 +6,8 @@ namespace Buildings
 {
     public interface IPlaceHolder
     {
-        void Cancel();
+        void Remove();
+        void Place();
     }
 
     public class EventPlace: EventBase<EventPlace>

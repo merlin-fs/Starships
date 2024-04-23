@@ -2,6 +2,8 @@
 using Unity.Entities;
 using Common.Core;
 
+using Reflex.Attributes;
+
 namespace Game.Model.Stats
 {
     using Core.Defs;
@@ -11,9 +13,11 @@ namespace Game.Model.Stats
     public partial struct StatPrepareSystem : ISystem
     {
         private EntityQuery m_Query;
+        [Inject] private static ObjectRepository m_Repository;
 
         public void OnCreate(ref SystemState state)
         {
+            
             m_Query = SystemAPI.QueryBuilder()
                 .WithAll<PrepareStat>()
                 .WithAllRW<Stat>()
@@ -23,11 +27,9 @@ namespace Game.Model.Stats
 
         partial struct PrepareStatsJob : IJobEntity
         {
-            private static ObjectRepository Repository => Inject<ObjectRepository>.Value;
-
             void Execute(in DynamicBuffer<PrepareStat> configs, ref DynamicBuffer<Stat> stats)
             {
-                var repo = Repository;
+                var repo = m_Repository;
                 foreach (var iter in configs)
                 {
                     var config = repo.FindByID(iter.ConfigID);

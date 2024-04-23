@@ -8,7 +8,7 @@ namespace Game.Views
 {
     public struct ParticleTrigger : IBufferElementData
     {
-        public EnumHandle Action;
+        public LogicActionHandle Action;
         public Hash128 VfxID;
         public Entity Target;
 

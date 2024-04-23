@@ -3,10 +3,11 @@ using Unity.Entities;
 
 namespace Game.Core
 {
-    public readonly partial struct EnumHandle: IEquatable<EnumHandle>, IComparable<EnumHandle>, IBufferElementData
+    public readonly partial struct EnumHandle: IEquatable<EnumHandle>, IComparable<EnumHandle>, 
+        IBufferElementData, ICustomHandle
     {
+        public int ID { get => m_ID; }
         private readonly int m_ID;
-
         public static EnumHandle Null { get; } = new EnumHandle(0);
 
         public static EnumHandle FromEnum<T>(T value)

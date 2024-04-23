@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using Unity.Entities;
+
+using UnityEngine.AddressableAssets;
 
 namespace Common.Defs
 {
@@ -9,11 +12,11 @@ namespace Common.Defs
     public class ChildConfig
     {
         public ScriptableConfig Child;
-#if UNITY_EDITOR
+//#if UNITY_EDITOR
         [SelectChildPrefab]
         public GameObject PrefabObject;
         public bool Enabled = true;
-#endif
+//#endif
     }
 
     public interface IConfigContainer
@@ -21,15 +24,31 @@ namespace Common.Defs
         IEnumerable<ChildConfig> Childs { get; }
     }
 
-    public abstract class ScriptableConfig : ScriptableIdentifiable, IConfig
+    public abstract class ScriptableConfig : ScriptableIdentifiable, IConfig, IViewPrefab
     {
+        [field: SerializeField]
+        public AssetReferenceGameObject ReferencePrefab { get; private set; }
+
+        private GameObject m_ViewPrefab;
+        
+        public async Task<GameObject> GetViewPrefab()
+        {
+            if (!m_ViewPrefab && ReferencePrefab.RuntimeKeyIsValid())
+            {
 #if UNITY_EDITOR
-        public GameObject PrefabObject;
-        public GameObject GetPrefab() => PrefabObject;
+                if (Application.isPlaying)
+                    m_ViewPrefab = await ReferencePrefab.LoadAssetAsync().Task;
+                else
+                    m_ViewPrefab = ReferencePrefab.editorAsset;
+#else
+                m_ViewPrefab = await ReferencePrefab.LoadAssetAsync().Task;
 #endif
+            }
+            return await Task.FromResult(m_ViewPrefab);
+        }
         private Entity m_Prefab;
 
-        public Entity Prefab => m_Prefab;
+        public Entity EntityPrefab => m_Prefab;
 
         void IConfig.Configure(Entity root, IDefinableContext context)
         {

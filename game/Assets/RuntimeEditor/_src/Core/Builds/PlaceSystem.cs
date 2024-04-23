@@ -11,6 +11,8 @@ using Game;
 using Game.Model.Stats;
 using Game.Model.Worlds;
 
+using Reflex.Attributes;
+
 using Plane = UnityEngine.Plane;
 using Ray = UnityEngine.Ray;
 
@@ -18,7 +20,7 @@ namespace Buildings.Environments
 {
     public struct SelectBuildingTag : IComponentData
     {
-        public Map.Transform Move;
+        public Map.Move Move;
     }
     
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
@@ -28,7 +30,8 @@ namespace Buildings.Environments
         EntityQuery m_QueryMap;
         Plane m_Ground;
         
-        private static Config Config => Inject<Config>.Value;
+        [Inject] private static Config m_Config;
+        [Inject] private static IApiEditorHandler m_ApiHandler;
 
         public void OnCreate(ref SystemState state)
         {
@@ -37,7 +40,7 @@ namespace Buildings.Environments
                 .Build();
 
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Map.Transform, Map.Placement>()
+                .WithAll<Map.Move, Map.Placement>()
                 .WithAllRW<LocalTransform, SelectBuildingTag>()
                 .WithNone<DeadTag>()
                 .Build();
@@ -52,7 +55,7 @@ namespace Buildings.Environments
             if (!Camera.main)
                 return;
 
-            var input = Config.MoveAction.ReadValue<Vector2>();
+            var input = m_Config.MoveAction.ReadValue<Vector2>();
             var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
             var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
 
@@ -62,10 +65,10 @@ namespace Buildings.Environments
             state.Dependency = new SystemJob()
             {
                 Aspect = aspect,
-                IsPlace = Config.PlaceAction.triggered,
-                IsCancel = Config.CancelAction.triggered,
-                IsRotateX = Config.RorateXAction.triggered,
-                IsRotateY = Config.RorateYAction.triggered,
+                IsPlace = m_Config.PlaceAction.triggered,
+                IsCancel = m_Config.CancelAction.triggered,
+                IsRotateX = m_Config.RorateXAction.triggered,
+                IsRotateY = m_Config.RorateYAction.triggered,
                 Writer = ecb.AsParallelWriter(),
                 Ground = m_Ground,
                 Ray = Camera.main.ScreenPointToRay(input),
@@ -76,7 +79,6 @@ namespace Buildings.Environments
 
         partial struct SystemJob : IJobEntity
         {
-            private IApiEditorHandler ApiHandler => Inject<IApiEditorHandler>.Value;
             [NativeDisableParallelForRestriction, NativeDisableUnsafePtrRestriction]
             public Map.Aspect Aspect;
 
@@ -88,30 +90,30 @@ namespace Buildings.Environments
             public bool IsRotateX;
             public bool IsRotateY;
 
-            public void Execute([EntityIndexInQuery] int idx, in Entity entity, in Map.Transform move,
+            public void Execute([EntityIndexInQuery] int idx, in Entity entity, in Map.Move move,
                 ref SelectBuildingTag selected, in Map.Placement placement, ref LocalTransform transform)
             {
                 if (IsCancel)
                 {
                     Aspect.SetObject(placement.Value.Layer, move.Position, Entity.Null);
                     Writer.AddComponent<DeadTag>(idx, entity);
-                    ApiHandler.OnDestroy(entity);
+                    m_ApiHandler.OnDestroy(entity);
                 }
                 else if (Ground.Raycast(Ray, out float position))
                 {
                     var newMove = selected.Move;
                     if (IsRotateX)
                     {
-                        newMove.Rorate.x += 45;
-                        if (newMove.Rorate.x >= 360)
-                            newMove.Rorate.x = 0;
+                        newMove.Rotation.x += 45;
+                        if (newMove.Rotation.x >= 360)
+                            newMove.Rotation.x = 0;
                     }
 
                     if (IsRotateY)
                     {
-                        newMove.Rorate.y += 180;
-                        if (newMove.Rorate.y >= 360)
-                            newMove.Rorate.y = 0;
+                        newMove.Rotation.y += 180;
+                        if (newMove.Rotation.y >= 360)
+                            newMove.Rotation.y = 0;
                     }
 
                     Vector3 worldPosition = Ray.GetPoint(position);
@@ -125,8 +127,8 @@ namespace Buildings.Environments
                     var pivot = placement.Value.Pivot;
 
                     transform.Rotation = quaternion.identity;
-                    transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(newMove.Rorate.y)));
-                    transform.Rotation = math.mul(transform.Rotation, quaternion.RotateY(math.radians(newMove.Rorate.x)));
+                    transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(newMove.Rotation.y)));
+                    transform.Rotation = math.mul(transform.Rotation, quaternion.RotateY(math.radians(newMove.Rotation.x)));
                     transform.Position = newPos + math.mul(transform.Rotation, pivot);
 
                     passable &= !IsPlaceTaken(Aspect, placement.Value.Layer, pos, placement.Value.Size, entity);
@@ -141,7 +143,7 @@ namespace Buildings.Environments
                     
                     Writer.SetComponent(idx, entity, newMove);
                     Writer.RemoveComponent<SelectBuildingTag>(idx, entity);
-                    ApiHandler.OnPlace(entity);
+                    m_ApiHandler.OnPlace(entity);
                 }
             }
 

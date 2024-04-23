@@ -16,12 +16,6 @@ namespace Game.Model
         }
 
         [EnumHandle]
-        public enum Action
-        {
-            Find,
-        }
-
-        [EnumHandle]
         public enum State
         {
             Found,

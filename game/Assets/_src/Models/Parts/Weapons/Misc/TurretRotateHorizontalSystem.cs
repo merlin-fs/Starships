@@ -45,6 +45,7 @@ namespace Game.Model.Weapons
             public WorldTransform WorldTransform;
             public void Execute(WeaponAspect weapon, Logic.Aspect logic)
             {
+                /* logic
                 if (logic.IsCurrentAction(Weapon.Action.Attack) && weapon.Target.Value != Entity.Null)
                 {
                     var transform = WorldTransform.GetToWorldRefRW(weapon.Self).ValueRO;
@@ -61,6 +62,7 @@ namespace Game.Model.Weapons
                         quaternion.LookRotationSafe(direction, math.up()),
                         weapon.Time + Delta * 10f);
                 }
+                **/
             }
         }
     }

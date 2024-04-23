@@ -1,5 +1,8 @@
 using System;
 using System.IO;
+
+using Reflex.Attributes;
+
 using UnityEngine;
 
 namespace Common.UI.Windows
@@ -20,9 +23,8 @@ namespace Common.UI.Windows
 	public abstract class Window<T, M> : MonoBehaviour, IView<M>
 		where T : Window<T, M>
 		where M : IViewModel
-	{
-        private static IWindowManager WindowManager => Inject<IWindowManager>.Value;
-        
+    {
+        [Inject] private IWindowManager m_WindowManager;
         IViewModel IView.DataSource => DataSource;
 		GameObject IView.GameObject => gameObject;
         public M DataSource { get; private set; }

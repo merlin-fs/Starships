@@ -3,18 +3,17 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 using Game.Core;
-using Game.Core.Saves;
+using Game.Core.Storages;
 
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Properties;
 using UnityEngine;
 
 namespace Game.Model.Stats
 {
-    [Serializable, Saved]
+    [Serializable, Storage]
     public unsafe struct Modifier : IBufferElementData, IEquatable<Modifier>
     {
         private static readonly MethodInfo m_Method = typeof(IModifier).GetMethod(nameof(IModifier.Estimation));

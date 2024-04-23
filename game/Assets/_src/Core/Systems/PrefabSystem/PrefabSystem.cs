@@ -1,16 +1,18 @@
 using System;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Entities;
 using Unity.Burst;
 using Unity.Jobs;
 using Common.Defs;
-using Common.Core;
-
-using Game.Core.Events;
 using Game.Core.Repositories;
 using Game.Model.Units;
+
+using Reflex.Attributes;
+
+using Unity.Collections;
 
 namespace Game.Core.Prefabs
 {
@@ -19,12 +21,12 @@ namespace Game.Core.Prefabs
         [UpdateInGroup(typeof(GameSpawnSystemGroup))]
         public partial struct System : ISystem
         {
+            [Inject] static private ObjectRepository m_ObjectRepository;
+
             private EntityQuery m_QueryEnvironments;
             private EntityQuery m_QueryObjects;
             static ConcurrentDictionary<Entity, IDefinableContext> m_Contexts;
             static private bool m_Done;
-            private static ObjectRepository ObjectRepository => Inject<ObjectRepository>.Value;
-            private static IEventSender Sender => Inject<IEventSender>.Value;
 
             public Task<bool> IsDone()
             {
@@ -57,7 +59,6 @@ namespace Game.Core.Prefabs
                 if (m_QueryEnvironments.IsEmpty && m_QueryObjects.IsEmpty) return;
                 
                 m_Done = false;
-                Sender.SendEvent(EventRepository.GetPooled(ObjectRepository, EventRepository.Enum.Loading));
                 var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
 
                 var environmentsHandle = new EnvironmentsJob
@@ -84,7 +85,6 @@ namespace Game.Core.Prefabs
                 public void Execute()
                 {
                     m_Contexts.Clear();
-                    Sender.SendEvent(EventRepository.GetPooled(ObjectRepository, EventRepository.Enum.Done));
                     m_Done = true;
                 }
             }
@@ -92,7 +92,6 @@ namespace Game.Core.Prefabs
             partial struct EnvironmentsJob : IJobEntity
             {
                 public EntityCommandBuffer.ParallelWriter Writer;
-                private static ObjectRepository Repository => Inject<ObjectRepository>.Value;
 
                 private void Execute([EntityIndexInQuery] int idx, in Entity entity,
                     in PrefabInfo prefab, in BakedEnvironment environment, in DynamicBuffer<BakedLabel> labels)
@@ -107,19 +106,18 @@ namespace Game.Core.Prefabs
                         Pivot = environment.Pivot,
                         Layer = TypeManager.GetTypeIndex(Type.GetType(environment.Layer.Value)),
                     };
-                    var config = new StructureConfig(prefab.ConfigID, entity, def);
+                    var config = new StructureConfig(prefab.m_ConfigID, entity, def);
                     var context = new WriterContext(Writer, idx);
                     def.AddComponentData(entity, context);
 
-                    context.SetName(entity, prefab.ConfigID.ToString());
-                    Repository.Insert(prefab.ConfigID, config, localLabels.ToArray());
+                    context.SetName(entity, prefab.m_ConfigID.ToString());
+                    m_ObjectRepository.Insert(prefab.m_ConfigID, config, localLabels.ToArray());
                 }
             }
 
             partial struct ObjectsJob : IJobEntity
             {
                 public EntityCommandBuffer.ParallelWriter Writer;
-                private static ObjectRepository Repository => Inject<ObjectRepository>.Value;
 
                 void Execute([EntityIndexInQuery] int idx, in Entity entity, in PrefabInfo prefab)
                 {
@@ -128,9 +126,9 @@ namespace Game.Core.Prefabs
                         context = new WriterContext(Writer, idx);
                         m_Contexts.TryAdd(entity, context);
                     }
-                    var config = Repository.FindByID(prefab.ConfigID);
+                    var config = m_ObjectRepository.FindByID(prefab.m_ConfigID);
                     
-                    context.SetName(entity, prefab.ConfigID.ToString());
+                    context.SetName(entity, prefab.m_ConfigID.ToString());
                     config.Configure(entity, context);
                 }
             }

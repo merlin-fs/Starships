@@ -24,6 +24,7 @@ namespace Game.Views
         {
             public unsafe override void Bake(ParticleAuthoring authoring)
             {
+/*
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
                 var buffer = AddBuffer<ParticleTrigger>(entity);
 
@@ -37,6 +38,7 @@ namespace Game.Views
                     Scale = authoring.Scale,
                     ScaleTime = authoring.ScaleTime,
                 });
+                */
             }
         }
     }

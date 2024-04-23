@@ -11,29 +11,29 @@ namespace Game.Model.Logics
     {
         public partial struct PlanFinder
         {
-            public static NativeArray<Plan> Execute(int threadIdx, Logic.Aspect logic, Goal goal, 
+            public static NativeArray<Plan> Execute(int threadIdx, IWorldState worldState, Goal goal, LogicDef def,
                 AllocatorManager.AllocatorHandle allocator)
             {
-                var path = Search(threadIdx, logic, goal, allocator);
+                var path = Search(threadIdx, worldState, goal, def, allocator);
                 return path;
             }
 
-            private unsafe static NativeArray<Plan> Search(int threadIdx, Logic.Aspect logic,
-                Goal goal, AllocatorManager.AllocatorHandle allocator)
+            private unsafe static NativeArray<Plan> Search(int threadIdx, IWorldState worldState,
+                Goal goal, LogicDef def, AllocatorManager.AllocatorHandle allocator)
             {
                 InitFinder(threadIdx);
                 try
                 {
-                    var root = new Node(EnumHandle.Null, 0)
+                    var root = new Node(LogicActionHandle.Null, 0)
                     {
                         HeuristicCost = 0.0f
                     };
 
-                    if (!logic.HasWorldState(goal.State, goal.Value))
+                    if (!worldState.HasWorldState(goal.State, goal.Value))
                         root.Goals.Add(goal.State, goal.Value);
 
                     var costs = GetCosts(threadIdx);
-                    costs.Add(EnumHandle.Null, root);
+                    costs.Add(LogicActionHandle.Null, root);
                     var queue = GetQueue(threadIdx);
 
                     queue.Push(root);
@@ -43,7 +43,7 @@ namespace Game.Model.Logics
                         store = node.Handle;
                         if (node.Goals.Count == 0)
                             return ShortestPath(threadIdx, node.Handle, allocator);
-                        IdentifySuccessors(threadIdx, node, logic);
+                        IdentifySuccessors(threadIdx, node, worldState, def);
                     }
                     return ShortestPath(threadIdx, store, allocator);
                     //return new NativeList<Plan>(1, Allocator.Persistent).AsArray();
@@ -54,7 +54,7 @@ namespace Game.Model.Logics
                 }
             }
 
-            private static void IdentifySuccessors(int threadIdx, Node node, Logic.Aspect logic)
+            private static void IdentifySuccessors(int threadIdx, Node node, IWorldState worldState, LogicDef def)
             {
                 var costs = GetCosts(threadIdx);
                 var queue = GetQueue(threadIdx);
@@ -64,9 +64,9 @@ namespace Game.Model.Logics
                 for (int i = 0; i < goals.Length; i++)
                 //foreach (var iter in goals)
                 {
-                    foreach (var pt in logic.Def.GetActionsFromGoal(GoalHandle.FromHandle(goals.Keys[i], goals.Values[i])))
+                    foreach (var pt in def.GetActionsFromGoal(GoalHandle.FromHandle(goals.Keys[i], goals.Values[i])))
                     {
-                        logic.Def.TryGetAction(pt, out GoapAction action);
+                        def.TryGetAction(pt, out GoapAction action);
                         if (!costs.TryGetValue(action.Handle, out Node next))
                         {
                             next = new Node(action.Handle, action.Cost);
@@ -77,14 +77,14 @@ namespace Game.Model.Logics
                         next.Goals.Clear();
 
                         foreach (var nextGoal in action.GetPreconditions().GetReadOnly())
-                            if (!logic.HasWorldState(nextGoal.Key, nextGoal.Value))
+                            if (!worldState.HasWorldState(nextGoal.Key, nextGoal.Value))
                                 next.Goals.Add(nextGoal.Key, nextGoal.Value);
 
                         foreach (var nextGoal in node.Goals)
                         {
                             if (goals.Keys[i] == nextGoal.Key && goals.Values[i] == nextGoal.Value)
                                 continue;
-                            if (!logic.HasWorldState(nextGoal.Key, nextGoal.Value))
+                            if (!worldState.HasWorldState(nextGoal.Key, nextGoal.Value))
                                 if (!next.Goals.ContainsKey(nextGoal.Key))
                                     next.Goals.Add(nextGoal.Key, nextGoal.Value);
                         }
@@ -98,13 +98,13 @@ namespace Game.Model.Logics
                 }
             }
 
-            private static NativeArray<Plan> ShortestPath(int threadIdx, EnumHandle v, AllocatorManager.AllocatorHandle allocator)
+            private static NativeArray<Plan> ShortestPath(int threadIdx, LogicActionHandle v, AllocatorManager.AllocatorHandle allocator)
             {
                 var hierarchy = GetHierarchy(threadIdx);
                 var path = new NativeList<Plan>(hierarchy.Count, Allocator.Persistent);
                 while (!v.Equals(EnumHandle.Null))
                 {
-                    if (!hierarchy.TryGetValue(v, out EnumHandle test))
+                    if (!hierarchy.TryGetValue(v, out var test))
                     {
                         path.Dispose();
                         return new NativeList<Plan>(1, Allocator.Persistent).AsArray();
@@ -129,11 +129,11 @@ namespace Game.Model.Logics
             {
                 public float? HeuristicCost { get; set; }
                 public float Cost { get; }
-                public EnumHandle Handle { get; }
+                public LogicActionHandle Handle { get; }
 
                 public NativeHashMap<EnumHandle, bool> Goals { get; }
 
-                public Node(EnumHandle source, float cost)
+                public Node(LogicActionHandle source, float cost)
                 {
                     Goals = new NativeHashMap<EnumHandle, bool>(5, Allocator.TempJob);
                     Handle = source;

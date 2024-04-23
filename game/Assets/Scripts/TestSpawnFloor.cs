@@ -10,12 +10,11 @@ using Unity.Mathematics;
 using Common.Core;
 using Common.Defs;
 using Game;
-using Game.Core.Prefabs;
 using Game.Core.Repositories;
-using Game.Model;
 using Game.Model.Worlds;
 using Buildings;
-using Game.Core.Saves;
+
+using Reflex.Attributes;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -24,7 +23,6 @@ public class TestSpawnFloorStatic
 {
     static TestSpawnFloorStatic()
     {
-        Game.Core.Animations.Animation.Initialize();
         Game.Core.EnumHandle.Manager.Initialize();
     }
 }
@@ -37,48 +35,26 @@ public class TestSpawnFloor : MonoBehaviour
     
     private EntityManager m_EntityManager;
     
-    private IApiEditor ApiEditor => Inject<IApiEditor>.Value;
-    private ObjectRepository Repository => Inject<ObjectRepository>.Value;
-    private ReferenceSubSceneManager ReferenceSubSceneManager => Inject<ReferenceSubSceneManager>.Value;
+    [Inject] private IApiEditor m_ApiEditor;
+    [Inject] private ObjectRepository m_Repository;
     
     
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Initialize()
     {
-        Game.Core.Animations.Animation.Initialize();
         Game.Core.EnumHandle.Manager.Initialize();
-#if UNITY_DISABLE_AUTOMATIC_SYSTEM_BOOTSTRAP_RUNTIME_WORLD
-        DefaultWorldInitialization.Initialize("Default World", false);
-#endif
     }
 
     private void Start()
     {
-        m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        StartBatle();
+        //m_EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        //StartBatle();
         //AddNewFloor();
-    }
-
-    private async void AddNewFloor()
-    {
-        var system = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabInfo.System>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabInfo.System>());
-        //var system = m_EntityManager.WorldUnmanaged.GetUnsafeSystemRef<PrefabEnvironmentSystem>(m_EntityManager.WorldUnmanaged.GetExistingUnmanagedSystem<PrefabEnvironmentSystem>());
-        await system.IsDone();
-        var config = Repository.FindByID("Deck_Wall_snaps002");
-        ApiEditor.AddEnvironment(config);
-        /*
-        var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
-            .CreateCommandBuffer();
-        var item = ecb.CreateEntity();
-        ecb.AddComponent(item, new SpawnMapTag
-        {
-             Prefab = prefab.Prefab,
-        });
-        */
     }
 
     private async void StartBatle()
     {
+        /*
         var list = await Task.WhenAll(RepositoryLoadSystem.LoadObjects(), RepositoryLoadSystem.LoadAnimations());
         await ReferenceSubSceneManager.LoadAsync();
         var ids = list.SelectMany(iter => iter).Select(iter => iter.ID);
@@ -109,7 +85,8 @@ public class TestSpawnFloor : MonoBehaviour
 
         var map = m_EntityManager.GetAspect<Map.Aspect>(entity);
         map.Init(ref system.CheckedStateRef, map);
-
+        */
+        
         /*
         var arch = m_EntityManager.CreateArchetype(ComponentType.ReadWrite<SpawnMapTag>());
         int length = def.Size.x * def.Size.y;

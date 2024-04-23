@@ -16,13 +16,12 @@ namespace Game.Model.Logics
 
         public interface ILogicContext
         {
-            CustomHandle LogicHandle { get; }
+            LogicHandle LogicHandle { get; }
         }
         
         public interface ILogicContext<TLogic>: ILogicContext
             where TLogic : IStateData
         {
-            Aspect Logic { get; }
         }
         
         /*
@@ -59,7 +58,7 @@ namespace Game.Model.Logics
 
         public struct States: IDisposable
         {
-            private NativeHashMap<EnumHandle, bool> m_States;
+            private readonly NativeHashMap<EnumHandle, bool> m_States;
 
             public States(AllocatorManager.AllocatorHandle allocator)
             {
@@ -110,7 +109,7 @@ namespace Game.Model.Logics
             public States SetState(States states)
             {
                 foreach (var iter in states.m_States)
-                    m_States[iter.Key] = iter.Value;
+                    m_States.TryAdd(iter.Key, iter.Value);
                 return this;
             }
 
@@ -120,9 +119,9 @@ namespace Game.Model.Logics
                 return SetState(EnumHandle.FromEnum(state), value);
             }
 
-            public States SetState(EnumHandle state, bool value)
+            public readonly States SetState(EnumHandle state, bool value)
             {
-                m_States[state] = value;
+                m_States.TryAdd(state, value);
                 return this;
             }
 

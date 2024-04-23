@@ -13,41 +13,39 @@ MonoBehaviour:
   m_Name: Doors
   m_EditorClassIdentifier: 
   m_GroupName: Doors
-  m_Data:
-    m_SerializedData: []
-  m_GUID: 952130123049fa24296f8404e212b580
+  m_GUID: 2224bd1fdf467454c85feab187bd6b09
   m_SerializeEntries:
-  - m_GUID: d84d9aca57d04ea4d96509c40be8b8b4
-    m_Address: Assets/_prefabs/Environment/Structure/Doors/Deck_Door_01_snaps002.prefab
+  - m_GUID: 691269d06a74ab245ae4360e978425bd
+    m_Address: Assets/_prefabs/Environment/Structure/Doors/Quart_Door_01_snaps002.prefab
     m_ReadOnly: 0
     m_SerializedLabels:
+    - defs
     - Environment
-    - Doors
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 79298396da72aeb4a9dbe792d38ccf1f
-    m_Address: Assets/_prefabs/Environment/Structure/Doors/Deck_Door_02_snaps002.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Environment
-    - Doors
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3a5bc05ca0abee04cbec4af91742c1fc
     m_Address: Assets/_prefabs/Environment/Structure/Doors/Gen_Door_01_snaps002.prefab
     m_ReadOnly: 0
     m_SerializedLabels:
+    - defs
     - Environment
-    - Doors
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 691269d06a74ab245ae4360e978425bd
-    m_Address: Assets/_prefabs/Environment/Structure/Doors/Quart_Door_01_snaps002.prefab
+  - m_GUID: 79298396da72aeb4a9dbe792d38ccf1f
+    m_Address: Assets/_prefabs/Environment/Structure/Doors/Deck_Door_02_snaps002.prefab
     m_ReadOnly: 0
     m_SerializedLabels:
+    - defs
     - Environment
-    - Doors
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d84d9aca57d04ea4d96509c40be8b8b4
+    m_Address: Assets/_prefabs/Environment/Structure/Doors/Deck_Door_01_snaps002.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - defs
+    - Environment
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ed21bb125e95a2b41a3ef0fc04dd10bd, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 24a827b249e0247459138e3007846c29, type: 2}
-    - {fileID: 11400000, guid: 4fed835da8db2c04ab1fcff1f05b4b7c, type: 2}
+    - {fileID: 11400000, guid: 7622ca28dbc9244458ec887c579cb934, type: 2}
+    - {fileID: 11400000, guid: 298aacf1f58158648a58bed613cea76c, type: 2}

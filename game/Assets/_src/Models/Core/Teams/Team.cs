@@ -2,11 +2,7 @@ using System;
 using Unity.Entities;
 using Common.Defs;
 
-using Game.Core.Saves;
-
 using UnityEngine;
-using Unity.Properties;
-using Game.Model.Logics;
 
 namespace Game.Model
 {

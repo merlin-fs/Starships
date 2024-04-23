@@ -1,44 +1,56 @@
 using System;
-using Common.Core;
+
+using Common.UI;
+
 using Game.Core.Events;
-using Game.Core.Repositories;
+using Game.Core.Spawns;
+using Game.Core.Storages;
 using Game.UI;
 using Game.UI.Huds;
 using Game.Views;
 
+using Reflex.Core;
+using Reflex.Injectors;
+
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UIElements;
 
 using IEventHandler = Game.Core.Events.IEventHandler;
 
 namespace Buildings
 {
-    public class BuildingContext : DiContext
+    public class BuildingContext : MonoBehaviour, IInstaller
     {
         [SerializeField] private Config config;
         [SerializeField] private UIDocument rootUI;
         [SerializeField] private Camera worldCamera;
         [SerializeField] private ParticleManager particleManager;
 
-        protected override void OnBind()
+        public void InstallBindings(ContainerBuilder containerBuilder)
         {
-            var api = new ApiEditor();
-            Bind<IApiEditor>(api);
-            Bind<IEventSender>(api.Events as IEventSender);
-            Bind<IEventHandler>(api.Events);
+            containerBuilder.AddSingleton(c => c.Construct<ApiEditor>(), typeof(IApiEditor), typeof(IApiEditorHandler));
             
-            Bind<Config>(config);
-            Bind<IUIManager>(new UIManager(rootUI.gameObject));
-            Bind<IApiEditorHandler>(api as IApiEditorHandler);
+            containerBuilder.AddSingleton(config);
+            containerBuilder.AddSingleton<IStorage>(c => c.Construct<Storage>()); 
 
-            Bind<ObjectRepository>(new ObjectRepository());
-            Bind<AnimationRepository>(new AnimationRepository());
+            containerBuilder.AddSingleton<IUIManager>(container =>
+            {
+                var manager = container.Construct<UIManager>(rootUI.gameObject, "main");
+                //UI widgets
+                manager.WithBindWidget(binder =>
+                {
+                    binder.Bind<GameUI>();
+                    binder.Bind<LeftPanel>();
+                });
+                return manager;
+            });
+            
+            containerBuilder.AddSingleton(particleManager);
 
-            Bind<ReferenceSubSceneManager>(new ReferenceSubSceneManager());
-            Bind<ParticleManager>(particleManager);
+            containerBuilder.AddSingleton<Spawn.SpawnViewPool>(c => new Spawn.SpawnViewPool(transform, c));
+                
             var doc = GetComponent<UIDocument>();
-            Bind<Hud.Manager>(new Hud.Manager(doc, worldCamera));
+            containerBuilder.AddSingleton(new Hud.Manager(doc, worldCamera));
         }
     }
 }

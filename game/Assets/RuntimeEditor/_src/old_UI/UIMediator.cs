@@ -1,5 +1,8 @@
 using System;
 using Common.Core;
+
+using Reflex.Attributes;
+
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -12,7 +15,7 @@ namespace Game.UI.Elements
         [SerializeField] private StyleSheet style;
         [SerializeField] private string caption;
 
-        protected static IUIManager UIManager => Inject<IUIManager>.Value;
+        //[Inject] protected IUIElementsManager m_UIManager;
 
         protected VisualElement m_Parent;
         protected VisualElement m_Element;
@@ -34,7 +37,7 @@ namespace Game.UI.Elements
                 m_Element.styleSheets.Add(style);
             m_Parent = FindParent(document.rootVisualElement);
             m_Parent.Add(m_Element);
-            UIManager.Close(m_Element);
+            //m_UIManager.Close(m_Element);
             OnInitialize(m_Parent);
 
             Element.RegisterCallback<ChangeEvent<DisplayStyle>>(evt =>

@@ -14,7 +14,7 @@ namespace Game.Model.Logics
         public interface IStateData { }
 
         public struct InitTag : IComponentData{}
-        
+
         public struct WorldState : IBufferElementData
         {
             public bool Value;
@@ -27,8 +27,8 @@ namespace Game.Model.Logics
 
         public struct Plan : IBufferElementData
         {
-            public EnumHandle Value;
-            public static implicit operator Plan(EnumHandle value) => new Plan { Value = value }; 
+            public LogicActionHandle Value;
+            public static implicit operator Plan(LogicActionHandle value) => new Plan { Value = value }; 
         }
     }
 }

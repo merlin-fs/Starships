@@ -1,5 +1,7 @@
 using Common.Core;
 
+using Reflex.Attributes;
+
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -11,17 +13,17 @@ namespace Common.UI.Windows
 	}
 
 	public class WindowExitHandler : MonoBehaviour, IWindowExitHandler
-	{
-        private static IWindowExitHandlerPool Pool => Inject<WindowExitHandlerPool>.Value;
+    {
+        [Inject] private IWindowExitHandlerPool m_Pool;
         
 		private void Awake()
 		{
-            Pool.Push(this);
+            m_Pool.Push(this);
 		}
 
 		private void OnDestroy()
 		{
-            Pool.Pop(this);
+            m_Pool.Pop(this);
 		}
 
 		void IWindowExitHandler.SendClose()

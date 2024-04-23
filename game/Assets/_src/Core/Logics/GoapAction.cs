@@ -18,11 +18,11 @@ namespace Game.Model.Logics
             private States m_Effects;
             private unsafe byte* m_Data;
 
-            public EnumHandle Handle { get; }
+            public LogicActionHandle Handle { get; }
 
             public float Cost { get; private set; }
 
-            public unsafe GoapAction(EnumHandle handle)
+            public unsafe GoapAction(LogicActionHandle handle)
             {
                 Handle = handle;
                 Cost = 1;
@@ -36,7 +36,6 @@ namespace Game.Model.Logics
             {
                 return m_Effects.GetReadOnly();
             }
-
 
             public void Dispose()
             {
@@ -144,6 +143,11 @@ namespace Game.Model.Logics
                 public void AddPreconditions(EnumHandle condition, bool value)
                 {
                     Action.m_Preconditions.SetState(condition, value);
+                }
+
+                public void AddAction(LogicActionHandle action)
+                {
+                    //Action.m_Preconditions.SetState(condition, value);
                 }
 
                 public void AddEffect(EnumHandle effect, bool value)

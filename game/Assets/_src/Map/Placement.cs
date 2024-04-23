@@ -1,11 +1,9 @@
 using System;
-using System.Runtime.InteropServices;
 
 using Common.Defs;
 
-using Game.Core.Saves;
+using Game.Core.Storages;
 
-using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -20,11 +18,11 @@ namespace Game.Model.Worlds
             TypeIndex Layer  { get; }
         }
         
-        [Serializable, Saved]
-        public struct Transform : IComponentData
+        [Serializable, Storage]
+        public struct Move : IComponentData
         {
             public int2 Position;
-            public float2 Rorate;
+            public float2 Rotation;
         }
         
         public struct Target: IComponentData

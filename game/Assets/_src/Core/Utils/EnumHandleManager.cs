@@ -10,6 +10,11 @@ using Unity.Collections.LowLevel.Unsafe;
 namespace Game.Core
 {
     public class EnumHandleAttribute: Attribute{}
+
+    public interface ICustomHandle
+    {
+        int ID { get; }
+    }
     
     public readonly partial struct EnumHandle
     {

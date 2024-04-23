@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+
+using Reflex.Attributes;
+
 using UnityEngine;
 
 namespace Common.UI.Windows
@@ -7,8 +10,8 @@ namespace Common.UI.Windows
 	using Core;
 
 	public partial class Window
-	{
-        private static IWindowManager WindowManager => Inject<IWindowManager>.Value;
+    {
+        [Inject] private IWindowManager m_WindowManager;
 
         IAnimation m_Anim;
 
@@ -99,13 +102,13 @@ namespace Common.UI.Windows
 		{
 			m_Anim = transform.GetComponent<IAnimation>();
 			if (m_Anim == null)
-				m_Anim = WindowManager.WindowAnimatorDefault;
+				m_Anim = m_WindowManager.WindowAnimatorDefault;
 		}
 
 		protected override void Start()
         {
 			gameObject.SetActive(false);
-            WindowManager.RegisterWindow(this);
+            m_WindowManager.RegisterWindow(this);
 		}
 
 		private void DoCloseWindow()
@@ -113,7 +116,7 @@ namespace Common.UI.Windows
 			if (m_IsCallCloseWindow)
 				return;
 			m_IsCallCloseWindow = true;
-            WindowManager.UnregisterWindow(this);
+            m_WindowManager.UnregisterWindow(this);
 		}
 	}
 }

@@ -68,7 +68,7 @@ namespace Game.Model
                 private void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target result, 
                     in Query query, Logic.Aspect logic)
                 {
-                    if (!logic.IsCurrentAction(Action.Find)) return;
+                    if (!logic.IsCurrentAction<Find>()) return;
 
                     if (FindEnemy(query.SearchTeams, entity, query.Radius, LookupLocalToWorld, Teams, out result.Value))
                     {

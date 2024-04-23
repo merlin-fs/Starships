@@ -30,7 +30,7 @@ namespace Game.Model.Units
         public void AddComponentData(Entity entity, IDefinableContext context)
         {
             context.AddComponentData(entity, new Map.Placement(RefLink<Map.IPlacement>.Copy(RefLink)));
-            context.AddComponentData(entity, new Map.Transform());
+            context.AddComponentData(entity, new Map.Move());
         }
 
         public void RemoveComponentData(Entity entity, IDefinableContext context){}

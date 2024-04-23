@@ -11,7 +11,8 @@ using Common.Core;
 
 using Unity.Entities;
 using Game.Core.Repositories;
-using Game.Core.Prefabs;
+
+using Reflex.Attributes;
 
 namespace Game.UI.Elements
 {
@@ -24,10 +25,10 @@ namespace Game.UI.Elements
 
         private readonly EnvironmentList m_List = new EnvironmentList();
 
-        private IApiEditor ApiEditor => Inject<IApiEditor>.Value;
-        private ObjectRepository Repository => Inject<ObjectRepository>.Value;
+        [Inject] private IApiEditor m_ApiEditor;
+        [Inject] private ObjectRepository m_Repository;
         
-        private List<string> Items => Repository.Labels.ToList();
+        private List<string> Items => m_Repository.Labels.ToList();
         private TemplateContainer m_Popup;
         private ListView m_ListView;
         private IConfig m_CurrentConfig;
@@ -48,10 +49,12 @@ namespace Game.UI.Elements
                 //btn.SetCurrentSelection(graphAssetModel, GraphViewEditorWindow.OpenMode.OpenAndFocus);
                 btn.RegisterCallback<ChangeEvent<bool>>(evt =>
                 {
+                    /*
                     if (evt.newValue)
                         ShowItem(Items[idx]);
                     else 
-                        UIManager.Close(m_Popup);
+                        m_UIManager.Close(m_Popup);
+                        */
                 });
             };
 
@@ -61,20 +64,21 @@ namespace Game.UI.Elements
         void ShowItem(string label)
         {
             m_List.ChoseGroup(label);
-            UIManager.Show(m_Popup, ShowStyle.Popup);
+            //m_UIManager.Show(m_Popup, ShowStyle.Popup);
         }
 
         private void ChoseItem(IConfig config)
         {
-            UIManager.HidePopups();
+            //m_UIManager.HidePopups();
             m_CurrentConfig = config;
-            if (ApiEditor.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
-                holder.Cancel();
-            ApiEditor.AddEnvironment(config);
+            if (m_ApiEditor.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
+                holder.Remove();
+            m_ApiEditor.AddEnvironment(config);
         }
 
         protected override async void OnInitialize(VisualElement root)
         {
+            /*!!!
             var manager = World.DefaultGameObjectInjectionWorld.EntityManager.WorldUnmanaged;
             var system = manager.GetUnsafeSystemRef<PrefabInfo.System>(manager.GetExistingUnmanagedSystem<PrefabInfo.System>());
             await system.IsDone();
@@ -136,6 +140,7 @@ namespace Game.UI.Elements
                         break;
                 }
             });
+            */
         }
     }
 }

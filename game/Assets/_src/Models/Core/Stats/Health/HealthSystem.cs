@@ -41,12 +41,14 @@ namespace Game.Model.Stats
             void Execute(in Entity entity, in DynamicBuffer<Stat> stats)
             {
                 var logic = LookupLogicAspect[entity];
+                /* logic
                 if (logic.IsCurrentAction(Global.Action.Destroy))
                     return;
                 if (!stats.TryGetStat(Global.Stats.Health, out Stat health) || (health.Value > 0)) return;
                 
                 UnityEngine.Debug.Log($"{logic.Self}, {logic.SelfName} [Health system] set Destroy");
                 logic.SetEvent(Global.Action.Destroy);
+                */
             }
         }
     }

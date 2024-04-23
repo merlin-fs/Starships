@@ -14,7 +14,7 @@ namespace Game.Model.Logics
 
         private readonly RefLink<LogicDef> m_RefLink;
         private LogicDef Def => m_RefLink.Value;
-        private EnumHandle m_Action;
+        private LogicActionHandle m_Action;
         private bool m_Active;
         private bool m_Work;
         private bool m_WaitNewGoal;
@@ -32,10 +32,11 @@ namespace Game.Model.Logics
             m_Action = refLink.Value.InitializeAction;
         }
 
-        private readonly bool IsCurrentAction(EnumHandle action)
+        private readonly bool IsCurrentAction(LogicActionHandle action)
         {
-            return m_Active && EnumHandle.Equals(m_Action, action);
+            return m_Active && m_Action == action;
         }
+        
         #region IDefineableCallback
         void IDefinableCallback.AddComponentData(Entity entity, IDefinableContext context)
         {

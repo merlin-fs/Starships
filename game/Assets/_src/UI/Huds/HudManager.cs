@@ -12,7 +12,7 @@ namespace Game.UI.Huds
 {
     public abstract partial class Hud
     {
-        public class Manager: IInjectionInitable
+        public class Manager
         {
             private readonly UIDocument m_UIDocument;
             private readonly Dictionary<Type, HudConfig> m_Configs = new Dictionary<Type, HudConfig>();
@@ -27,6 +27,7 @@ namespace Game.UI.Huds
                 public Hud Hud;
             }
             
+            /* inject
             void IInjectionInitable.Init(IDiContext context)
             {
                 if (!m_UIDocument) return;
@@ -50,6 +51,7 @@ namespace Game.UI.Huds
                     Root.Remove(cmd.Hud.Element);
                 }).When(() => !m_RemoveCommands.IsEmpty).EveryFrame();
             }
+            */
 
             public Manager(UIDocument uiDocument, Camera worldCamera)
             {

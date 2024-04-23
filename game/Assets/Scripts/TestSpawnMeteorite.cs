@@ -6,12 +6,9 @@ using Unity.Transforms;
 using UnityEngine.UI;
 
 using Game;
-using Game.Model;
 using Game.Model.Units;
-using Game.Core.Prefabs;
 using System.Collections;
 
-using Game.Core.Saves;
 using Game.Core.Spawns;
 
 public class TestSpawnMeteorite : MonoBehaviour
@@ -65,23 +62,16 @@ public class TestSpawnMeteorite : MonoBehaviour
                 m_Current = m_Count;
                 StartCoroutine(Spawn());
             });
-        
+
+        /*
         m_BtnSave.onClick.AddListener(() =>
         {
             var manager = new SaveManager((SavedContext)"Test");
             manager.Save();
         });
+        */
     }
     
-    private readonly struct SavedContext: ISavedContext
-    {
-        public string Name { get; }
-
-        public SavedContext(string name) => Name = name;
-
-        public static implicit operator SavedContext(string name) => new SavedContext(name);
-    }
-
     private async void StartSpawn()
     {
         //!!!var prefab = m_EntityManager.World.GetOrCreateSystemManaged<PrefabSystem>();
@@ -95,20 +85,12 @@ public class TestSpawnMeteorite : MonoBehaviour
         var ecb = m_EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
             .CreateCommandBuffer();
 
-        if (enemy.Prefab == Entity.Null)
+        if (enemy.EntityPrefab == Entity.Null)
             return;
 
         var point = RandomBetweenRadius2D(10, 25 / 2) + new Vector3(0, 8, 0);
         //var point = RandomBetweenRadius2D(0, 1f) + new Vector3(0, 8, 0);
         var transform = LocalTransform.FromPosition(point);
-        var entity = ecb.CreateEntity();
-        ecb.AddBuffer<Spawn.Component>(entity);
-        ecb.AppendToBuffer<Spawn.Component>(entity, ComponentType.ReadOnly<SavedTag>());
-        ecb.AddComponent(entity, new Spawn()
-        {
-            Prefab = enemy.Prefab,
-            //WorldTransform = transform
-        });
         /**/
     }
 
