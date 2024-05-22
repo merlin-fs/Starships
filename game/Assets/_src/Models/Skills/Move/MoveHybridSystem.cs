@@ -1,5 +1,7 @@
 using Game.Core.Prefabs;
 using Game.Model.Worlds;
+using Game.Views;
+
 using Unity.Entities;
 using Unity.Transforms;
 
@@ -13,33 +15,24 @@ namespace Game.Model
         public partial struct MoveHybridSystem : ISystem
         {
             private EntityQuery m_Query;
-            private EntityQuery m_QueryMap;
 
             public void OnCreate(ref SystemState state)
             {
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAll<LocalTransform, PrefabInfo.ContextReference>()
                     .Build();
-                
-                m_QueryMap = SystemAPI.QueryBuilder()
-                    .WithAspect<Map.Aspect>()
-                    .Build();
-
+                m_Query.SetChangedVersionFilter(ComponentType.ReadOnly<LocalTransform>());
                 state.RequireForUpdate(m_Query);
             }
 
             public void OnUpdate(ref SystemState state)
             {
-                var map = SystemAPI.GetAspect<Map.Aspect>(m_QueryMap.GetSingletonEntity());
-                var system = SystemAPI.GetSingleton<GameSpawnSystemCommandBufferSystem.Singleton>();
-                var ecb = system.CreateCommandBuffer(state.WorldUnmanaged);
-                foreach (var (transform, context, entity) in SystemAPI.Query<RefRO<LocalTransform>, PrefabInfo.ContextReference>()
-                             .WithEntityAccess())
+                foreach (var (transform, context) in SystemAPI.Query<RefRO<LocalTransform>, PrefabInfo.ContextReference>()
+                             .WithChangeFilter<LocalTransform>())
                 {
-                    var view = context.Value.Resolve<GameObject>();
-
-                    view.transform.position = transform.ValueRO.Position;
-                    view.transform.rotation = transform.ValueRO.Rotation;
+                    var view = context.Value.Resolve<IView>();
+                    view.Transform.localPosition = transform.ValueRO.Position;
+                    view.Transform.localRotation = transform.ValueRO.Rotation;
                 }
             }
         }

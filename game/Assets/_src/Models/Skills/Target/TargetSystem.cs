@@ -1,5 +1,9 @@
 using System;
 using System.Threading.Tasks;
+
+using Reflex.Core;
+using Reflex.Attributes;
+
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -17,10 +21,13 @@ namespace Game.Model
         [UpdateInGroup(typeof(GameLogicSystemGroup))]
         public partial struct TargetSystem : ISystem
         {
+            [Inject] private static Container m_Container;
+            
             private EntityQuery m_Query;
             private EntityQuery m_QueryTargets;
             private ComponentLookup<LocalToWorld> m_LookupLocalToWorld;
             private ComponentLookup<Team> m_LookupTeams;
+            private static Context.ContextManager<Context> m_ContextManager;
             
             public void OnCreate(ref SystemState state)
             {
@@ -35,16 +42,22 @@ namespace Game.Model
                     .WithAspect<Logic.Aspect>()
                     .Build();
 
-                //m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Target>());
+                m_Query.AddChangedVersionFilter(ComponentType.ReadWrite<Query>());
                 state.RequireForUpdate(m_Query);
+
                 m_LookupLocalToWorld = state.GetComponentLookup<LocalToWorld>(true);
                 m_LookupTeams = state.GetComponentLookup<Team>(true);
+
+                m_ContextManager = new Context.ContextManager<Context>();
+                m_ContextManager.Initialization(new Context.ContextGlobal(() => m_Container));
             }
 
             public void OnUpdate(ref SystemState state)
             {
                 m_LookupLocalToWorld.Update(ref state);
                 m_LookupTeams.Update(ref state);
+                var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+                
                 var entities = m_QueryTargets.ToEntityListAsync(Allocator.TempJob, state.Dependency, out JobHandle handle);
                 var job = new SystemJob()
                 {
@@ -52,6 +65,7 @@ namespace Game.Model
                     Teams = m_LookupTeams,
                     Entities = entities,
                     Delta = SystemAPI.Time.DeltaTime,
+                    Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
                 };
                 state.Dependency = job.ScheduleParallel(m_Query, handle);
 
@@ -64,10 +78,24 @@ namespace Game.Model
                 [ReadOnly] public ComponentLookup<LocalToWorld> LookupLocalToWorld;
                 [ReadOnly] public ComponentLookup<Team> Teams;
                 [ReadOnly] public NativeList<Entity> Entities;
+                public EntityCommandBuffer.ParallelWriter Writer;
 
-                private void Execute([WithChangeFilter(typeof(Target))] in Entity entity, ref Target result, 
-                    in Query query, Logic.Aspect logic)
+                private void Execute([EntityIndexInQuery] int idx, in Entity entity, in Query query, Logic.Aspect logic)
                 {
+                    var context = m_ContextManager.Get(
+                        new Context.ContextRecord(
+                            entity, 
+                            Delta, 
+                            StructRef.Get(ref Writer), 
+                            idx, 
+                            query, 
+                            Entities, 
+                            LookupLocalToWorld, 
+                            Teams));
+                    logic.ExecuteAction(context);
+                    m_ContextManager.Release(context);
+
+                    /*
                     if (!logic.IsCurrentAction<Find>()) return;
 
                     if (FindEnemy(query.SearchTeams, entity, query.Radius, LookupLocalToWorld, Teams, out result.Value))
@@ -82,6 +110,7 @@ namespace Game.Model
                         //UnityEngine.Debug.Log($"{logic.Self} [Target] not found: self - {selfPosition}, team - {data.SoughtTeams}");
                         logic.SetWorldState(State.Found, false);
                     }
+                    */
                 }
 
                 struct TempFindTarget

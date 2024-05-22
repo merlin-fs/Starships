@@ -102,7 +102,7 @@ namespace Game.Model.Logics
             {
                 var hierarchy = GetHierarchy(threadIdx);
                 var path = new NativeList<Plan>(hierarchy.Count, Allocator.Persistent);
-                while (!v.Equals(EnumHandle.Null))
+                while (!v.Equals(LogicActionHandle.Null))
                 {
                     if (!hierarchy.TryGetValue(v, out var test))
                     {

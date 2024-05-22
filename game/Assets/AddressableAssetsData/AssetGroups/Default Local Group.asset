@@ -21,6 +21,18 @@ MonoBehaviour:
     m_SerializedLabels:
     - Huds
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 66f7d6355df69d84b9218c301788a517
+    m_Address: Assets/_configs/Bullets/Bomb.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - defs
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c94f740253ba24c4db17d250612946be
+    m_Address: Assets/_configs/Bullets/Bullet.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - defs
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ed21bb125e95a2b41a3ef0fc04dd10bd, type: 2}
   m_SchemaSet:

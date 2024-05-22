@@ -12,11 +12,10 @@ namespace Game.Core.Loading
     {
         protected override AsyncOperationHandle<IList<IIdentifiable<ObjectID>>> GetAsyncOperationHandle(IEnumerable keys)
         {
-            //UnityEngine.AddressableAssets.AssetReferenceGameObject
             return Addressables.LoadAssetsAsync<IIdentifiable<ObjectID>>(keys, null);
         }
 
-        protected override IEnumerable<IConfig> CastToConfig(IList<IIdentifiable<ObjectID>> result)
+        protected override IEnumerable<IConfig> CastToConfig(IEnumerable<IIdentifiable<ObjectID>> result)
         {
             return result.Cast<IConfig>();
         }

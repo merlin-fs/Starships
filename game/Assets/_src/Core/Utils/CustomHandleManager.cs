@@ -1,6 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Reflection.Ext;
+using System.Collections.Concurrent;
 
 using Unity.Burst;
 
@@ -11,16 +10,18 @@ namespace Game.Core
     public readonly struct Manager<THandle>
         where THandle: unmanaged, ICustomHandle
     {
-        private static Action<Type> m_Registry;
+        public delegate void TRegistry(Type type, params object[] args); 
+        
+        private static TRegistry m_Registry;
 
-        public static void Initialize(Action<Type> registry)
+        public static void Initialize(TRegistry registry)
         {
             m_Registry = registry;
         }
         
-        public static THandle GetHandle<T>()
+        public static THandle GetHandle<T>(params object[] args)
         {
-            return SharedCustomHandle<T>.Get();
+            return SharedCustomHandle<T>.Get(args);
         }
 
         public static THandle GetHandle(Type type)
@@ -42,7 +43,7 @@ namespace Game.Core
 
         private struct SharedCustomHandle<TComponent>
         {
-            public static ref THandle Get()
+            public static ref THandle Get(params object[] args)
             {
                 if (m_Ref.Data.ID == 0)
                 {
@@ -59,8 +60,14 @@ namespace Game.Core
         {
             public static ref THandle Get(Type componentType)
             {
-                return ref SharedStatic<THandle>
+                ref var data = ref SharedStatic<THandle>
                     .GetOrCreate(typeof(CustomHandleManagerKeyContext), componentType).Data;
+
+                if (data.ID == 0)
+                {
+                    m_Registry(componentType);
+                }
+                return ref data;
             }
 
             public static void Set(Type componentType, THandle value)
@@ -76,7 +83,7 @@ namespace Game.Core
             SharedCustomHandle.Set(type, handle);
             try
             {
-                m_Names.Add(handle, name);
+                m_Names.TryAdd(handle, name);
             }
             catch (Exception e)
             {
@@ -86,6 +93,6 @@ namespace Game.Core
         
         public static void Registry(Type type) => m_Registry(type);
         
-        private static readonly Dictionary<THandle, string> m_Names = new();
+        private static readonly ConcurrentDictionary<THandle, string> m_Names = new();
     }
 }

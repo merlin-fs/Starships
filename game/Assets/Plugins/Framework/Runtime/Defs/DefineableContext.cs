@@ -68,6 +68,11 @@ namespace Common.Defs
             m_Manager.RemoveComponent<T>(entity);
         }
 
+        public void SetComponentEnabled<T>(Entity entity, bool value) where T : unmanaged, IEnableableComponent
+        {
+            m_Manager.SetComponentEnabled<T>(entity, value);
+        }
+
         public void SetName(Entity entity, string name)
         {
             FixedString64Bytes fs = default;
@@ -141,6 +146,11 @@ namespace Common.Defs
             where T : unmanaged, IComponentData
         {
             m_Manager.RemoveComponent<T>(entity);
+        }
+
+        public void SetComponentEnabled<T>(Entity entity, bool value) where T : unmanaged, IEnableableComponent
+        {
+            m_Manager.SetComponentEnabled<T>(entity, value);
         }
 
         public void SetName(Entity entity, string name)
@@ -219,7 +229,13 @@ namespace Common.Defs
         {
             m_Manager.RemoveComponent<T>(m_SortKey, entity);
         }
-        
+
+        public void SetComponentEnabled<T>(Entity entity, bool value) where T : unmanaged, IEnableableComponent
+        {
+            m_Manager.SetComponentEnabled<T>(m_SortKey, entity, value);
+
+        }
+
         public void SetName(Entity entity, string name)
         {
             FixedString64Bytes fs = default;

@@ -1,13 +1,15 @@
 using System;
 using Game.Core.Events;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Buildings
 {
     public interface IPlaceHolder
     {
-        void Remove();
-        void Place();
+        void SetPosition(int2 position);
+        void SetRotation(float2 rotation);
+        void SetCanPlace(bool value, TypeIndex layer);
     }
 
     public class EventPlace: EventBase<EventPlace>

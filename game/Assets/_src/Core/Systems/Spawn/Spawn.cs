@@ -16,6 +16,7 @@ namespace Game.Core.Spawns
         public ObjectID PrefabID;
         
         public struct Tag : IComponentData{}
+        public struct ViewTag : IComponentData{}
 
         public struct Component : IBufferElementData
         {

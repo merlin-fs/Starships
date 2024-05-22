@@ -1,6 +1,7 @@
 ﻿using System;
 using Game.Core;
 using Unity.Collections;
+using Unity.Entities;
 
 namespace Game.Model.Logics
 {
@@ -11,12 +12,15 @@ namespace Game.Model.Logics
         public interface IAction<T> : IAction
             where T : ILogicContext
         {
-            void Execute(ref T context);
+            void Execute(T context);
         }
 
         public interface ILogicContext
         {
             LogicHandle LogicHandle { get; }
+            Entity Entity { get; }
+            float Delta { get; }
+            void SetWorldState(Entity entity, GoalHandle value);
         }
         
         public interface ILogicContext<TLogic>: ILogicContext

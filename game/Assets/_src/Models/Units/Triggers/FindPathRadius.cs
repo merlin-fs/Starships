@@ -9,13 +9,16 @@ namespace Game.Model.Units
     {
         public struct FindPathRadius : Logic.IAction<Context>
         {
-            public void Execute(ref Context context)
+            public void Execute(Context context)
             {
+                /*
                 var pos = context.LookupMapTransform[context.Aspect.Target.Value].Position;
                 pos = Map.GetCells(pos, 1, null).RandomElement();
-                context.Writer.AddComponent(context.SortKey, context.Aspect.Self, new Map.Target {Value = pos});
                 var speed = context.Aspect.Stat(Unit.Stats.Speed).Value;
+
+                context.Writer.AddComponent(context.SortKey, context.Aspect.Self, new Map.Target {Value = pos});
                 context.Writer.AddComponent(context.SortKey, context.Aspect.Self, new Move {Speed = speed});
+                */
             }
         }
     }

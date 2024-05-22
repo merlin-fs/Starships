@@ -1,6 +1,8 @@
-using System;
+using UnityEngine;
 
 namespace Game.Views
 {
-    public interface IViewComponent {}
+    public interface IViewComponent
+    {
+    }
 }

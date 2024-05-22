@@ -16,7 +16,12 @@ namespace Game.Core
             return Manager.GetHandle(value);
         }
 
-        private EnumHandle(int id) => m_ID = id;   
+        public static EnumHandle FromObject(object value)
+        {
+            return Manager.GetHandle(value);
+        }
+
+        public EnumHandle(int id) => m_ID = id;   
 
         public static bool Equals(EnumHandle l1, EnumHandle l2) => l1.m_ID == l2.m_ID;
 

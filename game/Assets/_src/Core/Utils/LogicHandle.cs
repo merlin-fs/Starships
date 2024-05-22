@@ -12,6 +12,17 @@ namespace Game.Core
         public int ID => m_ID;
         private readonly int m_ID;
 
+        static LogicHandle()
+        {
+            Manager<LogicHandle>.Initialize((type, args) =>
+            {
+                var name = $"{type}";
+                var stringId = $"{type.FullName}";
+                var handle = new LogicHandle(stringId.GetHashCode());
+                Manager<LogicHandle>.Registry(type, handle, name);
+            });
+        }
+        
         public static LogicHandle Null { get; } = new LogicHandle(0);
 
         public static LogicHandle From<T>()

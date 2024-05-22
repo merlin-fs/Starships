@@ -6,7 +6,7 @@ namespace Game.Model.Units
     {
         public struct Attack : Logic.IAction<Context>
         {
-            public void Execute(ref Context context)
+            public void Execute(Context context)
             {
             }
         }

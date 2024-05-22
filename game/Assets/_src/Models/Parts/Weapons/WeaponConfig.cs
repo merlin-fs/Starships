@@ -38,6 +38,8 @@ namespace Game.Model.Weapons
             stats.AddStat(Weapon.Stats.ReloadTime, Value.ReloadTime);
             stats.AddStat(Weapon.Stats.ClipSize, Value.ClipSize);
             stats.AddStat(Weapon.Stats.Range, Value.Range);
+            stats.AddStat(Weapon.Stats.RotateSpeed, Value.RotateSpeed);
+            
         }
     }
 }

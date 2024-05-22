@@ -9,7 +9,7 @@
                     "name": "Fire",
                     "type": "Button",
                     "id": "88ee8502-b835-4a2d-a0fb-9b7b44055a1a",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -894,7 +894,7 @@
                     "name": "BuildingRotateX",
                     "type": "Button",
                     "id": "0c33fe3f-d770-47cf-bde4-cf6030f58eec",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -903,7 +903,7 @@
                     "name": "BuildingRotateY",
                     "type": "Button",
                     "id": "f44c4894-17f6-418b-913f-0b57be818f83",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false

@@ -1,28 +1,33 @@
 ﻿using System;
 using Game.Core;
-using Unity.Collections.LowLevel.Unsafe;
+using Game.Core.Repositories;
 using Game.Model.Logics;
+
+using Reflex.Core;
+using Reflex.Attributes;
+using Reflex.Injectors;
+
+using Unity.Collections;
+using Unity.Entities;
 
 namespace Game.Model.Weapons
 {
     public partial struct Weapon
     {
-        public readonly struct Context: Logic.ILogicContext<Weapon>
+        public class Context: BaseContext<Context.ContextRecord, Context.ContextGlobal>, Logic.ILogicContext<Weapon>
         {
-            public LogicHandle LogicHandle => LogicHandle.From<Weapon>();
-            public Logic.Aspect Logic => LogicLookup[Aspect.Self];
-            public Logic.Aspect.Lookup LogicLookup { get; }
-            public int Idx { get; }
-            public WeaponAspect Aspect { get; }
-            public float Delta { get; }
-
-            public Context(int idx, ref Logic.Aspect.Lookup logicLookup, ref WeaponAspect aspect, float delta) 
-            {
-                Idx = idx;
-                LogicLookup = logicLookup;
-                Aspect = aspect;
-                Delta = delta;
-            }
+            [Inject] public ObjectRepository ObjectRepository { get; private set; }
+            
+            private static LogicHandle s_LogicHandle = LogicHandle.From<Weapon>();
+            public override LogicHandle LogicHandle => s_LogicHandle;
+            public Logic.Aspect.Lookup LookupLogic => m_Record.LookupLogic;
+            public ref WeaponAspect Weapon => ref m_Record.Weapon.Value;
+            public ComponentLookup<Team> LookupTeam => m_Record.LookupTeams;
+            
+            public record ContextGlobal(Func<Container> GetContainer)
+                : DataGlobal(GetContainer);
+            public record ContextRecord(StructRef<WeaponAspect> Weapon, float Delta, StructRef<EntityCommandBuffer.ParallelWriter> Writer, int SortKey, Logic.Aspect.Lookup LookupLogic, ComponentLookup<Team> LookupTeams): 
+                DataRecord(Weapon.Value.Self, Delta, Writer, SortKey);
         }
     }
 }

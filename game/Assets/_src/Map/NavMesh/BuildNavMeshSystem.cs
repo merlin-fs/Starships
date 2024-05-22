@@ -33,7 +33,7 @@ namespace Game.Model.Worlds
             {
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAll<NavMeshSourceData, Map.Placement, LocalTransform, LocalToWorld>()
-                    .WithAny<SelectBuildingTag, Spawn.Tag>()
+                    .WithAny<Spawn.Tag>()//!!! SelectBuildingTag, 
                     .Build();
 
                 m_QueryMap = SystemAPI.QueryBuilder()

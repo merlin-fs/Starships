@@ -1,4 +1,6 @@
 using System;
+using System.Reflection.Ext;
+
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -6,7 +8,6 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Collections;
 using Unity.Transforms;
 
-using Common.Core;
 using Game;
 using Game.Model.Stats;
 using Game.Model.Worlds;
@@ -18,11 +19,6 @@ using Ray = UnityEngine.Ray;
 
 namespace Buildings.Environments
 {
-    public struct SelectBuildingTag : IComponentData
-    {
-        public Map.Move Move;
-    }
-    
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
     partial struct PlaceSystem : ISystem
     {
@@ -31,7 +27,7 @@ namespace Buildings.Environments
         Plane m_Ground;
         
         [Inject] private static Config m_Config;
-        [Inject] private static IApiEditorHandler m_ApiHandler;
+        [Inject] private static IApiEditor m_ApiEditor;
 
         public void OnCreate(ref SystemState state)
         {
@@ -40,8 +36,8 @@ namespace Buildings.Environments
                 .Build();
 
             m_Query = SystemAPI.QueryBuilder()
-                .WithAll<Map.Move, Map.Placement>()
-                .WithAllRW<LocalTransform, SelectBuildingTag>()
+                .WithAll<Map.Placement, LocalTransform>()
+                .WithAllRW<Editor.Selected, Map.Move>()
                 .WithNone<DeadTag>()
                 .Build();
 
@@ -65,10 +61,6 @@ namespace Buildings.Environments
             state.Dependency = new SystemJob()
             {
                 Aspect = aspect,
-                IsPlace = m_Config.PlaceAction.triggered,
-                IsCancel = m_Config.CancelAction.triggered,
-                IsRotateX = m_Config.RorateXAction.triggered,
-                IsRotateY = m_Config.RorateYAction.triggered,
                 Writer = ecb.AsParallelWriter(),
                 Ground = m_Ground,
                 Ray = Camera.main.ScreenPointToRay(input),
@@ -85,66 +77,27 @@ namespace Buildings.Environments
             public EntityCommandBuffer.ParallelWriter Writer;
             public Plane Ground;
             public Ray Ray;
-            public bool IsPlace;
-            public bool IsCancel;
-            public bool IsRotateX;
-            public bool IsRotateY;
 
-            public void Execute([EntityIndexInQuery] int idx, in Entity entity, in Map.Move move,
-                ref SelectBuildingTag selected, in Map.Placement placement, ref LocalTransform transform)
+            public void Execute([EntityIndexInQuery] int idx, in Entity entity, ref Map.Move move,
+                ref Editor.Selected selected, in Map.Placement placement)
             {
-                if (IsCancel)
-                {
-                    Aspect.SetObject(placement.Value.Layer, move.Position, Entity.Null);
-                    Writer.AddComponent<DeadTag>(idx, entity);
-                    m_ApiHandler.OnDestroy(entity);
-                }
-                else if (Ground.Raycast(Ray, out float position))
-                {
-                    var newMove = selected.Move;
-                    if (IsRotateX)
-                    {
-                        newMove.Rotation.x += 45;
-                        if (newMove.Rotation.x >= 360)
-                            newMove.Rotation.x = 0;
-                    }
+                if (!Ground.Raycast(Ray, out float position) || !m_ApiEditor.TryGetPlaceHolder(entity, out var placeHolder)) return;
+                
+                move.Rotation = selected.Position.Rotation;
+                placeHolder.SetRotation(move.Rotation);
 
-                    if (IsRotateY)
-                    {
-                        newMove.Rotation.y += 180;
-                        if (newMove.Rotation.y >= 360)
-                            newMove.Rotation.y = 0;
-                    }
+                float3 worldPosition = Ray.GetPoint(position);
+                int2 pos = Aspect.Value.WordToMap(worldPosition) + Aspect.Value.Size / 2;
 
-                    Vector3 worldPosition = Ray.GetPoint(position);
+                bool passable = Aspect.Value.Passable(pos);
+                placeHolder.SetCanPlace(passable, placement.Value.Layer);
+                if (!passable) return;
                     
-                    int2 pos = Aspect.Value.WordToMap(worldPosition) + Aspect.Value.Size / 2;
-                    bool passable = Aspect.Value.Passable(pos);
-                    if (!passable) return;
-                    newMove.Position = pos;
+                move.Position = pos;
+                placeHolder.SetPosition(move.Position);
                     
-                    var newPos = Aspect.Value.MapToWord(pos);
-                    var pivot = placement.Value.Pivot;
-
-                    transform.Rotation = quaternion.identity;
-                    transform.Rotation = math.mul(transform.Rotation, quaternion.RotateX(math.radians(newMove.Rotation.y)));
-                    transform.Rotation = math.mul(transform.Rotation, quaternion.RotateY(math.radians(newMove.Rotation.x)));
-                    transform.Position = newPos + math.mul(transform.Rotation, pivot);
-
-                    passable &= !IsPlaceTaken(Aspect, placement.Value.Layer, pos, placement.Value.Size, entity);
-                    selected.Move = newMove; 
-
-                    if (IsPlace && !passable)
-                    {
-                        Debug.LogError($"Position {pos} in {placement.Value.Layer} layer is already occupied");
-                    }
-
-                    if (!passable || !IsPlace) return;
-                    
-                    Writer.SetComponent(idx, entity, newMove);
-                    Writer.RemoveComponent<SelectBuildingTag>(idx, entity);
-                    m_ApiHandler.OnPlace(entity);
-                }
+                passable &= !IsPlaceTaken(Aspect, placement.Value.Layer, pos, placement.Value.Size, entity);
+                placeHolder.SetCanPlace(passable, placement.Value.Layer);
             }
 
             private bool IsPlaceTaken(Map.Aspect aspect, TypeIndex layer, int2 pos, int2 size, Entity entity)

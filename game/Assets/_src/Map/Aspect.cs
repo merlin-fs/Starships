@@ -15,10 +15,6 @@ namespace Game.Model.Worlds
     {
         public readonly partial struct Aspect: IAspect 
         {
-            /* Inject
-            [Inject] private static IEventSender m_Sender { get; set; }
-            */
-            
             private readonly Entity m_Self;
 
             readonly RefRW<Data> m_Data;
@@ -30,9 +26,6 @@ namespace Game.Model.Worlds
                 m_Data.ValueRW.Size = m_Data.ValueRO.Define.Size;
                 Layers.Initialize(ref systemState, aspect);
                 systemState.EntityManager.AddComponent<NavMeshBuildTag>(Self);
-                /* Inject
-                m_Sender.SendEvent(EventMap.GetPooled(m_Self, EventMap.EventType.Initialize));
-                */
             }
 
             public void SetObject<T>(int2 pos, Entity entity)

@@ -115,7 +115,7 @@ namespace Game.Model.Weapons
 
                     if (LookupDead.HasComponent(target))
                         return;
-                    UnityEngine.Debug.Log($"{target} [Damage] try lookup");
+                    //UnityEngine.Debug.Log($"{target} [Damage] try lookup");
                     var stat = LookupStatAspect[target];
 
                     if (LookupDead.HasComponent(stat.Self) || LookupDead.HasComponent(stat.Root))

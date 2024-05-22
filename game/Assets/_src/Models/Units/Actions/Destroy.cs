@@ -7,9 +7,9 @@ namespace Game.Model.Units
     {
         public struct Destroy : Logic.IAction<Context>
         {
-            public void Execute(ref Context context)
+            public void Execute(Context context)
             {
-                context.Logic.SetWorldState(Global.State.Dead, true);
+                context.SetWorldState(context.Entity, Global.State.Dead, true);
             }
         }
     }

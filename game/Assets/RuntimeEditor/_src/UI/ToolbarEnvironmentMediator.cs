@@ -28,7 +28,7 @@ namespace Game.UI
         private List<IConfig> m_CurrentList;
         
         private IConfig m_CurrentConfig;
-        private Entity m_CurrentEntity;
+        private IPlaceHolder m_CurrentObject;
         
         protected override void Bind()
         {
@@ -66,14 +66,14 @@ namespace Game.UI
                 switch (evt.Value)
                 {
                     case EventPlace.State.New:
-                        m_CurrentEntity = evt.Entity;
+                        //m_CurrentEntity = evt.Entity;
                         break;
                     case EventPlace.State.Cancel:
-                        m_CurrentEntity = Entity.Null;
+                        //m_CurrentEntity = Entity.Null;
                         break;
                     case EventPlace.State.Apply:
-                        m_CurrentEntity = Entity.Null;
-                        m_ApiEditor.AddEnvironment(m_CurrentConfig);
+                        //m_CurrentEntity = Entity.Null;
+                        m_CurrentObject = m_ApiEditor.AddObject(m_CurrentConfig);
                         break;
                 }
             });
@@ -83,9 +83,8 @@ namespace Game.UI
         {
             m_ListView.style.display = DisplayStyle.None;
             m_CurrentConfig = config;
-            if (m_ApiEditor.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
-                holder.Remove();
-            m_ApiEditor.AddEnvironment(config);
+            m_ApiEditor.Remove(m_CurrentObject); 
+            m_CurrentObject = m_ApiEditor.AddObject(config);
         }
 
         private void BuildList()
@@ -106,6 +105,10 @@ namespace Game.UI
         private void OnCancel()
         {
             m_UIManager.ShowCancelButton(false);
+            foreach (var item in m_Content.Query<RadioButton>().ToList())
+            {
+                item.value = false;
+            }
             m_ListView.style.display = DisplayStyle.None;
         }
             
@@ -119,6 +122,7 @@ namespace Game.UI
                 if (iter.Entity.EntityPrefab == Entity.Null) return false;
                 var manager = World.DefaultGameObjectInjectionWorld.EntityManager;
                 if (!manager.HasComponent<Map.Placement>(iter.Entity.EntityPrefab)) return false;
+                
                 var placement = manager.GetComponentData<Map.Placement>(iter.Entity.EntityPrefab);
                 return placement.Value.Layer == typeIndex;
             }).ToList();

@@ -6,7 +6,7 @@ namespace Game.Core.Spawns
     public partial struct Spawn
     {
         [UpdateInGroup(typeof(GameSpawnSystemGroup), OrderLast = true)]
-        partial struct CleanupSystem : ISystem
+        public partial struct CleanupSystem : ISystem
         {
             EntityQuery m_Query;
 

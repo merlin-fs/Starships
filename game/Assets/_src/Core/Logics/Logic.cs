@@ -4,9 +4,12 @@ using Unity.Properties;
 using Common.Defs;
 using Game.Core;
 
+using UnityEngine;
+
 namespace Game.Model.Logics
 {
-    public partial struct Logic : IComponentData, IDefinable, IDefinableCallback
+    public partial struct Logic : IComponentData, IEnableableComponent, 
+        IDefinable, IDefinableCallback, Logic.IStateData
     {
         [CreateProperty] private string Action => m_Action.ToString();
         [CreateProperty] private bool Work => m_Work;
@@ -15,34 +18,28 @@ namespace Game.Model.Logics
         private readonly RefLink<LogicDef> m_RefLink;
         private LogicDef Def => m_RefLink.Value;
         private LogicActionHandle m_Action;
-        private bool m_Active;
         private bool m_Work;
         private bool m_WaitNewGoal;
         private bool m_WaitChangeWorld;
-        private bool m_Event;
         
         public Logic(RefLink<LogicDef> refLink)
         {
             m_RefLink = refLink;
-            m_Active = false;
-            m_Event = false;
-            m_Work = true;
+            m_Work = false;
             m_WaitNewGoal = false;
             m_WaitChangeWorld = false;
-            m_Action = refLink.Value.InitializeAction;
-        }
-
-        private readonly bool IsCurrentAction(LogicActionHandle action)
-        {
-            return m_Active && m_Action == action;
+            m_Action = default;
         }
         
         #region IDefineableCallback
         void IDefinableCallback.AddComponentData(Entity entity, IDefinableContext context)
         {
-            context.AddComponentData(entity, new InitTag());
+            context.AddComponentData(entity, new ChangeTag());
+            context.AddComponentData(entity, new Logic());
+            context.SetComponentEnabled<Logic>(entity, false);
+            
             context.AddBuffer<Plan>(entity);
-            context.AddBuffer<WorldChanged>(entity);
+            context.AddBuffer<WorldChange>(entity);
             var goals = context.AddBuffer<Goal>(entity);
             foreach (var iter in Def.Goals)
                 goals.Add(iter);

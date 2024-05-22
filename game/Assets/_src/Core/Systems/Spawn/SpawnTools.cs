@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 using Common.Core;
 
@@ -6,9 +7,12 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Common.Defs;
 
+using Game.Core;
 using Game.Core.Prefabs;
 using Game.Model;
+using Game.Model.Logics;
 using Game.Model.Worlds;
+using Game.Views;
 
 using Newtonsoft.Json.Linq;
 
@@ -19,15 +23,20 @@ using Reflex.Injectors;
 using Unity.Transforms;
 
 using UnityEngine;
-using UnityEngine.Pool;
 
+using IView = Game.Views.IView;
 using Object = UnityEngine.Object;
 
 namespace Game.Core.Spawns
 {
     public partial struct Spawn
     {
-        public class SpawnViewPool : ObjectPool<SpawnView>
+        public interface IFactory
+        {
+            IView Instantiate(GameObject prefab, Entity entity, Container container);
+        }
+            
+        public class SpawnViewPool : UnityEngine.Pool.ObjectPool<SpawnView>
         {
             public SpawnViewPool(Transform parent, Container container)
                 : base(
@@ -56,7 +65,7 @@ namespace Game.Core.Spawns
             }
             private void Update()
             {
-                var view = m_Container.Resolve<GameObject>();
+                var view = m_Container.Resolve<IView>();
                 m_Pool.Release(this);
             }
         }
@@ -64,6 +73,8 @@ namespace Game.Core.Spawns
         public class Spawner
         {
             [Inject] private SpawnViewPool m_Pool;
+            [Inject] private IFactory m_Factory;
+            
             private readonly Container m_Container;
             private readonly IConfig m_Config;
             private readonly EntityCommandBuffer m_Ecb;
@@ -75,13 +86,14 @@ namespace Game.Core.Spawns
                 m_Config = config;
                 m_Container = container;
                 m_Ecb = ecb;
-                if (m_Config.EntityPrefab == Entity.Null) throw new ArgumentNullException($"EntityPrefab {m_Config.ID} not assigned");
+                if (m_Config.EntityPrefab == Entity.Null) 
+                    throw new ArgumentNullException($"EntityPrefab {m_Config.ID} not assigned");
             }
                 
             public class Builder
             {
                 private readonly Spawner m_Spawner;
-                
+                public Entity Entity => m_Spawner.m_Entity;
                 public Builder(Spawner spawner)
                 {
                     m_Spawner = spawner;
@@ -89,7 +101,13 @@ namespace Game.Core.Spawns
                 
                 public Builder WithView()
                 {
-                    m_Spawner.CreateContext();
+                    m_Spawner.m_Ecb.AddComponent<ViewTag>(m_Spawner.m_Entity);
+                    return this;
+                }
+
+                public Builder WithLogicEnabled(bool value)
+                {
+                    m_Spawner.m_Ecb.SetComponentEnabled<Logic>(m_Spawner.m_Entity, value);
                     return this;
                 }
 
@@ -120,12 +138,6 @@ namespace Game.Core.Spawns
                     return this;
                 }
 
-                public Builder WithPosition(Map.Data map, int2 position)
-                {
-                    m_Spawner.m_Ecb.AddComponent(m_Spawner.m_Entity, new Move{ Position = map.MapToWord(position) });
-                    return this;
-                }
-
                 public Builder WithData(JToken token)
                 {
                     foreach (var iter in token)
@@ -145,6 +157,7 @@ namespace Game.Core.Spawns
             public class RequestBuilder
             {
                 private readonly Spawner m_Spawner;
+                public Entity Entity => m_Spawner.m_Entity;
                 public RequestBuilder(Spawner spawner)
                 {
                     m_Spawner = spawner;
@@ -158,7 +171,18 @@ namespace Game.Core.Spawns
                 }
                 
             }
-            
+
+            public class ViewBuilder
+            {
+                private readonly Spawner m_Spawner;
+                public Entity Entity => m_Spawner.m_Entity;
+
+                public ViewBuilder(Spawner spawner)
+                {
+                    m_Spawner = spawner;
+                }
+            }
+
             public static Builder Spawn(IConfig config, EntityCommandBuffer ecb, Container container)
             {
                 var spawner = new Spawner(config, ecb, container); 
@@ -198,17 +222,31 @@ namespace Game.Core.Spawns
                 Debug.Log($"[Spawner] spawn from data: {config.ID} ({spawner.m_Entity})");
                 return builder;
             }
+            
+            public static ViewBuilder SpawnView(IConfig config, Entity entity, 
+                DynamicBuffer<PrefabInfo.BakedInnerPathPrefab> children, EntityCommandBuffer ecb, Container container)
+            {
+                var spawner = new Spawner(config, ecb, container); 
+                var builder = new ViewBuilder(spawner);
+                spawner.m_Entity = entity;
+                spawner.CreateContext(children);
+
+                Debug.Log($"[Spawner] spawn view: {config.ID} ({spawner.m_Entity})");
+                return builder;
+            }
+            
 
             private Entity CreateEntity()
             {
                 var entity = m_Ecb.Instantiate(m_Config.EntityPrefab);
-                m_Ecb.AddComponent<Tag>(entity);
+                m_Ecb.AddComponent(entity, new PrefabInfo{ConfigID = m_Config.ID});
                 return entity;
             }
 
-            private async void CreateContext()
+            private async void CreateContext(DynamicBuffer<PrefabInfo.BakedInnerPathPrefab> children)
             {
                 if (m_Config is not IViewPrefab viewPrefab) throw new NotImplementedException($"IViewPrefab {m_Config.ID} NotImplemented");
+                
                 var prefab = await viewPrefab.GetViewPrefab();
                 if (!prefab) throw new ArgumentNullException($"ViewPrefab {m_Config.ID} not assigned");
                 
@@ -216,15 +254,45 @@ namespace Game.Core.Spawns
                 {
                     builder.AddSingleton(container =>
                     {
-                        var inst = GameObject.Instantiate(prefab);
-                        AttributeInjector.Inject(inst, container);
+                        var inst = m_Factory.Instantiate(prefab, m_Entity, container);
                         return inst;
                     });
                 });
-                m_Ecb.AddComponent(m_Entity, new PrefabInfo.ContextReference{Value = newContext});
+                
+                m_Ecb.AddComponent(m_Entity, new PrefabInfo.ContextReference{ Value = newContext });
                 m_Ecb.AddComponent<LocalTransform>(m_Entity);
+                m_Ecb.AddComponent<LocalToWorld>(m_Entity);
+
+
+                AddChildPrefab(newContext, children);
+                
+                //initialization spawn prefab
                 m_Pool.Get().SetContext(newContext);
             }
+
+            //TODO: эту херную с ChildPrefab переделать
+            private void AddChildPrefab(Container parentContext, DynamicBuffer<PrefabInfo.BakedInnerPathPrefab> children)
+            {
+                foreach (var child in children)
+                {
+                    var entity = child.Entity;
+                    var newContext = parentContext.Scope(builder =>
+                    {
+                        builder.AddSingleton(container =>
+                        {
+                            var parentView = (ViewUnit)parentContext.Resolve<IView>();
+                            var obj = parentView.gameObject.FindObjectFromPath(child.Path.ToString());
+                            GameObjectInjector.InjectRecursive(obj, container);
+                            return obj.GetComponent<IView>();
+                        });
+                    });
+                
+                    m_Ecb.AddComponent(entity, new PrefabInfo.ContextReference{ Value = newContext });
+                    m_Ecb.AddComponent<LocalTransform>(entity);
+                    m_Ecb.AddComponent<LocalToWorld>(entity);
+                }
+            }
+            
         }
    }
 }

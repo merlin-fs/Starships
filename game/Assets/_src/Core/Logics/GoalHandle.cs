@@ -9,6 +9,7 @@ namespace Game.Model.Logics
         private readonly int m_ID;
         private readonly bool m_Value;
         public bool Value => m_Value;
+        public EnumHandle Enum => m_Handle;
 
         public static GoalHandle Null { get; } = new GoalHandle(EnumHandle.Null, 0, false);
 

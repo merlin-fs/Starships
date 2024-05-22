@@ -32,7 +32,7 @@ namespace Game.UI.Elements
         private TemplateContainer m_Popup;
         private ListView m_ListView;
         private IConfig m_CurrentConfig;
-        private Entity m_CurrentEntity;
+        private IPlaceHolder m_CurrentObject;
 
         protected override void MakeItems(out Func<VisualElement> makeItem, out Action<VisualElement, int> bindItem,
             out IList itemsSource)
@@ -71,9 +71,8 @@ namespace Game.UI.Elements
         {
             //m_UIManager.HidePopups();
             m_CurrentConfig = config;
-            if (m_ApiEditor.TryGetPlaceHolder(m_CurrentEntity, out IPlaceHolder holder))
-                holder.Remove();
-            m_ApiEditor.AddEnvironment(config);
+            m_ApiEditor.Remove(m_CurrentObject);
+            m_CurrentObject = m_ApiEditor.AddObject(config);
         }
 
         protected override async void OnInitialize(VisualElement root)

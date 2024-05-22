@@ -25,7 +25,6 @@ namespace Game.Core.Loading
             return UniTask.Create(async () =>
             {
                 await UniTask.SwitchToMainThread();
-                //ReflexSceneManager.PreInstallScene(scene, builder => builder.AddSingleton("Beautiful"));
                 var container = SceneManager.GetActiveScene().GetSceneContainer();
                 var uiManager = container.Resolve<IUIManager>();
                 uiManager.Show<GameUI>(true);

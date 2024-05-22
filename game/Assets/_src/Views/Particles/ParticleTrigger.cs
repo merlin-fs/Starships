@@ -1,7 +1,5 @@
 using System;
-
 using Game.Core;
-
 using Unity.Entities;
 
 namespace Game.Views

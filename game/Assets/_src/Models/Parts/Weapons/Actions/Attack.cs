@@ -6,17 +6,19 @@ namespace Game.Model.Weapons
     {
         public struct Attack : Logic.IAction<Context>
         {
-            public void Execute(ref Context context)
+            public void Execute(Context context)
             {
-                context.Aspect.IncTime(context.Delta);
-                if (!(context.Aspect.Time >= context.Aspect.Stat(Stats.Rate).Value)) return;
+                context.Weapon.IncTime(context.Delta);
+                context.Writer.SetComponent(context.SortKey, context.Entity, new Logic.ChangeTag());
+                
+                if (!(context.Weapon.Time >= context.Weapon.Stat(Stats.Rate).Value)) return;
                         
-                context.Logic.SetWorldState(State.Shooting, true);
-                context.Aspect.ResetTime();
-                context.Aspect.Shot();
+                context.SetWorldState(context.Entity, State.Shooting, true);
+                context.Weapon.ResetTime();
+                context.Weapon.Shot();
                         
-                if (context.Aspect.Count != 0) return;
-                context.Logic.SetWorldState(State.HasAmo, false);
+                if (context.Weapon.Count != 0) return;
+                context.SetWorldState(context.Entity, State.HasAmo, false);
             }
         }
     }

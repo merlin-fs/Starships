@@ -18,8 +18,6 @@ namespace Game.Systems
             state.RequireForUpdate(m_Query);
         }
 
-        public void OnDestroy(ref SystemState state) { }
-
         partial struct SystemJob : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter Writer;

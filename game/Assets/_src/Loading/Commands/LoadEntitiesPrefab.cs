@@ -27,13 +27,17 @@ namespace Game
         {
             return UniTask.Create(async () =>
             {
+                await UniTask.SwitchToMainThread();                
                 var worldUnmanaged = World.DefaultGameObjectInjectionWorld.EntityManager.WorldUnmanaged;
+                var ecb = worldUnmanaged.EntityManager.World.GetOrCreateSystemManaged<GameSpawnSystemCommandBufferSystem>()
+                    .CreateCommandBuffer();
+                    
+                //var context = new CommandBufferContext(ecb);
                 var context = new EntityManagerContext(worldUnmanaged.EntityManager);
-                var system = worldUnmanaged.GetUnsafeSystemRef<PrefabInfo.System>(worldUnmanaged.GetExistingUnmanagedSystem<PrefabInfo.System>());
-                
+
                 foreach (var config in m_ObjectRepository.Find())
                 {
-                    var entity = context.CreateEntity();
+                    var entity = worldUnmanaged.EntityManager.CreateEntity();
                     context.AddComponentData(entity, new Prefab{});
                     config.Configure(entity, context);
                 }

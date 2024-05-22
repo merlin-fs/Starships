@@ -216,8 +216,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4144936528890730}
-  - component: {fileID: 8076659835732265027}
+  - component: {fileID: 8883829422592080431}
+  - component: {fileID: 6124087594321738677}
   - component: {fileID: 8106466544565352287}
+  - component: {fileID: 4990718083336786133}
   m_Layer: 0
   m_Name: GatelingGun_L3_BaseRotation
   m_TagString: Untagged
@@ -244,7 +246,7 @@ Transform:
   - {fileID: 4848764909461546}
   m_Father: {fileID: 4014590737078988}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8076659835732265027
+--- !u!114 &8883829422592080431
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -253,20 +255,43 @@ MonoBehaviour:
   m_GameObject: {fileID: 1157879558086612}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5eb12eb2036972042ba25cbd672ebb44, type: 3}
+  m_Script: {fileID: 11500000, guid: 52826cfdbda88004788bfbd4e8bcae56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {fileID: 6991731877138196747}
-  Vfx:
-    m_AssetGUID: 0c03986162166ca4a83d01facd9d7a61
-    m_SubObjectName: 
-    m_SubObjectGUID: 
-    m_SubObjectType: 
-    m_EditorAssetChanged: 0
-  Position: 1
-  Rotation: 1
-  Scale: 0
-  ScaleTime: 2
+--- !u!114 &6124087594321738677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1157879558086612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 942a8ac2188a9c64e95c37af6d592e7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_StateItems:
+  - State: Game.Model.Target+Find
+    AnimationParam: Idle
+    AnimationValue: 1
+  - State: Game.Model.Weapons.Weapon+Attack
+    AnimationParam: Attack
+    AnimationValue: 1
+  - State: Game.Model.Weapons.Weapon+Shoot
+    AnimationParam: Attack
+    AnimationValue: 1
+  - State: Game.Model.Weapons.Weapon+Reload
+    AnimationParam: Reload
+    AnimationValue: 1
+  - State: Game.Model.Weapons.Weapon+Attack
+    AnimationParam: Reload
+    AnimationValue: 0
+  - State: Game.Model.Weapons.Weapon+Reload
+    AnimationParam: Attack
+    AnimationValue: 0
+  - State: Game.Model.Weapons.Weapon+Attack
+    AnimationParam: Idle
+    AnimationValue: 0
 --- !u!95 &8106466544565352287
 Animator:
   serializedVersion: 7
@@ -276,11 +301,11 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1157879558086612}
   m_Enabled: 1
-  m_Avatar: {fileID: 0}
+  m_Avatar: {fileID: 9000000, guid: cc633396b5f95da4b916357a5508ee4f, type: 3}
   m_Controller: {fileID: 9100000, guid: faac9283964399f4485d62dc91bd6413, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
@@ -289,6 +314,31 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &4990718083336786133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1157879558086612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b81df10626006154992df948de3ae728, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_StateItems:
+  - State: Game.Model.Weapons.Weapon+Shoot
+    Vfx:
+      m_AssetGUID: 0c03986162166ca4a83d01facd9d7a61
+      m_SubObjectName: 
+      m_SubObjectGUID: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+    Target: {fileID: 2515366468970417368}
+    Position: 1
+    Rotation: 1
+    Scale: 1
+    ScaleTime: 1
 --- !u!1 &1158759922637424
 GameObject:
   m_ObjectHideFlags: 0
@@ -1021,7 +1071,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4575810401582574}
-  - component: {fileID: 1973328404799027353}
   m_Layer: 0
   m_Name: GatelingGun_L3_Barrel
   m_TagString: Untagged
@@ -1047,28 +1096,6 @@ Transform:
   - {fileID: 4734397232454746}
   m_Father: {fileID: 4856386421184550}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &1973328404799027353
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1753762991467116}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: a391ab5e5c659794783c7b6c1a0a7f88, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1807267876682150
 GameObject:
   m_ObjectHideFlags: 0
@@ -1544,7 +1571,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4514986444668122}
+  - component: {fileID: 8186080306089674889}
+  - component: {fileID: 8426401045047543436}
   - component: {fileID: 205676091413216282}
+  - component: {fileID: 454123242394283592}
   m_Layer: 0
   m_Name: GatelingGun_Yellow_L3
   m_TagString: Untagged
@@ -1560,7 +1590,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1979706888108350}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_ConstrainProportionsScale: 0
@@ -1568,6 +1598,31 @@ Transform:
   - {fileID: 4014590737078988}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8186080306089674889
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979706888108350}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52826cfdbda88004788bfbd4e8bcae56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8426401045047543436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979706888108350}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 942a8ac2188a9c64e95c37af6d592e7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_StateItems: []
 --- !u!205 &205676091413216282
 LODGroup:
   m_ObjectHideFlags: 0
@@ -1607,6 +1662,28 @@ LODGroup:
     - renderer: {fileID: 23170395206664584}
     - renderer: {fileID: 23686297716175772}
   m_Enabled: 1
+--- !u!95 &454123242394283592
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1979706888108350}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &6991731877138196747
 GameObject:
   m_ObjectHideFlags: 0

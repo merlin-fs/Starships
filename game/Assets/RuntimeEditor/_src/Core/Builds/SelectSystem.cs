@@ -17,6 +17,7 @@ using Unity.Jobs;
 
 namespace Buildings.Environments
 {
+    /*
     [UpdateInGroup(typeof(GameSpawnSystemGroup))]
     [UpdateBefore(typeof(PlaceSystem))]
     partial struct SelectSystem : ISystem
@@ -82,9 +83,10 @@ namespace Buildings.Environments
 
                 if (Map.TryGetObject(m_ApiEditor.CurrentLayer, pos, out var target))
                 {
-                    Writer.AddComponent(0, target, new SelectBuildingTag {Move = new Map.Move{ Position = pos }});
+                    Writer.AddComponent(0, target, new Editor.Selected {Position = new Map.Move{ Position = pos }});
                 }
             }
         }
     }
+    */
 }

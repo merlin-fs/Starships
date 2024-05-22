@@ -11,15 +11,16 @@ namespace Game.Model.Logics
         {
             //logic.Initialize(Global.Action.Init);
 
-            logic.SetState(Move.State.Init, true);
-            logic.SetState(Unit.State.WeaponInRange, false);
-/*
+            logic.SetWorldState(Move.State.Init, true);
+            logic.SetWorldState(Unit.State.WeaponInRange, false);
+
+            /*
             logic.Action<Unit.WeaponsActivate>()
                 .AddPreconditions(Unit.State.WeaponInRange, false)
-                .Before();
+                .AddAfter();
             logic.Action<Unit.WeaponsActivate>()
                 .AddPreconditions(Move.State.Init, false)
-                .After();
+                .AddAfter();
 
             //logic.AfterAction<Weapon, Weapon.WeaponInRange, Unit.State.WeaponInRange>(true);
             //logic.AddTriggerState<Unit.WeaponsActivate>(GoalHandle.FromEnum(Unit.State.WeaponInRange, true));
@@ -31,19 +32,21 @@ namespace Game.Model.Logics
                 .Cost(0);
             */
 
-            logic.AddTransition<Unit.WeaponsActivate>()
+            //logic.AddTransition<Logic.InitTag>()
+                
+            logic.AddTransition<Unit, Unit.WeaponsActivate>()
                 .AddPreconditions(Unit.State.WeaponInRange, false)
                 .AddEffect(Unit.State.WeaponInRange, true)
                 .Cost(0);
 
-            logic.AddTransition<Unit.Attack>()
+            logic.AddTransition<Unit, Unit.Attack>()
                 .AddPreconditions(Unit.State.WeaponInRange, true)
                 .AddPreconditions(Target.State.Found, true)
                 .AddEffect(Target.State.Dead, true)
                 .Cost(1);
             
             
-            logic.AddTransition<Unit.Destroy>()
+            logic.AddTransition<Unit, Unit.Destroy>()
                 .AddPreconditions(Global.State.Dead, false)
                 .Cost(0);
 

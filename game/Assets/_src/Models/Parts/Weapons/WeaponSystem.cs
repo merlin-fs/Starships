@@ -1,54 +1,81 @@
 ﻿using System;
 using Unity.Entities;
+using Game.Model.Logics;
+using Reflex.Attributes;
+using Reflex.Core;
+
 using Unity.Collections;
-using Common.Defs;
 
 namespace Game.Model.Weapons
 {
-    using Stats;
-    using Logics;
-
     public partial struct Weapon
     {
         [UpdateInGroup(typeof(GameLogicObjectSystemGroup))]
-        public partial struct System : ISystem
+        public partial class System : SystemBase
         {
+            [Inject] private static Container m_Container;
+            private static Context.ContextManager<Context> m_ContextManager;
+            
             private EntityQuery m_Query;
+            [ReadOnly]
             private ComponentLookup<Team> m_LookupTeams;
-
-            public void OnCreate(ref SystemState state)
+            private Logic.Aspect.Lookup m_LookupLogicAspect;
+            
+            protected override void OnCreate()
             {
                 m_Query = SystemAPI.QueryBuilder()
                     .WithAspect<WeaponAspect>()
                     .WithAspect<Logic.Aspect>()
+                    .WithAll<Logic.ChangeTag>()
                     .Build();
-                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic>());
-                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Weapon>());
-                m_LookupTeams = state.GetComponentLookup<Team>(true);
-                state.RequireForUpdate(m_Query);
+
+                m_Query.AddChangedVersionFilter(ComponentType.ReadOnly<Logic.ChangeTag>());
+
+                m_LookupLogicAspect = new Logic.Aspect.Lookup(ref CheckedStateRef);
+                m_LookupTeams = GetComponentLookup<Team>(true);
+                m_ContextManager = new Context.ContextManager<Context>();
+                m_ContextManager.Initialization(new Context.ContextGlobal(() => m_Container));
+                
+                RequireForUpdate(m_Query);
             }
 
-            public void OnUpdate(ref SystemState state)
+            protected override void OnUpdate()
             {
                 var system = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-                //var system = state.World.GetExistingSystemManaged<GameLogicCommandBufferSystem>();
-                m_LookupTeams.Update(ref state);
-                state.Dependency = new SystemJob()
+                m_LookupLogicAspect.Update(ref CheckedStateRef);
+                m_LookupTeams.Update(ref CheckedStateRef);
+                
+                Dependency = new SystemJob()
                 {
-                    Writer = system.CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
                     Delta = SystemAPI.Time.DeltaTime,
+                    Writer = system.CreateCommandBuffer(EntityManager.WorldUnmanaged).AsParallelWriter(),
+                    LookupLogic = m_LookupLogicAspect,
                     LookupTeams = m_LookupTeams,
-                }.ScheduleParallel(m_Query, state.Dependency);
+                }.ScheduleParallel(m_Query, Dependency);
             }
 
             partial struct SystemJob : IJobEntity
             {
                 public float Delta;
                 public EntityCommandBuffer.ParallelWriter Writer;
-                [ReadOnly] public ComponentLookup<Team> LookupTeams;
+                [ReadOnly]
+                public ComponentLookup<Team> LookupTeams;
+                [NativeDisableParallelForRestriction]
+                public Logic.Aspect.Lookup LookupLogic;
 
-                void Execute([EntityIndexInQuery] int idx, WeaponAspect weapon, Logic.Aspect logic)
+                void Execute([EntityIndexInQuery] int idx, WeaponAspect weapon)
                 {
+                    var context = m_ContextManager.Get(new Context.ContextRecord(
+                        StructRef.Get(ref weapon), 
+                        Delta, 
+                        StructRef.Get(ref Writer),
+                        idx, 
+                        LookupLogic, 
+                        LookupTeams));
+                    
+                    LookupLogic[weapon.Self].ExecuteAction(context);
+                    m_ContextManager.Release(context);
+
                     /* logic
                     if (logic.IsCurrentAction(Global.Action.Init))
                     {

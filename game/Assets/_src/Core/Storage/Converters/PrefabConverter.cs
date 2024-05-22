@@ -14,7 +14,6 @@ namespace Game.Core.Storages.Converters
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
-            
             var info = (PrefabInfo)(value ?? default(PrefabInfo));
             serializer.Serialize(writer, info.ConfigID.ToString());
         }

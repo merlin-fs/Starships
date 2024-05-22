@@ -24,14 +24,8 @@ namespace Game.Model.Stats
         protected override void OnCreate()
         {
             Instance = this;
-            //m_Queue = new NativeQueue<Item>(Allocator.Persistent);
             m_Queue = new ConcurrentQueue<Item>();
             m_LookupModifiers = GetBufferLookup<Modifier>(false);
-        }
-
-        protected override void OnDestroy()
-        {
-            //m_Queue.Dispose();
         }
 
         public ulong AddModifier<T, S>(Entity entity, ref T modifier, S statType)
@@ -46,11 +40,6 @@ namespace Game.Model.Stats
                 Entity = entity,
             };
             m_Queue.Enqueue(item);
-            /*
-            m_Queue
-                //.AsParallelWriter()
-                .Enqueue(item);
-            */
             return mod.UID;
         }
 
@@ -63,101 +52,29 @@ namespace Game.Model.Stats
                 Entity = entity,
             };
             m_Queue.Enqueue(item);
-            /*
-            m_Queue
-                //.AsParallelWriter()
-                .Enqueue(item);
-            */
         }
-
-        struct ModifyJob: IJobParallelFor
-        {
-            public NativeArray<Item> Items;
-            [NativeDisableParallelForRestriction, ReadOnly]
-            public BufferLookup<Modifier> LookupModifiers;
-            
-            public void Execute(int index)
-            {
-                var iter = Items[index];
-                try
-                {
-                    if (!LookupModifiers.HasBuffer(iter.Entity)) return;
-
-                    var modifiers = LookupModifiers[iter.Entity];
-                    if (iter.UID == 0)
-                    {
-                        Modifier.AddModifier(iter.Modifier, ref modifiers);
-                    }
-                    else
-                    {
-                        Modifier.DelModifier(iter.UID, ref modifiers);
-                    }
-                }
-                catch (Exception e)
-                {
-                    if (iter.UID == 0)
-                        UnityEngine.Debug.LogError($"add {iter.Entity}");
-                    else
-                        UnityEngine.Debug.LogError($"del {iter.Entity}");
-                    throw e;
-                }
-            }
-        }
-        /*
-        struct ModifyJob: IJob
-        {
-            public NativeArray<Item> Items;
-            [NativeDisableParallelForRestriction, ReadOnly]
-            public BufferLookup<Modifier> LookupModifiers;
-
-            public void Execute()
-            {
-                foreach (var iter in Items)
-                {
-                    try
-                    {
-                        if (!LookupModifiers.HasBuffer(iter.Entity)) return;
-
-                        var modifiers = LookupModifiers[iter.Entity];
-                        if (iter.UID == 0)
-                        {
-                            Modifier.AddModifier(iter.Modifier, ref modifiers);
-                        }
-                        else
-                        {
-                            Modifier.DelModifier(iter.UID, ref modifiers);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        if (iter.UID == 0)
-                            UnityEngine.Debug.LogError($"add {iter.Entity}");
-                        else
-                            UnityEngine.Debug.LogError($"del {iter.Entity}");
-                        throw e;
-                    }
-                }
-            }
-        }
-        */
 
         protected override void OnUpdate()
         {
             if (m_Queue.Count == 0)
                 return;
-
-            var items = new NativeArray<Item>(m_Queue.ToArray(), Allocator.TempJob);
-            m_Queue.Clear();
-
+            
             m_LookupModifiers.Update(this);
-            Dependency = new ModifyJob
+            while (m_Queue.Count > 0)
             {
-                Items = items,
-                LookupModifiers = m_LookupModifiers,
+                if (!m_Queue.TryDequeue(out var iter)) break;
+                
+                if (!m_LookupModifiers.HasBuffer(iter.Entity)) continue;
+                var modifiers = m_LookupModifiers[iter.Entity];
+                if (iter.UID == 0)
+                {
+                    Modifier.AddModifier(iter.Modifier, ref modifiers);
+                }
+                else
+                {
+                    Modifier.DelModifier(iter.UID, ref modifiers);
+                }
             }
-            //.Schedule(Dependency);
-            .Schedule(items.Length, 5, Dependency);
-            items.Dispose(Dependency);
         }
     }
 }

@@ -114,7 +114,8 @@ namespace Game.Core.Storages
                 {typeof(Entity), new Contract{Converter = new EntityConverter(), IsRef = true}},
                 {typeof(DynamicBuffer<>), new Contract{Converter = new DynamicBufferConverter(), IsRef = false}},
                 {typeof(Stat), new Contract{Converter = new StatConverter(), IsRef = false}},
-                {typeof(ModifierConverter), new Contract{Converter = new ModifierConverter(), IsRef = false}},
+                {typeof(Modifier), new Contract{Converter = new ModifierConverter(), IsRef = false}},
+                {typeof(PrefabInfo), new Contract{Converter = new PrefabConverter(), IsRef = false}},
             };
 
             private IEnumerable<MemberInfo> GetFields(IReflect type)
@@ -133,8 +134,7 @@ namespace Game.Core.Storages
             {
                 JsonProperty property = base.CreateProperty(member, memberSerialization);
                 property.IsReference = false;
-                if (member is FieldInfo info &&
-                    m_Converters.TryGetValue(info.FieldType, out var contract))
+                if (member is FieldInfo info && m_Converters.TryGetValue(info.FieldType, out var contract))
                 {
                     property.Readable = true;
                     property.Converter = contract.Converter;

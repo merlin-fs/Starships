@@ -50,6 +50,11 @@ namespace Common.Defs
 
         public Entity EntityPrefab => m_Prefab;
 
+        public void SetPrefab(GameObject prefab)
+        {
+            m_ViewPrefab = prefab;
+        }
+        
         void IConfig.Configure(Entity root, IDefinableContext context)
         {
             m_Prefab = root;

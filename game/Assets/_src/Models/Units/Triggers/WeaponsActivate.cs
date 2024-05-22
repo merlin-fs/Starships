@@ -8,15 +8,14 @@ namespace Game.Model.Units
     {
         public struct WeaponsActivate : Logic.IAction<Context>
         {
-            public void Execute(ref Context context)
+            public void Execute(Context context)
             {
-                if (!context.Children.HasBuffer(context.Logic.Self)) return;
+                if (!context.Children.HasBuffer(context.Entity)) return;
                 
-                var children = context.Children[context.Logic.Self];
+                var children = context.Children[context.Entity];
                 foreach (var iter in children)
                 {
-                    var child = context.LogicLookup[iter.Value];
-                    child.SetWorldState(Weapon.State.Active, true);
+                    context.SetWorldState(iter.Value, Weapon.State.Active, true);
                 }
             }
         }

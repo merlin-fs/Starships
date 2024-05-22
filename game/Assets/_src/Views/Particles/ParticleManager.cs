@@ -1,29 +1,33 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.Pool;
+using System.Pool;
+
+using Game.Core;
+
+using Reflex.Attributes;
 
 namespace Game.Views
 {
     public class ParticleManager : MonoBehaviour
     {
-        [SerializeField] private int m_DefaultCapacity = 10;
-        [SerializeField] private int m_MaxPoolSize = 15;
+        [Inject] private RepositoryVfx m_LibraryVfx;
+        [SerializeField] private int maxPoolSize = 15;
 
-        private Dictionary<Unity.Entities.Hash128, ObjectsPoolAsync<PooledObject>> m_Pool = new();
+        private readonly Dictionary<Unity.Entities.Hash128, ObjectPool<PooledObject>> m_Pool = new();
 
         private class PooledObject
         {
             public GameObject Paricle;
             public Unity.Entities.Hash128 VfxID;
         }
-
-        public async void Play(ParticleTrigger particleTrigger, LocalToWorld transform)
+/*
+        public void Play(id Action<Transform> onPlace)
         {
-            PooledObject obj = await Get(particleTrigger);
+            PooledObject obj = Get(particleTrigger);
+            onPlace?.Invoke();
+            
             if (particleTrigger.Position)
                 obj.Paricle.transform.position = transform.Position;
             if (particleTrigger.Scale)
@@ -45,42 +49,39 @@ namespace Game.Views
             }
             system.Play(true);
         }
+        */
 
         private void Release(PooledObject obj)
         {
-            if (m_Pool.TryGetValue(obj.VfxID, out ObjectsPoolAsync<PooledObject> pool))
+            if (m_Pool.TryGetValue(obj.VfxID, out ObjectPool<PooledObject> pool))
                 pool.Release(obj);
         }
 
-        private async Task<PooledObject> Get(ParticleTrigger particleTrigger)
+        private PooledObject Get(ParticleTrigger particleTrigger)
         {
-            if (!m_Pool.TryGetValue(particleTrigger.VfxID, out ObjectsPoolAsync<PooledObject> pool))
+            if (!m_Pool.TryGetValue(particleTrigger.VfxID, out ObjectPool<PooledObject> pool))
             {
-                pool = new ObjectsPoolAsync<PooledObject>(CreatePooledItem, OnTakeFromPool, OnReturnedToPool,
-                OnDestroyPoolObject, true, m_DefaultCapacity, m_MaxPoolSize);
+                pool = new ObjectPool<PooledObject>(
+                    CreatePooledItem, 
+                    (obj, _) => obj.Paricle.SetActive(true),
+                    obj => obj.Paricle.SetActive(false),
+                    obj => Destroy(obj.Paricle),
+                    maxPoolSize);
                 m_Pool.Add(particleTrigger.VfxID, pool);
             }
-            return await pool.Get(particleTrigger);
+            return pool.Get(particleTrigger);
         }
 
-        private async Task<PooledObject> CreatePooledItem(object arg)
+        private PooledObject CreatePooledItem(object arg)
         {
+            return null;
+            /*
             var particle = (ParticleTrigger)arg;
-            var reference = new AssetReferenceT<GameObject>(particle.VfxID.ToString());
-            var prefab = !reference.IsValid()
-                ? await reference.LoadAssetAsync().Task
-                : (GameObject)reference.Asset;
-
+            var prefab = m_LibraryVfx.GetVfx(particle.VfxID);
             var obj = GameObject.Instantiate(prefab, transform);
             obj.AddComponent<ParticleEvent>();
-
-            return new PooledObject{ Paricle = obj, VfxID= particle.VfxID };
+            return new PooledObject{ Paricle = obj, VfxID = particle.VfxID };
+            */
         }
-
-        private void OnTakeFromPool(PooledObject obj) => obj.Paricle.SetActive(true);
-
-        private void OnReturnedToPool(PooledObject obj) => obj.Paricle.SetActive(false);
-
-        private void OnDestroyPoolObject(PooledObject obj) => Destroy(obj.Paricle);
     }
 }

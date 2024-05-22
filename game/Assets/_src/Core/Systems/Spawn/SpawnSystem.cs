@@ -40,6 +40,7 @@ namespace Game.Core.Spawns
 
                     var builder = Spawner.Spawn(config, ecb, m_Container)
                         .WithView()
+                        .WithLogicEnabled(false)
                         .WithComponents(components);
                         
                     if (spawn.Data.IsValid)

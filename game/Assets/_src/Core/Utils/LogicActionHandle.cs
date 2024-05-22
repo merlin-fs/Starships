@@ -11,12 +11,11 @@ namespace Game.Core
     public readonly struct LogicActionHandle: IEquatable<LogicActionHandle>, IComparable<LogicActionHandle>, 
         IBufferElementData, ICustomHandle
     {
-        public int ID => m_ID;
-        private readonly int m_ID;
+        public int ID { get; }
 
         static LogicActionHandle()
         {
-            Manager<LogicActionHandle>.Initialize(type =>
+            Manager<LogicActionHandle>.Initialize((type, args) =>
             {
                 var name = $"{type}";
                 var stringId = $"{type.FullName}";
@@ -40,22 +39,22 @@ namespace Game.Core
 
         public static void Registry(Type type) => Manager<LogicActionHandle>.Registry(type); 
         public static void Registry<T>() where T : Logic.IAction => Registry(typeof(T));
-        private LogicActionHandle(int id) => m_ID = id;   
+        public LogicActionHandle(int id) => ID = id;
 
-        public static bool Equals(LogicActionHandle l1, LogicActionHandle l2) => l1.m_ID == l2.m_ID;
+        public static bool Equals(LogicActionHandle l1, LogicActionHandle l2) => l1.ID == l2.ID;
 
         public override string ToString() => Manager<LogicActionHandle>.GetName(this);
         
-        public bool Equals(LogicActionHandle other) => m_ID == other.m_ID;
+        public bool Equals(LogicActionHandle other) => ID == other.ID;
 
         public override bool Equals(object obj) => obj is LogicActionHandle lh && Equals(lh);
 
-        public override int GetHashCode() => m_ID;
+        public override int GetHashCode() => ID;
 
         public static bool operator ==(LogicActionHandle left, LogicActionHandle right) => left.Equals(right);
 
         public static bool operator !=(LogicActionHandle left, LogicActionHandle right) => !left.Equals(right);
 
-        public int CompareTo(LogicActionHandle other) => m_ID - other.m_ID;
+        public int CompareTo(LogicActionHandle other) => ID - other.ID;
     }
 }

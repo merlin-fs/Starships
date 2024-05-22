@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 using Game.Core;
 
@@ -16,25 +17,23 @@ namespace Game.Model.Logics
         {
             private States m_Preconditions;
             private States m_Effects;
+            private Map<LogicHandle, LogicActionHandle> m_Actions;
             private unsafe byte* m_Data;
-
             public LogicActionHandle Handle { get; }
+            public LogicHandle System { get; }
 
             public float Cost { get; private set; }
 
-            public unsafe GoapAction(LogicActionHandle handle)
+            public unsafe GoapAction(LogicHandle system, LogicActionHandle handle)
             {
                 Handle = handle;
+                System = system;
                 Cost = 1;
                 m_Preconditions = new States(Allocator.Persistent);
                 m_Effects = new States(Allocator.Persistent);
+                m_Actions = new Map<LogicHandle, LogicActionHandle>(1, Allocator.Persistent, true);
+                m_Actions.Add(system, handle);
                 m_Data = null;
-            }
-
-
-            public NativeHashMap<EnumHandle, bool>.ReadOnly GetEffects()
-            {
-                return m_Effects.GetReadOnly();
             }
 
             public void Dispose()
@@ -43,9 +42,11 @@ namespace Game.Model.Logics
                 m_Effects.Dispose();
             }
 
-            public bool CanTransition(States states)
+            
+            public bool TryGetActions<TContext>(TContext context, out IEnumerable<LogicActionHandle> values)
+                where TContext : ILogicContext
             {
-                return m_Preconditions.All(states);
+                return m_Actions.TryGetValues(context.LogicHandle, out values);
             }
 
             public bool CanTransition(DynamicBuffer<WorldState> states, LogicDef def)
@@ -68,11 +69,6 @@ namespace Game.Model.Logics
                 return m_Preconditions;
             }
 
-            public void ApplyEffect(BufferLookup<WorldState> states, LogicDef def)
-            {
-                //states.SetState(m_Effects);
-            }
-
             public bool IsSuccess(DynamicBuffer<WorldState> states, LogicDef def)
             {
                 foreach (var iter in m_Effects.GetReadOnly())
@@ -89,7 +85,7 @@ namespace Game.Model.Logics
 
             public readonly unsafe struct GoalTools
             {
-                private unsafe readonly byte* m_Data;
+                private readonly byte* m_Data;
                 private ref GoapAction Action => ref UnsafeUtility.AsRef<GoapAction>(m_Data);
                 public GoalTools(ref GoapAction action)
                 {
@@ -145,9 +141,9 @@ namespace Game.Model.Logics
                     Action.m_Preconditions.SetState(condition, value);
                 }
 
-                public void AddAction(LogicActionHandle action)
+                public void AddAction(LogicHandle system, LogicActionHandle action)
                 {
-                    //Action.m_Preconditions.SetState(condition, value);
+                    Action.m_Actions.Add(system, action);
                 }
 
                 public void AddEffect(EnumHandle effect, bool value)

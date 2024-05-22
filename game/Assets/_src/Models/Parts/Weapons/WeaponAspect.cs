@@ -6,10 +6,10 @@ using Common.Defs;
 
 using Reflex.Attributes;
 
+using Unity.Assertions;
+
 namespace Game.Model.Weapons
 {
-    using Common.Core;
-
     using Core.Repositories;
     using Stats;
 
@@ -19,7 +19,6 @@ namespace Game.Model.Weapons
         readonly RefRO<Root> m_Root;
         readonly RefRW<Weapon> m_Weapon;
         readonly RefRO<Target> m_Target;
-        readonly RefRO<Target.Query> m_TargetQuery;
         [Optional] readonly RefRO<Bullet> m_Bullet;
         [ReadOnly] readonly DynamicBuffer<Stat> m_Stats;
         public Entity Self => m_Self;
@@ -41,8 +40,6 @@ namespace Game.Model.Weapons
 
         [CreateProperty]
         public Target Target { get => m_Target.ValueRO; }
-        [CreateProperty]
-        public Target.Query TargetQuery { get => m_TargetQuery.ValueRO; }
 
         public Bullet Bullet => m_Bullet.ValueRO;
         public Stat Stat<T>(T stat) where T: struct, IConvertible => m_Stats.GetRO(stat);
@@ -67,14 +64,15 @@ namespace Game.Model.Weapons
             Damage.Apply(Root, Target, m_Bullet.ValueRO, Stat(Weapon.Stats.Damage).Value);
         }
 
-        public bool Reload(IDefinableContext context, int count)
+        public bool Reload(IDefinableContext context, int count, ObjectRepository repository)
         {
             UnityEngine.Debug.Log($"{Self} [Weapon] reload");
             if (m_Bullet.IsValid)
                 m_Bullet.ValueRO.Def.RemoveComponentData(m_Self, m_Bullet.ValueRO, context);
 
-            /* Inject
-            var bulletConfig = m_ObjectRepository.FindByID(m_Weapon.ValueRO.BulletID);
+            var bulletConfig = repository.FindByID(m_Weapon.ValueRO.BulletID);
+            
+            Assert.IsNotNull(bulletConfig, $"{Self} [Weapon] not found {m_Weapon.ValueRO.BulletID}");
 
             if (bulletConfig == null)
                 return false;
@@ -82,8 +80,6 @@ namespace Game.Model.Weapons
             bulletConfig.Configure(m_Self, context);
             m_Weapon.ValueRW.Count = count;
             return count > 0;
-            */
-            return false;
         }
     }
 }

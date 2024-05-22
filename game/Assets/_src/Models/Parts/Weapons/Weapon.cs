@@ -37,6 +37,9 @@ namespace Game.Model.Weapons
         {
             context.AddComponentData(entity, new Target());
             context.AddComponentData(entity, new Target.Query());
+            context.AddComponentData(entity, new Move());
+            context.AddComponentData(entity, new Move.InternalData());
+            
             Count = Def.ClipSize;
         }
         public void RemoveComponentData(Entity entity, IDefinableContext context) { }
@@ -47,6 +50,7 @@ namespace Game.Model.Weapons
         {
             Active,
             HasAmo,
+            TargetLocked,
             Shooting,
         }
 
@@ -73,6 +77,10 @@ namespace Game.Model.Weapons
             /// </summary>
             ReloadTime,
             /// <summary>
+            /// Скорость поворота
+            /// </summary>
+            RotateSpeed,
+            /// <summary>
             /// Дальность
             /// </summary>
             Range,
@@ -85,6 +93,7 @@ namespace Game.Model.Weapons
             public float Health = 5;
             public float Range = 25;
             public float DamageValue = 1;
+            public float RotateSpeed = 0.5f;
             public int BarrelCount;
             public int ClipSize;
             public float Rate = 1;

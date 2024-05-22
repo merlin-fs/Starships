@@ -8,10 +8,10 @@ namespace Game.Model.Weapons
     {
         public struct WeaponInRange : Logic.IAction<Context>
         {
-            public void Execute(ref Context context)
+            public void Execute(Context context)
             {
-                var unitLogic = context.LogicLookup[context.Logic.Root];
-                unitLogic.SetWorldState(Unit.State.WeaponInRange, true);
+                //var unitLogic = context.LogicLookup[context.Weapon.Root];
+                //unitLogic.SetWorldState(Unit.State.WeaponInRange, true);
             }
         }
     }

@@ -1,27 +1,14 @@
-using System;
-using System.Threading.Tasks;
-
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Common.Core;
-
-using Game.Core.Storages;
 
 using Reflex.Core;
 
 
 namespace Game.Core.Prefabs
 {
-    [Serializable, Storage]
-    public partial struct PrefabInfo: IComponentData
+    public partial struct PrefabInfo
     {
-        private Entity m_Entity;
-        public Entity Entity { get => m_Entity; set => m_Entity = value; }
-
-        private ObjectID m_ConfigID;
-        public ObjectID ConfigID { get => m_ConfigID; set => m_ConfigID = value; }
-
         public struct BakedTag : IComponentData {}
 
         public class ContextReference : IComponentData
@@ -29,9 +16,16 @@ namespace Game.Core.Prefabs
             public Container Value;
         }
 
-        public struct BakedLabel : IBufferElementData
+        public struct BakedInnerPathPrefab : IBufferElementData
         {
-            public FixedString64Bytes Label;
+            public FixedString128Bytes Path;
+            public Entity Entity;
+
+            public BakedInnerPathPrefab(Entity entity, string path)
+            {
+                Entity = entity;
+                Path = new FixedString128Bytes(path);
+            }
         }
 
         public struct BakedEnvironment : IComponentData

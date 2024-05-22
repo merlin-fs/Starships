@@ -17,7 +17,6 @@ namespace Game.Model.Logics
             private ILogic logicInst;
             
             public bool IsValid => m_Transitions.Count > 0;
-            public  LogicActionHandle InitializeAction { get; private set; }
 
             public void Initialize()
             {

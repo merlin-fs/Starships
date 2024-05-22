@@ -66,8 +66,8 @@ namespace Game.Core.Storages.Converters
                 {
                     LocalTransform transform = (LocalTransform)GetComponentData(manager, entity, ComponentType.ReadOnly<LocalTransform>());
                     var move = (Move)data;
-                    move.Position = transform.Position;
-                    move.Rotation = transform.Rotation;
+                    //move.Position = transform.Position;
+                    //move.Rotation = transform.Rotation;
                     data = move;
                 }
                 writer.WritePropertyName(type.FullName);

@@ -20,7 +20,7 @@ using UnityEngine.UIElements;
 
 namespace Game.Views.Stats
 {
-    public struct StatView : IComponentData, IStatViewComponent
+    public struct StatView : IComponentData, IStatView
     {
         [Inject] private static Hud.Manager m_HudManager;
         private RefLink<HudHealth> m_Hud;
@@ -44,5 +44,7 @@ namespace Game.Views.Stats
             //!!!m_HudManager.ReleaseHud(Hud);
             //!!!m_Hud.Free();
         }
+
+        public Transform Transform => m_HudManager.WorldCamera.transform;
     }
 }

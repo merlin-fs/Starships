@@ -11,6 +11,8 @@ using Cysharp.Threading.Tasks;
 
 using Game.Core.Repositories;
 
+using JetBrains.Annotations;
+
 using Reflex.Attributes;
 
 using UnityEngine;
@@ -34,7 +36,8 @@ namespace Game.Core.Loading
         }
 
         protected abstract AsyncOperationHandle<IList<T>> GetAsyncOperationHandle(IEnumerable keys);
-        protected abstract IEnumerable<IConfig> CastToConfig(IList<T> result);
+        [NotNull]
+        protected abstract IEnumerable<IConfig> CastToConfig(IEnumerable<T> result);
         
         public Task Execute(ILoadingManager manager)
         {
@@ -48,8 +51,8 @@ namespace Game.Core.Loading
                     {
                         var configs = CastToConfig(result);
                         m_ObjectRepository.Insert(configs, label);
-                        foreach (var iter in configs)
-                            if (iter is IViewPrefab viewPrefab)
+                        foreach (var config in configs)
+                            if (config is IViewPrefab viewPrefab)
                             {
                                 await viewPrefab.GetViewPrefab();
                             }

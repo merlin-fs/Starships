@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using Reflex.Attributes;
@@ -8,7 +8,7 @@ namespace Reflex.Caching
 {
     internal static class TypeAttributeInfoCache
     {
-        private static readonly Dictionary<Type, TypeAttributeInfo> _dictionary = new();
+        private static readonly ConcurrentDictionary<Type, TypeAttributeInfo> _dictionary = new();
         private const BindingFlags Flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
         private const BindingFlags FlagsStatic = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
 
@@ -17,7 +17,7 @@ namespace Reflex.Caching
             if (!_dictionary.TryGetValue(type, out var info))
             {
                 info = Generate(type);
-                _dictionary.Add(type, info);
+                _dictionary.TryAdd(type, info);
             }
     
             return info;

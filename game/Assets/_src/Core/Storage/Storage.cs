@@ -8,6 +8,7 @@ namespace Game.Core.Storages
     public class Storage : IStorage
     {
         [Inject] private Container m_Container;
+        
         public void Load()
         {
             var manager = m_Container.Construct<SaveManager>((SavedContext)"Test");
@@ -28,6 +29,5 @@ namespace Game.Core.Storages
 
             public static implicit operator SavedContext(string name) => new SavedContext(name);
         }
-
     }
 }

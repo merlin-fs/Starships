@@ -16,6 +16,7 @@ namespace Game.Model.Logics
             private Map<GoalHandle, LogicActionHandle> m_Effects = new (10, Allocator.Persistent, true);
             private Dictionary<EnumHandle, WorldActionData> m_StateMapping = new (10);
             private List<Goal> m_Goal = new ();
+            private Dictionary<LogicActionHandle, IAction> m_Actions = new();
            
             ~LogicDef()
             {
@@ -25,13 +26,16 @@ namespace Game.Model.Logics
             public Dictionary<EnumHandle, WorldActionData> StateMapping => m_StateMapping;
             public IEnumerable<Goal> Goals => m_Goal.Reverse<Goal>();
 
-            
-            //TODO: сделать чтобы можно было добавлять только "enum Action"
-            public ConfigTransition AddTransition<T>()
+            public ConfigTransition AddTransition<S, T>()
+                where S: IStateData
                 where T: IAction
             {
-                var config = new ConfigTransition(LogicActionHandle.From<T>(), m_Effects);
+                var config = new ConfigTransition(
+                    LogicHandle.From<S>(), typeof(T), 
+                    m_Effects, 
+                    (handle, type) => m_Actions.Add(handle, (IAction)Activator.CreateInstance(type)));
                 m_Transitions.Add(config.Action.Handle, config);
+                
                 return config;
             }
 
@@ -74,7 +78,7 @@ namespace Game.Model.Logics
                 return false;
             }
 
-            public void SetState<T>(T state, bool value)
+            public void SetWorldState<T>(T state, bool value)
                 where T: struct, IConvertible
             {
                 var handle = EnumHandle.FromEnum(state);
@@ -99,11 +103,16 @@ namespace Game.Model.Logics
                 private GoapAction m_Action;
                 public ref GoapAction Action => ref m_Action;
                 private Map<GoalHandle, LogicActionHandle> m_Hash;
+                private Action<LogicActionHandle, Type> m_AddAction;
 
-                public ConfigTransition(LogicActionHandle value, Map<GoalHandle, LogicActionHandle> hash)
+                public ConfigTransition(LogicHandle logicHandle, Type value, 
+                    Map<GoalHandle, LogicActionHandle> hash, Action<LogicActionHandle, Type> addAction)
                 {
                     m_Hash = hash;
-                    m_Action = new GoapAction(value);
+                    var handle = LogicActionHandle.FromType(value);
+                    m_Action = new GoapAction(logicHandle, handle);
+                    m_AddAction = addAction;
+                    m_AddAction.Invoke(handle, value);
                 }
 
                 //TODO: сделать чтобы можно было добавлять только "enum State"
@@ -114,10 +123,13 @@ namespace Game.Model.Logics
                     return this;
                 }
 
-                public ConfigTransition AddAction<T>()
+                public ConfigTransition AddAction<S, T>()
+                    where S: IStateData
                     where T: IAction
                 {
-                    m_Action.GetWriter().AddAction(LogicActionHandle.From<T>());
+                    var handle = LogicActionHandle.From<T>();
+                    m_Action.GetWriter().AddAction(LogicHandle.From<S>(), handle);
+                    m_AddAction.Invoke(handle, typeof(T));
                     return this;
                 }
 
