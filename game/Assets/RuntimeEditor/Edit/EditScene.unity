@@ -2621,8 +2621,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c7d494f3d5b40b488b5a572a6ac3802, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_DefaultCapacity: 30
-  m_MaxPoolSize: 1000
+  maxPoolSize: 1000
 --- !u!4 &1765300967
 Transform:
   m_ObjectHideFlags: 0

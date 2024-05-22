@@ -31,7 +31,7 @@ namespace Game.Views
                 buffer.Add(new ParticleTrigger
                 {
                     Action = EnumHandle.FromEnum(Weapon.Action.Shoot),
-                    VfxID = new Unity.Entities.Hash128(authoring.Vfx.AssetGUID),
+                    VfxID = new Hash128(authoring.Vfx.AssetGUID),
                     Target = GetEntity(authoring.Target, TransformUsageFlags.Dynamic),
                     Position = authoring.Position, 
                     Rotation = authoring.Rotation, 

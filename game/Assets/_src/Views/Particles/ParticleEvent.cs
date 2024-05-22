@@ -4,16 +4,16 @@ using UnityEngine;
 namespace Game.Views
 {
 
-    [RequireComponent(typeof(UnityEngine.ParticleSystem))]
+    [RequireComponent(typeof(ParticleSystem))]
     public class ParticleEvent : MonoBehaviour
     {
-        private UnityEngine.ParticleSystem m_Particle;
+        private ParticleSystem m_Particle;
 
-        public event Action<UnityEngine.ParticleSystem> OnStop;
+        public event Action<ParticleSystem> OnStop;
 
         private void Awake()
         {
-            m_Particle = GetComponent<UnityEngine.ParticleSystem>();
+            m_Particle = GetComponent<ParticleSystem>();
             var main = m_Particle.main;
             main.stopAction = ParticleSystemStopAction.Callback;
         }

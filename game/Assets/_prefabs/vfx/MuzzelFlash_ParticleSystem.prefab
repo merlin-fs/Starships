@@ -9720,7 +9720,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2019727680754725487}
@@ -14551,6 +14551,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5544345d50e9e3d44becf372ccdfd660, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _id:
+    Value:
+      x: 378089664
+      y: 1254514982
+      z: 2937115530
+      w: 380099036
+  <ParticleSystem>k__BackingField: {fileID: 2218143138980492207}
 --- !u!1 &2021435480750033837
 GameObject:
   m_ObjectHideFlags: 0

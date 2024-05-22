@@ -13,6 +13,7 @@ using Unity.Collections;
 
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using Hash128 = Unity.Entities.Hash128;
 
 namespace Game.Views
 {
@@ -32,11 +33,18 @@ namespace Game.Views
 
             foreach (var iter in values)
             {
-                var vfx = m_RepositoryVfx.GetVfx(iter.VfxID);
-                //m_ParticleManager.Play();
-                //iter
-                //if (animatorValue != Animator.GetBool(animatorParam))
-                //    Animator.SetBool(animatorParam, animatorValue);
+                if (!m_RepositoryVfx.TryGet(iter.VfxID, out var vfx)) return;
+
+                m_ParticleManager.Play(vfx, target =>
+                {
+                    var self = gameObject.FindObjectFromPath(iter.TargetPath.ToString());
+                    if (iter.Position)
+                        target.position = self.transform.position;
+                    if (iter.Scale)
+                        target.localScale = self.transform.lossyScale;
+                    if (iter.Rotation)
+                        target.localRotation = self.transform.rotation;
+                });
             }
         }
 
@@ -44,7 +52,7 @@ namespace Game.Views
         {
             foreach (var iter in m_StateItems)
             {
-                var id = new Unity.Entities.Hash128(iter.Vfx.AssetGUID);
+                var id = new Hash128(iter.Vfx.AssetGUID);
                 m_States.Add(
                     LogicActionHandle.FromType(Type.GetType(iter.State)),
                     new VfxValue 
@@ -61,7 +69,7 @@ namespace Game.Views
 
         private void Start()
         {
-            foreach (var id in m_StateItems.Select(iter => new Unity.Entities.Hash128(iter.Vfx.AssetGUID)))
+            foreach (var id in m_StateItems.Select(iter => new Hash128(iter.Vfx.AssetGUID)))
             {
                 m_RepositoryVfx.CachedVfx(id);
             }

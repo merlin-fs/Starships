@@ -20,7 +20,7 @@ namespace Common.Core
             {
                 builder.Insert(0, iter.name);
                 builder.Insert(0, SEPARATOR);
-            } while ((iter = iter.parent) != rootTransform && iter.parent != rootTransform);
+            } while ((iter = iter.parent) != rootTransform && iter.parent);
             builder.Remove(0, 1);
             return builder.ToString();
         }

@@ -13,7 +13,7 @@ namespace Game.Model.Units
     public partial struct Unit
     {
         [UpdateInGroup(typeof(GameLogicObjectSystemGroup))]
-        public partial struct System : ISystem
+        public partial struct UnitSystem : ISystem
         {
             private EntityQuery m_Query;
             private ComponentLookup<Team> m_LookupTeams;

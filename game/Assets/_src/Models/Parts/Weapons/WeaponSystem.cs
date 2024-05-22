@@ -11,7 +11,7 @@ namespace Game.Model.Weapons
     public partial struct Weapon
     {
         [UpdateInGroup(typeof(GameLogicObjectSystemGroup))]
-        public partial class System : SystemBase
+        public partial class WeaponSystem : SystemBase
         {
             [Inject] private static Container m_Container;
             private static Context.ContextManager<Context> m_ContextManager;
